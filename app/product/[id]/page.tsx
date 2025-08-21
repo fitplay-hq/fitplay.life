@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+"use client";
+
+import { use, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Star, ShoppingCart, Heart, Share2, ChevronDown, ChevronUp, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,44 +8,45 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
-import { useParams } from 'next/navigation';
 import { toast } from "sonner"
 import { addToCartAtom, cartAnimationAtom, getCartItemQuantityAtom, updateCartQuantityByProductAtom } from '@/lib/store';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-export default function ProductPage() {
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+
   const getCartItemQuantity = useAtomValue(getCartItemQuantityAtom);
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(updateCartQuantityByProductAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
   const handleAddToCart = (product: any) => {
-    const result = addToCart(product);
-    setCartAnimation(true);
-    setTimeout(() => setCartAnimation(false), 600);
+    for (let i = 0; i < quantity; i++) {
+      const result = addToCart(product);
+      setCartAnimation(true);
+      setTimeout(() => setCartAnimation(false), 600);
 
-    // Show custom toast notification
-    if (result.wasUpdated) {
-      toast.success(
-        `${product.title} quantity updated!`,
-        {
-          description: `Now you have ${result.newQuantity} in your cart.`,
-          duration: 3000
-        }
-      );
-    } else if (result.isNewItem) {
-      toast.success(
-        `${product.title} added to cart!`,
-        {
-          description: `${product.credits} credits - Great choice for your wellness journey!`,
-          duration: 3000
-        }
-      );
+      // Show custom toast notification
+      if (result.wasUpdated) {
+        toast.success(
+          `${product.title} quantity updated!`,
+          {
+            description: `Now you have ${result.newQuantity} in your cart.`,
+            duration: 3000
+          }
+        );
+      } else if (result.isNewItem) {
+        toast.success(
+          `${product.title} added to cart!`,
+          {
+            description: `${product.credits} credits - Great choice for your wellness journey!`,
+            duration: 3000
+          }
+        );
+      }
     }
   };
 
-
-  const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -228,7 +231,7 @@ export default function ProductPage() {
             {getCartItemQuantity(product.title, product.brand) === 0 ? (
               <Button
                 size="lg"
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart(product)}
                 className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />

@@ -59,13 +59,16 @@ export const addToCartAtom = atom(
     } else {
       // If new product, add to cart with quantity 1
       result.isNewItem = true;
-      const newItem = { 
-        ...product, 
+      const newItem: CartItem = {
         id: Date.now() + Math.random(), // Ensure unique ID
-        quantity: 1 
+        title: product.title,
+        brand: product.brand,
+        credits: product.credits,
+        image: product.image || product.images?.[0] || '',
+        quantity: 1
       };
       result.item = newItem;
-      
+
       set(cartItemsAtom, [...currentItems, newItem]);
     }
     

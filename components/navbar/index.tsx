@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+"use client"
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, ShoppingCart } from 'lucide-react';
+import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobileMenu } from './mobile-menu';
 import { CartButton } from './cart-button';

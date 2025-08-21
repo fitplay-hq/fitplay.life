@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
-import { useToast } from '@/components/ToastManager';
+import { toast } from 'sonner'
 
 interface WellnessStoreProps {
   addToCart: (product: any) => void;
@@ -32,7 +32,6 @@ export default function WellnessStore({ }: WellnessStoreProps) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartAnimation, setCartAnimation] = useState(false);
   const [userCredits, setUserCredits] = useState(500); // Initial credits for demo
-  const { toasts, removeToast, toast } = useToast();
 
   const addToCart = (product: any) => {
     let wasUpdated = false;
@@ -73,14 +72,18 @@ export default function WellnessStore({ }: WellnessStoreProps) {
     if (wasUpdated) {
       toast.success(
         `${product.title} quantity updated!`,
-        `Now you have ${newQuantity} in your cart.`,
-        3000
+        {
+          description: `Now you have ${newQuantity} in your cart.`,
+          duration: 3000
+        }
       );
     } else if (isNewItem) {
       toast.success(
         `${product.title} added to cart!`,
-        `${product.credits} credits - Great choice for your wellness journey!`,
-        3000
+        {
+          description: `${product.credits} credits - Great choice for your wellness journey!`,
+          duration: 3000
+        }
       );
     }
   };
@@ -125,11 +128,7 @@ export default function WellnessStore({ }: WellnessStoreProps) {
     setCartItems(prev => prev.filter(item => item.id !== id));
     
     if (removedItem) {
-      toast.info(
-        `${removedItem.title} removed from cart`,
-        undefined,
-        2000
-      );
+      toast.info(`${removedItem.title} removed from cart`);
     }
   };
 

@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { useParams } from 'next/navigation';
-import { useToast } from '@/components/ToastManager';
+import { toast } from "sonner"
 
 interface ProductDetailProps {
   addToCart: (product: any) => void;
@@ -40,15 +40,9 @@ export default function ProductPage() {
     setCartItems(prev => prev.filter(item => item.id !== id));
     
     if (removedItem) {
-      toast.info(
-        `${removedItem.title} removed from cart`,
-        undefined,
-        2000
-      );
+      toast.info(`${removedItem.title} removed from cart`);
     }
   };
-
-  const { toast } = useToast()
 
   const addToCart = (product: any) => {
     let wasUpdated = false;
@@ -89,14 +83,18 @@ export default function ProductPage() {
     if (wasUpdated) {
       toast.success(
         `${product.title} quantity updated!`,
-        `Now you have ${newQuantity} in your cart.`,
-        3000
+        {
+          description: `Now you have ${newQuantity} in your cart.`,
+          duration: 3000
+        }
       );
     } else if (isNewItem) {
       toast.success(
         `${product.title} added to cart!`,
-        `${product.credits} credits - Great choice for your wellness journey!`,
-        3000
+        {
+          description: `${product.credits} credits - Great choice for your wellness journey!`,
+          duration: 3000
+        }
       );
     }
   };

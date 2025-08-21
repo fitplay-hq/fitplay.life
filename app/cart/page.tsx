@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { CreditPurchase } from '@/components/CreditPurchase';
-import { useToast } from '@/components/ToastManager';
+import { toast } from "sonner"
 
 interface CartItem {
   id: number;
@@ -25,25 +25,22 @@ interface CartItem {
 
 export default function CartPage() {
   const [userCredits, setUserCredits] = useState(500); // Initial credits for demo
-  const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const handleCreditPurchase = (newCredits: number) => {
     setUserCredits(newCredits);
     toast.success(
       "Credits purchased successfully!",
-      `Your new balance is ${newCredits} credits.`,
-      3000
+      {
+        description: "Your new balance is ${newCredits} credits.",
+        duration: 3000
+      }
     );
   };
 
   const clearCart = () => {
     setCartItems([]);
-    toast.success(
-      "Cart cleared successfully!",
-      undefined,
-      2000
-    );
+    toast.success("Cart cleared successfully!");
   };
 
   const removeFromCart = (id: number) => {
@@ -51,10 +48,7 @@ export default function CartPage() {
     setCartItems(prev => prev.filter(item => item.id !== id));
     
     if (removedItem) {
-      toast.info(
-        `${removedItem.title} removed from cart`,
-        undefined,
-        2000
+      toast.info(`${removedItem.title} removed from cart`,
       );
     }
   };

@@ -8,87 +8,30 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { useParams } from 'next/navigation';
 import { toast } from "sonner"
-
-interface ProductDetailProps {
-  addToCart: (product: any) => void;
-  getCartItemQuantity: (title: string, brand: string) => number;
-  updateCartQuantity: (title: string, brand: string, quantity: number) => void;
-}
-
-interface CartItem {
-  id: number;
-  title: string;
-  brand: string;
-  credits: number;
-  image: string;
-  quantity: number;
-}
+import { addToCartAtom, cartAnimationAtom, getCartItemQuantityAtom, updateCartQuantityByProductAtom } from '@/lib/store';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 export default function ProductPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartAnimation, setCartAnimation] = useState(false);
+  const getCartItemQuantity = useAtomValue(getCartItemQuantityAtom);
+  const addToCart = useSetAtom(addToCartAtom);
+  const updateCartQuantityByProduct = useSetAtom(updateCartQuantityByProductAtom);
+  const setCartAnimation = useSetAtom(cartAnimationAtom);
 
-  const getCartItemQuantity = (productTitle: string, productBrand: string): number => {
-    const item = cartItems.find(item => 
-      item.title === productTitle && item.brand === productBrand
-    );
-    return item ? item.quantity : 0;
-  };
-
-  const removeFromCart = (id: number) => {
-    const removedItem = cartItems.find(item => item.id === id);
-    setCartItems(prev => prev.filter(item => item.id !== id));
-    
-    if (removedItem) {
-      toast.info(`${removedItem.title} removed from cart`);
-    }
-  };
-
-  const addToCart = (product: any) => {
-    let wasUpdated = false;
-    let isNewItem = false;
-    let newQuantity = 1;
-    
-    setCartItems(prev => {
-      // Check if product already exists in cart
-      const existingItem = prev.find(item => 
-        item.title === product.title && item.brand === product.brand
-      );
-      
-      if (existingItem) {
-        // If exists, increment quantity
-        wasUpdated = true;
-        newQuantity = existingItem.quantity + 1;
-        return prev.map(item =>
-          item.title === product.title && item.brand === product.brand
-            ? { ...item, quantity: newQuantity }
-            : item
-        );
-      } else {
-        // If new product, add to cart with quantity 1
-        isNewItem = true;
-        return [...prev, { 
-          ...product, 
-          id: Date.now() + Math.random(), // Ensure unique ID
-          quantity: 1 
-        }];
-      }
-    });
-
-    // Trigger cart animation
+  const handleAddToCart = (product: any) => {
+    const result = addToCart(product);
     setCartAnimation(true);
     setTimeout(() => setCartAnimation(false), 600);
 
     // Show custom toast notification
-    if (wasUpdated) {
+    if (result.wasUpdated) {
       toast.success(
         `${product.title} quantity updated!`,
         {
-          description: `Now you have ${newQuantity} in your cart.`,
+          description: `Now you have ${result.newQuantity} in your cart.`,
           duration: 3000
         }
       );
-    } else if (isNewItem) {
+    } else if (result.isNewItem) {
       toast.success(
         `${product.title} added to cart!`,
         {
@@ -155,33 +98,6 @@ export default function ProductPage() {
       answer: 'Yes, these adjustable dumbbells are perfect for full-body workouts including arms, chest, back, shoulders, and legs.'
     }
   ];
-
-  const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
-    }
-  };
-
-  const updateCartQuantityByProduct = (productTitle: string, productBrand: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      // Remove item if quantity is 0
-      const itemToRemove = cartItems.find(item => 
-        item.title === productTitle && item.brand === productBrand
-      );
-      if (itemToRemove) {
-        removeFromCart(itemToRemove.id);
-      }
-    } else {
-      setCartItems(prev =>
-        prev.map(item =>
-          item.title === productTitle && item.brand === productBrand
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
-    }
-  };
-
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -322,8 +238,11 @@ export default function ProductPage() {
               <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center border-2 border-emerald-300 rounded-lg bg-emerald-50">
                   <button
-                    onClick={() => updateCartQuantityByProduct(product.title, product.brand, 
-                      getCartItemQuantity(product.title, product.brand) - 1)}
+                    onClick={() => updateCartQuantityByProduct({
+                      title: product.title,
+                      brand: product.brand,
+                      quantity: getCartItemQuantity(product.title, product.brand) - 1
+                    })}
                     className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"
                   >
                     <Minus className="w-5 h-5" />
@@ -332,8 +251,11 @@ export default function ProductPage() {
                     {getCartItemQuantity(product.title, product.brand)}
                   </span>
                   <button
-                    onClick={() => updateCartQuantityByProduct(product.title, product.brand, 
-                      getCartItemQuantity(product.title, product.brand) + 1)}
+                    onClick={() => updateCartQuantityByProduct({
+                      title: product.title,
+                      brand: product.brand,
+                      quantity: getCartItemQuantity(product.title, product.brand) + 1
+                    })}
                     className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"
                   >
                     <Plus className="w-5 h-5" />

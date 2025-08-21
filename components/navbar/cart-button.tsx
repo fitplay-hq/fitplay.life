@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { cartAnimationAtom, cartCountAtom } from "@/lib/store";
 import { cn } from "@/lib/utils";

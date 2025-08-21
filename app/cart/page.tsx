@@ -13,52 +13,41 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { CreditPurchase } from '@/components/CreditPurchase';
 import { toast } from "sonner"
-
-interface CartItem {
-  id: number;
-  title: string;
-  brand: string;
-  credits: number;
-  image: string;
-  quantity: number;
-}
+import { cartItemsAtom, clearCartAtom, purchaseCreditsAtom, removeFromCartAtom, updateCartQuantityAtom, userCreditsAtom } from '@/lib/store';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 export default function CartPage() {
-  const [userCredits, setUserCredits] = useState(500); // Initial credits for demo
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const userCredits = useAtomValue(userCreditsAtom);
+  const purchaseCredits = useSetAtom(purchaseCreditsAtom);
 
-  const handleCreditPurchase = (newCredits: number) => {
-    setUserCredits(newCredits);
+  const cartItems = useAtomValue(cartItemsAtom);
+  const clearCart = useSetAtom(clearCartAtom);
+  const removeFromCart = useSetAtom(removeFromCartAtom);
+  const updateCartQuantity = useSetAtom(updateCartQuantityAtom);
+
+  const handleCreditPurchase = (credits: number) => {
+    const newCredits = purchaseCredits(credits);
     toast.success(
       "Credits purchased successfully!",
       {
-        description: "Your new balance is ${newCredits} credits.",
+        description: `Your new balance is ${newCredits} credits.`,
         duration: 3000
       }
     );
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const handleClearCart = () => {
+    clearCart();
     toast.success("Cart cleared successfully!");
   };
 
-  const removeFromCart = (id: number) => {
-    const removedItem = cartItems.find(item => item.id === id);
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const handleRemoveFromCart = (id: number) => {
+    const removedItem = removeFromCart(id)
     
     if (removedItem) {
       toast.info(`${removedItem.title} removed from cart`,
       );
     }
-  };
-
-  const updateCartQuantity = (id: number, quantity: number) => {
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
   };
 
   const [currentStep, setCurrentStep] = useState<'cart' | 'address' | 'confirmation'>('cart');
@@ -81,14 +70,6 @@ export default function CartPage() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const creditsShortfall = Math.max(0, totalCredits - userCredits);
   const hasEnoughCredits = creditsShortfall === 0;
-
-  const handleQuantityChange = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeFromCart(id);
-    } else {
-      updateCartQuantity(id, newQuantity);
-    }
-  };
 
   const validateAddress = () => {
     return address.fullName && address.email && address.phone && 
@@ -179,7 +160,7 @@ export default function CartPage() {
                   <ShoppingBag className="w-5 h-5 mr-2" />
                   Your Cart ({totalItems} items)
                 </CardTitle>
-                <Button variant="outline" size="sm" onClick={clearCart}>
+                <Button variant="outline" size="sm" onClick={handleClearCart}>
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Cart
                 </Button>
@@ -204,21 +185,27 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => handleRemoveFromCart(item.id)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                         <div className="flex items-center border border-gray-300 rounded">
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                            onClick={() => updateCartQuantity({
+                              id: item.id,
+                              quantity: item.quantity - 1
+                            })}
                             className="px-2 py-1 hover:bg-gray-50"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
                           <span className="px-3 py-1 border-x border-gray-300">{item.quantity}</span>
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                            onClick={() => updateCartQuantity({
+                              id: item.id,
+                              quantity: item.quantity + 1
+                            })}
                             className="px-2 py-1 hover:bg-gray-50"
                           >
                             <Plus className="w-4 h-4" />

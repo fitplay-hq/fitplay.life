@@ -12,72 +12,33 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from 'sonner'
+import { useAtomValue, useSetAtom } from 'jotai';
+import { addToCartAtom, cartAnimationAtom, getCartItemQuantityAtom, updateCartQuantityByProductAtom } from '@/lib/store';
 
-interface WellnessStoreProps {
-  addToCart: (product: any) => void;
-  getCartItemQuantity: (title: string, brand: string) => number;
-  updateCartQuantity: (title: string, brand: string, quantity: number) => void;
-}
+export default function WellnessStore() {
+  const addToCart = useSetAtom(addToCartAtom);
+  const updateCartQuantityByProduct = useSetAtom(updateCartQuantityByProductAtom);
+  const getCartItemQuantity = useAtomValue(getCartItemQuantityAtom);
 
-interface CartItem {
-  id: number;
-  title: string;
-  brand: string;
-  credits: number;
-  image: string;
-  quantity: number;
-}
+  const setCartAnimation = useSetAtom(cartAnimationAtom);
 
-export default function WellnessStore({ }: WellnessStoreProps) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartAnimation, setCartAnimation] = useState(false);
-  const [userCredits, setUserCredits] = useState(500); // Initial credits for demo
-
-  const addToCart = (product: any) => {
-    let wasUpdated = false;
-    let isNewItem = false;
-    let newQuantity = 1;
-    
-    setCartItems(prev => {
-      // Check if product already exists in cart
-      const existingItem = prev.find(item => 
-        item.title === product.title && item.brand === product.brand
-      );
-      
-      if (existingItem) {
-        // If exists, increment quantity
-        wasUpdated = true;
-        newQuantity = existingItem.quantity + 1;
-        return prev.map(item =>
-          item.title === product.title && item.brand === product.brand
-            ? { ...item, quantity: newQuantity }
-            : item
-        );
-      } else {
-        // If new product, add to cart with quantity 1
-        isNewItem = true;
-        return [...prev, { 
-          ...product, 
-          id: Date.now() + Math.random(), // Ensure unique ID
-          quantity: 1 
-        }];
-      }
-    });
+  const handleAddToCart = (product: any) => {
+    const result = addToCart(product);
 
     // Trigger cart animation
     setCartAnimation(true);
     setTimeout(() => setCartAnimation(false), 600);
 
     // Show custom toast notification
-    if (wasUpdated) {
+    if (result.wasUpdated) {
       toast.success(
         `${product.title} quantity updated!`,
         {
-          description: `Now you have ${newQuantity} in your cart.`,
+          description: `Now you have ${result.newQuantity} in your cart.`,
           duration: 3000
         }
       );
-    } else if (isNewItem) {
+    } else if (result.isNewItem) {
       toast.success(
         `${product.title} added to cart!`,
         {
@@ -88,55 +49,10 @@ export default function WellnessStore({ }: WellnessStoreProps) {
     }
   };
 
-  const updateCartQuantityByProduct = (productTitle: string, productBrand: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      // Remove item if quantity is 0
-      const itemToRemove = cartItems.find(item => 
-        item.title === productTitle && item.brand === productBrand
-      );
-      if (itemToRemove) {
-        removeFromCart(itemToRemove.id);
-      }
-    } else {
-      setCartItems(prev =>
-        prev.map(item =>
-          item.title === productTitle && item.brand === productBrand
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
-    }
-  };
-
-  const getCartItemQuantity = (productTitle: string, productBrand: string): number => {
-    const item = cartItems.find(item => 
-      item.title === productTitle && item.brand === productBrand
-    );
-    return item ? item.quantity : 0;
-  };
-
-  const updateCartQuantity = (id: number, quantity: number) => {
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const removeFromCart = (id: number) => {
-    const removedItem = cartItems.find(item => item.id === id);
-    setCartItems(prev => prev.filter(item => item.id !== id));
-    
-    if (removedItem) {
-      toast.info(`${removedItem.title} removed from cart`);
-    }
-  };
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [filtersOpen, setFiltersOpen] = useState(true);
   const [brandsOpen, setBrandsOpen] = useState(true);
 
   const products = [
@@ -247,7 +163,7 @@ export default function WellnessStore({ }: WellnessStoreProps) {
       return (
         <Button
           size="sm"
-          onClick={() => addToCart(product)}
+          onClick={() => handleAddToCart(product)}
           className="w-full bg-emerald-500 hover:bg-emerald-600 transition-all duration-200 hover:scale-105 active:scale-95"
         >
           Add to Cart
@@ -258,7 +174,11 @@ export default function WellnessStore({ }: WellnessStoreProps) {
     return (
       <div className="flex items-center border border-emerald-300 rounded-lg bg-emerald-50 w-full">
         <button
-          onClick={() => updateCartQuantityByProduct(product.title, product.brand, quantity - 1)}
+          onClick={() => updateCartQuantityByProduct({
+            title: product.title,
+            brand: product.brand,
+            quantity: Math.max(0, quantity - 1)
+          })}
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
         >
           <Minus className="w-4 h-4" />
@@ -267,7 +187,11 @@ export default function WellnessStore({ }: WellnessStoreProps) {
           {quantity}
         </span>
         <button
-          onClick={() => updateCartQuantityByProduct(product.title, product.brand, quantity + 1)}
+          onClick={() => updateCartQuantityByProduct({
+            title: product.title,
+            brand: product.brand,
+            quantity: Math.max(0, quantity + 1)
+          })}
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
         >
           <Plus className="w-4 h-4" />

@@ -2,8 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
-import { useState } from "react";
+import { Navbar } from "@/components/navbar";
 import { ToastManager, useToast } from "@/components/ToastManager";
 
 const geistSans = Geist({
@@ -35,11 +34,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartAnimation, setCartAnimation] = useState(false);
   const { toasts, removeToast } = useToast();
-
-  const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <html lang="en">
@@ -47,7 +42,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="min-h-screen bg-background">
-          <Navbar cartCount={totalCartItems} cartAnimation={cartAnimation} />
+          <Navbar />
           <ToastManager toasts={toasts} removeToast={removeToast} />
 
           <main className="pt-16">

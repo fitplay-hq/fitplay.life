@@ -146,7 +146,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/store">
+              <Link href="/login">
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-10 py-5 text-xl"

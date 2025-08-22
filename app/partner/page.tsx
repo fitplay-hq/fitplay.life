@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { ArrowRight, Building2, Users, Target, TrendingUp, CheckCircle, Star, Award, Shield, Zap, Clock, HeartHandshake, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowRight, Building2, Users, Target, TrendingUp, CheckCircle, Star, Shield, Zap, Clock, HeartHandshake, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -130,7 +130,7 @@ export default function PartnerWithUs() {
                 <span className="text-emerald-600">Wellness Program</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                Join India's leading corporate wellness marketplace and provide your employees with 
+                Join India&apos;s leading corporate wellness marketplace and provide your employees with 
                 access to premium health products, diagnostics, and wellness services through smart rewards.
               </p>
             </div>
@@ -176,7 +176,7 @@ export default function PartnerWithUs() {
                 About FitPlay
               </h2>
               <p className="text-lg text-gray-600">
-                FitPlay is India's premier B2B wellness marketplace, designed exclusively for corporate employee 
+                FitPlay is India&apos;s premier B2B wellness marketplace, designed exclusively for corporate employee 
                 wellness programs. We bridge the gap between companies wanting to invest in employee health and 
                 employees seeking convenient access to premium wellness products and services.
               </p>
@@ -289,7 +289,7 @@ export default function PartnerWithUs() {
                         <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-gray-700 italic">"{testimonial.quote}"</p>
+                    <p className="text-gray-700 italic">&quot;{testimonial.quote}&quot;</p>
                     <div className="flex items-center space-x-3">
                       <img 
                         src={testimonial.image} 

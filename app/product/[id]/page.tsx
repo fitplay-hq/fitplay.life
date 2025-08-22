@@ -2,7 +2,7 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Star, ShoppingCart, Heart, Share2, ChevronDown, ChevronUp, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, Star, ShoppingCart, Heart, Share2, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,7 +20,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const updateCartQuantityByProduct = useSetAtom(updateCartQuantityByProductAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       const result = addToCart(product);
       setCartAnimation(true);
@@ -231,7 +231,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             {getCartItemQuantity(product.title, product.brand) === 0 ? (
               <Button
                 size="lg"
-                onClick={() => handleAddToCart(product)}
+                onClick={handleAddToCart}
                 className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />

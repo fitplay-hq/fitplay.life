@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, Dumbbell, Apple, Stethoscope, Users, CreditCard, ShoppingBag, Award, Star, CheckCircle, TrendingUp, Shield, Zap, Building2 } from 'lucide-react';
+import { ArrowRight, Heart, Dumbbell, Apple, Stethoscope, Users, CreditCard, ShoppingBag, Award, Star, CheckCircle, TrendingUp, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -227,7 +227,7 @@ export default function HomePage() {
               Featured Offers
             </h2>
             <p className="text-gray-600">
-              Don't miss out on these exclusive wellness deals
+              Don&apos;t miss out on these exclusive wellness deals
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -410,7 +410,7 @@ export default function HomePage() {
                         <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-gray-700 italic text-lg leading-relaxed">"{testimonial.quote}"</p>
+                    <p className="text-gray-700 italic text-lg leading-relaxed">&quot;{testimonial.quote}&quot;</p>
                     <div className="flex items-center space-x-4">
                       <img 
                         src={testimonial.image} 

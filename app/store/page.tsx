@@ -325,7 +325,7 @@ export default function WellnessStore() {
           <div className="flex items-center justify-between mb-8">
             <p className="text-gray-600 text-lg">
               Showing {sortedProducts.length} of {products.length} products
-              {searchTerm && <span> for "{searchTerm}"</span>}
+              {searchTerm && <span> for &quot;{searchTerm}&quot;</span>}
               {selectedCategory !== 'all' && <span> in {selectedCategory}</span>}
             </p>
           </div>

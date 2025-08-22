@@ -42,4 +42,4 @@ yarn-error.log*
 next-env.d.ts
 
 Fitplay.life - Milestone.md
-/app/generated/prisma
+lib/generated/prisma

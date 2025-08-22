@@ -9,7 +9,6 @@ export default function RootLayout({
   return (
     <div className="min-h-screen bg-background">
         <Navbar />
-        <Toaster />
 
         <main className="pt-16">
             {children}

@@ -14,15 +14,36 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from 'sonner'
 import { useAtomValue, useSetAtom } from 'jotai';
 import { addToCartAtom, cartAnimationAtom, getCartItemQuantityAtom, updateCartQuantityByProductAtom } from '@/lib/store';
+import { useAuth } from '@/components/auth-context';
 
 export default function WellnessStore() {
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(updateCartQuantityByProductAtom);
   const getCartItemQuantity = useAtomValue(getCartItemQuantityAtom);
 
+  const { user } = useAuth()
+
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
   const handleAddToCart = (product: any) => {
+    // Check if user is logged in
+    if (!user) {
+      toast.error(
+        'Login Required',
+        {
+          description: 'You need to log in to add items to your cart.',
+          duration: 5000,
+          action: {
+            label: 'Login',
+            onClick: () => {
+              window.location.href = '/login';
+            }
+          }
+        }
+      );
+      return;
+    }
+
     const result = addToCart(product);
 
     // Trigger cart animation
@@ -333,8 +354,8 @@ export default function WellnessStore() {
           {/* Product Grid - Limited to 3 columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedProducts.map((product, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full border-0 shadow-md">
-                <div className="aspect-square overflow-hidden rounded-t-xl bg-gray-100">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0">
+                <div className="overflow-hidden rounded-t-xl bg-gray-100 aspect-3/2">
                   <Link href={`/product/${index + 1}`}>
                     <ImageWithFallback
                       src={product.image}
@@ -343,8 +364,8 @@ export default function WellnessStore() {
                     />
                   </Link>
                 </div>
-                <CardContent className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between mb-3">
+                <CardContent className='space-y-2'>
+                  <div className="flex items-start justify-between mb-2">
                     <Badge variant="secondary" className="text-emerald-600 bg-emerald-50 font-medium">
                       {product.brand}
                     </Badge>
@@ -355,15 +376,13 @@ export default function WellnessStore() {
                     </div>
                   </div>
                   <Link href={`/product/${index + 1}`}>
-                    <h3 className="text-primary hover:text-emerald-600 transition-colors line-clamp-2 mb-4 text-lg leading-snug">
+                    <h3 className="text-primary hover:text-emerald-600 transition-colors line-clamp-2 text-lg leading-snug">
                       {product.title}
                     </h3>
                   </Link>
-                  <div className="mt-auto mb-4">
-                    <span className="text-xl font-bold text-emerald-600">{product.credits} credits</span>
-                  </div>
+                  <span className="text-lg font-bold text-emerald-600">{product.credits} credits</span>
                 </CardContent>
-                <CardFooter className="p-6 pt-0 mt-auto">
+                <CardFooter>
                   <QuantitySelector product={product} />
                 </CardFooter>
               </Card>

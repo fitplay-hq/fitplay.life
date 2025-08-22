@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobileMenu } from './mobile-menu';
 import { CartButton } from './cart-button';
 import { NavLinks } from './nav-links';
+import { LoginForm } from '@/components/login-form';
+import { useAuth } from '@/components/auth-context';
+import Logo from '../logo';
 
 interface NavItem {
   name: string;
@@ -24,12 +30,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-          {/* TODO: request assets from figma */}
-            {/* <img 
-              src={} 
-              alt="FitPlay" 
-              className="h-15 w-auto"
-            /> */}
+            <Logo />
           </Link>
 
           {/* Desktop Navigation */}

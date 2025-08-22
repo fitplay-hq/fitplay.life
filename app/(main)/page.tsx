@@ -232,14 +232,14 @@ export default function HomePage() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredOffers.map((offer) => (
-              <Card key={offer.id} className="hover:shadow-lg transition-shadow">
+              <Card key={offer.id} className="hover:shadow-lg transition-shadow py-0">
                 <CardContent className="p-0">
                   <ImageWithFallback
                     src={offer.image}
                     alt={offer.title}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />
-                  <div className="p-6 space-y-3">
+                  <div className="p-6 space-y-2">
                     <div className="text-sm text-gray-500">{offer.brand}</div>
                     <h3 className="text-primary">{offer.title}</h3>
                     <div className="flex items-center space-x-2">
@@ -249,9 +249,6 @@ export default function HomePage() {
                         Great Value
                       </span>
                     </div>
-                    <Button className="w-full bg-emerald-500 hover:bg-emerald-600">
-                      Add to Cart
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobileMenu } from './mobile-menu';
 import { CartButton } from './cart-button';
 import { NavLinks } from './nav-links';
+import { LoginForm } from '@/components/login-form';
+import { useAuth } from '@/components/auth-context';
+import Logo from '../logo';
 
 interface NavItem {
   name: string;
@@ -18,18 +24,15 @@ const NAV_ITEMS: readonly NavItem[] = [
 ] as const;
 
 export function Navbar() {
+  const { user } = useAuth();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-          {/* TODO: request assets from figma */}
-            {/* <img 
-              src={} 
-              alt="FitPlay" 
-              className="h-15 w-auto"
-            /> */}
+            <Logo />
           </Link>
 
           {/* Desktop Navigation */}
@@ -37,7 +40,7 @@ export function Navbar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            <CartButton />
+            {user && <CartButton />}
 
             {/* Partner with Us Button */}
             <Link href="/partner">

@@ -10,16 +10,12 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/components/auth-context';
+import { redirect } from 'next/navigation';
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    name: 'Aditya Narang',
-    email: 'aditya@fitplay.life',
-    department: 'Operations',
-    employeeId: 'EMP-2025-001',
-    joinDate: '2025-08-01'
-  });
+  const { user, setUser, logout } = useAuth();
 
   const [notifications, setNotifications] = useState({
     email: true,
@@ -111,23 +107,31 @@ export default function ProfilePage() {
     // Here you would save to backend
   };
 
+  const handleLogout = () => {
+    logout()
+  }
+
+  if (!user) {
+    redirect('/login');
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div className="flex items-center space-x-4 mb-4 md:mb-0">
           <Avatar className="w-16 h-16">
-            <AvatarImage src={`https://ui-avatars.com/api/?name=${userInfo.name}&background=3b82f6&color=fff`} />
+            <AvatarImage src={`https://ui-avatars.com/api/?name=${user.name}&background=3b82f6&color=fff`} />
             <AvatarFallback className="bg-blue-600 text-white text-xl">
-              {userInfo.name.split(' ').map(n => n[0]).join('')}
+              {user.name.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="text-3xl text-primary">{userInfo.name}</h1>
-            <p className="text-gray-600">{userInfo.department} • {userInfo.employeeId}</p>
+            <h1 className="text-3xl text-primary">{user.name}</h1>
+            <p className="text-gray-600">{user.department} • {user.employeeId}</p>
           </div>
         </div>
-        <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+        <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50" onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" />
           Log Out
         </Button>
@@ -254,26 +258,26 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label>Full Name</Label>
                   <Input
-                    value={userInfo.name}
+                    value={user.name}
                     disabled={!isEditing}
-                    onChange={(e) => setUserInfo({...userInfo, name: e.target.value})}
+                    onChange={(e) => setUser({...user, name: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input
-                    value={userInfo.email}
+                    value={user.email}
                     disabled={!isEditing}
-                    onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
+                    onChange={(e) => setUser({...user, email: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Department</Label>
-                  <Input value={userInfo.department} disabled />
+                  <Input value={user.department} disabled />
                 </div>
                 <div className="space-y-2">
                   <Label>Employee ID</Label>
-                  <Input value={userInfo.employeeId} disabled />
+                  <Input value={user.employeeId} disabled />
                 </div>
                 {isEditing && (
                   <Button onClick={handleSaveProfile} className="w-full">

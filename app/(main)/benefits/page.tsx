@@ -1,11 +1,16 @@
+'use client';
+
 import { Calendar, Clock, CreditCard, Gift, TrendingUp, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { useAuth } from '@/components/auth-context';
 
 export default function BenefitsPage() {
+  const { user } = useAuth();
+
   const creditBalance = {
     total: 500,
     used: 180,
@@ -98,6 +103,7 @@ export default function BenefitsPage() {
       </div>
 
       {/* Credit Balance Overview */}
+      {user && <>
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
           <CardContent className="p-6">
@@ -145,7 +151,6 @@ export default function BenefitsPage() {
         </Card>
       </div>
 
-      {/* Credit Usage Progress */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
@@ -168,6 +173,8 @@ export default function BenefitsPage() {
           </div>
         </CardContent>
       </Card>
+      </>
+      }
 
       {/* Redeemable Items */}
       <div className="mb-8">
@@ -219,6 +226,7 @@ export default function BenefitsPage() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Credit History */}
+        {user &&
         <Card>
           <CardHeader>
             <CardTitle>Credit History</CardTitle>
@@ -250,6 +258,7 @@ export default function BenefitsPage() {
             </div>
           </CardContent>
         </Card>
+        }
 
         {/* Company Info */}
         <Card>

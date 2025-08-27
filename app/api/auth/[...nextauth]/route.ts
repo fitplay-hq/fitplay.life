@@ -2,10 +2,13 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import prisma from "@/lib/prisma";
-import { $Enums } from "@/app/generated/prisma";
+import { $Enums } from "@/lib/generated/prisma";
+
+type UserRole = $Enums.Role;
 
 const handler = NextAuth({
   providers: [
+    // For hr/employee
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -38,6 +41,45 @@ const handler = NextAuth({
         };
       },
     }),
+
+    // Admin login provider
+    CredentialsProvider({
+      name: "Admin",
+      credentials: {
+        email: { label: "Email", type: "text", placeholder: "Enter admin email" },
+        password: { label: "Password", type: "password", placeholder: "Enter admin password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+
+        if (credentials.email !== process.env.ADMIN_EMAIL) {
+          throw new Error("Unauthorized admin email");
+        }
+
+        const admin = await prisma.admin.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!admin) {
+          throw new Error("No admin found");
+        }
+
+        const isValid = await compare(credentials.password, admin.password);
+
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+
+        return {
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          role: $Enums.Role.ADMIN
+        };
+      },
+    })
   ],
   session: {
     strategy: "jwt",
@@ -55,11 +97,11 @@ const handler = NextAuth({
       if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
-        session.user.role = token.role as $Enums.Role;
+        session.user.role = token.role as UserRole;
       }
       return session;
     },
   },
 });
 
-export {handler as GET, handler as POST}
+export { handler as GET, handler as POST }

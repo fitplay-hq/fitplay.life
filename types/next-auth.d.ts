@@ -1,11 +1,12 @@
-import NextAuth, { DefaultSession } from "next-auth"
+// types/next-auth.d.ts or lib/auth.d.ts
+import { DefaultSession } from "next-auth"
 import { $Enums } from "@/lib/generated/prisma"
 
 declare module "next-auth" {
   interface Session {
     user: {
       id: string
-      name: string
+      name?: string
       email: string
       role: $Enums.Role
     } & DefaultSession["user"]
@@ -13,23 +14,17 @@ declare module "next-auth" {
 
   interface User {
     id: string
-    name: string
+    name?: string // Make optional since it might not always be present
     email: string
-    role?: $Enums.Role  // Make role optional since admin won't have it
-    password?: string
+    role: $Enums.Role // Remove optional since we always set it
   }
+}
 
-  interface AdminUser {
+declare module "next-auth/jwt" {
+  interface JWT {
     id: string
-    name: string
+    name?: string
     email: string
-    password?: string
-    role?: $Enums.Role.ADMIN
-  }
-
-  interface UserCredentials {
-    email: string
-    password: string
-    isAdmin?: boolean  // To differentiate between admin and regular user login
+    role: $Enums.Role
   }
 }

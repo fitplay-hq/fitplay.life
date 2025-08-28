@@ -1,3 +1,4 @@
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
@@ -10,6 +11,7 @@ const handler = NextAuth({
   providers: [
     // For hr/employee
     CredentialsProvider({
+      id: "users",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "Enter your email" },
@@ -33,6 +35,7 @@ const handler = NextAuth({
         if (!isValid) {
           throw new Error("Invalid password");
         }
+
         return {
           id: user.id,
           name: user.name,
@@ -44,6 +47,7 @@ const handler = NextAuth({
 
     // Admin login provider
     CredentialsProvider({
+      id: "admin",
       name: "Admin",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "Enter admin email" },
@@ -72,6 +76,7 @@ const handler = NextAuth({
           throw new Error("Invalid password");
         }
 
+        console.log("Admin logged in:", admin.email);
         return {
           id: admin.id,
           name: admin.name,
@@ -81,6 +86,7 @@ const handler = NextAuth({
       },
     })
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
@@ -88,6 +94,7 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.email = user.email;
         token.role = user.role;
       }
@@ -95,13 +102,21 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.role = token.role as UserRole;
+        session.user = {
+          id: token.id as string,
+          name: token.name as string, 
+          email: token.email as string,
+          role: token.role as UserRole,
+        };
       }
       return session;
-    },
+    }
   },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
+  debug: process.env.NODE_ENV === "development", 
 });
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };

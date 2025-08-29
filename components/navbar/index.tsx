@@ -1,15 +1,11 @@
-'use client';
-
-import Link from 'next/link';
-import { useState } from 'react';
-import { User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { MobileMenu } from './mobile-menu';
-import { CartButton } from './cart-button';
-import { NavLinks } from './nav-links';
-import { LoginForm } from '@/components/login-form';
-import { useAuth } from '@/components/auth-context';
-import Logo from '../logo';
+import Link from "next/link";
+import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MobileMenu } from "./mobile-menu";
+import { CartButton } from "./cart-button";
+import { NavLinks } from "./nav-links";
+import Logo from "../logo";
+import { getServerAuthSession } from "@/lib/auth";
 
 interface NavItem {
   name: string;
@@ -17,14 +13,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { name: 'Home', path: '/' },
-  { name: 'Wellness Store', path: '/store' },
-  { name: 'My Benefits', path: '/benefits' },
-  { name: 'Help & Support', path: '/support' },
+  { name: "Home", path: "/" },
+  { name: "Wellness Store", path: "/store" },
+  { name: "My Benefits", path: "/benefits" },
+  { name: "Help & Support", path: "/support" },
 ] as const;
 
-export function Navbar() {
-  const { user } = useAuth();
+export async function Navbar() {
+  const session = await getServerAuthSession();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm">
@@ -36,17 +32,20 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <NavLinks items={NAV_ITEMS} className="hidden md:flex items-center space-x-8" />
+          <NavLinks
+            items={NAV_ITEMS}
+            className="hidden md:flex items-center space-x-8"
+          />
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {user && <CartButton />}
+            {session?.user && <CartButton />}
 
             {/* Partner with Us Button */}
             <Link href="/partner">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="hidden sm:flex border-emerald-500 text-emerald-600 hover:bg-emerald-50"
               >
                 Partner with Us

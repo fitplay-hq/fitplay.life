@@ -1,30 +1,22 @@
-"use client"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Heart, Shield, Users } from "lucide-react";
+import Logo from "@/components/logo";
+import { getCsrfToken } from "next-auth/react";
+import PasswordInput from "@/components/password-input";
+import { Checkbox } from "@/components/ui/checkbox";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Eye, EyeOff, Heart, Shield, Users } from "lucide-react"
-import Logo from "@/components/logo"
-import { useAuth } from "@/components/auth-context"
-import { redirect } from "next/navigation"
-
-export default function LoginPage() {
-  const { login } = useAuth()
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    login(email, password).then((success) => {
-      if (success) {
-        redirect('/')
-      }
-    })
-  }
+export default async function LoginPage() {
+  const csrfToken = await getCsrfToken();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
@@ -41,20 +33,29 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center">
             <Logo />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome Back
+          </h1>
           <p className="text-gray-600">Sign in to your wellness account</p>
         </div>
 
         {/* Login Card */}
         <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-gray-900">Sign In</CardTitle>
+            <CardTitle className="text-2xl text-center text-gray-900">
+              Sign In
+            </CardTitle>
             <CardDescription className="text-center text-gray-600">
               Enter your credentials to access your wellness dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              method="post"
+              action="/api/auth/callback/users"
+              className="space-y-4"
+            >
+              <Input type="hidden" name="csrfToken" defaultValue={csrfToken} />
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
                   Email
@@ -63,8 +64,6 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                   required
                 />
@@ -74,38 +73,23 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-gray-700">
                   Password
                 </Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+                <PasswordInput
+                  className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 pr-10"
+                  required
+                />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <input
-                    id="remember"
-                    type="checkbox"
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                  />
+                  <Checkbox id="remember" />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Remember me
                   </Label>
                 </div>
-                <Link href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -113,7 +97,6 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5"
-                onClick={handleSubmit}
               >
                 Sign In
               </Button>
@@ -125,12 +108,17 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-200" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="border-gray-200 hover:bg-gray-50 bg-transparent">
+                <Button
+                  variant="outline"
+                  className="border-gray-200 hover:bg-gray-50 bg-transparent"
+                >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -151,8 +139,15 @@ export default function LoginPage() {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="border-gray-200 hover:bg-gray-50 bg-transparent">
-                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <Button
+                  variant="outline"
+                  className="border-gray-200 hover:bg-gray-50 bg-transparent"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Facebook
@@ -163,7 +158,10 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{" "}
-                <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                <Link
+                  href="/signup"
+                  className="text-emerald-600 hover:text-emerald-700 font-medium"
+                >
                   Sign up
                 </Link>
               </p>
@@ -194,5 +192,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

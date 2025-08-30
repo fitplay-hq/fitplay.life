@@ -16,9 +16,9 @@ datasource db {
 
 model User {
   id        String    @id @default(uuid())
-  name      String
+  name      String    @db.VarChar(30)
   email     String    @unique
-  password  String
+  password  String    @db.VarChar(16)
   phone     String    @unique
   role      Role
   gender    Gender?
@@ -42,19 +42,43 @@ model Admin {
 
 model VerificationToken {
   id         String   @id @default(uuid())
-  identifier String   // email
+  identifier String // email
   token      String   @unique
   expires    DateTime
   createdAt  DateTime @default(now())
 }
 
 model Company {
-  id        String   @id @default(uuid())
-  name      String
-  address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(50)
+  address   String    @db.VarChar(100)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   users     User[]
+  products  Product[]
+}
+
+model Product {
+  id            String    @id @default(uuid())
+  name          String    @db.VarChar(50)
+  images        String[]
+  price         Int
+  description   String
+  specification Json
+  categories    Category
+  avgRating     Float
+  noOfReviews   Int
+  brand         String    @db.VarChar(30)
+  companies     Company[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Category {
+  FITNESS
+  SUPPLEMENTS
+  WEARABLES
+  RECOVERY
 }
 
 enum Gender {

@@ -1,5 +1,15 @@
 # Frontend Development Documentation
 
+### Main Routes (`app/(main)/`)
+
+- `benefits/`: Benefits page
+- `cart/`: Shopping cart functionality
+- `partner/`: Partner programs page
+- `product/[id]/`: Dynamic product pages
+- `profile/`: User profile management
+- `store/`: Product store/catalog
+- `support/`: Customer support page
+
 1. Login Form
 
 ![Screenshot_11-9-2025_154519_localhost](https://github.com/user-attachments/assets/e27180f8-0b61-4ec6-8df3-ae5cbb81f6f7)

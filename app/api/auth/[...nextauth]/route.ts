@@ -30,6 +30,12 @@ const handler = NextAuth({
           throw new Error("No user found");
         }
 
+        const isVerified = user.verified;
+
+        if (!isVerified) {
+          throw new Error("Please verify your email to login");
+        }
+        
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {

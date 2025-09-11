@@ -1,11 +1,15 @@
-import { compare } from 'bcryptjs'
+import { compare } from "bcryptjs";
 
 import { getServerSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import prisma from "@/lib/prisma";
 import { $Enums } from "@/lib/generated/prisma";
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
 
 type UserRole = $Enums.Role;
 
@@ -16,8 +20,16 @@ export const authOptions: NextAuthOptions = {
       id: "users",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "Enter your email" },
-        password: { label: "Password", type: "password", placeholder: "Enter your password" },
+        email: {
+          label: "Email",
+          type: "text",
+          placeholder: "Enter your email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "Enter your password",
+        },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -52,8 +64,16 @@ export const authOptions: NextAuthOptions = {
       id: "admin",
       name: "Admin",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "Enter admin email" },
-        password: { label: "Password", type: "password", placeholder: "Enter admin password" },
+        email: {
+          label: "Email",
+          type: "text",
+          placeholder: "Enter admin email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "Enter admin password",
+        },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -83,10 +103,10 @@ export const authOptions: NextAuthOptions = {
           id: admin.id,
           name: admin.name,
           email: admin.email,
-          role: $Enums.Role.ADMIN
+          role: $Enums.Role.ADMIN,
         };
       },
-    })
+    }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
@@ -106,23 +126,23 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user = {
           id: token.id as string,
-          name: token.name as string, 
+          name: token.name as string,
           email: token.email as string,
           role: token.role as UserRole,
         };
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/login'
+    signIn: "/login",
   },
-  debug: process.env.NODE_ENV === "development", 
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
 export const getServerAuthSession = (
   ...args:
     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
     | [NextApiRequest, NextApiResponse]
     | []
-  ) => getServerSession(...args, authOptions)
+) => getServerSession(...args, authOptions);

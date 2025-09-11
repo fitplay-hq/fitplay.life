@@ -14,8 +14,16 @@ import Logo from "@/components/logo";
 import { getCsrfToken } from "next-auth/react";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { signIn } from "next-auth/react";
 
 export default async function LoginPage() {
+  const handleSignIn = async (formData: FormData) => {
+    "use server";
+    signIn("admin", {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    });
+  };
   const csrfToken = await getCsrfToken();
 
   return (
@@ -50,11 +58,7 @@ export default async function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form
-              method="post"
-              action="/api/auth/callback/users"
-              className="space-y-4"
-            >
+            <form action={handleSignIn} className="space-y-4">
               <Input type="hidden" name="csrfToken" defaultValue={csrfToken} />
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
@@ -155,7 +159,7 @@ export default async function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 text-center">
+            {/* <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
@@ -165,7 +169,7 @@ export default async function LoginPage() {
                   Sign up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

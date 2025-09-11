@@ -18,6 +18,8 @@
 
 3. Moved to Jotai global state from useState
 
+4. Product page
+
 ![Screenshot_11-9-2025_15565_localhost](https://github.com/user-attachments/assets/0da0a42d-ea6d-4574-b4cb-3474c63fe5e9)
 
 ## Tasks

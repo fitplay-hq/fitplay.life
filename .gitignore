@@ -44,4 +44,4 @@ next-env.d.ts
 Fitplay.life - Milestone.md
 backend.md
 
-/lib/generated/prisma
+lib/generated

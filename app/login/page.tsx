@@ -15,14 +15,37 @@ import { Heart, Shield, Users } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useUser } from "@/app/hooks/useUser";
+import { toast } from "sonner";
 
 export default function LoginPage() {
-  const handleSignIn = async (formData: FormData) => {
-    signIn("admin", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    });
+  const { login, isLoading, loginError } = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const result = await login(email, password, rememberMe);
+
+      if (!result.success) {
+        toast.error(result.error || "Login failed");
+      } else {
+        toast.success("Login successful!");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error("Login error:", error);
+    }
   };
 
   return (
@@ -57,7 +80,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={handleSignIn} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
                   Email
@@ -66,8 +89,11 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -76,14 +102,24 @@ export default function LoginPage() {
                   Password
                 </Label>
                 <PasswordInput
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 pr-10"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" />
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) =>
+                      setRememberMe(checked === true)
+                    }
+                    disabled={isLoading}
+                  />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Remember me
                   </Label>
@@ -98,10 +134,17 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
+
+              {loginError && (
+                <div className="text-red-600 text-sm text-center mt-2">
+                  {loginError}
+                </div>
+              )}
             </form>
 
             <div className="mt-6">

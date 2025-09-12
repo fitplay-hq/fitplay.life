@@ -117,7 +117,7 @@ export default function ClientDashboard() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalSpent.toFixed(2)}</div>
+              <div className="text-2xl font-bold">₹{totalSpent.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">All time spending</p>
             </CardContent>
           </Card>
@@ -204,7 +204,7 @@ export default function ClientDashboard() {
                     <div className="space-y-1">
                       <p className="font-medium">{order.poNumber}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleDateString()} • $
+                        {new Date(order.createdAt).toLocaleDateString()} • ₹
                         {order.total.toFixed(2)}
                       </p>
                     </div>

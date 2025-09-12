@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +13,17 @@ import {
 } from "@/components/ui/card";
 import { Heart, Shield, Users } from "lucide-react";
 import Logo from "@/components/logo";
-import { getCsrfToken } from "next-auth/react";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { signIn } from "next-auth/react";
 
-export default async function LoginPage() {
+export default function LoginPage() {
   const handleSignIn = async (formData: FormData) => {
-    "use server";
     signIn("admin", {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     });
   };
-  const csrfToken = await getCsrfToken();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
@@ -59,7 +58,6 @@ export default async function LoginPage() {
           </CardHeader>
           <CardContent>
             <form action={handleSignIn} className="space-y-4">
-              <Input type="hidden" name="csrfToken" defaultValue={csrfToken} />
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700">
                   Email
@@ -118,10 +116,11 @@ export default async function LoginPage() {
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-1 gap-3">
                 <Button
                   variant="outline"
                   className="border-gray-200 hover:bg-gray-50 bg-transparent"
+                  onClick={() => signIn("google")}
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path
@@ -143,23 +142,10 @@ export default async function LoginPage() {
                   </svg>
                   Google
                 </Button>
-                <Button
-                  variant="outline"
-                  className="border-gray-200 hover:bg-gray-50 bg-transparent"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                  Facebook
-                </Button>
               </div>
             </div>
 
-            {/* <div className="mt-6 text-center">
+            <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
@@ -169,7 +155,7 @@ export default async function LoginPage() {
                   Sign up
                 </Link>
               </p>
-            </div> */}
+            </div>
           </CardContent>
         </Card>
 

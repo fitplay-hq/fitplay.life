@@ -38,6 +38,7 @@ import {
 } from "@/lib/store";
 import { useUser } from "@/app/hooks/useUser";
 import { useProducts } from "@/app/hooks/useProducts";
+import ProductCard from "./ProductCard";
 
 export default function WellnessStore() {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
@@ -393,52 +394,17 @@ export default function WellnessStore() {
 
           {/* Product Grid - Limited to 3 columns */}
           {!userLoading && !productsLoading && !error && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sortedProducts.map((product, index) => (
-                <Card
-                  key={index}
-                  className="group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0"
-                >
-                  <div className="overflow-hidden rounded-t-xl bg-gray-100 aspect-3/2">
-                    <Link href={`/product/${index + 1}`}>
-                      <ImageWithFallback
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </Link>
-                  </div>
-                  <CardContent className="space-y-2">
-                    <div className="flex items-start justify-between mb-2">
-                      <Badge
-                        variant="secondary"
-                        className="text-emerald-600 bg-emerald-50 font-medium"
-                      >
-                        {product.brand || "FitPlay"}
-                      </Badge>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm text-gray-600 font-medium">
-                          {product.avgRating || 0}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          ({product.noOfReviews || 0})
-                        </span>
-                      </div>
-                    </div>
-                    <Link href={`/product/${product.id}`}>
-                      <h3 className="text-primary hover:text-emerald-600 transition-colors line-clamp-2 text-lg leading-snug">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    <span className="text-lg font-bold text-emerald-600">
-                      ₹{(product.price / 100).toFixed(2)}
-                    </span>
-                  </CardContent>
-                  <CardFooter>
-                    <QuantitySelector product={product} />
-                  </CardFooter>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  quantity={getCartItemQuantity(product.id)}
+                  onAddToCart={handleAddToCart}
+                  onUpdateQuantity={(productId, qty) =>
+                    updateCartQuantityByProduct({ productId, quantity: qty })
+                  }
+                />
               ))}
             </div>
           )}

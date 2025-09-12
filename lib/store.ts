@@ -3,6 +3,7 @@ import { atomWithStorage } from 'jotai/utils'
 
 export interface CartItem {
   id: number;
+  productId: string; // Changed from title/brand to productId
   title: string;
   brand: string;
   credits: number;
@@ -13,10 +14,10 @@ export interface CartItem {
 export const cartItemsAtom = atomWithStorage<CartItem[]>('cartItems', []);
 
 export const getCartItemQuantityAtom = atom(
-  (get) => (title: string, brand: string): number => {
+  (get) => (productId: string): number => {
     const cartItems = get(cartItemsAtom);
-    const item = cartItems.find(item => 
-      item.title === title && item.brand === brand
+    const item = cartItems.find(item =>
+      item.productId === productId
     );
     return item ? item.quantity : 0;
   }
@@ -30,48 +31,49 @@ export const addToCartAtom = atom(
   null,
   (get, set, product: any) => {
     const currentItems = get(cartItemsAtom);
-    
+
     // Check if product already exists in cart
-    const existingItem = currentItems.find(item => 
-      item.title === product.title && item.brand === product.brand
+    const existingItem = currentItems.find(item =>
+      item.productId === product.id
     );
-    
+
     const result = {
       wasUpdated: false,
       isNewItem: false,
       newQuantity: 1,
       item: null as any
     };
-    
+
     if (existingItem) {
       // If exists, increment quantity
       result.wasUpdated = true;
       result.newQuantity = existingItem.quantity + 1;
       result.item = { ...existingItem, quantity: result.newQuantity };
-      
+
       const updatedItems = currentItems.map(item =>
-        item.title === product.title && item.brand === product.brand
+        item.productId === product.id
           ? { ...item, quantity: result.newQuantity }
           : item
       );
-      
+
       set(cartItemsAtom, updatedItems);
     } else {
       // If new product, add to cart with quantity 1
       result.isNewItem = true;
       const newItem: CartItem = {
         id: Date.now() + Math.random(), // Ensure unique ID
-        title: product.title,
-        brand: product.brand,
-        credits: product.credits,
-        image: product.image || product.images?.[0] || '',
+        productId: product.id,
+        title: product.name,
+        brand: product.brand || 'FitPlay',
+        credits: Math.round(product.price / 100), // Convert from cents to credits
+        image: product.images?.[0] || '',
         quantity: 1
       };
       result.item = newItem;
 
       set(cartItemsAtom, [...currentItems, newItem]);
     }
-    
+
     return result;
   }
 );
@@ -121,38 +123,37 @@ export const updateCartQuantityAtom = atom(
 
 export const updateCartQuantityByProductAtom = atom(
   null,
-  (get, set, { title, brand, quantity }: { 
-    title: string; 
-    brand: string; 
-    quantity: number; 
+  (get, set, { productId, quantity }: {
+    productId: string;
+    quantity: number;
   }) => {
     const currentItems = get(cartItemsAtom);
-    
-    // Find the item by title and brand
-    const existingItem = currentItems.find(item => 
-      item.title === title && item.brand === brand
+
+    // Find the item by productId
+    const existingItem = currentItems.find(item =>
+      item.productId === productId
     );
-    
+
     if (!existingItem) {
-      return { action: 'not_found', title, brand } as const;
+      return { action: 'not_found', productId } as const;
     }
-    
+
     if (quantity <= 0) {
       // Remove item if quantity is 0 or negative
-      const updatedItems = currentItems.filter(item => 
-        !(item.title === title && item.brand === brand)
+      const updatedItems = currentItems.filter(item =>
+        item.productId !== productId
       );
       set(cartItemsAtom, updatedItems);
       return { action: 'removed', item: existingItem } as const;
     } else {
       // Update the quantity
       const updatedItems = currentItems.map(item =>
-        item.title === title && item.brand === brand
+        item.productId === productId
           ? { ...item, quantity }
           : item
       );
       set(cartItemsAtom, updatedItems);
-      
+
       const updatedItem = { ...existingItem, quantity };
       return { action: 'updated', item: updatedItem } as const;
     }

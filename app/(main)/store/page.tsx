@@ -156,10 +156,7 @@ export default function WellnessStore() {
   });
 
   const QuantitySelector = ({ product }: { product: any }) => {
-    const quantity = getCartItemQuantity(
-      product.name,
-      product.brand || "FitPlay"
-    );
+    const quantity = getCartItemQuantity(product.id);
 
     if (quantity === 0) {
       return (
@@ -178,8 +175,7 @@ export default function WellnessStore() {
         <button
           onClick={() =>
             updateCartQuantityByProduct({
-              title: product.name,
-              brand: product.brand || "FitPlay",
+              productId: product.id,
               quantity: Math.max(0, quantity - 1),
             })
           }
@@ -193,8 +189,7 @@ export default function WellnessStore() {
         <button
           onClick={() =>
             updateCartQuantityByProduct({
-              title: product.name,
-              brand: product.brand || "FitPlay",
+              productId: product.id,
               quantity: Math.max(0, quantity + 1),
             })
           }

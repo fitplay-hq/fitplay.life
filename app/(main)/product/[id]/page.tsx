@@ -304,8 +304,7 @@ export default function ProductPage({
           </div>
 
           <div className="space-y-3">
-            {getCartItemQuantity(product.name, product.brand || "FitPlay") ===
-            0 ? (
+            {getCartItemQuantity(product.id) === 0 ? (
               <Button
                 size="lg"
                 onClick={handleAddToCart}
@@ -320,13 +319,8 @@ export default function ProductPage({
                   <button
                     onClick={() =>
                       updateCartQuantityByProduct({
-                        title: product.name,
-                        brand: product.brand || "FitPlay",
-                        quantity:
-                          getCartItemQuantity(
-                            product.name,
-                            product.brand || "FitPlay"
-                          ) - 1,
+                        productId: product.id,
+                        quantity: getCartItemQuantity(product.id) - 1,
                       })
                     }
                     className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"
@@ -334,21 +328,13 @@ export default function ProductPage({
                     <Minus className="w-5 h-5" />
                   </button>
                   <span className="px-6 py-3 text-emerald-800 font-bold text-lg min-w-[60px] text-center">
-                    {getCartItemQuantity(
-                      product.name,
-                      product.brand || "FitPlay"
-                    )}
+                    {getCartItemQuantity(product.id)}
                   </span>
                   <button
                     onClick={() =>
                       updateCartQuantityByProduct({
-                        title: product.name,
-                        brand: product.brand || "FitPlay",
-                        quantity:
-                          getCartItemQuantity(
-                            product.name,
-                            product.brand || "FitPlay"
-                          ) + 1,
+                        productId: product.id,
+                        quantity: getCartItemQuantity(product.id) + 1,
                       })
                     }
                     className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"

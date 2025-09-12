@@ -1,57 +1,49 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { ProductCreateInputObjectSchema} from "@/prisma/generated/schemas";
+import { ProductCreateInputObjectSchema } from "@/prisma/generated/schemas";
 import { getServerSession } from "next-auth";
-
-import { v4 as uuidv4 } from "uuid";
-import { Prisma } from "@/lib/generated/prisma";
 import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const body = await req.json();
         if (!Array.isArray(body)) {
-            return NextResponse.json({ message: "Invalid request body, expected array of Products" }, { status: 400 });
+            return NextResponse.json({ error: "Expected an array of products" }, { status: 400 });
         }
-        const parsedProducts = body.map((p, idx) => {
-            const result = ProductCreateInputObjectSchema.safeParse(p);
-            if (!result.success) {
-                console.error(`Product at index ${idx} failed validation:`, result.error);
-                throw new Error(`Product at index ${idx} failed validation`);
+
+        const createdProducts = [];
+
+        for (const [idx, product] of body.entries()) {
+            const parsed = ProductCreateInputObjectSchema.safeParse(product);
+            if (!parsed.success) {
+                console.error(`Product at index ${idx} failed validation:`, parsed.error.format());
+                return NextResponse.json(
+                    { error: `Product at index ${idx} failed validation`, details: parsed.error.format() },
+                    { status: 400 }
+                );
             }
-            return result.data;
-        });
 
-        const productsData: Prisma.ProductCreateInput[] = parsedProducts.map((p) => ({
-            id: uuidv4(),
-            ...p
-        }))
+            const created = await prisma.product.create({
+                data: parsed.data
+            });
+            createdProducts.push(created);
+        }
 
-        const products = await prisma.product.createMany({
-            data: productsData,
-            skipDuplicates: true,
-        });
-
-        return NextResponse.json({ message: "Products Added successfully", status: 201, data: products });
-
-    } catch (error) {
-        return NextResponse.json({ message: "Error creating products", error }, { status: 500 });
+        return NextResponse.json({ success: true, products: createdProducts });
+    } catch (err) {
+        console.error("Error creating products:", err);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
-
         const { searchParams } = new URL(req.url);
         const sortBy = searchParams.get("sortBy") || "name";
         const sortOrder = searchParams.get("sortOrder") || "asc";

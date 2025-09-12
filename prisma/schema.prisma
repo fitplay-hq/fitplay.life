@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator zod {
-	provider = "prisma-zod-generator"
+  provider = "prisma-zod-generator"
 }
 
 generator client {
@@ -63,35 +63,54 @@ model Company {
 }
 
 model Product {
-  id             String    @id @default(uuid()) //done
-  name           String    @db.VarChar(50) //done
-  images         String[] //done
-  description    String //done
-  price          Int //done
-  vendorName     String    @db.VarChar(50) //done
-  tags           String[] //done
-  discount       Int? //done
-  sku            String    @unique @db.VarChar(100)
+  id             String      @id @default(uuid())
+  name           String      @db.VarChar(50)
+  images         String[]
+  description    String
+  price          Int
+  vendorName     String      @db.VarChar(50)
+  tags           String[]
+  discount       Int?
+  sku            String      @unique @db.VarChar(100)
   availableStock Int
-  category       Category //done
-  specifications Json //done
+  category       Category
+  subCategory    SubCategory?
+  specifications Json?
   avgRating      Float?
   noOfReviews    Int?
-  brand          String?   @db.VarChar(30)
+  brand          String?     @db.VarChar(30)
   companies      Company[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt()
+  variants       Variant[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @default(now()) @updatedAt()
+}
+
+model Variant {
+  id              String   @id @default(uuid())
+  variantCategory String   @db.VarChar(50)
+  variantValue    String   @db.VarChar(100)
+  mrp             Int
+  credits         String? // optional field if you want
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt()
 }
 
 enum Category {
-  Stationery
-  Accessories
-  FunAndStickers
-  Drinkware
-  Apparel
-  TravelAndTech
-  Books
-  WelcomeKit
+  Fitness_And_Gym_Equipment
+  Nutrition_And_Health
+  Diagnostics_And_Prevention
+  Ergonomics_And_Workspace_Comfort
+  Health_And_Wellness_Services
+}
+
+enum SubCategory {
+  Cardio_Equipment
+  Probiotics_And_Supplements
+  Wearable_Health_Technology
+  Standing_Desks_And_Accessories
+  Onsite_Fitness_Classes_And_Workshops
 }
 
 enum Gender {

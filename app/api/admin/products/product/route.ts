@@ -1,4 +1,5 @@
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ProductCreateInputObjectSchema } from "@/prisma/generated/schemas/objects/ProductCreateInput.schema";
 import { getServerSession } from "next-auth";
@@ -7,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
@@ -80,7 +81,7 @@ export async function DELETE(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
     try {
         const body = await req.json();
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }

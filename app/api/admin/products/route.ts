@@ -3,14 +3,15 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { ProductCreateInputObjectSchema} from "@/prisma/generated/schemas";
 import { getServerSession } from "next-auth";
-import { auth } from "../../auth/[...nextauth]/route";
+
 import { v4 as uuidv4 } from "uuid";
 import { Prisma } from "@/lib/generated/prisma";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(auth);
+        const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }

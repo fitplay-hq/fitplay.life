@@ -67,18 +67,20 @@ export default function ProductCard({
   return (
     <Card className="group relative py-0 gap-0 overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] border-2 border-gray-100 rounded-2xl">
       <CardHeader className="p-0">
-        <div className="relative w-full h-48">
-          <ImageWithFallback
-            src={product.images[0] || "/placeholder.png"}
-            alt={product.name}
-            className="object-cover"
-          />
-          {product.discount && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-md">
-              {product.discount}% OFF
-            </span>
-          )}
-        </div>
+        <Link href={`/product/${product.id}`}>
+          <div className="relative w-full h-48">
+            <ImageWithFallback
+              src={product.images[0] || "/placeholder.png"}
+              alt={product.name}
+              className="object-cover"
+            />
+            {product.discount && (
+              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-md">
+                {product.discount}% OFF
+              </span>
+            )}
+          </div>
+        </Link>
       </CardHeader>
 
       {/* Content */}

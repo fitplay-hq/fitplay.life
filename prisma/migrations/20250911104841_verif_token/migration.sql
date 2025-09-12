@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE "public"."User" ADD COLUMN     "verified" BOOLEAN NOT NULL DEFAULT false;
-
 -- CreateTable
 CREATE TABLE "public"."VerificationToken" (
     "id" TEXT NOT NULL,

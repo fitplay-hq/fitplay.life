@@ -4,21 +4,21 @@ import { NextRequest, NextResponse } from "next/server";
 import validator from "validator";
 import { addMinutes } from "date-fns";
 import bcrypt from "bcryptjs";
-import { mailer } from "@/lib/mailer";
+import { Resend } from "resend";
+
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) throw new Error("RESEND_API_KEY is not defined");
+const resend = new Resend(resendApiKey);
 
 export async function POST(req: NextRequest) {
   try {
-    const { id, name, email, password, role, companyId, phone } = await req.json();
+    const { id, name, email, password, role, companyId, companyName, address, phone } = await req.json();
 
-    if (!name || !email || !password || !role || !companyId || !phone) {
+    if (!name || !email || !password || !role || !phone) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return NextResponse.json({ message: "User already exists" }, { status: 400 });
-    }
-
+    // Validate email + password
     if (!validator.isEmail(email)) {
       return NextResponse.json({ message: "Invalid email format" }, { status: 400 });
     }
@@ -35,6 +35,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Password is not strong enough" }, { status: 400 });
     }
 
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json({ message: "User already exists" }, { status: 400 });
+    }
+
+    let finalCompanyId = companyId;
+
+    if (role === "HR") {
+      if (!companyName || !address) {
+        return NextResponse.json({ message: "Company name and address are required for HR" }, { status: 400 });
+      }
+
+      const newCompany = await prisma.company.create({
+        data: {
+          name: companyName,
+          address: address,
+        },
+      });
+
+      finalCompanyId = newCompany.id;
+    } else if (role === "EMPLOYEE") {
+      if (!companyId) {
+        return NextResponse.json({ message: "companyId is required for employee" }, { status: 400 });
+      }
+
+      const existingCompany = await prisma.company.findUnique({ where: { id: companyId } });
+      if (!existingCompany) {
+        return NextResponse.json({ message: "Company does not exist" }, { status: 400 });
+      }
+    }
+
     const newUser = await prisma.user.create({
       data: {
         id,
@@ -42,7 +73,7 @@ export async function POST(req: NextRequest) {
         email,
         password: await bcrypt.hash(password, 10),
         role,
-        companyId,
+        companyId: finalCompanyId!,
         phone,
       },
     });
@@ -57,9 +88,10 @@ export async function POST(req: NextRequest) {
     });
 
     const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify?token=${token}`;
+    const verificationMail = process.env.VERIFICATION_MAIL || "noreply@fitplaysolutions.com";
 
-    await mailer.sendMail({
-      from: process.env.ADMIN_EMAIL, // must be verified in Resend
+    await resend.emails.send({
+      from: verificationMail,
       to: email,
       subject: "Verify your account",
       html: `<p>Click <a href="${verificationUrl}">here</a> to verify your account.</p>`,

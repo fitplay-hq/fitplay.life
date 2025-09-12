@@ -14,7 +14,7 @@ declare module "next-auth" {
 
   interface User {
     id: string
-    name?: string // Make optional since it might not always be present
+    name?: string
     email: string
     role: $Enums.Role // Remove optional since we always set it
   }

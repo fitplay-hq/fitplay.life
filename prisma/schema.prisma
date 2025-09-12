@@ -4,6 +4,10 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+generator zod {
+	provider = "prisma-zod-generator"
+}
+
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -70,6 +74,7 @@ model Product {
   sku            String    @unique @db.VarChar(100)
   availableStock Int
   category       Category //done
+  specifications Json //done
   avgRating      Float?
   noOfReviews    Int?
   brand          String?   @db.VarChar(30)

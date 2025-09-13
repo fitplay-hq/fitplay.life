@@ -246,21 +246,6 @@ export default function ProductPage({
 
           <div className="space-y-4">
             <p className="text-gray-700">{product.description}</p>
-
-            <div>
-              <h3 className="font-medium text-primary mb-2">Key Features:</h3>
-              <ul className="space-y-1">
-                {product.tags.map((tag, index) => (
-                  <li
-                    key={index}
-                    className="text-sm text-gray-600 flex items-start"
-                  >
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
 
           <div className="flex items-center space-x-4 pt-6 border-t">
@@ -323,17 +308,18 @@ export default function ProductPage({
                 Specifications
               </h3>
               <div className="space-y-3">
-                {Object.entries(
-                  product.specifications as Record<string, string>
-                ).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between border-b border-gray-100 pb-2"
-                  >
-                    <span className="text-gray-600">{key}</span>
-                    <span className="text-primary">{String(value)}</span>
-                  </div>
-                ))}
+                {product.specifications &&
+                  Object.entries(
+                    product.specifications as Record<string, string>
+                  ).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between border-b border-gray-100 pb-2"
+                    >
+                      <span className="text-gray-600">{key}</span>
+                      <span className="text-primary">{String(value)}</span>
+                    </div>
+                  ))}
                 <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">Product ID</span>
                   <span className="text-primary">{product.id}</span>

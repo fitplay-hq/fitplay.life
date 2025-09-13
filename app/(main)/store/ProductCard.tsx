@@ -85,9 +85,6 @@ export default function ProductCard({
 
       {/* Content */}
       <CardContent className="p-6 py-0 space-y-4">
-        <span className="text-xs font-medium text-primary">
-          {product.vendorName}
-        </span>
         <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
           {product.name}
         </CardTitle>

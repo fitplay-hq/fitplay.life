@@ -673,13 +673,7 @@ export default function WellnessStore() {
                       </Link>
                     </div>
                     <CardContent className="p-3 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between mb-2">
-                        <Badge
-                          variant="secondary"
-                          className="text-emerald-600 bg-emerald-50 font-medium text-xs px-2 py-1"
-                        >
-                          {product.vendorName}
-                        </Badge>
+                      <div className="flex items-start justify-end mb-2">
                         <div className="flex items-center space-x-1">
                           <Star className="w-3 h-3 text-yellow-400 fill-current" />
                           <span className="text-xs text-gray-600 font-medium">

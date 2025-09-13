@@ -2,15 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Star,
-  ShoppingCart,
-  Heart,
-  Share2,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,13 +14,8 @@ import {
 } from "@/components/ui/accordion";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { toast } from "sonner";
-import {
-  addToCartAtom,
-  cartAnimationAtom,
-  getCartItemQuantityAtom,
-  updateCartQuantityByProductAtom,
-} from "@/lib/store";
-import { useAtomValue, useSetAtom } from "jotai";
+import { addToCartAtom, cartAnimationAtom } from "@/lib/store";
+import { useSetAtom } from "jotai";
 import { useProduct } from "@/app/hooks/useProduct";
 
 export default function ProductPage({
@@ -38,11 +25,16 @@ export default function ProductPage({
 }) {
   const { id } = use(params);
 
-  const getCartItemQuantity = useAtomValue(getCartItemQuantityAtom);
+  // Helper function to format category names
+  const formatCategoryName = (category: string) => {
+    return category
+      .replace(/_/g, " ") // Replace underscores with spaces
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "); // Capitalize each word
+  };
+
   const addToCart = useSetAtom(addToCartAtom);
-  const updateCartQuantityByProduct = useSetAtom(
-    updateCartQuantityByProductAtom
-  );
   const setCartAnimation = useSetAtom(cartAnimationAtom);
   const { product, isLoading, error } = useProduct(id);
 
@@ -156,7 +148,7 @@ export default function ProductPage({
           Back to Store
         </Link>
         <span>/</span>
-        <span>Fitness Equipment</span>
+        <span>{formatCategoryName(product.category)}</span>
         <span>/</span>
         <span className="text-gray-900">{product.name}</span>
       </div>
@@ -290,47 +282,14 @@ export default function ProductPage({
           </div>
 
           <div className="space-y-3">
-            {getCartItemQuantity(product.id) === 0 ? (
-              <Button
-                size="lg"
-                onClick={handleAddToCart}
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
-              >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Add to Cart - {Math.round(product.price / 100) * quantity}{" "}
-                credits
-              </Button>
-            ) : (
-              <div className="flex items-center justify-center space-x-4">
-                <div className="flex items-center border-2 border-emerald-300 rounded-lg bg-emerald-50">
-                  <button
-                    onClick={() =>
-                      updateCartQuantityByProduct({
-                        productId: product.id,
-                        quantity: getCartItemQuantity(product.id) - 1,
-                      })
-                    }
-                    className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"
-                  >
-                    <Minus className="w-5 h-5" />
-                  </button>
-                  <span className="px-6 py-3 text-emerald-800 font-bold text-lg min-w-[60px] text-center">
-                    {getCartItemQuantity(product.id)}
-                  </span>
-                  <button
-                    onClick={() =>
-                      updateCartQuantityByProduct({
-                        productId: product.id,
-                        quantity: getCartItemQuantity(product.id) + 1,
-                      })
-                    }
-                    className="px-4 py-3 hover:bg-emerald-100 text-emerald-700 transition-colors"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            )}
+            <Button
+              size="lg"
+              onClick={handleAddToCart}
+              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
+            >
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              Add to Cart - {Math.round(product.price / 100) * quantity} credits
+            </Button>
             <div className="flex space-x-3">
               <Button
                 variant="outline"
@@ -380,7 +339,9 @@ export default function ProductPage({
                 </div>
                 <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">Category</span>
-                  <span className="text-primary">{product.category}</span>
+                  <span className="text-primary">
+                    {formatCategoryName(product.category)}
+                  </span>
                 </div>
                 {product.availableStock <= 0 && (
                   <div className="flex justify-between border-b border-gray-100 pb-2">

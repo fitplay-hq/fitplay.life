@@ -96,18 +96,16 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [brandsOpen, setBrandsOpen] = useState(true);
 
-  // Quick filters state
-  const [priceRange, setPriceRange] = useState<string>("");
-  const [ratingFilter, setRatingFilter] = useState<string>("");
-  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   // Generate dynamic categories from products
   const dynamicCategories = Array.from(
     new Set(products.map((product) => product.category))
   ).map((category) => ({
     value: category,
-    label: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
+    label: category
+      .replace(/_/g, " ") // Replace underscores with spaces
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "), // Capitalize each word
     count: products.filter((p) => p.category === category).length,
   }));
 
@@ -124,31 +122,11 @@ export default function WellnessStore() {
     count: products.filter((p) => p.brand === brand).length,
   }));
 
-  // Generate dynamic tags from products
-  const allTags = products.flatMap((product) => product.tags || []);
-  const tagFrequency = allTags.reduce((acc, tag) => {
-    acc[tag] = (acc[tag] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const popularTags = Object.entries(tagFrequency)
-    .sort(([, a], [, b]) => b - a) // Sort by frequency descending
-    .slice(0, 8) // Take top 8 most popular tags
-    .map(([tag, count]) => ({ name: tag, count }));
-
   const handleBrandChange = (brand: string, checked: boolean) => {
     if (checked) {
       setSelectedBrands([...selectedBrands, brand]);
     } else {
       setSelectedBrands(selectedBrands.filter((b) => b !== brand));
-    }
-  };
-
-  const handleTagChange = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
     }
   };
 
@@ -162,49 +140,7 @@ export default function WellnessStore() {
     const matchesBrand =
       selectedBrands.length === 0 ||
       (product.brand && selectedBrands.includes(product.brand));
-
-    // Quick filters
-    const matchesPriceRange = (() => {
-      const price = Math.round(product.price / 100);
-      switch (priceRange) {
-        case "under-100":
-          return price < 100;
-        case "100-300":
-          return price >= 100 && price <= 300;
-        case "over-300":
-          return price > 300;
-        default:
-          return true;
-      }
-    })();
-
-    const matchesRating = (() => {
-      const rating = product.avgRating || 0;
-      switch (ratingFilter) {
-        case "4-stars":
-          return rating >= 4;
-        case "3-stars":
-          return rating >= 3;
-        default:
-          return true;
-      }
-    })();
-
-    const matchesStock = !inStockOnly || product.availableStock > 0;
-
-    const matchesTags =
-      selectedTags.length === 0 ||
-      (product.tags && selectedTags.some((tag) => product.tags.includes(tag)));
-
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesBrand &&
-      matchesPriceRange &&
-      matchesRating &&
-      matchesStock &&
-      matchesTags
-    );
+    return matchesSearch && matchesCategory && matchesBrand;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -383,11 +319,7 @@ export default function WellnessStore() {
           {(selectedBrands.length > 0 ||
             selectedCategory !== "all" ||
             searchTerm ||
-            sortBy !== "featured" ||
-            priceRange ||
-            ratingFilter ||
-            inStockOnly ||
-            selectedTags.length > 0) && (
+            sortBy !== "featured") && (
             <Button
               variant="outline"
               size="sm"
@@ -396,10 +328,6 @@ export default function WellnessStore() {
                 setSelectedCategory("all");
                 setSearchTerm("");
                 setSortBy("featured");
-                setPriceRange("");
-                setRatingFilter("");
-                setInStockOnly(false);
-                setSelectedTags([]);
               }}
               className="h-9 text-xs border-gray-300 hover:border-emerald-500 hover:text-emerald-600"
             >
@@ -410,40 +338,12 @@ export default function WellnessStore() {
       </div>
 
       <div className="flex gap-6">
-        {/* Compact Sidebar - Quick Filters */}
+        {/* Compact Sidebar - Additional Filters */}
         <div className="w-64 flex-shrink-0">
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 sticky top-4">
             <h3 className="font-medium mb-3 text-gray-900 text-sm">
               Quick Filters
             </h3>
-
-            {/* Brands Filter */}
-            {brands.length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-700 mb-2">
-                  Brands
-                </h4>
-                <div className="space-y-1 max-h-32 overflow-y-auto">
-                  {brands.slice(0, 6).map((brand) => (
-                    <label
-                      key={brand.name}
-                      className="flex items-center space-x-2 cursor-pointer text-xs"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedBrands.includes(brand.name)}
-                        onChange={(e) =>
-                          handleBrandChange(brand.name, e.target.checked)
-                        }
-                        className="w-3 h-3 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                      />
-                      <span className="truncate">{brand.name}</span>
-                      <span className="text-gray-500">({brand.count})</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Price Range */}
             <div className="mb-4">
@@ -455,10 +355,7 @@ export default function WellnessStore() {
                   <input
                     type="radio"
                     name="price"
-                    value="under-100"
-                    checked={priceRange === "under-100"}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                    className="w-3 h-3 text-emerald-600"
                   />
                   <span>Under 100 credits</span>
                 </label>
@@ -466,10 +363,7 @@ export default function WellnessStore() {
                   <input
                     type="radio"
                     name="price"
-                    value="100-300"
-                    checked={priceRange === "100-300"}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                    className="w-3 h-3 text-emerald-600"
                   />
                   <span>100-300 credits</span>
                 </label>
@@ -477,10 +371,7 @@ export default function WellnessStore() {
                   <input
                     type="radio"
                     name="price"
-                    value="over-300"
-                    checked={priceRange === "over-300"}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                    className="w-3 h-3 text-emerald-600"
                   />
                   <span>300+ credits</span>
                 </label>
@@ -492,25 +383,11 @@ export default function WellnessStore() {
               <h4 className="text-xs font-medium text-gray-700 mb-2">Rating</h4>
               <div className="space-y-1">
                 <label className="flex items-center space-x-2 cursor-pointer text-xs">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value="4-stars"
-                    checked={ratingFilter === "4-stars"}
-                    onChange={(e) => setRatingFilter(e.target.value)}
-                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
-                  />
+                  <input type="checkbox" className="w-3 h-3 text-emerald-600" />
                   <span>4+ stars</span>
                 </label>
                 <label className="flex items-center space-x-2 cursor-pointer text-xs">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value="3-stars"
-                    checked={ratingFilter === "3-stars"}
-                    onChange={(e) => setRatingFilter(e.target.value)}
-                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
-                  />
+                  <input type="checkbox" className="w-3 h-3 text-emerald-600" />
                   <span>3+ stars</span>
                 </label>
               </div>
@@ -524,9 +401,8 @@ export default function WellnessStore() {
               <label className="flex items-center space-x-2 cursor-pointer text-xs">
                 <input
                   type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="w-3 h-3 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                  className="w-3 h-3 text-emerald-600"
+                  defaultChecked
                 />
                 <span>In Stock Only</span>
               </label>
@@ -538,22 +414,24 @@ export default function WellnessStore() {
                 Popular Tags
               </h4>
               <div className="flex flex-wrap gap-1">
-                {popularTags.map((tag) => (
-                  <Badge
-                    key={tag.name}
-                    variant={
-                      selectedTags.includes(tag.name) ? "default" : "outline"
-                    }
-                    className={`text-xs px-2 py-1 cursor-pointer transition-colors ${
-                      selectedTags.includes(tag.name)
-                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                        : "hover:bg-emerald-50 border-gray-300"
-                    }`}
-                    onClick={() => handleTagChange(tag.name)}
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
+                <Badge
+                  variant="outline"
+                  className="text-xs px-2 py-1 cursor-pointer hover:bg-emerald-50"
+                >
+                  Fitness
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="text-xs px-2 py-1 cursor-pointer hover:bg-emerald-50"
+                >
+                  Wellness
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="text-xs px-2 py-1 cursor-pointer hover:bg-emerald-50"
+                >
+                  Health
+                </Badge>
               </div>
             </div>
           </div>
@@ -631,10 +509,6 @@ export default function WellnessStore() {
                     setSelectedBrands([]);
                     setSelectedCategory("all");
                     setSearchTerm("");
-                    setPriceRange("");
-                    setRatingFilter("");
-                    setInStockOnly(false);
-                    setSelectedTags([]);
                   }}
                   className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
                 >

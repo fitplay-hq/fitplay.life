@@ -25,6 +25,14 @@ export default function ProductPage({
 }) {
   const { id } = use(params);
 
+  const addToCart = useSetAtom(addToCartAtom);
+  const setCartAnimation = useSetAtom(cartAnimationAtom);
+  const { product, isLoading, error } = useProduct(id);
+
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<string>("");
+
   // Helper function to format category names
   const formatCategoryName = (category: string) => {
     return category
@@ -34,15 +42,36 @@ export default function ProductPage({
       .join(" "); // Capitalize each word
   };
 
-  const addToCart = useSetAtom(addToCartAtom);
-  const setCartAnimation = useSetAtom(cartAnimationAtom);
-  const { product, isLoading, error } = useProduct(id);
+  // Helper functions to get selected variant MRP and credits
+  const getSelectedVariantMRP = () => {
+    if (!product || !product?.variants?.length) return 0;
+
+    if (!selectedVariant) {
+      return (product.variants[0] as any)?.mrp || 0;
+    }
+
+    // Find the variant that matches the selected variant
+    const matchingVariant = product.variants.find(
+      (variant: any) => variant.variantValue === selectedVariant
+    );
+
+    return (
+      (matchingVariant as any)?.mrp || (product.variants[0] as any)?.mrp || 0
+    );
+  };
+
+  const getSelectedVariantCredits = () => {
+    return getSelectedVariantMRP() * 2;
+  };
+
+  const selectedVariantMRP = getSelectedVariantMRP();
+  const selectedVariantCredits = getSelectedVariantCredits();
 
   const handleAddToCart = () => {
     if (!product) return;
 
     for (let i = 0; i < quantity; i++) {
-      const result = addToCart(product);
+      const result = addToCart({ product, selectedVariant });
       setCartAnimation(true);
       setTimeout(() => setCartAnimation(false), 600);
 
@@ -55,16 +84,13 @@ export default function ProductPage({
       } else if (result.isNewItem) {
         toast.success(`${product.name} added to cart!`, {
           description: `${
-            product.price * 2
+            selectedVariantCredits * quantity
           } credits - Great choice for your wellness journey!`,
           duration: 3000,
         });
       }
     }
   };
-
-  const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
 
   // Handle loading and error states
   if (isLoading) {
@@ -229,14 +255,14 @@ export default function ProductPage({
             <div className="flex flex-col gap-1">
               <div className="flex items-center space-x-4">
                 <span className="text-3xl text-primary font-bold">
-                  {product.price * 2} credits
+                  {selectedVariantCredits} credits
                 </span>
                 <Badge className="bg-emerald-100 text-emerald-800">
                   Great Value
                 </Badge>
               </div>
               <span className="text-lg text-muted-foreground line-through">
-                ₹{product.price}
+                ₹{selectedVariantMRP}
               </span>
             </div>
             <p className="text-sm text-gray-600">
@@ -247,20 +273,35 @@ export default function ProductPage({
           <div className="space-y-4">
             <p className="text-gray-700">{product.description}</p>
 
-            <div>
-              <h3 className="font-medium text-primary mb-2">Key Features:</h3>
-              <ul className="space-y-1">
-                {product.tags.map((tag, index) => (
-                  <li
-                    key={index}
-                    className="text-sm text-gray-600 flex items-start"
-                  >
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0" />
-                    {tag}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Variant Selection */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-medium text-primary">Variant:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.variants.map((variant: any) => (
+                      <Button
+                        key={variant.variantValue}
+                        variant={
+                          selectedVariant === variant.variantValue
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setSelectedVariant(variant.variantValue)}
+                        className={
+                          selectedVariant === variant.variantValue
+                            ? "bg-emerald-500 hover:bg-emerald-600"
+                            : "border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                        }
+                      >
+                        {variant.variantValue}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-4 pt-6 border-t">
@@ -293,7 +334,7 @@ export default function ProductPage({
               className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart - {product.price * 2 * quantity} credits
+              Add to Cart - {selectedVariantCredits * quantity} credits
             </Button>
             <div className="flex space-x-3">
               <Button
@@ -323,17 +364,20 @@ export default function ProductPage({
                 Specifications
               </h3>
               <div className="space-y-3">
-                {Object.entries(
-                  product.specifications as Record<string, string>
-                ).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="flex justify-between border-b border-gray-100 pb-2"
-                  >
-                    <span className="text-gray-600">{key}</span>
-                    <span className="text-primary">{String(value)}</span>
-                  </div>
-                ))}
+                {(product.specifications as
+                  | Record<string, string>
+                  | undefined) &&
+                  Object.entries(
+                    product.specifications as Record<string, string>
+                  ).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between border-b border-gray-100 pb-2"
+                    >
+                      <span className="text-gray-600">{key}</span>
+                      <span className="text-primary">{String(value)}</span>
+                    </div>
+                  ))}
                 <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">Product ID</span>
                   <span className="text-primary">{product.id}</span>
@@ -367,15 +411,15 @@ export default function ProductPage({
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-primary">
-                    {product.brand || product.vendorName}
+                    {product.vendorName}
                   </h3>
                   <p className="text-gray-600">Trusted Fitness Partner</p>
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                {product.brand || product.vendorName} has been providing premium
-                fitness equipment for over 15 years, helping millions achieve
-                their wellness goals.
+                {product.vendorName} has been providing premium fitness
+                equipment for over 15 years, helping millions achieve their
+                wellness goals.
               </p>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-1">

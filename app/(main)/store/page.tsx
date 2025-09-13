@@ -82,9 +82,9 @@ export default function WellnessStore() {
       });
     } else if (result.isNewItem) {
       toast.success(`${product.name} added to cart!`, {
-        description: `${Math.round(
-          product.price / 100
-        )} credits - Great choice for your wellness journey!`,
+        description: `${
+          product.price * 2
+        } credits - Great choice for your wellness journey!`,
         duration: 3000,
       });
     }

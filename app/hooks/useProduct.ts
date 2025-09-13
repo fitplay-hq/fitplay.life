@@ -16,8 +16,6 @@ export const useProduct = (id: string) => {
     }
   );
 
-  console.log({data})
-
   return {
     product: data,
     isLoading,

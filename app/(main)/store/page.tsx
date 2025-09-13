@@ -83,6 +83,23 @@ export default function WellnessStore() {
 
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
+  // Helper functions to get lowest prices from variants
+  const getLowestCredits = (product: Product): number => {
+    if (!product.variants || product.variants.length === 0) return 0;
+    const credits = product.variants
+      .map((v) => v.mrp)
+      .filter((c) => c !== null && !isNaN(c)) as number[];
+    return credits.length > 0 ? Math.min(...credits) * 2 : 0;
+  };
+
+  const getLowestMRP = (product: Product): number => {
+    if (!product.variants || product.variants.length === 0) return 0;
+    const mrps = product.variants
+      .map((v) => v.mrp)
+      .filter((mrp) => mrp != null);
+    return mrps.length > 0 ? Math.min(...mrps) : 0;
+  };
+
   const handleAddToCart = (product: any) => {
     // Check if user is logged in
     if (!isAuthenticated) {
@@ -112,10 +129,8 @@ export default function WellnessStore() {
         duration: 3000,
       });
     } else if (result.isNewItem) {
-      // Get credits from variants (assuming first variant has the credits)
-      const credits = product.variants?.[0]?.credits
-        ? parseInt(product.variants[0].credits as string)
-        : 0;
+      // Get lowest credits from variants
+      const credits = getLowestCredits(product as Product);
       toast.success(`${product.name} added to cart!`, {
         description: `${credits} credits - Great choice for your wellness journey!`,
         duration: 3000,
@@ -254,10 +269,8 @@ export default function WellnessStore() {
       selectedBrands.length === 0 ||
       (product.vendorName && selectedBrands.includes(product.vendorName));
 
-    // Price range filter (using credits from first variant)
-    const productCredits = (product as Product).variants?.[0]?.credits
-      ? parseInt((product as Product).variants[0].credits!)
-      : 0;
+    // Price range filter (using lowest credits from variants)
+    const productCredits = getLowestCredits(product as Product);
     const matchesPriceRange =
       selectedPriceRanges.length === 0 ||
       selectedPriceRanges.some((rangeValue) => {
@@ -287,21 +300,13 @@ export default function WellnessStore() {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "price-low": {
-        const aCredits = (a as Product).variants?.[0]?.credits
-          ? parseInt((a as Product).variants[0].credits!)
-          : 0;
-        const bCredits = (b as Product).variants?.[0]?.credits
-          ? parseInt((b as Product).variants[0].credits!)
-          : 0;
+        const aCredits = getLowestCredits(a as Product);
+        const bCredits = getLowestCredits(b as Product);
         return aCredits - bCredits;
       }
       case "price-high": {
-        const aCredits = (a as Product).variants?.[0]?.credits
-          ? parseInt((a as Product).variants[0].credits!)
-          : 0;
-        const bCredits = (b as Product).variants?.[0]?.credits
-          ? parseInt((b as Product).variants[0].credits!)
-          : 0;
+        const aCredits = getLowestCredits(a as Product);
+        const bCredits = getLowestCredits(b as Product);
         return bCredits - aCredits;
       }
       case "rating":
@@ -690,14 +695,14 @@ export default function WellnessStore() {
                         </h3>
                       </Link>
                       <div className="mt-auto mb-2">
-                        <span className="font-bold text-emerald-600">
-                          {(product as Product).variants?.[0]?.credits
-                            ? parseInt(
-                                (product as Product).variants[0].credits!
-                              )
-                            : 0}{" "}
-                          credits
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-bold text-emerald-600 text-lg">
+                            {getLowestCredits(product as Product)} credits
+                          </span>
+                          <span className="text-sm text-gray-500 line-through">
+                            ₹{getLowestMRP(product as Product)}
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                     <CardFooter className="p-3 pt-0 mt-auto">

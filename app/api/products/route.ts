@@ -57,6 +57,9 @@ export async function GET(req: NextRequest) {
             orderBy: {
                 [safeSortBy]: safeSortOrder,
             },
+            include: {
+                variants: true,
+            },
         });
         return NextResponse.json({ message: "Products retrieved successfully", data: products });
     } catch (error) {

@@ -34,6 +34,49 @@ export default function ProductPage({
       .join(" "); // Capitalize each word
   };
 
+  // Helper function to group variants by category
+  const groupVariantsByCategory = (variants: any[]) => {
+    const grouped: Record<string, any[]> = {};
+    variants.forEach((variant: any) => {
+      if (!grouped[variant.variantCategory]) {
+        grouped[variant.variantCategory] = [];
+      }
+      grouped[variant.variantCategory].push(variant);
+    });
+    return grouped;
+  };
+
+  // Helper function to get selected variant price
+  const getSelectedVariantPrice = () => {
+    if (!product?.variants?.length) return 0;
+
+    const groupedVariants = groupVariantsByCategory(product.variants);
+    const categories = Object.keys(groupedVariants);
+
+    // If no variants selected or only one category, return first variant price
+    if (!Object.keys(selectedVariants).length || categories.length === 1) {
+      return (product.variants[0] as any)?.mrp || 0;
+    }
+
+    // Find the variant that matches all selected options
+    const matchingVariant = product.variants.find((variant: any) => {
+      return categories.every((category) => {
+        return (
+          selectedVariants[category] === variant.variantValue &&
+          groupedVariants[category].some(
+            (v: any) => v.variantValue === variant.variantValue
+          )
+        );
+      });
+    });
+
+    return (
+      (matchingVariant as any)?.mrp || (product.variants[0] as any)?.mrp || 0
+    );
+  };
+
+  const selectedVariantPrice = getSelectedVariantPrice();
+
   const addToCart = useSetAtom(addToCartAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
   const { product, isLoading, error } = useProduct(id);
@@ -42,7 +85,7 @@ export default function ProductPage({
     if (!product) return;
 
     for (let i = 0; i < quantity; i++) {
-      const result = addToCart(product);
+      const result = addToCart({ product, selectedVariants });
       setCartAnimation(true);
       setTimeout(() => setCartAnimation(false), 600);
 
@@ -55,7 +98,7 @@ export default function ProductPage({
       } else if (result.isNewItem) {
         toast.success(`${product.name} added to cart!`, {
           description: `${
-            product.price * 2
+            selectedVariantPrice * 2
           } credits - Great choice for your wellness journey!`,
           duration: 3000,
         });
@@ -65,6 +108,9 @@ export default function ProductPage({
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedVariants, setSelectedVariants] = useState<
+    Record<string, string>
+  >({});
 
   // Handle loading and error states
   if (isLoading) {
@@ -229,14 +275,14 @@ export default function ProductPage({
             <div className="flex flex-col gap-1">
               <div className="flex items-center space-x-4">
                 <span className="text-3xl text-primary font-bold">
-                  {product.price * 2} credits
+                  {selectedVariantPrice * 2} credits
                 </span>
                 <Badge className="bg-emerald-100 text-emerald-800">
                   Great Value
                 </Badge>
               </div>
               <span className="text-lg text-muted-foreground line-through">
-                ₹{product.price}
+                ₹{selectedVariantPrice}
               </span>
             </div>
             <p className="text-sm text-gray-600">
@@ -246,6 +292,49 @@ export default function ProductPage({
 
           <div className="space-y-4">
             <p className="text-gray-700">{product.description}</p>
+
+            {/* Variant Selection */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-4">
+                {Object.entries(groupVariantsByCategory(product.variants)).map(
+                  ([category, variants]: [string, any[]]) => (
+                    <div key={category} className="space-y-2">
+                      <h3 className="font-medium text-primary">
+                        {formatCategoryName(category)}:
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {variants.map((variant: any) => (
+                          <Button
+                            key={`${category}-${variant.variantValue}`}
+                            variant={
+                              selectedVariants[category] ===
+                              variant.variantValue
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() =>
+                              setSelectedVariants((prev) => ({
+                                ...prev,
+                                [category]: variant.variantValue,
+                              }))
+                            }
+                            className={
+                              selectedVariants[category] ===
+                              variant.variantValue
+                                ? "bg-emerald-500 hover:bg-emerald-600"
+                                : "border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                            }
+                          >
+                            {variant.variantValue}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-4 pt-6 border-t">
@@ -278,7 +367,7 @@ export default function ProductPage({
               className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart - {product.price * 2 * quantity} credits
+              Add to Cart - {selectedVariantPrice * 2 * quantity} credits
             </Button>
             <div className="flex space-x-3">
               <Button

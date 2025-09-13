@@ -45,7 +45,12 @@ export async function GET(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");
     if (id) {
-      const product = await prisma.product.findUnique({ where: { id } });
+      const product = await prisma.product.findUnique({
+        where: { id },
+        include: {
+          variants: true,
+        },
+      });
       if (!product) {
         return NextResponse.json({ message: "Product not found" }, { status: 404 });
       }

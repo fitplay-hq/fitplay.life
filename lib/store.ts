@@ -9,17 +9,26 @@ export interface CartItem {
   credits: number;
   image: string;
   quantity: number;
+  selectedVariants?: Record<string, string>; // Add selected variants
+  variantKey?: string; // Unique key for variant combination
 }
 
 export const cartItemsAtom = atomWithStorage<CartItem[]>('cartItems', []);
 
 export const getCartItemQuantityAtom = atom(
-  (get) => (productId: string): number => {
+  (get) => (productId: string, selectedVariants?: Record<string, string>): number => {
     const cartItems = get(cartItemsAtom);
-    const item = cartItems.find(item =>
-      item.productId === productId
-    );
-    return item ? item.quantity : 0;
+
+    if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+      // For variant products, find by variant key
+      const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+      const item = cartItems.find(item => item.variantKey === variantKey);
+      return item ? item.quantity : 0;
+    } else {
+      // For non-variant products, find by productId (legacy support)
+      const item = cartItems.find(item => item.productId === productId && !item.variantKey);
+      return item ? item.quantity : 0;
+    }
   }
 );
 
@@ -29,12 +38,17 @@ export const clearCartAtom = atom(null, (get, set) => {
 
 export const addToCartAtom = atom(
   null,
-  (get, set, product: any) => {
+  (get, set, { product, selectedVariants }: { product: any; selectedVariants?: Record<string, string> }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Check if product already exists in cart
+    // Create a unique key for this variant combination
+    const variantKey = selectedVariants && Object.keys(selectedVariants).length > 0
+      ? `${product.id}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`
+      : product.id;
+
+    // Check if this exact variant combination already exists in cart
     const existingItem = currentItems.find(item =>
-      item.productId === product.id
+      item.variantKey === variantKey
     );
 
     const result = {
@@ -51,23 +65,27 @@ export const addToCartAtom = atom(
       result.item = { ...existingItem, quantity: result.newQuantity };
 
       const updatedItems = currentItems.map(item =>
-        item.productId === product.id
+        item.variantKey === variantKey
           ? { ...item, quantity: result.newQuantity }
           : item
       );
 
       set(cartItemsAtom, updatedItems);
     } else {
-      // If new product, add to cart with quantity 1
+      // If new variant combination, add to cart with quantity 1
       result.isNewItem = true;
       const newItem: CartItem = {
         id: Date.now() + Math.random(), // Ensure unique ID
         productId: product.id,
         title: product.name,
         brand: product.brand || 'FitPlay',
-        credits: product.price * 2, // Convert price to credits (multiply by 2)
+        credits: (selectedVariants && product.variants?.length)
+          ? getSelectedVariantPrice(product, selectedVariants) * 2
+          : (product.price || product.variants?.[0]?.mrp || 0) * 2,
         image: product.images?.[0] || '',
-        quantity: 1
+        quantity: 1,
+        selectedVariants,
+        variantKey
       };
       result.item = newItem;
 
@@ -77,6 +95,32 @@ export const addToCartAtom = atom(
     return result;
   }
 );
+
+// Helper function to get selected variant price
+function getSelectedVariantPrice(product: any, selectedVariants: Record<string, string>) {
+  if (!product.variants?.length) return product.price || 0;
+
+  // Group variants by category
+  const groupedVariants: Record<string, any[]> = {};
+  product.variants.forEach((variant: any) => {
+    if (!groupedVariants[variant.variantCategory]) {
+      groupedVariants[variant.variantCategory] = [];
+    }
+    groupedVariants[variant.variantCategory].push(variant);
+  });
+
+  const categories = Object.keys(groupedVariants);
+
+  // Find the variant that matches all selected options
+  const matchingVariant = product.variants.find((variant: any) => {
+    return categories.every((category) => {
+      return selectedVariants[category] === variant.variantValue &&
+             groupedVariants[category].some((v: any) => v.variantValue === variant.variantValue);
+    });
+  });
+
+  return matchingVariant?.mrp || product.variants[0]?.mrp || 0;
+}
 
 export const removeFromCartAtom = atom(
   null,
@@ -123,16 +167,21 @@ export const updateCartQuantityAtom = atom(
 
 export const updateCartQuantityByProductAtom = atom(
   null,
-  (get, set, { productId, quantity }: {
+  (get, set, { productId, quantity, selectedVariants }: {
     productId: string;
     quantity: number;
+    selectedVariants?: Record<string, string>;
   }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Find the item by productId
-    const existingItem = currentItems.find(item =>
-      item.productId === productId
-    );
+    // Find the item by productId and variant combination
+    let existingItem;
+    if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+      const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+      existingItem = currentItems.find(item => item.variantKey === variantKey);
+    } else {
+      existingItem = currentItems.find(item => item.productId === productId && !item.variantKey);
+    }
 
     if (!existingItem) {
       return { action: 'not_found', productId } as const;
@@ -140,18 +189,32 @@ export const updateCartQuantityByProductAtom = atom(
 
     if (quantity <= 0) {
       // Remove item if quantity is 0 or negative
-      const updatedItems = currentItems.filter(item =>
-        item.productId !== productId
-      );
+      let updatedItems;
+      if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+        const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+        updatedItems = currentItems.filter(item => item.variantKey !== variantKey);
+      } else {
+        updatedItems = currentItems.filter(item => item.productId !== productId && !item.variantKey);
+      }
       set(cartItemsAtom, updatedItems);
       return { action: 'removed', item: existingItem } as const;
     } else {
       // Update the quantity
-      const updatedItems = currentItems.map(item =>
-        item.productId === productId
-          ? { ...item, quantity }
-          : item
-      );
+      let updatedItems;
+      if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+        const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+        updatedItems = currentItems.map(item =>
+          item.variantKey === variantKey
+            ? { ...item, quantity }
+            : item
+        );
+      } else {
+        updatedItems = currentItems.map(item =>
+          item.productId === productId && !item.variantKey
+            ? { ...item, quantity }
+            : item
+        );
+      }
       set(cartItemsAtom, updatedItems);
 
       const updatedItem = { ...existingItem, quantity };

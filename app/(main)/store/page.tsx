@@ -664,7 +664,7 @@ export default function WellnessStore() {
                     className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full border-0 shadow-sm"
                   >
                     <div className="aspect-square overflow-hidden rounded-t-lg bg-gray-100">
-                      <Link href={`/product/${index + 1}`}>
+                      <Link href={`/product/${product.id}`}>
                         <ImageWithFallback
                           src={product.images[0] || "/placeholder.png"}
                           alt={product.name}

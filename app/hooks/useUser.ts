@@ -1,25 +1,24 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export const useUser = () => {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const user = session?.user || null;
 
-  // Handle redirect after login
-  useEffect(() => {
-    if (status === 'authenticated' && user) {
-      const returnUrl = searchParams.get('returnUrl');
-      if (returnUrl) {
-        router.push(returnUrl);
-      }
-    }
-  }, [status, user, searchParams, router]);
+  // // Handle redirect after login
+  // useEffect(() => {
+  //   if (status === 'authenticated' && user) {
+  //     const returnUrl = searchParams.get('returnUrl');
+  //     if (returnUrl) {
+  //       router.push(returnUrl);
+  //     }
+  //   }
+  // }, [status, user, searchParams, router]);
 
   // Clear login error when component unmounts or pathname changes
   useEffect(() => {
@@ -73,12 +72,12 @@ export const useUser = () => {
 
   const requireAuth = useCallback((redirectTo = '/login') => {
     if (status === 'unauthenticated') {
-      const returnUrl = `${pathname}${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
-      router.push(`${redirectTo}?returnUrl=${encodeURIComponent(returnUrl)}`);
+      // const returnUrl = `${pathname}${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
+      router.push(redirectTo);
       return false;
     }
     return status === 'authenticated';
-  }, [status, pathname, searchParams, router]);
+  }, [status, router]);
 
   return {
     user,

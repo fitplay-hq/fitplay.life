@@ -1,23 +1,18 @@
+"use client";
+
 import { User, Settings, Wallet, History, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getServerAuthSession } from "@/lib/auth";
 import NotificationPreferences from "@/components/profile/notification-preferences";
 import { signOut } from "next-auth/react";
-import { assertNonNull } from "@/lib/assert";
 import PersonalInformation from "@/components/profile/personal-information";
+import { useUser } from "@/app/hooks/useUser";
 
-export default async function ProfilePage() {
-  const session = await getServerAuthSession();
-  assertNonNull(
-    session,
-    "Session should never be null (checked in middleware)"
-  );
-
-  const { user } = session;
+export default function ProfilePage() {
+  const { user } = useUser();
 
   const orderHistory = [
     {

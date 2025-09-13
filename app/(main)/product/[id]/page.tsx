@@ -397,7 +397,9 @@ export default function ProductPage({
                 Specifications
               </h3>
               <div className="space-y-3">
-                {product.specifications &&
+                {(product.specifications as
+                  | Record<string, string>
+                  | undefined) &&
                   Object.entries(
                     product.specifications as Record<string, string>
                   ).map(([key, value]) => (
@@ -442,15 +444,15 @@ export default function ProductPage({
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-primary">
-                    {product.brand || product.vendorName}
+                    {product.vendorName}
                   </h3>
                   <p className="text-gray-600">Trusted Fitness Partner</p>
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                {product.brand || product.vendorName} has been providing premium
-                fitness equipment for over 15 years, helping millions achieve
-                their wellness goals.
+                {product.vendorName} has been providing premium fitness
+                equipment for over 15 years, helping millions achieve their
+                wellness goals.
               </p>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-1">

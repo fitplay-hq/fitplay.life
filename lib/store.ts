@@ -65,7 +65,7 @@ export const addToCartAtom = atom(
         productId: product.id,
         title: product.name,
         brand: product.brand || 'FitPlay',
-        credits: Math.round(product.price / 100), // Convert from cents to credits
+        credits: product.price * 2, // Convert price to credits (multiply by 2)
         image: product.images?.[0] || '',
         quantity: 1
       };

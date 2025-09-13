@@ -100,15 +100,13 @@ export default function ProductCard({
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-col gap-1">
           <p className="text-lg font-bold text-foreground">
-            ₹{(product.price / 100).toFixed(2)}
+            {product.price * 2} credits
           </p>
-          {product.discount && (
-            <p className="text-sm text-muted-foreground line-through">
-              ₹{product.price.toFixed(2)}
-            </p>
-          )}
+          <p className="text-sm text-muted-foreground line-through">
+            ₹{product.price}
+          </p>
         </div>
       </CardContent>
 

@@ -54,9 +54,9 @@ export default function ProductPage({
         });
       } else if (result.isNewItem) {
         toast.success(`${product.name} added to cart!`, {
-          description: `${Math.round(
-            product.price / 100
-          )} credits - Great choice for your wellness journey!`,
+          description: `${
+            product.price * 2
+          } credits - Great choice for your wellness journey!`,
           duration: 3000,
         });
       }
@@ -226,13 +226,18 @@ export default function ProductPage({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center space-x-4">
-              <span className="text-3xl text-primary font-bold">
-                {Math.round(product.price / 100)} credits
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center space-x-4">
+                <span className="text-3xl text-primary font-bold">
+                  {product.price * 2} credits
+                </span>
+                <Badge className="bg-emerald-100 text-emerald-800">
+                  Great Value
+                </Badge>
+              </div>
+              <span className="text-lg text-muted-foreground line-through">
+                ₹{product.price}
               </span>
-              <Badge className="bg-emerald-100 text-emerald-800">
-                Great Value
-              </Badge>
             </div>
             <p className="text-sm text-gray-600">
               Use your company wellness credits to purchase
@@ -288,7 +293,7 @@ export default function ProductPage({
               className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart - {Math.round(product.price / 100) * quantity} credits
+              Add to Cart - {product.price * 2 * quantity} credits
             </Button>
             <div className="flex space-x-3">
               <Button

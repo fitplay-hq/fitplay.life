@@ -25,6 +25,16 @@ export default function ProductPage({
 }) {
   const { id } = use(params);
 
+  const addToCart = useSetAtom(addToCartAtom);
+  const setCartAnimation = useSetAtom(cartAnimationAtom);
+  const { product, isLoading, error } = useProduct(id);
+
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedVariants, setSelectedVariants] = useState<
+    Record<string, string>
+  >({});
+
   // Helper function to format category names
   const formatCategoryName = (category: string) => {
     return category
@@ -48,7 +58,7 @@ export default function ProductPage({
 
   // Helper function to get selected variant price
   const getSelectedVariantPrice = () => {
-    if (!product?.variants?.length) return 0;
+    if (!product || !product?.variants?.length) return 0;
 
     const groupedVariants = groupVariantsByCategory(product.variants);
     const categories = Object.keys(groupedVariants);
@@ -77,10 +87,6 @@ export default function ProductPage({
 
   const selectedVariantPrice = getSelectedVariantPrice();
 
-  const addToCart = useSetAtom(addToCartAtom);
-  const setCartAnimation = useSetAtom(cartAnimationAtom);
-  const { product, isLoading, error } = useProduct(id);
-
   const handleAddToCart = () => {
     if (!product) return;
 
@@ -105,12 +111,6 @@ export default function ProductPage({
       }
     }
   };
-
-  const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedVariants, setSelectedVariants] = useState<
-    Record<string, string>
-  >({});
 
   // Handle loading and error states
   if (isLoading) {

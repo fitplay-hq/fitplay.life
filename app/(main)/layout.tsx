@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/navbar";
-import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({
   children,
@@ -8,11 +7,9 @@ export default function RootLayout({
 }>) {
   return (
     <div className="min-h-screen bg-background">
-        <Navbar />
+      <Navbar />
 
-        <main className="pt-16">
-            {children}
-        </main>
+      <main className="pt-16">{children}</main>
     </div>
   );
 }

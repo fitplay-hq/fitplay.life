@@ -10,9 +10,14 @@ import NotificationPreferences from "@/components/profile/notification-preferenc
 import { signOut } from "next-auth/react";
 import PersonalInformation from "@/components/profile/personal-information";
 import { useUser } from "@/app/hooks/useUser";
+import { redirect } from "next/navigation";
 
 export default function ProfilePage() {
   const { user } = useUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const orderHistory = [
     {

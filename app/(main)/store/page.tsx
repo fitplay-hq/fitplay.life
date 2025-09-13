@@ -82,9 +82,9 @@ export default function WellnessStore() {
       });
     } else if (result.isNewItem) {
       toast.success(`${product.name} added to cart!`, {
-        description: `₹${(product.price / 100).toFixed(
-          2
-        )} - Great choice for your wellness journey!`,
+        description: `${Math.round(
+          product.price / 100
+        )} credits - Great choice for your wellness journey!`,
         duration: 3000,
       });
     }
@@ -95,6 +95,12 @@ export default function WellnessStore() {
   const [sortBy, setSortBy] = useState("featured");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [brandsOpen, setBrandsOpen] = useState(true);
+
+  // Quick filters state
+  const [priceRange, setPriceRange] = useState<string>("");
+  const [ratingFilter, setRatingFilter] = useState<string>("");
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // Generate dynamic categories from products
   const dynamicCategories = Array.from(
@@ -118,11 +124,31 @@ export default function WellnessStore() {
     count: products.filter((p) => p.brand === brand).length,
   }));
 
+  // Generate dynamic tags from products
+  const allTags = products.flatMap((product) => product.tags || []);
+  const tagFrequency = allTags.reduce((acc, tag) => {
+    acc[tag] = (acc[tag] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const popularTags = Object.entries(tagFrequency)
+    .sort(([, a], [, b]) => b - a) // Sort by frequency descending
+    .slice(0, 8) // Take top 8 most popular tags
+    .map(([tag, count]) => ({ name: tag, count }));
+
   const handleBrandChange = (brand: string, checked: boolean) => {
     if (checked) {
       setSelectedBrands([...selectedBrands, brand]);
     } else {
       setSelectedBrands(selectedBrands.filter((b) => b !== brand));
+    }
+  };
+
+  const handleTagChange = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
     }
   };
 
@@ -136,7 +162,49 @@ export default function WellnessStore() {
     const matchesBrand =
       selectedBrands.length === 0 ||
       (product.brand && selectedBrands.includes(product.brand));
-    return matchesSearch && matchesCategory && matchesBrand;
+
+    // Quick filters
+    const matchesPriceRange = (() => {
+      const price = Math.round(product.price / 100);
+      switch (priceRange) {
+        case "under-100":
+          return price < 100;
+        case "100-300":
+          return price >= 100 && price <= 300;
+        case "over-300":
+          return price > 300;
+        default:
+          return true;
+      }
+    })();
+
+    const matchesRating = (() => {
+      const rating = product.avgRating || 0;
+      switch (ratingFilter) {
+        case "4-stars":
+          return rating >= 4;
+        case "3-stars":
+          return rating >= 3;
+        default:
+          return true;
+      }
+    })();
+
+    const matchesStock = !inStockOnly || product.availableStock > 0;
+
+    const matchesTags =
+      selectedTags.length === 0 ||
+      (product.tags && selectedTags.some((tag) => product.tags.includes(tag)));
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesBrand &&
+      matchesPriceRange &&
+      matchesRating &&
+      matchesStock &&
+      matchesTags
+    );
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -203,160 +271,298 @@ export default function WellnessStore() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+    <div className="max-w-4/5 mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl md:text-4xl text-primary mb-6">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl text-primary mb-3">
           Wellness Store
         </h1>
-        <p className="text-gray-600 max-w-3xl text-lg leading-relaxed">
+        <p className="text-gray-600 max-w-3xl text-sm leading-relaxed">
           Discover curated wellness products, fitness equipment, and health
           supplements. Use your company wellness credits to invest in your
           health journey.
         </p>
       </div>
 
-      <div className="flex gap-12">
-        {/* Left Sidebar - Filters */}
-        <div className="w-80 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-8 sticky top-24 shadow-sm">
-            {/* Search */}
-            <div className="mb-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+      {/* Top Filter Bar */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* Search */}
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-9"
+              />
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Category:</span>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {category.label} ({category.count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sort */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">Sort:</span>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="featured">Featured</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Brands Filter - Compact */}
+          {brands.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Brands:</span>
+              <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
+                <CollapsibleTrigger className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700">
+                  Filter Brands
+                  {brandsOpen ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="absolute top-full left-0 bg-white border border-gray-200 rounded-md p-3 mt-1 shadow-lg z-10 min-w-[200px]">
+                  <div className="space-y-2">
+                    {brands.map((brand) => (
+                      <div
+                        key={brand.name}
+                        className="flex items-center space-x-2"
+                      >
+                        <Checkbox
+                          id={`top-${brand.name}`}
+                          checked={selectedBrands.includes(brand.name)}
+                          onCheckedChange={(checked) =>
+                            handleBrandChange(brand.name, checked === true)
+                          }
+                          className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                        />
+                        <label
+                          htmlFor={`top-${brand.name}`}
+                          className="text-sm text-gray-700 cursor-pointer"
+                        >
+                          {brand.name} ({brand.count})
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
+
+          {/* Clear Filters */}
+          {(selectedBrands.length > 0 ||
+            selectedCategory !== "all" ||
+            searchTerm ||
+            sortBy !== "featured" ||
+            priceRange ||
+            ratingFilter ||
+            inStockOnly ||
+            selectedTags.length > 0) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedBrands([]);
+                setSelectedCategory("all");
+                setSearchTerm("");
+                setSortBy("featured");
+                setPriceRange("");
+                setRatingFilter("");
+                setInStockOnly(false);
+                setSelectedTags([]);
+              }}
+              className="h-9 text-xs border-gray-300 hover:border-emerald-500 hover:text-emerald-600"
+            >
+              Clear All
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex gap-6">
+        {/* Compact Sidebar - Quick Filters */}
+        <div className="w-64 flex-shrink-0">
+          <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 sticky top-4">
+            <h3 className="font-medium mb-3 text-gray-900 text-sm">
+              Quick Filters
+            </h3>
+
+            {/* Brands Filter */}
+            {brands.length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-700 mb-2">
+                  Brands
+                </h4>
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {brands.slice(0, 6).map((brand) => (
+                    <label
+                      key={brand.name}
+                      className="flex items-center space-x-2 cursor-pointer text-xs"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedBrands.includes(brand.name)}
+                        onChange={(e) =>
+                          handleBrandChange(brand.name, e.target.checked)
+                        }
+                        className="w-3 h-3 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                      />
+                      <span className="truncate">{brand.name}</span>
+                      <span className="text-gray-500">({brand.count})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Price Range */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-700 mb-2">
+                Price Range
+              </h4>
+              <div className="space-y-1">
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                  <input
+                    type="radio"
+                    name="price"
+                    value="under-100"
+                    checked={priceRange === "under-100"}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span>Under 100 credits</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                  <input
+                    type="radio"
+                    name="price"
+                    value="100-300"
+                    checked={priceRange === "100-300"}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span>100-300 credits</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                  <input
+                    type="radio"
+                    name="price"
+                    value="over-300"
+                    checked={priceRange === "over-300"}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span>300+ credits</span>
+                </label>
               </div>
             </div>
 
-            {/* Categories */}
-            <div className="mb-8">
-              <h3 className="font-medium mb-4 text-gray-900">Categories</h3>
-              <div className="space-y-4">
-                {categories.map((category) => (
-                  <label
-                    key={category.value}
-                    className="flex items-center space-x-3 cursor-pointer group"
+            {/* Rating Filter */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-700 mb-2">Rating</h4>
+              <div className="space-y-1">
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="4-stars"
+                    checked={ratingFilter === "4-stars"}
+                    onChange={(e) => setRatingFilter(e.target.value)}
+                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span>4+ stars</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="3-stars"
+                    checked={ratingFilter === "3-stars"}
+                    onChange={(e) => setRatingFilter(e.target.value)}
+                    className="w-3 h-3 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span>3+ stars</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Availability */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-700 mb-2">
+                Availability
+              </h4>
+              <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                  className="w-3 h-3 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                />
+                <span>In Stock Only</span>
+              </label>
+            </div>
+
+            {/* Popular Tags */}
+            <div>
+              <h4 className="text-xs font-medium text-gray-700 mb-2">
+                Popular Tags
+              </h4>
+              <div className="flex flex-wrap gap-1">
+                {popularTags.map((tag) => (
+                  <Badge
+                    key={tag.name}
+                    variant={
+                      selectedTags.includes(tag.name) ? "default" : "outline"
+                    }
+                    className={`text-xs px-2 py-1 cursor-pointer transition-colors ${
+                      selectedTags.includes(tag.name)
+                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                        : "hover:bg-emerald-50 border-gray-300"
+                    }`}
+                    onClick={() => handleTagChange(tag.name)}
                   >
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        name="category"
-                        value={category.value}
-                        checked={selectedCategory === category.value}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-4 h-4 rounded-full border-2 transition-colors ${
-                          selectedCategory === category.value
-                            ? "border-emerald-500 bg-emerald-500"
-                            : "border-gray-300 group-hover:border-emerald-400"
-                        }`}
-                      >
-                        {selectedCategory === category.value && (
-                          <div className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-700 flex-1">
-                      {category.label}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      ({category.count})
-                    </span>
-                  </label>
+                    {tag.name}
+                  </Badge>
                 ))}
               </div>
             </div>
-
-            {/* Sort */}
-            <div className="mb-8">
-              <h3 className="font-medium mb-4 text-gray-900">Sort By</h3>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Brands - Only show if there are brands available */}
-            {brands.length > 0 && (
-              <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full mb-4 hover:text-emerald-600 transition-colors">
-                  <h3 className="font-medium text-gray-900">Brands</h3>
-                  {brandsOpen ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-4">
-                  {brands.map((brand) => (
-                    <div
-                      key={brand.name}
-                      className="flex items-center space-x-3"
-                    >
-                      <Checkbox
-                        id={brand.name}
-                        checked={selectedBrands.includes(brand.name)}
-                        onCheckedChange={(checked) =>
-                          handleBrandChange(brand.name, checked === true)
-                        }
-                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
-                      />
-                      <label
-                        htmlFor={brand.name}
-                        className="text-sm text-gray-700 cursor-pointer flex-1"
-                      >
-                        {brand.name}
-                      </label>
-                      <span className="text-xs text-gray-500">
-                        ({brand.count})
-                      </span>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-            )}
-
-            {/* Clear Filters */}
-            {(selectedBrands.length > 0 ||
-              selectedCategory !== "all" ||
-              searchTerm ||
-              sortBy !== "featured") && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedBrands([]);
-                  setSelectedCategory("all");
-                  setSearchTerm("");
-                  setSortBy("featured");
-                }}
-                className="w-full mt-6 text-gray-600 border-gray-300 hover:border-emerald-500 hover:text-emerald-600"
-              >
-                Clear All Filters
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           {/* Results Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             <p className="text-gray-600 text-lg">
               Showing {sortedProducts.length} of {products.length} products
               {searchTerm && <span> for &quot;{searchTerm}&quot;</span>}
@@ -368,24 +574,25 @@ export default function WellnessStore() {
 
           {/* Loading State */}
           {(userLoading || productsLoading) && (
-            <div className="flex justify-center items-center py-16">
+            <div className="flex justify-center items-center py-8">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading products...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
+                <p className="text-gray-600 text-sm">Loading products...</p>
               </div>
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="text-center py-16">
-              <p className="text-red-600 mb-6 text-lg">
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4 text-sm">
                 Error loading products: {error.message}
               </p>
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => window.location.reload()}
-                className="border-red-500 text-red-600 hover:bg-red-50 px-8 py-3"
+                className="border-red-500 text-red-600 hover:bg-red-50"
               >
                 Try Again
               </Button>
@@ -394,7 +601,7 @@ export default function WellnessStore() {
 
           {/* Product Grid - Limited to 3 columns */}
           {!userLoading && !productsLoading && !error && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {sortedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -414,7 +621,7 @@ export default function WellnessStore() {
             !productsLoading &&
             !error &&
             sortedProducts.length === 0 && (
-              <div className="text-center py-16">
+              <div className="text-center py-8">
                 <p className="text-gray-500 mb-6 text-lg">
                   No products found matching your criteria.
                 </p>
@@ -424,8 +631,12 @@ export default function WellnessStore() {
                     setSelectedBrands([]);
                     setSelectedCategory("all");
                     setSearchTerm("");
+                    setPriceRange("");
+                    setRatingFilter("");
+                    setInStockOnly(false);
+                    setSelectedTags([]);
                   }}
-                  className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-8 py-3"
+                  className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
                 >
                   Clear All Filters
                 </Button>

@@ -56,14 +56,14 @@ export default function ProductPage({
     return grouped;
   };
 
-  // Helper function to get selected variant price
-  const getSelectedVariantPrice = () => {
+  // Helper functions to get selected variant MRP and credits
+  const getSelectedVariantMRP = () => {
     if (!product || !product?.variants?.length) return 0;
 
     const groupedVariants = groupVariantsByCategory(product.variants);
     const categories = Object.keys(groupedVariants);
 
-    // If no variants selected or only one category, return first variant price
+    // If no variants selected or only one category, return first variant MRP
     if (!Object.keys(selectedVariants).length || categories.length === 1) {
       return (product.variants[0] as any)?.mrp || 0;
     }
@@ -85,7 +85,12 @@ export default function ProductPage({
     );
   };
 
-  const selectedVariantPrice = getSelectedVariantPrice();
+  const getSelectedVariantCredits = () => {
+    return getSelectedVariantMRP() * 2;
+  };
+
+  const selectedVariantMRP = getSelectedVariantMRP();
+  const selectedVariantCredits = getSelectedVariantCredits();
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -104,7 +109,7 @@ export default function ProductPage({
       } else if (result.isNewItem) {
         toast.success(`${product.name} added to cart!`, {
           description: `${
-            selectedVariantPrice * 2
+            selectedVariantCredits * quantity
           } credits - Great choice for your wellness journey!`,
           duration: 3000,
         });
@@ -275,14 +280,14 @@ export default function ProductPage({
             <div className="flex flex-col gap-1">
               <div className="flex items-center space-x-4">
                 <span className="text-3xl text-primary font-bold">
-                  {selectedVariantPrice * 2} credits
+                  {selectedVariantCredits} credits
                 </span>
                 <Badge className="bg-emerald-100 text-emerald-800">
                   Great Value
                 </Badge>
               </div>
               <span className="text-lg text-muted-foreground line-through">
-                ₹{selectedVariantPrice}
+                ₹{selectedVariantMRP}
               </span>
             </div>
             <p className="text-sm text-gray-600">
@@ -367,7 +372,7 @@ export default function ProductPage({
               className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart - {selectedVariantPrice * 2 * quantity} credits
+              Add to Cart - {selectedVariantCredits * quantity} credits
             </Button>
             <div className="flex space-x-3">
               <Button

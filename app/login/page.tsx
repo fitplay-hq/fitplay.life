@@ -19,6 +19,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useUser } from "@/app/hooks/useUser";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function LoginPage() {
   const { login, isLoading, loginError } = useUser();
@@ -42,6 +43,7 @@ export default function LoginPage() {
       } else {
         toast.success("Login successful!");
       }
+      redirect("/");
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error("Login error:", error);

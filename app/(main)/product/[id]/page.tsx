@@ -62,9 +62,9 @@ export default function ProductPage({
         });
       } else if (result.isNewItem) {
         toast.success(`${product.name} added to cart!`, {
-          description: `₹${(product.price / 100).toFixed(
-            2
-          )} - Great choice for your wellness journey!`,
+          description: `${Math.round(
+            product.price / 100
+          )} credits - Great choice for your wellness journey!`,
           duration: 3000,
         });
       }
@@ -156,7 +156,7 @@ export default function ProductPage({
           Back to Store
         </Link>
         <span>/</span>
-        <span>{product.category}</span>
+        <span>Fitness Equipment</span>
         <span>/</span>
         <span className="text-gray-900">{product.name}</span>
       </div>
@@ -200,14 +200,14 @@ export default function ProductPage({
                 variant="secondary"
                 className="text-emerald-600 bg-emerald-50"
               >
-                {product.brand || "FitPlay"}
+                {product.vendorName}
               </Badge>
               {product.availableStock > 0 && (
                 <Badge
                   variant="secondary"
                   className="text-green-600 bg-green-50"
                 >
-                  In Stock ({product.availableStock})
+                  In Stock
                 </Badge>
               )}
             </div>
@@ -236,14 +236,14 @@ export default function ProductPage({
           <div className="space-y-2">
             <div className="flex items-center space-x-4">
               <span className="text-3xl text-primary font-bold">
-                ₹{(product.price / 100).toFixed(2)}
+                {Math.round(product.price / 100)} credits
               </span>
               <Badge className="bg-emerald-100 text-emerald-800">
                 Great Value
               </Badge>
             </div>
             <p className="text-sm text-gray-600">
-              Premium quality product from {product.vendorName}
+              Use your company wellness credits to purchase
             </p>
           </div>
 
@@ -251,32 +251,18 @@ export default function ProductPage({
             <p className="text-gray-700">{product.description}</p>
 
             <div>
-              <h3 className="font-medium text-primary mb-2">
-                Product Details:
-              </h3>
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">SKU:</span> {product.sku}
-                </div>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Category:</span>{" "}
-                  {product.category}
-                </div>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Vendor:</span>{" "}
-                  {product.vendorName}
-                </div>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Stock:</span>{" "}
-                  {product.availableStock} units
-                </div>
-                {product.tags.length > 0 && (
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Tags:</span>{" "}
-                    {product.tags.join(", ")}
-                  </div>
-                )}
-              </div>
+              <h3 className="font-medium text-primary mb-2">Key Features:</h3>
+              <ul className="space-y-1">
+                {product.tags.map((tag, index) => (
+                  <li
+                    key={index}
+                    className="text-sm text-gray-600 flex items-start"
+                  >
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0" />
+                    {tag}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -311,7 +297,8 @@ export default function ProductPage({
                 className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                Add to Cart - ₹{((product.price * quantity) / 100).toFixed(2)}
+                Add to Cart - {Math.round(product.price / 100) * quantity}{" "}
+                credits
               </Button>
             ) : (
               <div className="flex items-center justify-center space-x-4">
@@ -365,13 +352,24 @@ export default function ProductPage({
       {/* Product Details Sections */}
       <div className="mt-16 space-y-8">
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Product Information */}
+          {/* Specifications */}
           <Card>
             <CardContent className="p-6">
               <h3 className="text-xl font-medium text-primary mb-4">
-                Product Information
+                Specifications
               </h3>
               <div className="space-y-3">
+                {Object.entries(
+                  product.specifications as Record<string, string>
+                ).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex justify-between border-b border-gray-100 pb-2"
+                  >
+                    <span className="text-gray-600">{key}</span>
+                    <span className="text-primary">{String(value)}</span>
+                  </div>
+                ))}
                 <div className="flex justify-between border-b border-gray-100 pb-2">
                   <span className="text-gray-600">Product ID</span>
                   <span className="text-primary">{product.id}</span>
@@ -384,20 +382,12 @@ export default function ProductPage({
                   <span className="text-gray-600">Category</span>
                   <span className="text-primary">{product.category}</span>
                 </div>
-                <div className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-600">Stock Status</span>
-                  <span className="text-primary">
-                    {product.availableStock > 0
-                      ? `${product.availableStock} in stock`
-                      : "Out of stock"}
-                  </span>
-                </div>
-                <div className="flex justify-between pb-2">
-                  <span className="text-gray-600">Last Updated</span>
-                  <span className="text-primary">
-                    {new Date(product.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
+                {product.availableStock <= 0 && (
+                  <div className="flex justify-between border-b border-gray-100 pb-2">
+                    <span className="text-gray-600">Stock Status</span>
+                    <span className="text-primary">Out of Stock</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -411,21 +401,25 @@ export default function ProductPage({
                 </div>
                 <div>
                   <h3 className="text-xl font-medium text-primary">
-                    {product.brand}
+                    {product.brand || product.vendorName}
                   </h3>
                   <p className="text-gray-600">Trusted Fitness Partner</p>
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                FlexFit has been providing premium fitness equipment for over 15
-                years, helping millions achieve their wellness goals.
+                {product.brand || product.vendorName} has been providing premium
+                fitness equipment for over 15 years, helping millions achieve
+                their wellness goals.
               </p>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-1">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span>4.8 Brand Rating</span>
+                  <span>
+                    {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
+                    Brand Rating
+                  </span>
                 </div>
-                <div>500+ Products</div>
+                <div>{product.noOfReviews || "500+"} Products</div>
               </div>
             </CardContent>
           </Card>

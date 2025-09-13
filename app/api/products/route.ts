@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
         const sortOrder = searchParams.get("sortOrder") || "asc";
 
         // Define allowed sort fields for security
-        const allowedSortFields = ["name", "price", "creat                                  edAt", "updatedAt"];
+        const allowedSortFields = ["name", "price", "createdAt", "updatedAt"];
         const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "name";
         const safeSortOrder = sortOrder === "desc" ? "desc" : "asc";
 

@@ -36,11 +36,6 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
-            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-        }
-
         const id = req.nextUrl.searchParams.get("id");
         if (id) {
             const product = await prisma.product.findUnique({ where: { id } });

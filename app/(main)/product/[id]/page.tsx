@@ -31,9 +31,7 @@ export default function ProductPage({
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedVariants, setSelectedVariants] = useState<
-    Record<string, string>
-  >({});
+  const [selectedVariant, setSelectedVariant] = useState<string>("");
 
   // Helper function to format category names
   const formatCategoryName = (category: string) => {
@@ -44,41 +42,18 @@ export default function ProductPage({
       .join(" "); // Capitalize each word
   };
 
-  // Helper function to group variants by category
-  const groupVariantsByCategory = (variants: any[]) => {
-    const grouped: Record<string, any[]> = {};
-    variants.forEach((variant: any) => {
-      if (!grouped[variant.variantCategory]) {
-        grouped[variant.variantCategory] = [];
-      }
-      grouped[variant.variantCategory].push(variant);
-    });
-    return grouped;
-  };
-
   // Helper functions to get selected variant MRP and credits
   const getSelectedVariantMRP = () => {
     if (!product || !product?.variants?.length) return 0;
 
-    const groupedVariants = groupVariantsByCategory(product.variants);
-    const categories = Object.keys(groupedVariants);
-
-    // If no variants selected or only one category, return first variant MRP
-    if (!Object.keys(selectedVariants).length || categories.length === 1) {
+    if (!selectedVariant) {
       return (product.variants[0] as any)?.mrp || 0;
     }
 
-    // Find the variant that matches all selected options
-    const matchingVariant = product.variants.find((variant: any) => {
-      return categories.every((category) => {
-        return (
-          selectedVariants[category] === variant.variantValue &&
-          groupedVariants[category].some(
-            (v: any) => v.variantValue === variant.variantValue
-          )
-        );
-      });
-    });
+    // Find the variant that matches the selected variant
+    const matchingVariant = product.variants.find(
+      (variant: any) => variant.variantValue === selectedVariant
+    );
 
     return (
       (matchingVariant as any)?.mrp || (product.variants[0] as any)?.mrp || 0
@@ -96,7 +71,7 @@ export default function ProductPage({
     if (!product) return;
 
     for (let i = 0; i < quantity; i++) {
-      const result = addToCart({ product, selectedVariants });
+      const result = addToCart({ product, selectedVariant });
       setCartAnimation(true);
       setTimeout(() => setCartAnimation(false), 600);
 
@@ -301,43 +276,30 @@ export default function ProductPage({
             {/* Variant Selection */}
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-4">
-                {Object.entries(groupVariantsByCategory(product.variants)).map(
-                  ([category, variants]: [string, any[]]) => (
-                    <div key={category} className="space-y-2">
-                      <h3 className="font-medium text-primary">
-                        {formatCategoryName(category)}:
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {variants.map((variant: any) => (
-                          <Button
-                            key={`${category}-${variant.variantValue}`}
-                            variant={
-                              selectedVariants[category] ===
-                              variant.variantValue
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() =>
-                              setSelectedVariants((prev) => ({
-                                ...prev,
-                                [category]: variant.variantValue,
-                              }))
-                            }
-                            className={
-                              selectedVariants[category] ===
-                              variant.variantValue
-                                ? "bg-emerald-500 hover:bg-emerald-600"
-                                : "border-emerald-500 text-emerald-600 hover:bg-emerald-50"
-                            }
-                          >
-                            {variant.variantValue}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                )}
+                <div className="space-y-2">
+                  <h3 className="font-medium text-primary">Variant:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.variants.map((variant: any) => (
+                      <Button
+                        key={variant.variantValue}
+                        variant={
+                          selectedVariant === variant.variantValue
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setSelectedVariant(variant.variantValue)}
+                        className={
+                          selectedVariant === variant.variantValue
+                            ? "bg-emerald-500 hover:bg-emerald-600"
+                            : "border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                        }
+                      >
+                        {variant.variantValue}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

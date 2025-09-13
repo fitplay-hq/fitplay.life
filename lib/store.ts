@@ -16,12 +16,12 @@ export interface CartItem {
 export const cartItemsAtom = atomWithStorage<CartItem[]>('cartItems', []);
 
 export const getCartItemQuantityAtom = atom(
-  (get) => (productId: string, selectedVariants?: Record<string, string>): number => {
+  (get) => (productId: string, selectedVariant?: string): number => {
     const cartItems = get(cartItemsAtom);
 
-    if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+    if (selectedVariant) {
       // For variant products, find by variant key
-      const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+      const variantKey = `${productId}-${selectedVariant}`;
       const item = cartItems.find(item => item.variantKey === variantKey);
       return item ? item.quantity : 0;
     } else {
@@ -38,15 +38,13 @@ export const clearCartAtom = atom(null, (get, set) => {
 
 export const addToCartAtom = atom(
   null,
-  (get, set, { product, selectedVariants }: { product: any; selectedVariants?: Record<string, string> }) => {
+  (get, set, { product, selectedVariant }: { product: any; selectedVariant?: string }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Create a unique key for this variant combination
-    const variantKey = selectedVariants && Object.keys(selectedVariants).length > 0
-      ? `${product.id}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`
-      : product.id;
+    // Create a unique key for this variant
+    const variantKey = selectedVariant ? `${product.id}-${selectedVariant}` : product.id;
 
-    // Check if this exact variant combination already exists in cart
+    // Check if this exact variant already exists in cart
     const existingItem = currentItems.find(item =>
       item.variantKey === variantKey
     );
@@ -72,19 +70,19 @@ export const addToCartAtom = atom(
 
       set(cartItemsAtom, updatedItems);
     } else {
-      // If new variant combination, add to cart with quantity 1
+      // If new variant, add to cart with quantity 1
       result.isNewItem = true;
       const newItem: CartItem = {
         id: Date.now() + Math.random(), // Ensure unique ID
         productId: product.id,
         title: product.name,
         brand: product.brand || 'FitPlay',
-        credits: (selectedVariants && product.variants?.length)
-          ? getSelectedVariantPrice(product, selectedVariants) * 2
+        credits: selectedVariant && product.variants?.length
+          ? getSelectedVariantPrice(product, selectedVariant) * 2
           : (product.price || product.variants?.[0]?.mrp || 0) * 2,
         image: product.images?.[0] || '',
         quantity: 1,
-        selectedVariants,
+        selectedVariants: selectedVariant ? { variant: selectedVariant } : undefined,
         variantKey
       };
       result.item = newItem;
@@ -97,27 +95,13 @@ export const addToCartAtom = atom(
 );
 
 // Helper function to get selected variant price
-function getSelectedVariantPrice(product: any, selectedVariants: Record<string, string>) {
+function getSelectedVariantPrice(product: any, selectedVariant: string) {
   if (!product.variants?.length) return product.price || 0;
 
-  // Group variants by category
-  const groupedVariants: Record<string, any[]> = {};
-  product.variants.forEach((variant: any) => {
-    if (!groupedVariants[variant.variantCategory]) {
-      groupedVariants[variant.variantCategory] = [];
-    }
-    groupedVariants[variant.variantCategory].push(variant);
-  });
-
-  const categories = Object.keys(groupedVariants);
-
-  // Find the variant that matches all selected options
-  const matchingVariant = product.variants.find((variant: any) => {
-    return categories.every((category) => {
-      return selectedVariants[category] === variant.variantValue &&
-             groupedVariants[category].some((v: any) => v.variantValue === variant.variantValue);
-    });
-  });
+  // Find the variant that matches the selected variant
+  const matchingVariant = product.variants.find((variant: any) =>
+    variant.variantValue === selectedVariant
+  );
 
   return matchingVariant?.mrp || product.variants[0]?.mrp || 0;
 }
@@ -167,17 +151,17 @@ export const updateCartQuantityAtom = atom(
 
 export const updateCartQuantityByProductAtom = atom(
   null,
-  (get, set, { productId, quantity, selectedVariants }: {
+  (get, set, { productId, quantity, selectedVariant }: {
     productId: string;
     quantity: number;
-    selectedVariants?: Record<string, string>;
+    selectedVariant?: string;
   }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Find the item by productId and variant combination
+    // Find the item by productId and variant
     let existingItem;
-    if (selectedVariants && Object.keys(selectedVariants).length > 0) {
-      const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+    if (selectedVariant) {
+      const variantKey = `${productId}-${selectedVariant}`;
       existingItem = currentItems.find(item => item.variantKey === variantKey);
     } else {
       existingItem = currentItems.find(item => item.productId === productId && !item.variantKey);
@@ -190,8 +174,8 @@ export const updateCartQuantityByProductAtom = atom(
     if (quantity <= 0) {
       // Remove item if quantity is 0 or negative
       let updatedItems;
-      if (selectedVariants && Object.keys(selectedVariants).length > 0) {
-        const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+      if (selectedVariant) {
+        const variantKey = `${productId}-${selectedVariant}`;
         updatedItems = currentItems.filter(item => item.variantKey !== variantKey);
       } else {
         updatedItems = currentItems.filter(item => item.productId !== productId && !item.variantKey);
@@ -201,8 +185,8 @@ export const updateCartQuantityByProductAtom = atom(
     } else {
       // Update the quantity
       let updatedItems;
-      if (selectedVariants && Object.keys(selectedVariants).length > 0) {
-        const variantKey = `${productId}-${Object.entries(selectedVariants).sort().map(([k, v]) => `${k}:${v}`).join('-')}`;
+      if (selectedVariant) {
+        const variantKey = `${productId}-${selectedVariant}`;
         updatedItems = currentItems.map(item =>
           item.variantKey === variantKey
             ? { ...item, quantity }

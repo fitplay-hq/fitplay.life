@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,7 +7,7 @@ import { MobileMenu } from "./mobile-menu";
 import { CartButton } from "./cart-button";
 import { NavLinks } from "./nav-links";
 import Logo from "../logo";
-import { getServerAuthSession } from "@/lib/auth";
+import { useUser } from "@/app/hooks/useUser";
 
 interface NavItem {
   name: string;
@@ -19,10 +21,8 @@ const NAV_ITEMS: readonly NavItem[] = [
   { name: "Help & Support", path: "/support" },
 ] as const;
 
-export async function Navbar() {
-  const session = await getServerAuthSession();
-
-  console.log({ session });
+export function Navbar() {
+  const { isAuthenticated } = useUser();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm">
@@ -41,7 +41,7 @@ export async function Navbar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {session?.user && <CartButton />}
+            {isAuthenticated && <CartButton />}
 
             {/* Partner with Us Button */}
             <Link href="/partner">

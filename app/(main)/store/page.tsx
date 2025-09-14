@@ -392,7 +392,7 @@ export default function WellnessStore() {
   };
 
   return (
-    <div className="min-h-screen max-w-[1600px] py-12 space-y-4 mx-auto bg-background">
+    <div className="min-h-screen max-w-[1600px] py-12 space-y-4 mx-auto bg-background px-8">
       {/* Header */}
       <div className="bg-white">
           <h1 className="text-3xl md:text-4xl text-primary mb-6">

@@ -225,3 +225,87 @@ export const purchaseCreditsAtom = atom(
     return newTotal;
   }
 );
+
+// Wishlist atoms
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  title: string;
+  brand: string;
+  credits: number;
+  image: string;
+  variantValue?: string;
+  mrp?: number;
+  dateAdded: string;
+}
+
+export const wishlistItemsAtom = atomWithStorage<WishlistItem[]>('wishlistItems', []);
+
+export const addToWishlistAtom = atom(
+  null,
+  (get, set, product: any, selectedVariant?: string) => {
+    const currentItems = get(wishlistItemsAtom);
+    const variantKey = selectedVariant ? `${product.id}-${selectedVariant}` : product.id;
+
+    // Check if already in wishlist
+    const existingItem = currentItems.find(item =>
+      selectedVariant ? item.id === variantKey : item.productId === product.id
+    );
+
+    if (existingItem) {
+      return { wasAdded: false, message: 'Already in wishlist' };
+    }
+
+    // Get variant price
+    const getSelectedVariantPrice = (prod: any, variant: string) => {
+      if (!prod.variants?.length) return prod.price || 0;
+      const matchingVariant = prod.variants.find((v: any) =>
+        v.variantValue === variant
+      );
+      return matchingVariant?.mrp || prod.variants[0]?.mrp || 0;
+    };
+
+    const variantPrice = selectedVariant && product.variants?.length
+      ? getSelectedVariantPrice(product, selectedVariant)
+      : (product.price || product.variants?.[0]?.mrp || 0);
+
+    const newItem: WishlistItem = {
+      id: variantKey,
+      productId: product.id,
+      title: product.name,
+      brand: product.vendorName || 'FitPlay',
+      credits: variantPrice * 2,
+      image: product.images?.[0] || '',
+      variantValue: selectedVariant,
+      mrp: variantPrice,
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+
+    set(wishlistItemsAtom, [...currentItems, newItem]);
+    return { wasAdded: true, message: 'Added to wishlist' };
+  }
+);
+
+export const removeFromWishlistAtom = atom(
+  null,
+  (get, set, itemId: string) => {
+    const currentItems = get(wishlistItemsAtom);
+    const updatedItems = currentItems.filter(item => item.id !== itemId);
+    set(wishlistItemsAtom, updatedItems);
+    return { wasRemoved: true };
+  }
+);
+
+export const isInWishlistAtom = atom(
+  (get) => (productId: string, variantValue?: string): boolean => {
+    const wishlistItems = get(wishlistItemsAtom);
+    const variantKey = variantValue ? `${productId}-${variantValue}` : productId;
+    return variantValue
+      ? wishlistItems.some(item => item.id === variantKey)
+      : wishlistItems.some(item => item.productId === productId);
+  }
+);
+
+export const clearWishlistAtom = atom(null, (get, set) => {
+  set(wishlistItemsAtom, []);
+});

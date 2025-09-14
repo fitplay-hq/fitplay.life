@@ -14,8 +14,14 @@ import {
 } from "@/components/ui/accordion";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { toast } from "sonner";
-import { addToCartAtom, cartAnimationAtom } from "@/lib/store";
-import { useSetAtom } from "jotai";
+import {
+  addToCartAtom,
+  cartAnimationAtom,
+  addToWishlistAtom,
+  removeFromWishlistAtom,
+  isInWishlistAtom,
+} from "@/lib/store";
+import { useSetAtom, useAtomValue } from "jotai";
 import { useProduct } from "@/app/hooks/useProduct";
 
 export default function ProductPage({
@@ -27,6 +33,9 @@ export default function ProductPage({
 
   const addToCart = useSetAtom(addToCartAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
+  const addToWishlist = useSetAtom(addToWishlistAtom);
+  const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
+  const isInWishlist = useAtomValue(isInWishlistAtom);
   const { product, isLoading, error } = useProduct(id);
 
   const [quantity, setQuantity] = useState(1);
@@ -87,6 +96,35 @@ export default function ProductPage({
             selectedVariantCredits * quantity
           } credits - Great choice for your wellness journey!`,
           duration: 3000,
+        });
+      }
+    }
+  };
+
+  const handleWishlistToggle = () => {
+    if (!product) return;
+
+    const isInWish = isInWishlist(product.id, selectedVariant);
+
+    if (isInWish) {
+      // Remove from wishlist
+      const variantKey = selectedVariant
+        ? `${product.id}-${selectedVariant}`
+        : product.id;
+      removeFromWishlist(variantKey);
+      toast.success(`${product.name} removed from wishlist!`, {
+        duration: 2000,
+      });
+    } else {
+      // Add to wishlist
+      const result = addToWishlist(product, selectedVariant);
+      if (result.wasAdded) {
+        toast.success(`${product.name} added to wishlist!`, {
+          duration: 2000,
+        });
+      } else {
+        toast.info(result.message, {
+          duration: 2000,
         });
       }
     }
@@ -215,9 +253,13 @@ export default function ProductPage({
           {/* Title and Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-1">
-              <span className="text-sm text-gray-600">by {product.vendorName}</span>
+              <span className="text-sm text-gray-600">
+                by {product.vendorName}
+              </span>
               {product.availableStock > 0 && (
-                <span className="text-xs text-green-600 font-medium">In Stock</span>
+                <span className="text-xs text-green-600 font-medium">
+                  In Stock
+                </span>
               )}
             </div>
             <h1 className="text-2xl md:text-3xl text-gray-900 font-medium leading-tight">
@@ -262,7 +304,9 @@ export default function ProductPage({
           {/* Variant Selection */}
           {product.variants && product.variants.length > 0 && (
             <div className="py-2">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Options:</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">
+                Options:
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((variant: any) => (
                   <Button
@@ -289,13 +333,17 @@ export default function ProductPage({
 
           {/* Description */}
           <div className="py-2">
-            <p className="text-sm text-gray-700 leading-relaxed">{product.description}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {product.description}
+            </p>
           </div>
 
           {/* Quantity and Add to Cart */}
           <div className="py-2">
             <div className="flex items-center space-x-4 mb-4">
-              <label className="text-sm font-medium text-gray-900">Quantity:</label>
+              <label className="text-sm font-medium text-gray-900">
+                Quantity:
+              </label>
               <div className="flex items-center border border-gray-300 rounded">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -328,14 +376,27 @@ export default function ProductPage({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                className={`flex-1 border-gray-300 hover:bg-gray-50 ${
+                  isInWishlist(product?.id || "", selectedVariant)
+                    ? "text-red-600 border-red-300 hover:bg-red-50"
+                    : "text-gray-700"
+                }`}
+                onClick={handleWishlistToggle}
               >
-                <Heart className="w-4 h-4 mr-1" />
-                Save
+                <Heart
+                  className={`w-4 h-4 mr-1 ${
+                    isInWishlist(product?.id || "", selectedVariant)
+                      ? "fill-current"
+                      : ""
+                  }`}
+                />
+                {isInWishlist(product?.id || "", selectedVariant)
+                  ? "Saved"
+                  : "Save"}
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 <Share2 className="w-4 h-4 mr-1" />
@@ -344,64 +405,67 @@ export default function ProductPage({
             </div>
           </div>
 
-
-      {/* Product Details Sections */}
-      <div className="mt-8 space-y-6">
-        {/* Specifications - Only show if specifications exist and are not empty */}
-        {product.specifications && 
-         typeof product.specifications === 'object' && 
-         product.specifications !== null && 
-         Object.keys(product.specifications).length > 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              Specifications
-            </h3>
-            <div className="space-y-2">
-              {Object.entries(
-                product.specifications as Record<string, string>
-              ).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex justify-between text-sm py-1"
-                >
-                  <span className="text-gray-600">{key}</span>
-                  <span className="text-gray-900 font-medium">{String(value)}</span>
+          {/* Product Details Sections */}
+          <div className="mt-8 space-y-6">
+            {/* Specifications - Only show if specifications exist and are not empty */}
+            {product.specifications &&
+            typeof product.specifications === "object" &&
+            product.specifications !== null &&
+            Object.keys(product.specifications).length > 0 ? (
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">
+                  Specifications
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(
+                    product.specifications as Record<string, string>
+                  ).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between text-sm py-1"
+                    >
+                      <span className="text-gray-600">{key}</span>
+                      <span className="text-gray-900 font-medium">
+                        {String(value)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            ) : null}
+
+            {/* Partner Info */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center space-x-4 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">FF</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {product.vendorName}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Trusted Wellness Partner
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                {product.vendorName} has been providing premium wellness
+                products for over 15 years, helping millions achieve their
+                health goals.
+              </p>
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  <span>
+                    {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
+                    Partner Rating
+                  </span>
+                </div>
+                <div>{product.noOfReviews || "500+"} Products</div>
+              </div>
             </div>
           </div>
-        ) : null}
-      
-        {/* Partner Info */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center space-x-4 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">FF</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                {product.vendorName}
-              </h3>
-              <p className="text-sm text-gray-600">Trusted Wellness Partner</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 mb-3">
-            {product.vendorName} has been providing premium wellness
-            products for over 15 years, helping millions achieve their
-            health goals.
-          </p>
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span>
-                {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
-                Partner Rating
-              </span>
-            </div>
-            <div>{product.noOfReviews || "500+"} Products</div>
-          </div>
-        </div>
-      </div>
         </div>
       </div>
 
@@ -412,7 +476,11 @@ export default function ProductPage({
         </h3>
         <Accordion type="single" collapsible className="space-y-2">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`faq-${index}`} className="border-b border-gray-100">
+            <AccordionItem
+              key={index}
+              value={`faq-${index}`}
+              className="border-b border-gray-100"
+            >
               <AccordionTrigger className="text-left text-sm py-3">
                 {faq.question}
               </AccordionTrigger>
@@ -426,9 +494,7 @@ export default function ProductPage({
 
       {/* Support */}
       <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Need Help?
-        </h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Need Help?</h3>
         <p className="text-sm text-gray-600 mb-3">
           Our wellness experts are here to help you make the right choice
         </p>

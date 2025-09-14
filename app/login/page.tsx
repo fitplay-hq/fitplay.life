@@ -18,13 +18,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useUser } from "@/app/hooks/useUser";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { login, isLoading, loginError } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,12 +42,11 @@ export default function LoginPage() {
         toast.error(result.error || "Login failed");
       } else {
         toast.success("Login successful!");
+        router.replace("/");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error("Login error:", error);
-    } finally {
-      redirect("/");
     }
   };
 
@@ -148,7 +148,6 @@ export default function LoginPage() {
                 </div>
               )}
             </form>
-
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">

@@ -1,23 +1,39 @@
 "use client";
 
-import { User, Settings, Wallet, History, LogOut, Shield } from "lucide-react";
+import {
+  User,
+  Settings,
+  Wallet,
+  History,
+  LogOut,
+  Shield,
+  Heart,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationPreferences from "@/components/profile/notification-preferences";
+import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 import PersonalInformation from "@/components/profile/personal-information";
 import { useUser } from "@/app/hooks/useUser";
-import { redirect } from "next/navigation";
+import { $Enums } from "@/lib/generated/prisma";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  wishlistItemsAtom,
+  removeFromWishlistAtom,
+  addToCartAtom,
+  cartAnimationAtom,
+} from "@/lib/store";
 
 export default function ProfilePage() {
-  const { user } = useUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const { user, isAuthenticated, isLoading } = useUser();
+  const wishlistItems = useAtomValue(wishlistItemsAtom);
+  const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
+  const addToCart = useSetAtom(addToCartAtom);
+  const setCartAnimation = useSetAtom(cartAnimationAtom);
 
   const orderHistory = [
     {
@@ -101,6 +117,49 @@ export default function ProfilePage() {
     signOut();
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Loading Profile
+            </h2>
+            <p className="text-gray-600">
+              Please wait while we load your profile information...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated state
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-8 h-8 text-red-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Access Denied
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You need to be logged in to view your profile.
+            </p>
+            <Button onClick={() => (window.location.href = "/login")}>
+              Go to Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -138,11 +197,20 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList
+          className={`grid w-full ${
+            user.role === $Enums.Role.EMPLOYEE ? "grid-cols-5" : "grid-cols-4"
+          }`}
+        >
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="wallet">Wallet</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
+          {user.role === $Enums.Role.EMPLOYEE && (
+            <TabsTrigger value="wishlist">
+              <Heart className="w-4 h-4 mr-1 inline" /> Wishlist
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Dashboard Tab */}
@@ -435,6 +503,150 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Wishlist Tab - Only for user role */}
+        {user.role === $Enums.Role.EMPLOYEE && (
+          <TabsContent value="wishlist" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  <Heart className="w-5 h-5 mr-2 inline text-pink-500" />
+                  My Wishlist
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {wishlistItems.length > 0 && (
+                  <div className="mb-4">
+                    <Button
+                      variant="default"
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => {
+                        wishlistItems.forEach((wish) => {
+                          const mockProduct = {
+                            id: wish.productId,
+                            name: wish.title,
+                            images: [wish.image],
+                            vendorName: wish.brand,
+                            variants: wish.variantValue
+                              ? [
+                                  {
+                                    variantValue: wish.variantValue,
+                                    mrp: wish.mrp || wish.credits / 2,
+                                  },
+                                ]
+                              : [],
+                          };
+                          addToCart({
+                            product: mockProduct,
+                            selectedVariant: wish.variantValue,
+                          });
+                        });
+                        setCartAnimation(true);
+                        setTimeout(() => setCartAnimation(false), 600);
+                        toast.success(
+                          `Added ${wishlistItems.length} items to cart!`,
+                          {
+                            description: `All wishlist items have been added to your cart.`,
+                            duration: 3000,
+                          }
+                        );
+                      }}
+                    >
+                      Add All to Cart
+                    </Button>
+                  </div>
+                )}
+                {wishlistItems.length === 0 ? (
+                  <div className="text-gray-500 text-center py-8">
+                    Your wishlist is empty.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {wishlistItems.map((wish) => (
+                      <div
+                        key={wish.id}
+                        className="flex items-center justify-between border border-gray-100 rounded-lg p-4"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <img
+                            src={wish.image}
+                            alt={wish.title}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                          <div>
+                            <p className="font-medium">{wish.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {wish.brand} • Added on {wish.dateAdded}
+                              {wish.variantValue && ` • ${wish.variantValue}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-sm font-bold text-emerald-600">
+                            {wish.credits} credits
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                            onClick={() => {
+                              // Add to cart functionality
+                              const mockProduct = {
+                                id: wish.productId,
+                                name: wish.title,
+                                images: [wish.image],
+                                vendorName: wish.brand,
+                                variants: wish.variantValue
+                                  ? [
+                                      {
+                                        variantValue: wish.variantValue,
+                                        mrp: wish.mrp || wish.credits / 2,
+                                      },
+                                    ]
+                                  : [],
+                              };
+                              const result = addToCart({
+                                product: mockProduct,
+                                selectedVariant: wish.variantValue,
+                              });
+                              setCartAnimation(true);
+                              setTimeout(() => setCartAnimation(false), 600);
+
+                              if (result.wasUpdated) {
+                                toast.success(
+                                  `${wish.title} quantity updated!`,
+                                  {
+                                    description: `Now you have ${result.newQuantity} in your cart.`,
+                                    duration: 3000,
+                                  }
+                                );
+                              } else if (result.isNewItem) {
+                                toast.success(`${wish.title} added to cart!`, {
+                                  description: `${wish.credits} credits`,
+                                  duration: 3000,
+                                });
+                              }
+                            }}
+                          >
+                            Add to Cart
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                            onClick={() => removeFromWishlist(wish.id)}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

@@ -70,10 +70,17 @@ import {
 } from "@/lib/store";
 import { useUser } from "@/app/hooks/useUser";
 import { useProducts } from "@/app/hooks/useProducts";
+import { prefetchProducts } from "@/lib/prefetch";
+import { useEffect } from "react";
 
 export default function WellnessStore() {
   const { user, isAuthenticated, isLoading: userLoading } = useUser();
   const { products, isLoading: productsLoading, error } = useProducts();
+
+  // Prefetch products on component mount for better performance
+  useEffect(() => {
+    prefetchProducts();
+  }, []);
 
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(
@@ -100,6 +107,19 @@ export default function WellnessStore() {
     return mrps.length > 0 ? Math.min(...mrps) : 0;
   };
 
+  // Helper function to get the lowest priced variant
+  const getLowestPricedVariant = (product: Product): string | undefined => {
+    if (!product.variants || product.variants.length === 0) return undefined;
+    
+    const lowestVariant = product.variants.reduce((lowest, current) => {
+      const lowestMRP = lowest.mrp || 0;
+      const currentMRP = current.mrp || 0;
+      return currentMRP < lowestMRP ? current : lowest;
+    });
+    
+    return lowestVariant.variantValue;
+  };
+
   const handleAddToCart = (product: any) => {
     // Check if user is logged in
     if (!isAuthenticated) {
@@ -116,7 +136,9 @@ export default function WellnessStore() {
       return;
     }
 
-    const result = addToCart(product);
+    // Get the lowest priced variant automatically
+    const lowestPricedVariant = getLowestPricedVariant(product as Product);
+    const result = addToCart({ product, selectedVariant: lowestPricedVariant });
 
     // Trigger cart animation
     setCartAnimation(true);
@@ -321,7 +343,8 @@ export default function WellnessStore() {
   });
 
   const QuantitySelector = ({ product }: { product: any }) => {
-    const quantity = getCartItemQuantity(product.id);
+    const lowestPricedVariant = getLowestPricedVariant(product as Product);
+    const quantity = getCartItemQuantity(product.id, lowestPricedVariant);
 
     if (quantity === 0) {
       return (
@@ -342,6 +365,7 @@ export default function WellnessStore() {
             updateCartQuantityByProduct({
               productId: product.id,
               quantity: Math.max(0, quantity - 1),
+              selectedVariant: lowestPricedVariant,
             })
           }
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
@@ -356,6 +380,7 @@ export default function WellnessStore() {
             updateCartQuantityByProduct({
               productId: product.id,
               quantity: Math.max(0, quantity + 1),
+              selectedVariant: lowestPricedVariant,
             })
           }
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
@@ -367,10 +392,9 @@ export default function WellnessStore() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen max-w-[1600px] py-12 space-y-4 mx-auto bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
+      <div className="bg-white">
           <h1 className="text-3xl md:text-4xl text-primary mb-6">
             Wellness Store
           </h1>
@@ -389,14 +413,14 @@ export default function WellnessStore() {
                 placeholder="Search products, brands, categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 py-4 text-base"
+                className="pl-12 py-4 text-base bg-gray-100 text-gray-500 placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 focus:text-gray-900"
               />
             </div>
 
             {/* Sort Filter */}
             <div className="flex gap-4 items-center lg:w-auto">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full lg:w-56 py-4">
+                <SelectTrigger className="w-full lg:w-56 py-4 bg-gray-100 border-gray-200 text-gray-500 focus:bg-white focus:border-emerald-500 focus:text-gray-900">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -409,80 +433,93 @@ export default function WellnessStore() {
               </Select>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Category Banners */}
-      <div className="bg-gray-50 py-10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="bg-gray-50 py-4">
           <h2 className="text-2xl text-primary mb-6">Shop by Category</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div 
+            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"
+            role="tablist"
+            aria-label="Product categories"
+          >
             {categoryBanners.map((category) => (
-              <div
+              <button
                 key={category.value}
-                className={`group cursor-pointer transition-all duration-300 ${
+                type="button"
+                role="tab"
+                aria-selected={selectedCategory === category.value}
+                aria-label={`Select ${category.label} category`}
+                className={`group cursor-pointer transition-all duration-300 focus:outline-none ${
                   selectedCategory === category.value
                     ? "transform scale-105"
                     : "hover:transform hover:scale-105"
                 }`}
                 onClick={() => setSelectedCategory(category.value)}
               >
-                <Card
-                  className={`overflow-hidden border-2 transition-all duration-300 ${
+                <div
+                  className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
                     selectedCategory === category.value
-                      ? "border-emerald-500 shadow-lg"
+                      ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
                       : "border-gray-200 hover:border-emerald-300 hover:shadow-md"
                   }`}
                 >
-                  <div className="aspect-[4/3] overflow-hidden">
+                  {/* Image Container */}
+                  <div className="aspect-square overflow-hidden bg-gray-100">
                     <ImageWithFallback
                       src={category.image}
                       alt={category.label}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
+                    {/* Overlay for selected state */}
+                    {selectedCategory === category.value && (
+                      <div className="absolute inset-0 bg-emerald-500/20" />
+                    )}
                   </div>
-                  <CardContent className="p-3 text-center">
+                  
+                  {/* Category Label */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                     <h3
-                      className={`font-medium text-sm transition-colors ${
+                      className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
                         selectedCategory === category.value
-                          ? "text-emerald-600"
-                          : "text-gray-900 group-hover:text-emerald-600"
+                          ? "text-emerald-200"
+                          : "group-hover:text-emerald-200"
                       }`}
                     >
                       {category.label}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {category.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                  
+                  {/* Selection Indicator */}
+                  {selectedCategory === category.value && (
+                    <div className="absolute top-2 right-2 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+                  )}
+                </div>
+              </button>
             ))}
           </div>
-        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
         <div className="flex gap-8">
           {/* Left Sidebar - Filters */}
           <div className="w-72 flex-shrink-0">
             <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
               {/* Filter Header */}
               <div className="flex items-center gap-2 mb-5">
-                <Filter className="w-4 h-4 text-gray-600" />
+                <Filter className="w-4 h-4 text-emerald-600" />
                 <h3 className="font-medium text-gray-900 text-sm">Filters</h3>
               </div>
 
               {/* Price Range Filter */}
               <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
                   <h3 className="font-medium text-gray-900 text-sm">
                     Price Range
                   </h3>
                   {priceOpen ? (
-                    <ChevronUp className="w-3 h-3" />
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
                   ) : (
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mb-5">
@@ -497,7 +534,7 @@ export default function WellnessStore() {
                         onCheckedChange={(checked) =>
                           handlePriceRangeChange(range.value, checked === true)
                         }
-                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
                       />
                       <label
                         htmlFor={range.value}
@@ -512,14 +549,14 @@ export default function WellnessStore() {
 
               {/* Rating Filter */}
               <Collapsible open={ratingOpen} onOpenChange={setRatingOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
                   <h3 className="font-medium text-gray-900 text-sm">
                     Customer Rating
                   </h3>
                   {ratingOpen ? (
-                    <ChevronUp className="w-3 h-3" />
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
                   ) : (
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mb-5">
@@ -534,7 +571,7 @@ export default function WellnessStore() {
                         onCheckedChange={(checked) =>
                           handleRatingChange(rating.value, checked === true)
                         }
-                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
                       />
                       <label
                         htmlFor={rating.value}
@@ -560,12 +597,12 @@ export default function WellnessStore() {
 
               {/* Brands */}
               <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
                   <h3 className="font-medium text-gray-900 text-sm">Brands</h3>
                   {brandsOpen ? (
-                    <ChevronUp className="w-3 h-3" />
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
                   ) : (
-                    <ChevronDown className="w-3 h-3" />
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2">
@@ -580,7 +617,7 @@ export default function WellnessStore() {
                         onCheckedChange={(checked) =>
                           handleBrandChange(brand.name, checked === true)
                         }
-                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
                       />
                       <label
                         htmlFor={brand.name}
@@ -612,7 +649,7 @@ export default function WellnessStore() {
                     setSelectedCategory("all");
                     setSearchTerm("");
                   }}
-                  className="w-full mt-5 text-gray-600 border-gray-300 hover:border-emerald-500 hover:text-emerald-600 text-xs"
+                  className="w-full mt-5 text-gray-600 border-gray-300 hover:border-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 text-xs transition-colors"
                 >
                   Clear All Filters
                 </Button>
@@ -625,21 +662,34 @@ export default function WellnessStore() {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
-                Showing {sortedProducts.length} of {products.length} products
-                {searchTerm && <span> for "{searchTerm}"</span>}
-                {selectedCategory !== "all" && (
-                  <span> in {selectedCategory.replace(/_/g, " ")}</span>
+                {productsLoading ? (
+                  "Loading products..."
+                ) : (
+                  <>
+                    Showing {sortedProducts.length} of {products.length} products
+                    {searchTerm && <span> for "{searchTerm}"</span>}
+                    {selectedCategory !== "all" && (
+                      <span> in {selectedCategory.replace(/_/g, " ")}</span>
+                    )}
+                  </>
                 )}
               </p>
             </div>
 
             {/* Loading State */}
-            {(userLoading || productsLoading) && (
-              <div className="flex justify-center items-center py-12">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
-                  <p className="text-gray-600 text-sm">Loading products...</p>
-                </div>
+            {productsLoading && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {Array.from({ length: 10 }).map((_, index) => (
+                  <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 animate-pulse">
+                    <div className="aspect-square bg-gray-200"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-8 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -661,61 +711,86 @@ export default function WellnessStore() {
             )}
 
             {/* Product Grid */}
-            {!userLoading && !productsLoading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {!productsLoading && !error && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {sortedProducts.map((product, index) => (
-                  <Card
-                    key={index}
-                    className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex flex-col h-full border-0 shadow-sm"
-                  >
-                    <div className="aspect-square overflow-hidden rounded-t-lg bg-gray-100">
-                      <Link href={`/product/${product.id}`}>
-                        <ImageWithFallback
-                          src={product.images[0] || "/placeholder.png"}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      </Link>
-                    </div>
-                    <CardContent className="p-3 flex-1 flex flex-col">
-                      <div className="flex items-start justify-end mb-2">
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                          <span className="text-xs text-gray-600 font-medium">
-                            {product.avgRating?.toFixed(1) ?? "0.0"}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({product.noOfReviews ?? 0})
-                          </span>
+                  <div key={index} className="group">
+                    <Link href={`/product/${product.id}`} className="block">
+                      <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 h-full flex flex-col">
+                        {/* Image Container */}
+                        <div className="relative aspect-square overflow-hidden bg-gray-50">
+                          <ImageWithFallback
+                            src={product.images[0] || "/placeholder.png"}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          {/* Rating Badge */}
+                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1 shadow-sm">
+                            <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                            <span className="text-xs font-semibold text-gray-700">
+                              {product.avgRating?.toFixed(1) ?? "0.0"}
+                            </span>
+                          </div>
+                          {/* Stock Status */}
+                          {product.availableStock === 0 && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                Out of Stock
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 flex-1 flex flex-col">
+                          {/* Product Name */}
+                          <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-3 group-hover:text-emerald-600 transition-colors leading-tight">
+                            {product.name}
+                          </h3>
+
+                          {/* Vendor */}
+                          {product.vendorName && (
+                            <p className="text-sm text-gray-500 mb-3 line-clamp-1">
+                              by {product.vendorName}
+                            </p>
+                          )}
+
+                          {/* Price Section */}
+                          <div className="mt-auto mb-4">
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <span className="text-2xl font-bold text-emerald-600">
+                                {getLowestCredits(product as Product)}
+                              </span>
+                              <span className="text-sm font-medium text-emerald-600">
+                                credits
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500 line-through">
+                                ₹{getLowestMRP(product as Product)}
+                              </span>
+                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                                Save {Math.round(((getLowestMRP(product as Product) - getLowestCredits(product as Product) / 2) / getLowestMRP(product as Product)) * 100)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Button */}
+                        <div className="p-4 pt-0">
+                          <div onClick={(e) => e.preventDefault()}>
+                            <QuantitySelector product={product} />
+                          </div>
                         </div>
                       </div>
-                      <Link href={`/product/${index + 1}`}>
-                        <h3 className="text-primary hover:text-emerald-600 transition-colors line-clamp-2 mb-2 leading-snug text-sm">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <div className="mt-auto mb-2">
-                        <div className="flex flex-col gap-1">
-                          <span className="font-bold text-emerald-600 text-lg">
-                            {getLowestCredits(product as Product)} credits
-                          </span>
-                          <span className="text-sm text-gray-500 line-through">
-                            ₹{getLowestMRP(product as Product)}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="p-3 pt-0 mt-auto">
-                      <QuantitySelector product={product} />
-                    </CardFooter>
-                  </Card>
+                    </Link>
+                  </div>
                 ))}
               </div>
             )}
 
             {/* No Results */}
-            {!userLoading &&
-              !productsLoading &&
+            {!productsLoading &&
               !error &&
               sortedProducts.length === 0 && (
                 <div className="text-center py-12">
@@ -740,6 +815,5 @@ export default function WellnessStore() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

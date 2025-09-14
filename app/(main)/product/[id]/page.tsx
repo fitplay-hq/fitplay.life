@@ -95,7 +95,7 @@ export default function ProductPage({
   // Handle loading and error states
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-center items-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
@@ -108,7 +108,7 @@ export default function ProductPage({
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-16">
           <p className="text-red-600 mb-6 text-lg">
             Error loading product: {error.message}
@@ -128,7 +128,7 @@ export default function ProductPage({
 
   if (!product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-16">
           <p className="text-gray-600 mb-6 text-lg">Product not found</p>
           <Link href="/store">
@@ -163,7 +163,7 @@ export default function ProductPage({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
         <Link
@@ -179,22 +179,22 @@ export default function ProductPage({
         <span className="text-gray-900">{product.name}</span>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-12">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-square rounded-xl overflow-hidden bg-gray-100">
+        <div className="space-y-3">
+          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
             <ImageWithFallback
               src={product.images[selectedImage]}
               alt={product.name}
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {product.images.map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                className={`flex-shrink-0 aspect-square w-16 h-16 rounded border-2 transition-colors ${
                   selectedImage === index
                     ? "border-emerald-500"
                     : "border-gray-200 hover:border-gray-300"
@@ -211,270 +211,236 @@ export default function ProductPage({
         </div>
 
         {/* Product Info */}
-        <div className="space-y-6">
+        <div className="space-y-4">
+          {/* Title and Brand */}
           <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <Badge
-                variant="secondary"
-                className="text-emerald-600 bg-emerald-50"
-              >
-                {product.vendorName}
-              </Badge>
+            <div className="flex items-center space-x-2 mb-1">
+              <span className="text-sm text-gray-600">by {product.vendorName}</span>
               {product.availableStock > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="text-green-600 bg-green-50"
-                >
-                  In Stock
-                </Badge>
+                <span className="text-xs text-green-600 font-medium">In Stock</span>
               )}
             </div>
-            <h1 className="text-3xl md:text-4xl text-primary mb-4">
+            <h1 className="text-2xl md:text-3xl text-gray-900 font-medium leading-tight">
               {product.name}
             </h1>
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < Math.floor(product.avgRating || 0)
-                        ? "text-yellow-400 fill-current"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
-                <span className="text-sm text-gray-600 ml-2">
-                  {product.avgRating || 0} ({product.noOfReviews || 0} reviews)
-                </span>
-              </div>
-            </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center space-x-4">
-                <span className="text-3xl text-primary font-bold">
-                  {selectedVariantCredits} credits
-                </span>
-                <Badge className="bg-emerald-100 text-emerald-800">
-                  Great Value
-                </Badge>
-              </div>
-              <span className="text-lg text-muted-foreground line-through">
+          {/* Rating */}
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 ${
+                    i < Math.floor(product.avgRating || 0)
+                      ? "text-yellow-400 fill-current"
+                      : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-gray-600">
+              {product.avgRating || 0} ({product.noOfReviews || 0})
+            </span>
+          </div>
+
+          {/* Price */}
+          <div className="py-2">
+            <div className="flex items-baseline space-x-2">
+              <span className="text-3xl font-bold text-gray-900">
+                {selectedVariantCredits} credits
+              </span>
+              <span className="text-lg text-gray-500 line-through">
                 ₹{selectedVariantMRP}
               </span>
             </div>
-            <p className="text-sm text-gray-600">
-              Use your company wellness credits to purchase
+            <p className="text-sm text-gray-600 mt-1">
+              Use your company wellness credits
             </p>
           </div>
 
-          <div className="space-y-4">
-            <p className="text-gray-700">{product.description}</p>
-
-            {/* Variant Selection */}
-            {product.variants && product.variants.length > 0 && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="font-medium text-primary">Variant:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {product.variants.map((variant: any) => (
-                      <Button
-                        key={variant.variantValue}
-                        variant={
-                          selectedVariant === variant.variantValue
-                            ? "default"
-                            : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setSelectedVariant(variant.variantValue)}
-                        className={
-                          selectedVariant === variant.variantValue
-                            ? "bg-emerald-500 hover:bg-emerald-600"
-                            : "border-emerald-500 text-emerald-600 hover:bg-emerald-50"
-                        }
-                      >
-                        {variant.variantValue}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+          {/* Variant Selection */}
+          {product.variants && product.variants.length > 0 && (
+            <div className="py-2">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Options:</h3>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((variant: any) => (
+                  <Button
+                    key={variant.variantValue}
+                    variant={
+                      selectedVariant === variant.variantValue
+                        ? "default"
+                        : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setSelectedVariant(variant.variantValue)}
+                    className={
+                      selectedVariant === variant.variantValue
+                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }
+                  >
+                    {variant.variantValue}
+                  </Button>
+                ))}
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="py-2">
+            <p className="text-sm text-gray-700 leading-relaxed">{product.description}</p>
           </div>
 
-          <div className="flex items-center space-x-4 pt-6 border-t">
-            <div className="flex items-center space-x-3">
-              <label className="text-sm font-medium">Quantity:</label>
-              <div className="flex items-center border border-gray-300 rounded-lg">
+          {/* Quantity and Add to Cart */}
+          <div className="py-2">
+            <div className="flex items-center space-x-4 mb-4">
+              <label className="text-sm font-medium text-gray-900">Quantity:</label>
+              <div className="flex items-center border border-gray-300 rounded">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2 hover:bg-gray-50"
+                  className="px-3 py-1 hover:bg-gray-50 text-gray-600"
                 >
                   -
                 </button>
-                <span className="px-4 py-2 border-x border-gray-300">
+                <span className="px-3 py-1 border-x border-gray-300 min-w-[40px] text-center">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-2 hover:bg-gray-50"
+                  className="px-3 py-1 hover:bg-gray-50 text-gray-600"
                 >
                   +
                 </button>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
             <Button
               size="lg"
               onClick={handleAddToCart}
-              className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 transition-all duration-200 hover:scale-[1.02] active:scale-95"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 mb-3"
             >
-              <ShoppingCart className="w-5 h-5 mr-2" />
+              <ShoppingCart className="w-4 h-4 mr-2" />
               Add to Cart - {selectedVariantCredits * quantity} credits
             </Button>
-            <div className="flex space-x-3">
+
+            <div className="flex space-x-2">
               <Button
                 variant="outline"
-                size="lg"
-                className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                size="sm"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
-                <Heart className="w-5 h-5 mr-2" />
-                Save for Later
+                <Heart className="w-4 h-4 mr-1" />
+                Save
               </Button>
-              <Button variant="outline" size="lg" className="flex-1">
-                <Share2 className="w-5 h-5 mr-2" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
                 Share
               </Button>
             </div>
           </div>
+
+
+      {/* Product Details Sections */}
+      <div className="mt-8 space-y-6">
+        {/* Specifications - Only show if specifications exist and are not empty */}
+        {product.specifications && 
+         typeof product.specifications === 'object' && 
+         product.specifications !== null && 
+         Object.keys(product.specifications).length > 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-3">
+              Specifications
+            </h3>
+            <div className="space-y-2">
+              {Object.entries(
+                product.specifications as Record<string, string>
+              ).map(([key, value]) => (
+                <div
+                  key={key}
+                  className="flex justify-between text-sm py-1"
+                >
+                  <span className="text-gray-600">{key}</span>
+                  <span className="text-gray-900 font-medium">{String(value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      
+        {/* Partner Info */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center space-x-4 mb-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">FF</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">
+                {product.vendorName}
+              </h3>
+              <p className="text-sm text-gray-600">Trusted Wellness Partner</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-3">
+            {product.vendorName} has been providing premium wellness
+            products for over 15 years, helping millions achieve their
+            health goals.
+          </p>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-1">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span>
+                {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
+                Partner Rating
+              </span>
+            </div>
+            <div>{product.noOfReviews || "500+"} Products</div>
+          </div>
+        </div>
+      </div>
         </div>
       </div>
 
-      {/* Product Details Sections */}
-      <div className="mt-16 space-y-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Specifications */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-medium text-primary mb-4">
-                Specifications
-              </h3>
-              <div className="space-y-3">
-                {(product.specifications as
-                  | Record<string, string>
-                  | undefined) &&
-                  Object.entries(
-                    product.specifications as Record<string, string>
-                  ).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between border-b border-gray-100 pb-2"
-                    >
-                      <span className="text-gray-600">{key}</span>
-                      <span className="text-primary">{String(value)}</span>
-                    </div>
-                  ))}
-                <div className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-600">Product ID</span>
-                  <span className="text-primary">{product.id}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-600">SKU</span>
-                  <span className="text-primary">{product.sku}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-600">Category</span>
-                  <span className="text-primary">
-                    {formatCategoryName(product.category)}
-                  </span>
-                </div>
-                {product.availableStock <= 0 && (
-                  <div className="flex justify-between border-b border-gray-100 pb-2">
-                    <span className="text-gray-600">Stock Status</span>
-                    <span className="text-primary">Out of Stock</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+      {/* FAQ Section */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Frequently Asked Questions
+        </h3>
+        <Accordion type="single" collapsible className="space-y-2">
+          {faqs.map((faq, index) => (
+            <AccordionItem key={index} value={`faq-${index}`} className="border-b border-gray-100">
+              <AccordionTrigger className="text-left text-sm py-3">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-sm text-gray-600 pb-3">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
 
-          {/* Vendor Info */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">FF</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-medium text-primary">
-                    {product.vendorName}
-                  </h3>
-                  <p className="text-gray-600">Trusted Fitness Partner</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-600 mb-4">
-                {product.vendorName} has been providing premium fitness
-                equipment for over 15 years, helping millions achieve their
-                wellness goals.
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span>
-                    {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
-                    Brand Rating
-                  </span>
-                </div>
-                <div>{product.noOfReviews || "500+"} Products</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* FAQ Section */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-xl font-medium text-primary mb-6">
-              Frequently Asked Questions
-            </h3>
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`faq-${index}`}>
-                  <AccordionTrigger className="text-left">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-        </Card>
-
-        {/* Support */}
-        <Card className="bg-emerald-50 border-emerald-200">
-          <CardContent className="p-6 text-center">
-            <h3 className="text-xl font-medium text-primary mb-2">
-              Need Help?
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Our wellness experts are here to help you make the right choice
-            </p>
-            <Link href="/support">
-              <Button
-                variant="outline"
-                className="border-emerald-500 text-emerald-600 hover:bg-emerald-600 hover:text-white"
-              >
-                Contact Support
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      {/* Support */}
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Need Help?
+        </h3>
+        <p className="text-sm text-gray-600 mb-3">
+          Our wellness experts are here to help you make the right choice
+        </p>
+        <Link href="/support">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-emerald-500 text-emerald-600 hover:bg-emerald-600 hover:text-white"
+          >
+            Contact Support
+          </Button>
+        </Link>
       </div>
     </div>
   );

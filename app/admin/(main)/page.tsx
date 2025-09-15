@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
-import { Badge } from "@/app/components/ui/badge";
-import { Button } from "@/app/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   BarChart3,
   Users,
@@ -47,10 +42,15 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Welcome back, Admin!</h1>
-        <p className="text-emerald-100 mt-1">
-          Here's what's happening with your business today.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome back, Admin!</h1>
+            <p className="text-emerald-100 mt-1">
+              Here's what's happening with your business today.
+            </p>
+          </div>
+          <Package className="h-12 w-12 text-emerald-200" />
+        </div>
       </div>
 
       {/* Stats Grid */}

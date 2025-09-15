@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Category, SubCategory } from "@/lib/generated/prisma";
 
 interface ProductFormProps {
   isOpen: boolean;
@@ -27,20 +28,21 @@ interface ProductFormProps {
   editingProduct: any;
 }
 
-const categories = [
-  "Fitness_And_Gym_Equipment",
-  "Nutrition_And_Health",
-  "Diagnostics_And_Prevention",
-  "Ergonomics_And_Workspace_Comfort",
-  "Health_And_Wellness_Services",
-];
+const categories = Object.values(Category);
 
-const subcategories: Record<string, string[]> = {
-  Fitness_And_Gym_Equipment: ["Cardio_Equipment", "Probiotics_And_Supplements"],
-  Nutrition_And_Health: ["Probiotics_And_Supplements"],
-  Diagnostics_And_Prevention: ["Wearable_Health_Technology"],
-  Ergonomics_And_Workspace_Comfort: ["Standing_Desks_And_Accessories"],
-  Health_And_Wellness_Services: ["Onsite_Fitness_Classes_And_Workshops"],
+const subcategories: Record<string, SubCategory[]> = {
+  Fitness_And_Gym_Equipment: [
+    SubCategory.Cardio_Equipment,
+    SubCategory.Probiotics_And_Supplements,
+  ],
+  Nutrition_And_Health: [SubCategory.Probiotics_And_Supplements],
+  Diagnostics_And_Prevention: [SubCategory.Wearable_Health_Technology],
+  Ergonomics_And_Workspace_Comfort: [
+    SubCategory.Standing_Desks_And_Accessories,
+  ],
+  Health_And_Wellness_Services: [
+    SubCategory.Onsite_Fitness_Classes_And_Workshops,
+  ],
 };
 
 // Friendly category name mapping
@@ -62,18 +64,50 @@ export function ProductForm({
   editingProduct,
 }: ProductFormProps) {
   const [formData, setFormData] = useState({
-    name: editingProduct?.name || "",
-    description: editingProduct?.description || "",
-    vendorName: editingProduct?.vendorName || "",
-    sku: editingProduct?.sku || "",
-    availableStock: editingProduct?.availableStock?.toString() || "",
-    category: editingProduct?.category || "",
-    images: editingProduct?.images || [],
+    name: "",
+    description: "",
+    vendorName: "",
+    sku: "",
+    availableStock: "",
+    category: "",
+    subcategory: "",
+    images: [],
   });
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    editingProduct?.category || ""
-  );
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+
+  // Update form data when editingProduct changes
+  useEffect(() => {
+    if (editingProduct) {
+      setFormData({
+        name: editingProduct.name || "",
+        description: editingProduct.description || "",
+        vendorName: editingProduct.vendorName || "",
+        sku: editingProduct.sku || "",
+        availableStock: editingProduct.availableStock?.toString() || "",
+        category: editingProduct.category || "",
+        subcategory: editingProduct.subcategory || "",
+        images: editingProduct.images || [],
+      });
+      setSelectedCategory(editingProduct.category || "");
+      setSelectedSubcategory(editingProduct.subcategory || "");
+    } else {
+      // Reset form for new product
+      setFormData({
+        name: "",
+        description: "",
+        vendorName: "",
+        sku: "",
+        availableStock: "",
+        category: "",
+        subcategory: "",
+        images: [],
+      });
+      setSelectedCategory("");
+      setSelectedSubcategory("");
+    }
+  }, [editingProduct]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,27 +126,31 @@ export function ProductForm({
       sku: "",
       availableStock: "",
       category: "",
+      subcategory: "",
       images: [],
     });
     setSelectedCategory("");
+    setSelectedSubcategory("");
   };
 
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open);
     if (!open) {
       resetForm();
-    } else if (editingProduct) {
-      setFormData({
-        name: editingProduct.name || "",
-        description: editingProduct.description || "",
-        vendorName: editingProduct.vendorName || "",
-        sku: editingProduct.sku || "",
-        availableStock: editingProduct.availableStock?.toString() || "",
-        category: editingProduct.category || "",
-        images: editingProduct.images || [],
-      });
-      setSelectedCategory(editingProduct.category || "");
     }
+  };
+
+  // Update formData when selectedCategory changes
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory("");
+    setFormData({ ...formData, category, subcategory: "" });
+  };
+
+  // Update formData when selectedSubcategory changes
+  const handleSubcategoryChange = (subcategory: string) => {
+    setSelectedSubcategory(subcategory);
+    setFormData({ ...formData, subcategory });
   };
 
   return (
@@ -150,34 +188,21 @@ export function ProductForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="product-vendor">Vendor</Label>
-            <Select
+            <Input
+              id="product-vendor"
+              placeholder="Enter vendor name"
               value={formData.vendorName}
-              onValueChange={(value) =>
-                setFormData({ ...formData, vendorName: value })
+              onChange={(e) =>
+                setFormData({ ...formData, vendorName: e.target.value })
               }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select vendor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="WellFit Equipment Co.">
-                  WellFit Equipment Co.
-                </SelectItem>
-                <SelectItem value="NutriLife Solutions">
-                  NutriLife Solutions
-                </SelectItem>
-                <SelectItem value="MindWell Therapy">
-                  MindWell Therapy
-                </SelectItem>
-                <SelectItem value="FlexYoga Studio">FlexYoga Studio</SelectItem>
-              </SelectContent>
-            </Select>
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="product-category">Category</Label>
             <Select
               value={selectedCategory}
-              onValueChange={setSelectedCategory}
+              onValueChange={handleCategoryChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
@@ -195,10 +220,8 @@ export function ProductForm({
             <Label htmlFor="product-subcategory">Subcategory</Label>
             <Select
               disabled={!selectedCategory}
-              value={formData.category}
-              onValueChange={(value) =>
-                setFormData({ ...formData, category: value })
-              }
+              value={selectedSubcategory}
+              onValueChange={handleSubcategoryChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select subcategory" />
@@ -207,7 +230,7 @@ export function ProductForm({
                 {selectedCategory &&
                   subcategories[selectedCategory]?.map((subcategory) => (
                     <SelectItem key={subcategory} value={subcategory}>
-                      {subcategory}
+                      {subcategory.replace(/_/g, " ")}
                     </SelectItem>
                   ))}
               </SelectContent>

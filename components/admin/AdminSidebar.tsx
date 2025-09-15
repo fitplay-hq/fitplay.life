@@ -24,6 +24,7 @@ import {
   Package,
   Users,
   CreditCard,
+  Building2,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -41,9 +42,9 @@ const adminNavItems = [
     icon: Package,
   },
   {
-    title: "Users",
-    url: "/admin/users",
-    icon: Users,
+    title: "Vendors",
+    url: "/admin/vendors",
+    icon: Building2,
   },
   {
     title: "Orders",

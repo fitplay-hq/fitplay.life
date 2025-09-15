@@ -8,6 +8,7 @@ import {
   Package,
   ShoppingCart,
   CreditCard,
+  Building2,
   TrendingUp,
   Activity,
   DollarSign,
@@ -126,6 +127,12 @@ export default function AdminDashboard() {
               <Button className="w-full justify-start bg-emerald-600 hover:bg-emerald-700">
                 <Package className="h-4 w-4 mr-2" />
                 Manage Products
+              </Button>
+            </Link>
+            <Link href="/admin/vendors">
+              <Button variant="outline" className="w-full justify-start">
+                <Building2 className="h-4 w-4 mr-2" />
+                Manage Vendors
               </Button>
             </Link>
             <Button variant="outline" className="w-full justify-start">

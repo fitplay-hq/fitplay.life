@@ -22,13 +22,14 @@ import {
 import {
   BarChart3,
   Package,
-  Users,
+  ShoppingCart,
   CreditCard,
   Building2,
   Settings,
   LogOut,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { url } from "inspector";
 
 const adminNavItems = [
   {
@@ -49,6 +50,11 @@ const adminNavItems = [
   {
     title: "Orders",
     url: "/admin/orders",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Transactions",
+    url: "/admin/transactions",
     icon: CreditCard,
   },
   {

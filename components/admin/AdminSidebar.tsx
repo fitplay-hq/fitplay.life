@@ -27,9 +27,9 @@ import {
   Building2,
   Settings,
   LogOut,
+  Bell,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { url } from "inspector";
 
 const adminNavItems = [
   {
@@ -91,28 +91,35 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar variant="inset">
-        <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild>
-                <Link href="/admin">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <Package className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      FitPlay Admin
-                    </span>
-                    <span className="truncate text-xs">Admin Dashboard</span>
-                  </div>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+      <Sidebar className="border-r border-gray-200 bg-white p-0">
+        <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Admin Dashboard
+              </h2>
+              <div className="mt-1">
+                <Badge
+                  variant="destructive"
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  Admin
+                </Badge>
+              </div>
+            </div>
+            <div className="relative">
+              <Bell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-emerald-600 transition-colors" />
+              <Badge
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs"
+              >
+                3
+              </Badge>
+            </div>
+          </div>
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent className="px-2 py-3">
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -120,11 +127,18 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.url}
+                      className={`
+                        px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                        ${
+                          pathname === item.url
+                            ? "bg-emerald-50 text-emerald-700 border-r-2 border-emerald-600"
+                            : "text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                        }
+                      `}
                       tooltip={item.title}
                     >
-                      <Link href={item.url}>
-                        <item.icon />
+                      <Link href={item.url} className="flex items-center gap-3">
+                        <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -135,35 +149,43 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter>
+        <SidebarFooter className="p-4 border-t border-gray-200">
           <SidebarMenu>
             <SidebarMenuItem>
               <form action="/api/auth/signout" method="POST" className="w-full">
-                <SidebarMenuButton size="sm" className="w-full">
+                <SidebarMenuButton
+                  size="sm"
+                  className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                >
                   <LogOut />
                   <span>Sign Out</span>
                 </SidebarMenuButton>
               </form>
             </SidebarMenuItem>
           </SidebarMenu>
+          <div className="text-xs text-gray-500 text-center mt-4">
+            FitPlay.life v2.0.1
+          </div>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
 
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 bg-white border-b border-gray-200">
           <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="h-4 w-px bg-sidebar-border" />
+            <SidebarTrigger className="-ml-1 text-gray-600 hover:text-emerald-600" />
+            <div className="h-4 w-px bg-gray-300" />
             <Badge
-              variant="outline"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600"
+              variant="destructive"
+              className="bg-emerald-600 hover:bg-emerald-700"
             >
               Admin
             </Badge>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+        <div className="flex flex-1 flex-col gap-4 p-6 bg-gray-50">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

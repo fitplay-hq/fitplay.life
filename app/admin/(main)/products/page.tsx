@@ -133,7 +133,10 @@ export default function AdminProductsPage() {
           </Button>
           <Button
             className="bg-emerald-600 hover:bg-emerald-700"
-            onClick={() => setIsAddProductOpen(true)}
+            onClick={() => {
+              setEditingProduct(null);
+              setIsAddProductOpen(true);
+            }}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Product

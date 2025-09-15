@@ -70,8 +70,10 @@ export function ProductForm({
     sku: "",
     availableStock: "",
     category: "",
-    subcategory: "",
+    subCategory: "",
     images: [],
+    companies: {},
+    variants: {},
   });
 
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -87,11 +89,13 @@ export function ProductForm({
         sku: editingProduct.sku || "",
         availableStock: editingProduct.availableStock?.toString() || "",
         category: editingProduct.category || "",
-        subcategory: editingProduct.subcategory || "",
+        subCategory: editingProduct.subCategory || "",
         images: editingProduct.images || [],
+        companies: editingProduct.companies || [],
+        variants: editingProduct.variants || [],
       });
       setSelectedCategory(editingProduct.category || "");
-      setSelectedSubcategory(editingProduct.subcategory || "");
+      setSelectedSubcategory(editingProduct.subCategory || "");
     } else {
       // Reset form for new product
       setFormData({
@@ -101,8 +105,10 @@ export function ProductForm({
         sku: "",
         availableStock: "",
         category: "",
-        subcategory: "",
+        subCategory: "",
         images: [],
+        companies: {},
+        variants: {},
       });
       setSelectedCategory("");
       setSelectedSubcategory("");
@@ -126,8 +132,10 @@ export function ProductForm({
       sku: "",
       availableStock: "",
       category: "",
-      subcategory: "",
+      subCategory: "",
       images: [],
+      companies: [],
+      variants: [],
     });
     setSelectedCategory("");
     setSelectedSubcategory("");
@@ -144,13 +152,13 @@ export function ProductForm({
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setSelectedSubcategory("");
-    setFormData({ ...formData, category, subcategory: "" });
+    setFormData({ ...formData, category, subCategory: "" });
   };
 
   // Update formData when selectedSubcategory changes
   const handleSubcategoryChange = (subcategory: string) => {
     setSelectedSubcategory(subcategory);
-    setFormData({ ...formData, subcategory });
+    setFormData({ ...formData, subCategory: subcategory });
   };
 
   return (

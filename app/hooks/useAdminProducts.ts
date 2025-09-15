@@ -13,6 +13,11 @@ export const fetchAdminProduct = async (id: string): Promise<ProductModelType | 
   return response.data || null;
 };
 
+// Prefetch products for better performance
+export const prefetchAdminProducts = () => {
+  return mutate('admin-products', fetchAdminProducts());
+};
+
 // Hook for fetching all products
 export const useAdminProducts = () => {
   const { data, error, isLoading, mutate: mutateProducts } = useSWR<ProductModelType[]>(

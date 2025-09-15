@@ -79,9 +79,50 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
-      </div>
+      <SidebarProvider>
+        <Sidebar className="border-r border-gray-200 bg-white">
+          <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Admin Dashboard
+                </h2>
+                <div className="mt-1">
+                  <Badge
+                    variant="destructive"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    Admin
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </SidebarHeader>
+          <SidebarContent className="px-4 py-6">
+            <div className="flex items-center justify-center h-32">
+              <div className="text-gray-500">Loading...</div>
+            </div>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 bg-white border-b border-gray-200">
+            <div className="flex items-center gap-2 px-4">
+              <div className="h-4 w-px bg-gray-300" />
+              <Badge
+                variant="destructive"
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Admin
+              </Badge>
+            </div>
+          </header>
+          <div className="flex flex-1 flex-col gap-4 p-6 bg-gray-50">
+            <div className="flex items-center justify-center h-96">
+              <div className="text-gray-500">Loading dashboard...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 

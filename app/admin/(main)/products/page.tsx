@@ -15,6 +15,7 @@ import {
   ProductFilters,
   ProductTable,
   ProductForm,
+  ProductLoadingSkeleton,
 } from "@/app/components/admin/products";
 
 export default function AdminProductsPage() {
@@ -97,8 +98,18 @@ export default function AdminProductsPage() {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <ProductLoadingSkeleton />;
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="text-red-600 text-lg font-semibold mb-2">
+            Error Loading Products
+          </div>
+          <div className="text-gray-600">{error.message}</div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="space-y-6">

@@ -1,119 +1,152 @@
-import { ArrowRight, Heart, Dumbbell, Apple, Stethoscope, Users, CreditCard, ShoppingBag, Award, Star, CheckCircle, TrendingUp, Building2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ImageWithFallback } from '@/components/ImageWithFallback';
-import Link from 'next/link';
+import {
+  ArrowRight,
+  Heart,
+  Dumbbell,
+  Apple,
+  Stethoscope,
+  Users,
+  CreditCard,
+  ShoppingBag,
+  Award,
+  Star,
+  CheckCircle,
+  TrendingUp,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
+import Link from "next/link";
 
 export default function HomePage() {
   const wellnessDomains = [
     {
       icon: Dumbbell,
-      title: 'Fitness & Exercise',
-      description: 'Access gym memberships, fitness equipment, and workout programs',
-      color: 'bg-emerald-50 text-emerald-600'
+      title: "Fitness & Exercise",
+      description:
+        "Access gym memberships, fitness equipment, and workout programs",
+      color: "bg-emerald-50 text-emerald-600",
     },
     {
       icon: Apple,
-      title: 'Nutrition & Wellness',
-      description: 'Healthy meal plans, supplements, and nutrition consultations',
-      color: 'bg-green-50 text-green-600'
+      title: "Nutrition & Wellness",
+      description:
+        "Healthy meal plans, supplements, and nutrition consultations",
+      color: "bg-green-50 text-green-600",
     },
     {
       icon: Stethoscope,
-      title: 'Preventive Care',
-      description: 'Health screenings, check-ups, and diagnostic services',
-      color: 'bg-teal-50 text-teal-600'
+      title: "Preventive Care",
+      description: "Health screenings, check-ups, and diagnostic services",
+      color: "bg-teal-50 text-teal-600",
     },
     {
       icon: Heart,
-      title: 'Mental Wellness',
-      description: 'Stress management, therapy sessions, and mindfulness programs',
-      color: 'bg-cyan-50 text-cyan-600'
-    }
+      title: "Mental Wellness",
+      description:
+        "Stress management, therapy sessions, and mindfulness programs",
+      color: "bg-cyan-50 text-cyan-600",
+    },
   ];
 
   const featuredOffers = [
     {
       id: 1,
-      title: 'Premium Gym Membership',
-      brand: 'FitZone',
-      originalPrice: '₹7,999',
+      title: "Premium Gym Membership",
+      brand: "FitZone",
+      originalPrice: "₹7,999",
       credits: 200,
-      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+      image:
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
     },
     {
       id: 2,
-      title: 'Organic Protein Powder',
-      brand: 'NutriMax',
-      originalPrice: '₹6,999',
+      title: "Organic Protein Powder",
+      brand: "NutriMax",
+      originalPrice: "₹6,999",
       credits: 150,
-      image: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
+      image:
+        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
     },
     {
       id: 3,
-      title: 'Health Screening Package',
-      brand: 'WellCare Labs',
-      originalPrice: '₹15,999',
+      title: "Health Screening Package",
+      brand: "WellCare Labs",
+      originalPrice: "₹15,999",
       credits: 300,
-      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
-    }
+      image:
+        "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+    },
   ];
 
   const brands = [
-    'FitZone', 'NutriMax', 'WellCare Labs', 'FlexFit', 'HealthPlus', 'VitalLife'
+    "FitZone",
+    "NutriMax",
+    "WellCare Labs",
+    "FlexFit",
+    "HealthPlus",
+    "VitalLife",
   ];
 
   const howItWorksSteps = [
     {
-      step: '1',
+      step: "1",
       icon: CreditCard,
-      title: 'Receive Credits',
-      description: 'Your company provides wellness credits to spend on health and fitness products'
+      title: "Receive Credits",
+      description:
+        "Your company provides wellness credits to spend on health and fitness products",
     },
     {
-      step: '2',
+      step: "2",
       icon: ShoppingBag,
-      title: 'Browse & Purchase',
-      description: 'Explore our curated wellness store and purchase products using your credits'
+      title: "Browse & Purchase",
+      description:
+        "Explore our curated wellness store and purchase products using your credits",
     },
     {
-      step: '3',
+      step: "3",
       icon: Award,
-      title: 'Track & Redeem',
-      description: 'Monitor your orders, track benefits, and enjoy your wellness journey'
-    }
+      title: "Track & Redeem",
+      description:
+        "Monitor your orders, track benefits, and enjoy your wellness journey",
+    },
   ];
 
   const heroStats = [
-    { icon: Users, number: '25,000+', label: 'Happy Employees' },
-    { icon: Building2, number: '100+', label: 'Partner Companies' },
-    { icon: ShoppingBag, number: '1,000+', label: 'Wellness Products' },
-    { icon: TrendingUp, number: '90%', label: 'Satisfaction Rate' }
+    { icon: Users, number: "25,000+", label: "Happy Employees" },
+    { icon: Award, number: "100+", label: "Partner Companies" },
+    { icon: ShoppingBag, number: "1,000+", label: "Wellness Products" },
+    { icon: TrendingUp, number: "90%", label: "Satisfaction Rate" },
   ];
 
   const testimonials = [
     {
-      quote: "FitPlay has revolutionized how our employees approach wellness. The seamless integration of credits with premium health services creates an experience that genuinely transforms lives.",
+      quote:
+        "FitPlay has revolutionized how our employees approach wellness. The seamless integration of credits with premium health services creates an experience that genuinely transforms lives.",
       name: "Priya Sharma",
       role: "Software Engineer",
       company: "TechCorp",
-      image: "https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981&color=fff"
+      image:
+        "https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981&color=fff",
     },
     {
-      quote: "The variety of wellness products and the intuitive credit system helped me maintain my fitness goals effortlessly. It's like having a personal wellness concierge.",
+      quote:
+        "The variety of wellness products and the intuitive credit system helped me maintain my fitness goals effortlessly. It's like having a personal wellness concierge.",
       name: "Arjun Patel",
       role: "Marketing Manager",
       company: "StartupX",
-      image: "https://ui-avatars.com/api/?name=Arjun+Patel&background=059669&color=fff"
+      image:
+        "https://ui-avatars.com/api/?name=Arjun+Patel&background=059669&color=fff",
     },
     {
-      quote: "What sets FitPlay apart is the premium curation of wellness solutions. Every product feels thoughtfully selected for maximum impact on employee health.",
+      quote:
+        "What sets FitPlay apart is the premium curation of wellness solutions. Every product feels thoughtfully selected for maximum impact on employee health.",
       name: "Meera Singh",
       role: "HR Director",
       company: "InnovateLab",
-      image: "https://ui-avatars.com/api/?name=Meera+Singh&background=047857&color=fff"
-    }
+      image:
+        "https://ui-avatars.com/api/?name=Meera+Singh&background=047857&color=fff",
+    },
   ];
 
   return (
@@ -136,19 +169,22 @@ export default function HomePage() {
               <h1 className="text-5xl md:text-6xl lg:text-8xl text-primary max-w-6xl mx-auto leading-tight">
                 Redefining Wellness
                 <br />
-                <span className="text-emerald-600">for the Modern Workforce</span>
+                <span className="text-emerald-600">
+                  for the Modern Workforce
+                </span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                Experience the evolution of employee benefits. Our intelligent wellness ecosystem 
-                transforms company investments into personalized health journeys, delivering 
-                premium solutions that adapt to your unique lifestyle and aspirations.
+                Experience the evolution of employee benefits. Our intelligent
+                wellness ecosystem transforms company investments into
+                personalized health journeys, delivering premium solutions that
+                adapt to your unique lifestyle and aspirations.
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href="/login">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-10 py-5 text-xl"
                 >
                   Begin Your Transformation
@@ -156,7 +192,11 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/benefits">
-                <Button variant="outline" size="lg" className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-10 py-5 text-xl">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-10 py-5 text-xl"
+                >
                   Explore Your Benefits
                 </Button>
               </Link>
@@ -171,8 +211,12 @@ export default function HomePage() {
                       <stat.icon className="w-8 h-8 text-emerald-600" />
                     </div>
                   </div>
-                  <div className="text-3xl md:text-5xl font-bold text-primary">{stat.number}</div>
-                  <div className="text-base md:text-lg text-gray-600">{stat.label}</div>
+                  <div className="text-3xl md:text-5xl font-bold text-primary">
+                    {stat.number}
+                  </div>
+                  <div className="text-base md:text-lg text-gray-600">
+                    {stat.label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -180,9 +224,17 @@ export default function HomePage() {
 
           {/* Trust Indicators */}
           <div className="mt-20 text-center">
-            <p className="text-gray-600 text-lg mb-8">Trusted by employees at leading companies worldwide</p>
+            <p className="text-gray-600 text-lg mb-8">
+              Trusted by employees at leading companies worldwide
+            </p>
             <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-              {['TechCorp', 'StartupX', 'InnovateLab', 'FutureTech', 'DataSoft'].map((company, index) => (
+              {[
+                "TechCorp",
+                "StartupX",
+                "InnovateLab",
+                "FutureTech",
+                "DataSoft",
+              ].map((company, index) => (
                 <div key={index} className="text-gray-500 font-medium text-xl">
                   {company}
                 </div>
@@ -200,14 +252,20 @@ export default function HomePage() {
               Explore Wellness Domains
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover comprehensive wellness solutions across multiple domains to support your health goals
+              Discover comprehensive wellness solutions across multiple domains
+              to support your health goals
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {wellnessDomains.map((domain, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card
+                key={index}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+              >
                 <CardContent className="p-6 text-center space-y-4">
-                  <div className={`w-16 h-16 rounded-xl ${domain.color} mx-auto flex items-center justify-center`}>
+                  <div
+                    className={`w-16 h-16 rounded-xl ${domain.color} mx-auto flex items-center justify-center`}
+                  >
                     <domain.icon className="w-8 h-8" />
                   </div>
                   <h3 className="text-primary">{domain.title}</h3>
@@ -232,7 +290,10 @@ export default function HomePage() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredOffers.map((offer) => (
-              <Card key={offer.id} className="hover:shadow-lg transition-shadow py-0">
+              <Card
+                key={offer.id}
+                className="hover:shadow-lg transition-shadow py-0"
+              >
                 <CardContent className="p-0">
                   <ImageWithFallback
                     src={offer.image}
@@ -243,8 +304,12 @@ export default function HomePage() {
                     <div className="text-sm text-gray-500">{offer.brand}</div>
                     <h3 className="text-primary">{offer.title}</h3>
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg text-primary font-bold">{offer.credits} credits</span>
-                      <span className="text-sm text-gray-500 line-through">{offer.originalPrice}</span>
+                      <span className="text-lg text-primary font-bold">
+                        {offer.credits} credits
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        {offer.originalPrice}
+                      </span>
                       <span className="text-sm bg-emerald-100 text-emerald-800 px-2 py-1 rounded">
                         Great Value
                       </span>
@@ -269,8 +334,9 @@ export default function HomePage() {
                 Transform Your Gut Health with Sova Health
               </h2>
               <p className="text-lg text-emerald-50">
-                End-to-end gut health solutions including comprehensive testing, 
-                personalized nutrition plans, and expert consultations to optimize your digestive wellness.
+                End-to-end gut health solutions including comprehensive testing,
+                personalized nutrition plans, and expert consultations to
+                optimize your digestive wellness.
               </p>
               <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center space-x-2">
@@ -287,11 +353,19 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="secondary" size="lg" className="bg-white text-emerald-600 hover:bg-gray-50">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="bg-white text-emerald-600 hover:bg-gray-50"
+                >
                   Explore Gut Health Solutions
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-white text-white hover:bg-white/10"
+                >
                   Book Consultation
                 </Button>
               </div>
@@ -305,24 +379,35 @@ export default function HomePage() {
                     </div>
                     <div className="text-white">
                       <h3 className="font-semibold">Sova Health</h3>
-                      <p className="text-emerald-100 text-sm">Gut Health Specialists</p>
+                      <p className="text-emerald-100 text-sm">
+                        Gut Health Specialists
+                      </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-white">
                     <div className="text-center">
                       <div className="text-2xl font-bold">95%</div>
-                      <div className="text-xs text-emerald-100">Success Rate</div>
+                      <div className="text-xs text-emerald-100">
+                        Success Rate
+                      </div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold">10k+</div>
-                      <div className="text-xs text-emerald-100">Patients Helped</div>
+                      <div className="text-xs text-emerald-100">
+                        Patients Helped
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                      <Star
+                        key={i}
+                        className="w-4 h-4 text-yellow-400 fill-current"
+                      />
                     ))}
-                    <span className="text-white text-sm ml-2">4.9/5 Rating</span>
+                    <span className="text-white text-sm ml-2">
+                      4.9/5 Rating
+                    </span>
                   </div>
                 </div>
               </div>
@@ -344,9 +429,14 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
             {brands.map((brand, index) => (
-              <div key={index} className="bg-white rounded-lg p-6 border border-gray-200 text-center hover:shadow-md transition-shadow">
+              <div
+                key={index}
+                className="bg-white rounded-lg p-6 border border-gray-200 text-center hover:shadow-md transition-shadow"
+              >
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg mx-auto mb-3 flex items-center justify-center">
-                  <span className="text-emerald-600 font-semibold text-sm">{brand.slice(0, 2)}</span>
+                  <span className="text-emerald-600 font-semibold text-sm">
+                    {brand.slice(0, 2)}
+                  </span>
                 </div>
                 <div className="text-sm text-gray-700">{brand}</div>
               </div>
@@ -374,7 +464,9 @@ export default function HomePage() {
                     <step.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-emerald-500">
-                    <span className="text-emerald-600 font-semibold text-sm">{step.step}</span>
+                    <span className="text-emerald-600 font-semibold text-sm">
+                      {step.step}
+                    </span>
                   </div>
                 </div>
                 <h3 className="text-xl text-primary">{step.title}</h3>
@@ -393,31 +485,46 @@ export default function HomePage() {
               Voices of Transformation
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Discover how FitPlay is revolutionizing wellness experiences for employees across leading organizations
+              Discover how FitPlay is revolutionizing wellness experiences for
+              employees across leading organizations
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-white hover:shadow-lg transition-shadow">
+              <Card
+                key={index}
+                className="bg-white hover:shadow-lg transition-shadow"
+              >
                 <CardContent className="p-8">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-1 mb-4">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                        <Star
+                          key={i}
+                          className="w-5 h-5 text-yellow-400 fill-current"
+                        />
                       ))}
                     </div>
-                    <p className="text-gray-700 italic text-lg leading-relaxed">&quot;{testimonial.quote}&quot;</p>
+                    <p className="text-gray-700 italic text-lg leading-relaxed">
+                      &quot;{testimonial.quote}&quot;
+                    </p>
                     <div className="flex items-center space-x-4">
-                      <img 
-                        src={testimonial.image} 
+                      <img
+                        src={testimonial.image}
                         alt={testimonial.name}
                         className="w-12 h-12 rounded-full"
                       />
                       <div>
-                        <div className="font-medium text-primary">{testimonial.name}</div>
-                        <div className="text-sm text-gray-600">{testimonial.role}</div>
-                        <div className="text-xs text-emerald-600 font-medium">{testimonial.company}</div>
+                        <div className="font-medium text-primary">
+                          {testimonial.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {testimonial.role}
+                        </div>
+                        <div className="text-xs text-emerald-600 font-medium">
+                          {testimonial.company}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -435,16 +542,24 @@ export default function HomePage() {
             Ready to Begin Your Wellness Evolution?
           </h2>
           <p className="text-gray-600 mb-8">
-            Our wellness experts are here to guide you on your transformative health journey
+            Our wellness experts are here to guide you on your transformative
+            health journey
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/support">
-              <Button variant="outline" size="lg" className="border-emerald-500 text-emerald-600 hover:bg-emerald-50">
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+              >
                 Connect with Experts
               </Button>
             </Link>
             <Link href="/store">
-              <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600"
+              >
                 Explore Premium Wellness
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>

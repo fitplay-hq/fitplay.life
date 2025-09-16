@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User } from "lucide-react";
+import { User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileMenu } from "./mobile-menu";
 import { CartButton } from "./cart-button";
@@ -58,6 +58,18 @@ export function Navbar() {
             <Link href="/profile">
               <Button variant="ghost" size="sm" className="p-2">
                 <User className="w-5 h-5" />
+              </Button>
+            </Link>
+
+            {/* Admin Portal Button */}
+            <Link href="/admin">
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex border-red-400 text-red-600 hover:bg-red-50"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Admin
               </Button>
             </Link>
 

@@ -72,6 +72,13 @@
 - Navbar changes based on user auth state
 - Landing page redirects
 
+15. Vendor Add Form
+![Screenshot_16-9-2025_155517_localhost](https://github.com/user-attachments/assets/ce3267a2-37af-4baa-ac9b-5d99a16ba61e)
+
+16. Vendors Management
+
+![Screenshot_16-9-2025_155613_localhost](https://github.com/user-attachments/assets/072fa7da-4496-4620-89a2-0758c8ea28aa)
+
 ## Tasks
 
 - [x] Create Admin and HR panel UI. Setup sidebar and navigation

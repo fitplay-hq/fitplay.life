@@ -34,13 +34,13 @@
 
 ## Tasks
 
-1. Create Admin and HR panel UI. Setup sidebar and navigation
+1. [x] Create Admin and HR panel UI. Setup sidebar and navigation
 2. Verified vs unverified users
-3. Products API -> fetch products from server
-4. Cart functionality is done
+3. [x] Products API -> fetch products from server
+4. [x] Cart functionality is done
 5. Placing orders will be after backend is done
-6. Products filtering done
-7. Implement role-based UI rendering (Employee, HR, Admin)
+6. [x] Products filtering done
+7. [x] Implement role-based UI rendering (Employee, HR, Admin)
 8. Create analytics dashboard showing most redeemed products, active companies, monthly redemption volume, credits vs. INR redemptions, and global tracking.
 9. Create HR dashboard page with login-protected access, showing company employees, redemption status, budget allocation/usage, and campaign management.
 10. Implement employee monitoring section (list employees with redemption details).

@@ -11,7 +11,7 @@ generator client {
 
 generator zod {
   provider = "prisma-zod-generator"
-  output = "../lib/generated/zod"
+  output   = "../lib/generated/zod"
 }
 
 datasource db {
@@ -30,19 +30,23 @@ model Admin {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String    @db.VarChar(30)
-  email     String    @unique
-  password  String
-  phone     String    @unique
-  role      Role
-  gender    Gender?
-  birthDate DateTime?
-  company   Company   @relation(fields: [companyId], references: [id])
-  companyId String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt()
-  verified  Boolean   @default(false)
+  id           String              @id @default(uuid())
+  name         String              @db.VarChar(30)
+  email        String              @unique
+  password     String
+  phone        String              @unique
+  role         Role
+  gender       Gender?
+  birthDate    DateTime?
+  company      Company             @relation(fields: [companyId], references: [id])
+  companyId    String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @default(now()) @updatedAt()
+  verified     Boolean             @default(false)
+  wallet       Wallet?
+  transactions TransactionLedger[]
+  orders       Order[]
+  claimed      Boolean             @default(false)
 }
 
 model VerificationToken {
@@ -64,13 +68,13 @@ model Company {
 }
 
 model Product {
-  id             String      @id @default(uuid())
-  name           String      @db.VarChar(50)
+  id             String       @id @default(uuid())
+  name           String       @db.VarChar(50)
   images         String[]
   description    String
-  vendorName     String      @db.VarChar(50)
+  vendorName     String       @db.VarChar(50)
   discount       Int?
-  sku            String      @unique @db.VarChar(100)
+  sku            String       @unique @db.VarChar(100)
   availableStock Int
   category       Category
   subCategory    SubCategory?
@@ -79,8 +83,9 @@ model Product {
   noOfReviews    Int?
   companies      Company[]
   variants       Variant[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @default(now()) @updatedAt()
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt()
+  orders         Order[]
 }
 
 model Variant {
@@ -93,6 +98,58 @@ model Variant {
   productId       String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now()) @updatedAt()
+}
+
+model Wallet {
+  id                String              @id @default(uuid())
+  user              User                @relation(fields: [userId], references: [id])
+  userId            String              @unique
+  balance           Int
+  expiryDate        DateTime
+  transactionLedger TransactionLedger[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now()) @updatedAt()
+}
+
+model TransactionLedger {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  amount        Int
+  modeOfPayment Modes
+  cashAmount    Int?
+  isCredit      Boolean
+  wallet        Wallet   @relation(fields: [walletId], references: [id])
+  walletId      String
+  order         Order?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+}
+
+model Order {
+  id                String             @id @default(uuid())
+  user              User               @relation(fields: [userId], references: [id])
+  userId            String
+  product           Product            @relation(fields: [productId], references: [id])
+  productId         String
+  amount            Int
+  status            Status
+  transactionLedger TransactionLedger? @relation(fields: [transactionId], references: [id])
+  transactionId     String?            @unique
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now()) @updatedAt
+}
+
+enum Status {
+  PENDING
+  SHIPPED
+  DELIVERED
+}
+
+enum Modes {
+  Credits
+  Cash
+  Both
 }
 
 enum Category {

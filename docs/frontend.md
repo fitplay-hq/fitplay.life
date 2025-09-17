@@ -66,14 +66,13 @@
 - Credits info shown on benefits page only if logged in
 - Add to cart without login won't work
 
-14.
-![Screenshot_11-9-2025_155727_localhost](https://github.com/user-attachments/assets/65800bdb-2384-47d4-bfbc-8e2db2deaef8)
+14. ![Screenshot_11-9-2025_155727_localhost](https://github.com/user-attachments/assets/65800bdb-2384-47d4-bfbc-8e2db2deaef8)
 
 - Navbar changes based on user auth state
 - Landing page redirects
 
 15. Vendor Add Form
-![Screenshot_16-9-2025_155517_localhost](https://github.com/user-attachments/assets/ce3267a2-37af-4baa-ac9b-5d99a16ba61e)
+    ![Screenshot_16-9-2025_155517_localhost](https://github.com/user-attachments/assets/ce3267a2-37af-4baa-ac9b-5d99a16ba61e)
 
 16. Vendors Management
 

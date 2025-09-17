@@ -82,10 +82,18 @@ export default function AdminProductsPage() {
       const productData = {
         ...formData,
         availableStock: parseInt(formData.availableStock),
+        variants: {
+          create: formData.variants.map((variant: any) => ({
+            variantCategory: variant.variantCategory,
+            variantValue: variant.variantValue,
+            mrp: variant.mrp,
+          })),
+        },
+        companies: {},
       };
 
       if (editingProduct) {
-        await updateAdminProduct({ ...productData, id: editingProduct.id });
+        await updateAdminProduct(editingProduct.id, productData);
       } else {
         await createAdminProduct(productData);
       }

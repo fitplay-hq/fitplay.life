@@ -56,7 +56,12 @@ export async function GET(req: NextRequest) {
       }
       return NextResponse.json({ message: "Product fetched successfully", data: product });
     } else {
-      const products = await prisma.product.findMany();
+      const products = await prisma.product.findMany({
+        include: {
+          variants: true,
+        },
+      });
+      console.log("Fetched products with variants:", products.map(p => ({ id: p.id, name: p.name, variants: p.variants })));
       return NextResponse.json({ message: "Products fetched successfully", data: products });
     }
   } catch (error) {
@@ -96,22 +101,40 @@ export async function PATCH(req: NextRequest) {
     if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const result = ProductUpdateInputObjectSchema.safeParse(body);
+    const { variants, ...productData } = body;
+
+    const result = ProductUpdateInputObjectSchema.safeParse(productData);
 
     if (!result.success) {
       console.error("Product update failed:", result.error.format());
       return NextResponse.json({ message: "Invalid product data", error: result.error.format() }, { status: 400 });
     }
 
-    const productData = result.data;
     if (!productData.id) {
       return NextResponse.json({ message: "Product ID is required for update" }, { status: 400 });
     }
 
+    // Update the product (without variants)
     const updated = await prisma.product.update({
       where: { id: String(productData.id) },
       data: productData,
     });
+
+    // Handle variants: delete existing and create new
+    if (variants) {
+      await prisma.variant.deleteMany({ where: { productId: productData.id } });
+      if (variants.length > 0) {
+        await prisma.variant.createMany({
+          data: variants.map((v: any) => ({
+            variantCategory: v.variantCategory,
+            variantValue: v.variantValue,
+            mrp: v.mrp,
+            credits: v.credits || null,
+            productId: productData.id,
+          })),
+        });
+      }
+    }
 
     return NextResponse.json({ message: "Product updated successfully", data: updated });
   } catch (error) {

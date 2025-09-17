@@ -1,5 +1,6 @@
 import useSWR, { mutate } from 'swr';
 import { ProductModelType } from '@/lib/generated/zod/schemas';
+import { Prisma } from '@/lib/generated/prisma';
 
 // Fetch all products for admin
 export const fetchAdminProducts = async (): Promise<ProductModelType[]> => {
@@ -64,7 +65,7 @@ export const useAdminProduct = (id: string | null) => {
 };
 
 // Create product
-export const createAdminProduct = async (productData: any) => {
+export const createAdminProduct = async (productData: Prisma.ProductCreateInput) => {
   const response = await fetch('/api/products/product', {
     method: 'POST',
     headers: {
@@ -84,13 +85,13 @@ export const createAdminProduct = async (productData: any) => {
 };
 
 // Update product
-export const updateAdminProduct = async (productData: any) => {
+export const updateAdminProduct = async (id: string, productData: Prisma.ProductUpdateInput) => {
   const response = await fetch('/api/products/product', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(productData),
+    body: JSON.stringify({ id, ...productData }),
   });
 
   if (!response.ok) {
@@ -100,7 +101,7 @@ export const updateAdminProduct = async (productData: any) => {
 
   const result = await response.json();
   mutate('admin-products'); // Invalidate products list
-  mutate(`admin-product-${productData.id}`); // Invalidate specific product
+  mutate(`admin-product-${id}`); // Invalidate specific product
   return result.data;
 };
 

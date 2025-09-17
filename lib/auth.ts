@@ -44,6 +44,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("No user found");
         }
 
+        if (!user.verified) {
+          throw new Error("Please verify your email to login");
+        }
+
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {

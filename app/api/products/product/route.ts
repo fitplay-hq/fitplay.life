@@ -94,47 +94,28 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
     if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { variants, ...productData } = body;
-
-    const result = ProductUpdateInputObjectSchema.safeParse(productData);
+    const result = ProductUpdateInputObjectSchema.safeParse(body);
 
     if (!result.success) {
       console.error("Product update failed:", result.error.format());
       return NextResponse.json({ message: "Invalid product data", error: result.error.format() }, { status: 400 });
     }
 
+    const productData = result.data;
     if (!productData.id) {
       return NextResponse.json({ message: "Product ID is required for update" }, { status: 400 });
     }
 
-    // Update the product (without variants)
     const updated = await prisma.product.update({
       where: { id: String(productData.id) },
       data: productData,
     });
-
-    // Handle variants: delete existing and create new
-    if (variants) {
-      await prisma.variant.deleteMany({ where: { productId: productData.id } });
-      if (variants.length > 0) {
-        await prisma.variant.createMany({
-          data: variants.map((v: any) => ({
-            variantCategory: v.variantCategory,
-            variantValue: v.variantValue,
-            mrp: v.mrp,
-            credits: v.credits || null,
-            productId: productData.id,
-          })),
-        });
-      }
-    }
 
     return NextResponse.json({ message: "Product updated successfully", data: updated });
   } catch (error) {

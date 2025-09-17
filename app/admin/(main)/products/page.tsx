@@ -17,6 +17,7 @@ import {
   ProductForm,
   ProductLoadingSkeleton,
 } from "@/app/components/admin/products";
+import { Product, Variant } from "@/lib/generated/prisma";
 
 export default function AdminProductsPage() {
   const { products, isLoading, error, mutate } = useAdminProducts();
@@ -79,23 +80,37 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (formData: any) => {
     try {
+      const variants = formData.variants.map((variant: any) => ({
+        variantCategory: variant.variantCategory,
+        variantValue: variant.variantValue,
+        mrp: variant.mrp,
+        id: variant.id,
+      }));
+
       const productData = {
         ...formData,
         availableStock: parseInt(formData.availableStock),
-        variants: {
-          create: formData.variants.map((variant: any) => ({
-            variantCategory: variant.variantCategory,
-            variantValue: variant.variantValue,
-            mrp: variant.mrp,
-          })),
-        },
         companies: {},
       };
 
       if (editingProduct) {
-        await updateAdminProduct(editingProduct.id, productData);
+        await updateAdminProduct(editingProduct.id, {
+          ...productData,
+          variants: {
+            upsert: variants.map((variant: Variant) => ({
+              where: { id: variant.id },
+              create: variant,
+              update: variant,
+            })),
+          },
+        });
       } else {
-        await createAdminProduct(productData);
+        await createAdminProduct({
+          ...productData,
+          variants: {
+            create: variants,
+          },
+        });
       }
 
       setIsAddProductOpen(false);

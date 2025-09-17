@@ -1,18 +1,9 @@
 "use client";
 
-import {
-  User,
-  Settings,
-  Wallet,
-  History,
-  LogOut,
-  Shield,
-  Heart,
-} from "lucide-react";
+import { User, LogOut, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationPreferences from "@/components/profile/notification-preferences";
 import Dashboard from "@/components/profile/dashboard";

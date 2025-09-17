@@ -27,6 +27,8 @@ import {
   Star,
   Package,
 } from "lucide-react";
+import { getLowestCredits, getLowestMRP } from "@/lib/utils";
+import { ProductWithVariant } from "@/lib/types";
 
 interface ProductTableProps {
   products: any[];
@@ -151,9 +153,11 @@ export function ProductTable({
                 </Badge>
               </TableCell>
               <TableCell className="text-right font-medium">
-                1200 credits
+                {getLowestCredits(product as ProductWithVariant)} credits
               </TableCell>
-              <TableCell className="text-right">₹600</TableCell>
+              <TableCell className="text-right">
+                ₹{getLowestMRP(product as ProductWithVariant)}
+              </TableCell>
               <TableCell className="text-center">
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-medium">{product.availableStock}</span>
@@ -185,20 +189,6 @@ export function ProductTable({
                     <DropdownMenuItem>
                       <ImageIcon className="h-4 w-4 mr-2" />
                       View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      {product.status === "active" ? (
-                        <>
-                          <EyeOff className="h-4 w-4 mr-2" />
-                          Deactivate
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Activate
-                        </>
-                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

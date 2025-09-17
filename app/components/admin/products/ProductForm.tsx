@@ -19,6 +19,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, X } from "lucide-react";
 import { Category, SubCategory } from "@/lib/generated/prisma";
 
 interface ProductFormProps {
@@ -63,7 +65,7 @@ export function ProductForm({
   onSubmit,
   editingProduct,
 }: ProductFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: "",
     description: "",
     vendorName: "",
@@ -72,12 +74,12 @@ export function ProductForm({
     category: "",
     subCategory: "",
     images: [],
-    companies: {},
-    variants: {},
+    variants: [],
   });
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [variants, setVariants] = useState<any[]>([]);
 
   // Update form data when editingProduct changes
   useEffect(() => {
@@ -91,7 +93,6 @@ export function ProductForm({
         category: editingProduct.category || "",
         subCategory: editingProduct.subCategory || "",
         images: editingProduct.images || [],
-        companies: editingProduct.companies || [],
         variants: editingProduct.variants || [],
       });
       setSelectedCategory(editingProduct.category || "");
@@ -107,8 +108,7 @@ export function ProductForm({
         category: "",
         subCategory: "",
         images: [],
-        companies: {},
-        variants: {},
+        variants: [],
       });
       setSelectedCategory("");
       setSelectedSubcategory("");
@@ -120,6 +120,17 @@ export function ProductForm({
     const productData = {
       ...formData,
       availableStock: parseInt(formData.availableStock),
+      variants: variants
+        .map((variant) => ({
+          ...variant,
+          mrp: parseInt(variant.mrp) || 0,
+        }))
+        .filter(
+          (variant) =>
+            variant.variantCategory.trim() &&
+            variant.variantValue.trim() &&
+            variant.mrp > 0
+        ),
     };
     onSubmit(productData);
   };
@@ -134,11 +145,11 @@ export function ProductForm({
       category: "",
       subCategory: "",
       images: [],
-      companies: [],
       variants: [],
     });
     setSelectedCategory("");
     setSelectedSubcategory("");
+    setVariants([]);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -160,6 +171,40 @@ export function ProductForm({
     setSelectedSubcategory(subcategory);
     setFormData({ ...formData, subCategory: subcategory });
   };
+
+  // Variants management functions
+  const addVariant = () => {
+    const newVariant = {
+      id: Date.now().toString(),
+      variantCategory: "",
+      variantValue: "",
+      mrp: "",
+    };
+    setVariants([...variants, newVariant]);
+  };
+
+  const updateVariant = (index: number, field: string, value: string) => {
+    const updatedVariants = variants.map((variant, i) =>
+      i === index ? { ...variant, [field]: value } : variant
+    );
+    setVariants(updatedVariants);
+    setFormData({ ...formData, variants: updatedVariants });
+  };
+
+  const removeVariant = (index: number) => {
+    const updatedVariants = variants.filter((_, i) => i !== index);
+    setVariants(updatedVariants);
+    setFormData({ ...formData, variants: updatedVariants });
+  };
+
+  // Initialize variants when editing product
+  useEffect(() => {
+    if (editingProduct?.variants) {
+      setVariants(editingProduct.variants);
+    } else {
+      setVariants([]);
+    }
+  }, [editingProduct]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -269,6 +314,104 @@ export function ProductForm({
               }
               required
             />
+          </div>
+
+          {/* Variants Section */}
+          <div className="col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">
+                Product Variants
+              </Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addVariant}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Variant
+              </Button>
+            </div>
+
+            {variants.length > 0 && (
+              <div className="space-y-3">
+                {variants.map((variant, index) => (
+                  <Card key={variant.id || index} className="p-4">
+                    <div className="flex items-end gap-4">
+                      <div className="flex-1 grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor={`variant-category-${index}`}>
+                            Category
+                          </Label>
+                          <Input
+                            id={`variant-category-${index}`}
+                            placeholder="e.g., Size, Color"
+                            value={variant.variantCategory}
+                            onChange={(e) =>
+                              updateVariant(
+                                index,
+                                "variantCategory",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`variant-value-${index}`}>
+                            Value
+                          </Label>
+                          <Input
+                            id={`variant-value-${index}`}
+                            placeholder="e.g., S, M, L"
+                            value={variant.variantValue}
+                            onChange={(e) =>
+                              updateVariant(
+                                index,
+                                "variantValue",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`variant-mrp-${index}`}>
+                            MRP (₹)
+                          </Label>
+                          <Input
+                            id={`variant-mrp-${index}`}
+                            type="number"
+                            placeholder="Price"
+                            value={variant.mrp}
+                            onChange={(e) =>
+                              updateVariant(index, "mrp", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => removeVariant(index)}
+                        className="mb-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {variants.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>
+                  No variants added yet. Click "Add Variant" to create product
+                  variations.
+                </p>
+              </div>
+            )}
           </div>
         </form>
         <div className="flex justify-end gap-3">

@@ -1,79 +1,152 @@
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { companyId, employeesEmailID, creditAmount } = body;
 
-    if (!companyId || !employeesEmailID?.length || !creditAmount) {
+// Add credits to multiple employees in a company
+export async function POST(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        const body = await req.json();
+        const { companyId, employeesEmailID, creditAmount } = body;
+
+        if (!companyId || !employeesEmailID?.length || !creditAmount) {
+            return NextResponse.json(
+                { error: "companyId, employeesEmailID and creditAmount are required" },
+                { status: 400 }
+            );
+        }
+
+        const company = await prisma.company.findUnique({
+            where: { id: companyId },
+        });
+
+        if (!company) {
+            return NextResponse.json({ error: "Company not found" }, { status: 404 });
+        }
+
+        const employees = await prisma.user.findMany({
+            where: {
+                email: { in: employeesEmailID },
+                companyId,
+            },
+            include: { wallet: true },
+        });
+
+        if (!employees.length) {
+            return NextResponse.json({ error: "No employees found" }, { status: 404 });
+        }
+
+        const results = [];
+        for (const emp of employees) {
+            let wallet = emp.wallet;
+
+            if (!wallet) {
+                wallet = await prisma.wallet.create({
+                    data: {
+                        userId: emp.id,
+                        balance: 0,
+                        expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                    },
+                });
+            }
+
+            const updatedWallet = await prisma.wallet.update({
+                where: { id: wallet.id },
+                data: { balance: wallet.balance + creditAmount },
+            });
+
+            await prisma.transactionLedger.create({
+                data: {
+                    userId: emp.id,
+                    amount: creditAmount,
+                    modeOfPayment: "Credits",
+                    isCredit: true,
+                    walletId: wallet.id,
+                },
+            });
+
+            results.push({
+                email: emp.email,
+                newBalance: updatedWallet.balance,
+            });
+        }
+
+        return NextResponse.json({
+            message: "Credits added successfully",
+            data: results,
+        });
+    } catch (error) {
+        console.error("Error adding credits:", error);
+        return NextResponse.json(
+            { error: "Internal server error", details: (error as Error).message },
+            { status: 500 }
+        );
+    }
+}
+
+// Get wallets of all employees in a company
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    let companyId: string | null = null;
+
+    if (session.user.role === "ADMIN") {
+      const { searchParams } = new URL(req.url);
+      companyId = searchParams.get("companyId");
+      if (!companyId) {
+        return NextResponse.json(
+          { error: "companyId is required for Admin" },
+          { status: 400 }
+        );
+      }
+    } else if (session.user.role === "HR") {
+      const hrUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { companyId: true },
+      });
+      if (!hrUser) {
+        return NextResponse.json({ error: "HR user not found" }, { status: 404 });
+      }
+      companyId = hrUser.companyId;
+    } else {
       return NextResponse.json(
-        { error: "companyId, employeesEmailID and creditAmount are required" },
-        { status: 400 }
+        { message: "Unauthorized role" },
+        { status: 401 }
       );
     }
 
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-    });
-
-    if (!company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
-    }
-
     const employees = await prisma.user.findMany({
-      where: {
-        email: { in: employeesEmailID },
-        companyId,
-      },
+      where: { companyId },
       include: { wallet: true },
     });
 
     if (!employees.length) {
-      return NextResponse.json({ error: "No employees found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "No employees found for this company" },
+        { status: 404 }
+      );
     }
 
-    const results = [];
-    for (const emp of employees) {
-      let wallet = emp.wallet;
+    const wallets = employees.map((emp) => ({
+      email: emp.email,
+      name: emp.name,
+      balance: emp.wallet?.balance ?? 0,
+      expiryDate: emp.wallet?.expiryDate ?? null,
+    }));
 
-      if (!wallet) {
-        wallet = await prisma.wallet.create({
-          data: {
-            userId: emp.id,
-            balance: 0,
-            expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-          },
-        });
-      }
-
-      const updatedWallet = await prisma.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: wallet.balance + creditAmount },
-      });
-
-      await prisma.transactionLedger.create({
-        data: {
-          userId: emp.id,
-          amount: creditAmount,
-          modeOfPayment: "Credits",
-          isCredit: true,
-          walletId: wallet.id,
-        },
-      });
-
-      results.push({
-        email: emp.email,
-        newBalance: updatedWallet.balance,
-      });
-    }
-
-    return NextResponse.json({
-      message: "Credits added successfully",
-      data: results,
-    });
+    return NextResponse.json({ companyId, wallets });
   } catch (error) {
-    console.error("Error adding credits:", error);
+    console.error("Error fetching wallets:", error);
     return NextResponse.json(
       { error: "Internal server error", details: (error as Error).message },
       { status: 500 }

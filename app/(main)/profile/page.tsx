@@ -24,6 +24,7 @@ import {
   addToCartAtom,
   cartAnimationAtom,
 } from "@/lib/store";
+import useSWR from "swr";
 
 interface DashboardStats {
   totalOrders: number;
@@ -40,8 +41,17 @@ export default function ProfilePage() {
   const addToCart = useSetAtom(addToCartAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
-  const [walletLoading, setWalletLoading] = useState(true);
-  const [walletError, setWalletError] = useState<string | null>(null);
+  const fetcher = (url: string) =>
+    fetch(url, { credentials: "include" }).then((res) => res.json());
+  const {
+    data: walletData,
+    error: walletError,
+    isLoading: walletLoading,
+  } = useSWR(
+    isAuthenticated && user ? "/api/wallets?personal=true" : null,
+    fetcher
+  );
+
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalOrders: 12,
     totalSpent: 450,
@@ -49,38 +59,18 @@ export default function ProfilePage() {
     creditsRemaining: 0,
     wellnessScore: 85,
   });
-  const [walletHistory, setWalletHistory] = useState<WalletTransaction[]>([]);
+
+  const walletHistory = walletData?.walletHistory || [];
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const fetchWalletData = async () => {
-        try {
-          setWalletLoading(true);
-          setWalletError(null);
-          const response = await fetch("/api/wallets?personal=true", {
-            credentials: "include",
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch wallet data");
-          }
-          const data = await response.json();
-          setDashboardStats((prev: DashboardStats) => ({
-            ...prev,
-            creditsUsed: data.dashboardStats.creditsUsed,
-            creditsRemaining: data.dashboardStats.creditsRemaining,
-          }));
-          setWalletHistory(data.walletHistory);
-        } catch (error) {
-          setWalletError((error as Error).message);
-          toast.error("Failed to load wallet data");
-        } finally {
-          setWalletLoading(false);
-        }
-      };
-
-      fetchWalletData();
+    if (walletData?.dashboardStats) {
+      setDashboardStats((prev: DashboardStats) => ({
+        ...prev,
+        creditsUsed: walletData.dashboardStats.creditsUsed,
+        creditsRemaining: walletData.dashboardStats.creditsRemaining,
+      }));
     }
-  }, [isAuthenticated, user]);
+  }, [walletData]);
 
   const orderHistory = [
     {

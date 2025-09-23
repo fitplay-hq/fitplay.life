@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   WalletStats,
   WalletFilters,
@@ -8,6 +8,7 @@ import {
   WalletForm,
   WalletLoadingSkeleton,
 } from "@/app/components/admin/wallets";
+import useSWR, { useSWRConfig } from "swr";
 
 interface UserWallet {
   id: string;
@@ -19,10 +20,15 @@ interface UserWallet {
   expiryDate: string | null;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function AdminWalletsPage() {
-  const [users, setUsers] = useState<UserWallet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { mutate: globalMutate } = useSWRConfig();
+  const {
+    data: walletData,
+    error: swrError,
+    isLoading,
+  } = useSWR("/api/wallets", fetcher);
   const [selectedUser, setSelectedUser] = useState<UserWallet | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -31,35 +37,27 @@ export default function AdminWalletsPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
 
-  useEffect(() => {
-    fetchWallets();
-  }, []);
-
-  const fetchWallets = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/wallets");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.allUsers) {
-          setUsers(data.wallets);
-        } else {
-          setUsers(data.wallets);
-        }
-      } else {
-        setError("Failed to fetch wallets");
-      }
-    } catch (err) {
-      setError("Error fetching wallets");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const users = walletData?.wallets || [];
+  const error = swrError ? "Failed to fetch wallets" : "";
 
   const handleUpdateCredits = async (userId: string, creditAmount: number) => {
     setUpdating(true);
     try {
+      // Optimistic update
+      const optimisticData = walletData
+        ? {
+            ...walletData,
+            wallets: walletData.wallets.map((user: UserWallet) =>
+              user.id === userId
+                ? { ...user, balance: user.balance + creditAmount }
+                : user
+            ),
+          }
+        : walletData;
+
+      // Update cache optimistically
+      globalMutate("/api/wallets", optimisticData, false);
+
       const res = await fetch("/api/wallets", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -72,12 +70,17 @@ export default function AdminWalletsPage() {
       if (res.ok) {
         setIsEditOpen(false);
         setSelectedUser(null);
-        fetchWallets(); // Refresh list
+        // Revalidate to ensure data is correct
+        globalMutate("/api/wallets");
       } else {
+        // Revert optimistic update on error
+        globalMutate("/api/wallets");
         const data = await res.json();
         alert(data.error || "Failed to update credits");
       }
     } catch (err) {
+      // Revert optimistic update on error
+      globalMutate("/api/wallets");
       alert("Error updating credits");
     } finally {
       setUpdating(false);
@@ -85,7 +88,7 @@ export default function AdminWalletsPage() {
   };
 
   const filteredUsers = users
-    .filter((user) => {
+    .filter((user: UserWallet) => {
       const matchesSearch =
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,7 +101,7 @@ export default function AdminWalletsPage() {
       const matchesRole = roleFilter === "all" || user.role === roleFilter;
       return matchesSearch && matchesBalance && matchesRole;
     })
-    .sort((a, b) => {
+    .sort((a: UserWallet, b: UserWallet) => {
       switch (sortBy) {
         case "name":
           return a.name.localeCompare(b.name);
@@ -113,7 +116,7 @@ export default function AdminWalletsPage() {
       }
     });
 
-  if (loading) return <WalletLoadingSkeleton />;
+  if (isLoading) return <WalletLoadingSkeleton />;
 
   return (
     <div className="space-y-6">

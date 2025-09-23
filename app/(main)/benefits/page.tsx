@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Calendar,
   Clock,
@@ -11,9 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
-import { getServerAuthSession } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useSWR from "swr";
 
 interface WalletData {
   wallet: {
@@ -34,34 +37,27 @@ interface WalletData {
   }>;
 }
 
-export default async function BenefitsPage() {
-  const session = await getServerAuthSession();
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  if (session?.user?.role === "ADMIN") {
-    redirect("/admin");
-  }
+export default function BenefitsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  let walletData: WalletData | null = null;
-  if (session?.user) {
-    try {
-      const headersList = await headers();
-      const host = headersList.get("host") || "localhost:3000";
-      const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-      const response = await fetch(
-        `${protocol}://${host}/api/wallets?personal=true`,
-        {
-          headers: {
-            cookie: headersList.get("cookie") || "",
-          },
-        }
-      );
-      if (response.ok) {
-        walletData = await response.json();
-      }
-    } catch (error) {
-      console.error("Failed to fetch wallet data:", error);
+  useEffect(() => {
+    if (status === "loading") return;
+    if (session?.user?.role === "ADMIN") {
+      router.push("/admin");
     }
-  }
+  }, [session, status, router]);
+
+  const {
+    data: walletData,
+    error,
+    isLoading,
+  } = useSWR<WalletData>(
+    session?.user ? "/api/wallets?personal=true" : null,
+    fetcher
+  );
 
   const creditBalance = walletData
     ? {
@@ -144,6 +140,28 @@ export default async function BenefitsPage() {
     creditBalance.total > 0
       ? (creditBalance.used / creditBalance.total) * 100
       : 0;
+
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading benefits...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">
+            Failed to load wallet data. Please try again.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -265,7 +283,10 @@ export default async function BenefitsPage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {redeemableItems.map((item) => (
-            <Card key={item.id} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={item.id}
+              className="hover:shadow-lg transition-shadow p-0"
+            >
               <CardContent className="p-0">
                 <ImageWithFallback
                   src={item.image}

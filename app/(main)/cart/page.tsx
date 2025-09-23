@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -22,6 +22,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { CreditPurchase } from "@/components/CreditPurchase";
 import { toast } from "sonner";
+import useSWR from "swr";
 import {
   cartItemsAtom,
   clearCartAtom,
@@ -32,34 +33,17 @@ import {
 } from "@/lib/store";
 import { useAtomValue, useSetAtom } from "jotai";
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json());
+
 export default function CartPage() {
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [walletLoading, setWalletLoading] = useState(true);
-  const [walletError, setWalletError] = useState<string | null>(null);
+  const {
+    data: walletData,
+    error: walletError,
+    isLoading: walletLoading,
+  } = useSWR("/api/wallets?personal=true", fetcher);
 
-  useEffect(() => {
-    const fetchWalletBalance = async () => {
-      try {
-        setWalletLoading(true);
-        setWalletError(null);
-        const response = await fetch("/api/wallets?personal=true", {
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch wallet balance");
-        }
-        const data = await response.json();
-        setWalletBalance(data.wallet.balance);
-      } catch (error) {
-        setWalletError((error as Error).message);
-        toast.error("Failed to load wallet balance");
-      } finally {
-        setWalletLoading(false);
-      }
-    };
-
-    fetchWalletBalance();
-  }, []);
+  const walletBalance = walletData?.wallet?.balance || 0;
 
   const userCredits = walletBalance;
   const purchaseCredits = useSetAtom(purchaseCreditsAtom);

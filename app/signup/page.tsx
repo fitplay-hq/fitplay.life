@@ -16,13 +16,23 @@ import { Heart, Shield, Users, CheckCircle } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { $Enums } from "@/lib/generated/prisma";
 
 export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   const handleSignup = async (formData: FormData) => {
     setLoading(true);
@@ -33,6 +43,8 @@ export default function SignupPage() {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const phone = formData.get("phone") as string;
+    const gender = formData.get("gender") as string;
+    const birthDate = formData.get("birthDate") as string;
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -41,18 +53,44 @@ export default function SignupPage() {
     }
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, phone }),
-      });
+      if (token) {
+        // Use complete-signup API
+        const res = await fetch("/api/auth/signup/complete-signup", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token,
+            name,
+            email,
+            password,
+            phone,
+            gender,
+            birthDate,
+          }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.message || "Something went wrong");
+        if (!res.ok) {
+          setError(data.error || "Something went wrong");
+        } else {
+          setSuccess(true);
+        }
       } else {
-        setSuccess(true);
+        // Use regular signup API
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password, phone }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.message || "Something went wrong");
+        } else {
+          setSuccess(true);
+        }
       }
     } catch (err) {
       setError("Something went wrong");
@@ -137,6 +175,42 @@ export default function SignupPage() {
                       required
                     />
                   </div>
+
+                  {token && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="gender" className="text-gray-700">
+                          Gender
+                        </Label>
+                        <Select name="gender" required>
+                          <SelectTrigger className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values($Enums.Gender).map((gender) => (
+                              <SelectItem key={gender} value={gender}>
+                                {gender.charAt(0).toUpperCase() +
+                                  gender.slice(1).toLowerCase()}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="birthDate" className="text-gray-700">
+                          Birth Date
+                        </Label>
+                        <Input
+                          id="birthDate"
+                          name="birthDate"
+                          type="date"
+                          className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-gray-700">

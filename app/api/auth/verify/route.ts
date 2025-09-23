@@ -25,6 +25,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "This is not an email verification token" }, { status: 400 });
   }
 
+  const user = await prisma.user.findUnique({
+    where: { email: record.identifier },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 400 });
+  }
+
   await prisma.user.update({
     where: { email: record.identifier },
     data: { verified: true },

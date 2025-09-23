@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { User, Shield } from "lucide-react";
+import { User, Shield, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileMenu } from "./mobile-menu";
 import { CartButton } from "./cart-button";
 import { NavLinks } from "./nav-links";
 import Logo from "../logo";
 import { useUser } from "@/app/hooks/useUser";
+import { useWallet } from "@/app/hooks/useWallet";
 
 interface NavItem {
   name: string;
@@ -23,6 +24,7 @@ const NAV_ITEMS: readonly NavItem[] = [
 
 export function Navbar() {
   const { isAuthenticated } = useUser();
+  const { credits, isLoading: walletLoading } = useWallet();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm">
@@ -42,6 +44,17 @@ export function Navbar() {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {isAuthenticated && <CartButton />}
+
+            {isAuthenticated && (
+              <Link href="/benefits">
+                <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
+                  <Coins className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">
+                    {walletLoading ? "..." : credits}
+                  </span>
+                </div>
+              </Link>
+            )}
 
             {/* Partner with Us Button */}
             <Link href="/partner">

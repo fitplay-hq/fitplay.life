@@ -118,6 +118,29 @@ export async function POST(req: NextRequest) {
                 include: { items: true },
             });
 
+            if (!order){
+                throw new Error("Order creation failed");
+            }else {
+                // Decrease stock for each product variant
+                for (const item of orderItemsData) {
+                    const variant = await tx.variant.findUnique({
+                        where: { id: item.variantId },
+                        include: { product: true },
+                    });
+
+                    if (variant && variant.product) {
+                        await tx.product.update({
+                            where: { id: variant.product.id },
+                            data: {
+                                availableStock: {
+                                    decrement: item.quantity,
+                                },
+                            },
+                        });
+                    }
+                }
+            }
+
             return { order, updatedWallet };
         });
 
@@ -188,12 +211,43 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ error: "Order id is required" }, { status: 400 });
         }
 
+        // Fetch order with items and variants
+        const order = await prisma.order.findUnique({
+            where: { id },
+            include: { items: true },
+        });
+
+        if (!order) {
+            return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+
         await prisma.orderItem.deleteMany({ where: { orderId: id } });
 
         // Fetch order with items and variants
         await prisma.order.delete({
             where: { id },
         });
+
+        // Restore stock for each product variant
+        for (const item of order.items) {
+            if (!item.variantId) continue;
+            
+            const variant = await prisma.variant.findUnique({
+                where: { id: item.variantId },
+                include: { product: true },
+            });
+
+            if (variant && variant.productId) {
+                await prisma.product.update({
+                    where: { id: variant.productId },
+                    data: {
+                        availableStock: {
+                            increment: item.quantity,
+                        },
+                    },
+                });
+            }
+        }
 
         return NextResponse.json({ message: "Order deleted successfully" });
     } catch (error) {

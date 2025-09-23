@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,15 +17,31 @@ import { Heart, Shield, Users, CheckCircle } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (formData: FormData) => {
+    if (!token) {
+      setError(
+        "No invite token found. Please use the invite link from your admin."
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -33,6 +50,8 @@ export default function SignupPage() {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const phone = formData.get("phone") as string;
+    const gender = formData.get("gender") as string;
+    const birthDate = formData.get("birthDate") as string;
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -40,17 +59,31 @@ export default function SignupPage() {
       return;
     }
 
+    if (!gender || !birthDate) {
+      setError("Gender and birth date are required");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
+      const res = await fetch("/api/auth/signup/complete-signup", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, phone }),
+        body: JSON.stringify({
+          token,
+          name,
+          email,
+          password,
+          phone,
+          gender,
+          birthDate,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Something went wrong");
+        setError(data.error || "Something went wrong");
       } else {
         setSuccess(true);
       }
@@ -60,6 +93,32 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <Logo />
+          <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl text-gray-900">
+                Invite Required
+              </CardTitle>
+              <CardDescription>
+                This platform is invite-only. Please use the invite link
+                provided by your administrator to sign up.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Button asChild className="w-full">
+                <Link href="/login">Go to Login</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
@@ -77,9 +136,11 @@ export default function SignupPage() {
             <Logo />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Join Our Wellness Community
+            Complete Your Signup
           </h1>
-          <p className="text-gray-600">Create your wellness account</p>
+          <p className="text-gray-600">
+            Fill in your details to claim your account
+          </p>
         </div>
 
         {/* Signup Card */}
@@ -88,10 +149,10 @@ export default function SignupPage() {
             <>
               <CardHeader className="space-y-1">
                 <CardTitle className="text-2xl text-center text-gray-900">
-                  Sign Up
+                  Complete Registration
                 </CardTitle>
                 <CardDescription className="text-center text-gray-600">
-                  Enter your details to create your wellness dashboard
+                  Enter your personal details to activate your wellness account
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -133,6 +194,35 @@ export default function SignupPage() {
                       name="phone"
                       type="tel"
                       placeholder="Enter your phone number"
+                      className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="gender" className="text-gray-700">
+                      Gender
+                    </Label>
+                    <Select name="gender" required>
+                      <SelectTrigger className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                        <SelectItem value="OTHER">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="birthDate" className="text-gray-700">
+                      Birth Date
+                    </Label>
+                    <Input
+                      id="birthDate"
+                      name="birthDate"
+                      type="date"
                       className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                       required
                     />
@@ -191,7 +281,7 @@ export default function SignupPage() {
                     disabled={loading}
                     className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5"
                   >
-                    {loading ? "Creating Account..." : "Create Account"}
+                    {loading ? "Completing Signup..." : "Complete Signup"}
                   </Button>
                 </form>
 

@@ -171,10 +171,30 @@ export async function GET(req: NextRequest) {
     if (session.user.role === "ADMIN") {
       companyId = searchParams.get("companyId");
       if (!companyId) {
-        return NextResponse.json(
-          { error: "companyId is required for Admin" },
-          { status: 400 }
-        );
+        // For admin without companyId, fetch all users
+        const allEmployees = await prisma.user.findMany({
+          where: { role: { in: ["HR", "EMPLOYEE"] } },
+          include: { wallet: true, company: true },
+        });
+
+        if (!allEmployees.length) {
+          return NextResponse.json(
+            { error: "No employees found" },
+            { status: 404 }
+          );
+        }
+
+        const wallets = allEmployees.map((emp) => ({
+          id: emp.id,
+          email: emp.email,
+          name: emp.name,
+          role: emp.role,
+          company: emp.company?.name || 'No Company',
+          balance: emp.wallet?.balance ?? 0,
+          expiryDate: emp.wallet?.expiryDate ?? null,
+        }));
+
+        return NextResponse.json({ allUsers: true, wallets });
       }
     } else if (session.user.role === "HR") {
       const hrUser = await prisma.user.findUnique({

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import {
   Sidebar,
@@ -25,6 +25,7 @@ import {
   ShoppingCart,
   CreditCard,
   Building2,
+  DollarSign,
   Settings,
   LogOut,
   Bell,
@@ -41,6 +42,11 @@ const adminNavItems = [
     title: "Products",
     url: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Wallets",
+    url: "/admin/wallets",
+    icon: DollarSign,
   },
   {
     title: "Vendors",
@@ -193,15 +199,14 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
         <SidebarFooter className="p-4 border-t border-gray-200">
           <SidebarMenu>
             <SidebarMenuItem>
-              <form action="/api/auth/signout" method="POST" className="w-full">
-                <SidebarMenuButton
-                  size="sm"
-                  className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
-                >
-                  <LogOut />
-                  <span>Sign Out</span>
-                </SidebarMenuButton>
-              </form>
+              <SidebarMenuButton
+                size="sm"
+                className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              >
+                <LogOut />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
           <div className="text-xs text-gray-500 text-center mt-4">

@@ -87,8 +87,89 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
-}
-
+  }
+  
+  // Update single user wallet (add credits)
+  export async function PATCH(req: NextRequest) {
+    try {
+      const session = await getServerSession(authOptions);
+      if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+  
+      const body = await req.json();
+      const { userId, creditAmount } = body;
+  
+      if (!userId || typeof creditAmount !== "number") {
+        return NextResponse.json(
+          { error: "userId and creditAmount are required" },
+          { status: 400 }
+        );
+      }
+  
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { wallet: true },
+      });
+  
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+  
+      let wallet = user.wallet;
+  
+      if (!wallet) {
+        wallet = await prisma.wallet.create({
+          data: {
+            userId: user.id,
+            balance: 0,
+            expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+          },
+        });
+      }
+  
+      const newBalance = wallet.balance + creditAmount;
+      if (newBalance < 0) {
+        return NextResponse.json(
+          { error: "Cannot deduct more credits than available balance" },
+          { status: 400 }
+        );
+      }
+  
+      const updatedWallet = await prisma.wallet.update({
+        where: { id: wallet.id },
+        data: {
+          balance: newBalance,
+          // Optionally update expiry if needed, but for now just balance
+        },
+      });
+  
+      await prisma.transactionLedger.create({
+        data: {
+          userId: user.id,
+          amount: Math.abs(creditAmount),
+          modeOfPayment: "Credits",
+          isCredit: creditAmount > 0,
+          walletId: wallet.id,
+          cashAmount: 0,
+        },
+      });
+  
+      return NextResponse.json({
+        message: "Wallet updated successfully",
+        data: {
+          userEmail: user.email,
+          newBalance: updatedWallet.balance,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating wallet:", error);
+      return NextResponse.json(
+        { error: "Internal server error", details: (error as Error).message },
+        { status: 500 }
+      );
+    }
+  }
 // Get wallets of all employees in a company
 export async function GET(req: NextRequest) {
   try {

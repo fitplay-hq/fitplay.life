@@ -12,16 +12,72 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { getServerAuthSession } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
+interface WalletData {
+  wallet: {
+    balance: number;
+    expiryDate: string;
+  };
+  dashboardStats: {
+    creditsRemaining: number;
+    creditsUsed: number;
+  };
+  walletHistory: Array<{
+    id: string;
+    date: string;
+    type: string;
+    amount: number;
+    balance: number;
+    description: string;
+  }>;
+}
 
 export default async function BenefitsPage() {
   const session = await getServerAuthSession();
 
-  const creditBalance = {
-    total: 500,
-    used: 180,
-    remaining: 320,
-    expiryDate: "2024-12-31",
-  };
+  if (session?.user?.role === "ADMIN") {
+    redirect("/admin");
+  }
+
+  let walletData: WalletData | null = null;
+  if (session?.user) {
+    try {
+      const headersList = await headers();
+      const host = headersList.get("host") || "localhost:3000";
+      const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+      const response = await fetch(
+        `${protocol}://${host}/api/wallets?personal=true`,
+        {
+          headers: {
+            cookie: headersList.get("cookie") || "",
+          },
+        }
+      );
+      if (response.ok) {
+        walletData = await response.json();
+      }
+    } catch (error) {
+      console.error("Failed to fetch wallet data:", error);
+    }
+  }
+
+  const creditBalance = walletData
+    ? {
+        total:
+          walletData.dashboardStats.creditsRemaining +
+          walletData.dashboardStats.creditsUsed,
+        used: walletData.dashboardStats.creditsUsed,
+        remaining: walletData.dashboardStats.creditsRemaining,
+        expiryDate: walletData.wallet.expiryDate.split("T")[0], // Format to YYYY-MM-DD
+      }
+    : {
+        total: 0,
+        used: 0,
+        remaining: 0,
+        expiryDate: "",
+      };
 
   const redeemableItems = [
     {
@@ -70,38 +126,24 @@ export default async function BenefitsPage() {
     },
   ];
 
-  const creditHistory = [
-    {
-      date: "2024-01-15",
-      type: "Allocated",
-      amount: 500,
-      description: "Q1 2024 Wellness Credits",
+  const creditHistory =
+    walletData?.walletHistory.map((transaction) => ({
+      date: transaction.date,
+      type:
+        transaction.type === "Credit"
+          ? "Allocated"
+          : transaction.type === "Purchase"
+          ? "Used"
+          : "Bonus",
+      amount: transaction.amount,
+      description: transaction.description,
       status: "completed",
-    },
-    {
-      date: "2024-01-20",
-      type: "Used",
-      amount: -80,
-      description: "Protein Powder Purchase",
-      status: "completed",
-    },
-    {
-      date: "2024-02-03",
-      type: "Used",
-      amount: -100,
-      description: "Gym Equipment Purchase",
-      status: "completed",
-    },
-    {
-      date: "2024-02-15",
-      type: "Bonus",
-      amount: 50,
-      description: "Wellness Challenge Reward",
-      status: "completed",
-    },
-  ];
+    })) || [];
 
-  const usagePercentage = (creditBalance.used / creditBalance.total) * 100;
+  const usagePercentage =
+    creditBalance.total > 0
+      ? (creditBalance.used / creditBalance.total) * 100
+      : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

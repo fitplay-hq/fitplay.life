@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, History, Settings } from "lucide-react";
+import { Wallet, History, Settings, Plus } from "lucide-react";
+import { CreditPurchase } from "@/components/CreditPurchase";
 
 interface DashboardStats {
   creditsRemaining: number;
   creditsUsed: number;
 }
 
-interface WalletTransaction {
+export interface WalletTransaction {
   date: string;
   type: string;
   amount: number;
@@ -47,7 +48,9 @@ export default function WalletComponent({
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <CardContent className="p-6 text-center">
             <Settings className="w-8 h-8 mx-auto mb-3 text-purple-600" />
-            <div className="text-2xl font-bold text-purple-800">500</div>
+            <div className="text-2xl font-bold text-purple-800">
+              {dashboardStats.creditsRemaining + dashboardStats.creditsUsed}
+            </div>
             <div className="text-sm text-purple-600">Total Allocated</div>
           </CardContent>
         </Card>
@@ -100,6 +103,22 @@ export default function WalletComponent({
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center space-x-2">
+            <Plus className="w-5 h-5" />
+            <span>Top Up Wallet</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CreditPurchase
+            currentCredits={dashboardStats.creditsRemaining}
+            requiredCredits={0}
+            onPurchaseComplete={() => window.location.reload()}
+          />
         </CardContent>
       </Card>
     </div>

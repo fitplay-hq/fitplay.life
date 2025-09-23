@@ -98,10 +98,77 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const isPersonal = searchParams.get("personal") === "true";
+
+    if (isPersonal) {
+      if (!["EMPLOYEE", "HR"].includes(session.user.role)) {
+        return NextResponse.json(
+          { message: "Unauthorized role for personal wallet" },
+          { status: 401 }
+        );
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      let wallet = await prisma.wallet.findUnique({
+        where: { userId: user.id },
+      });
+
+      if (!wallet) {
+        wallet = await prisma.wallet.create({
+          data: {
+            userId: user.id,
+            balance: 0,
+            expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+          },
+        });
+      }
+
+      const allTransactions = await prisma.transactionLedger.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+      });
+
+      const recentTransactions = allTransactions.slice(0, 10);
+
+      const transactions = recentTransactions.map((tx) => ({
+        id: tx.id,
+        date: tx.createdAt.toISOString().split("T")[0],
+        type: tx.isCredit ? "Credit" : "Purchase",
+        amount: tx.isCredit ? tx.amount : -tx.amount,
+        balance: wallet.balance, // Use current balance for simplicity
+        description: tx.isCredit ? "Credits added by admin" : "Purchase made",
+      }));
+
+      // Compute creditsUsed as sum of debits
+      const creditsUsed = allTransactions
+        .filter((tx) => !tx.isCredit)
+        .reduce((sum, tx) => sum + tx.amount, 0);
+
+      return NextResponse.json({
+        wallet: {
+          balance: wallet.balance,
+          expiryDate: wallet.expiryDate,
+        },
+        dashboardStats: {
+          creditsRemaining: wallet.balance,
+          creditsUsed,
+        },
+        walletHistory: transactions,
+      });
+    }
+
+    // Existing company-wide logic
     let companyId: string | null = null;
 
     if (session.user.role === "ADMIN") {
-      const { searchParams } = new URL(req.url);
       companyId = searchParams.get("companyId");
       if (!companyId) {
         return NextResponse.json(

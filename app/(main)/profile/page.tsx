@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { User, LogOut, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationPreferences from "@/components/profile/notification-preferences";
 import Dashboard from "@/components/profile/dashboard";
 import WalletComponent from "@/components/profile/wallet";
+import { WalletTransaction } from "@/components/profile/wallet";
 import HistoryComponent from "@/components/profile/history";
 import Wishlist from "@/components/profile/wishlist";
 import { toast } from "sonner";
@@ -23,12 +25,62 @@ import {
   cartAnimationAtom,
 } from "@/lib/store";
 
+interface DashboardStats {
+  totalOrders: number;
+  totalSpent: number;
+  creditsUsed: number;
+  creditsRemaining: number;
+  wellnessScore: number;
+}
+
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading } = useUser();
   const wishlistItems = useAtomValue(wishlistItemsAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
   const addToCart = useSetAtom(addToCartAtom);
   const setCartAnimation = useSetAtom(cartAnimationAtom);
+
+  const [walletLoading, setWalletLoading] = useState(true);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalOrders: 12,
+    totalSpent: 450,
+    creditsUsed: 0,
+    creditsRemaining: 0,
+    wellnessScore: 85,
+  });
+  const [walletHistory, setWalletHistory] = useState<WalletTransaction[]>([]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const fetchWalletData = async () => {
+        try {
+          setWalletLoading(true);
+          setWalletError(null);
+          const response = await fetch("/api/wallets?personal=true", {
+            credentials: "include",
+          });
+          if (!response.ok) {
+            throw new Error("Failed to fetch wallet data");
+          }
+          const data = await response.json();
+          setDashboardStats((prev: DashboardStats) => ({
+            ...prev,
+            creditsUsed: data.dashboardStats.creditsUsed,
+            creditsRemaining: data.dashboardStats.creditsRemaining,
+          }));
+          setWalletHistory(data.walletHistory);
+        } catch (error) {
+          setWalletError((error as Error).message);
+          toast.error("Failed to load wallet data");
+        } finally {
+          setWalletLoading(false);
+        }
+      };
+
+      fetchWalletData();
+    }
+  }, [isAuthenticated, user]);
 
   const orderHistory = [
     {
@@ -68,45 +120,6 @@ export default function ProfilePage() {
       vendor: "WorkWell",
     },
   ];
-
-  const walletHistory = [
-    {
-      date: "2024-02-01",
-      type: "Credit Allocation",
-      amount: 500,
-      balance: 500,
-      description: "Q1 2024 Company Wellness Credits",
-    },
-    {
-      date: "2024-02-15",
-      type: "Purchase",
-      amount: -60,
-      balance: 440,
-      description: "Premium Protein Powder",
-    },
-    {
-      date: "2024-02-08",
-      type: "Purchase",
-      amount: -45,
-      balance: 395,
-      description: "Resistance Bands Set",
-    },
-    {
-      date: "2024-02-20",
-      type: "Bonus",
-      amount: 25,
-      balance: 420,
-      description: "Wellness Challenge Completion",
-    },
-  ];
-
-  const dashboardStats = {
-    totalOrders: 12,
-    totalSpent: 450,
-    creditsUsed: 290,
-    creditsRemaining: 210,
-    wellnessScore: 85,
-  };
 
   const handleLogout = () => {
     signOut();
@@ -251,10 +264,28 @@ export default function ProfilePage() {
 
         {/* Wallet Tab */}
         <TabsContent value="wallet" className="space-y-6">
-          <WalletComponent
-            dashboardStats={dashboardStats}
-            walletHistory={walletHistory}
-          />
+          {walletLoading ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading wallet data...</p>
+              </div>
+            </div>
+          ) : walletError ? (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <p className="text-red-600 mb-4">
+                  Error loading wallet: {walletError}
+                </p>
+                <Button onClick={() => window.location.reload()}>Retry</Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <WalletComponent
+              dashboardStats={dashboardStats}
+              walletHistory={walletHistory}
+            />
+          )}
         </TabsContent>
 
         {/* History Tab */}

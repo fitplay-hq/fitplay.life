@@ -1,0 +1,202 @@
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const body = await req.json();
+        const { items } = body;
+
+        if (!items || items.length === 0) {
+            return NextResponse.json(
+                { error: "items are required" },
+                { status: 400 }
+            );
+        }
+
+        const userId = session.user.id;
+
+        // Get user with wallet
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { wallet: true },
+        });
+
+        if (!user || !user.wallet) {
+            return NextResponse.json({ error: "User wallet not found" }, { status: 404 });
+        }
+
+        // Calculate order total
+        let totalAmount = 0;
+        const orderItemsData: any[] = [];
+
+        for (const item of items) {
+            // Fetch variant (price comes from here)
+            const variant = await prisma.variant.findUnique({
+                where: { id: item.variantId },
+                include: { product: true },
+            });
+
+            if (!variant || !variant.product) {
+                return NextResponse.json(
+                    { error: `Variant with id ${item.variantId} not found` },
+                    { status: 404 }
+                );
+            }
+
+            // Check stock availability
+            if (variant.product.availableStock < item.quantity) {
+                return NextResponse.json(
+                    { error: `Not enough stock for product ${variant.product.name}` },
+                    { status: 400 }
+                );
+            }
+
+            // Calculate price: MRP - %discount
+            const mrp = variant.mrp;
+            const discountPercent = variant.product.discount ?? 0;
+            const discountedPrice = Math.max(
+                mrp - Math.floor((mrp * discountPercent) / 100),
+                0
+            );
+
+            const lineTotal = discountedPrice * item.quantity;
+            totalAmount += lineTotal;
+
+            orderItemsData.push({
+                productId: variant.product.id,
+                variantId: variant.id,
+                quantity: item.quantity,
+                price: discountedPrice, // snapshot price
+            });
+        }
+
+        // Check wallet balance
+        if (user.wallet.balance < totalAmount) {
+            return NextResponse.json(
+                { error: "Insufficient wallet balance" },
+                { status: 400 }
+            );
+        }
+
+        // Deduct from wallet and create transaction + order atomically
+        const result = await prisma.$transaction(async (tx) => {
+            // Deduct balance
+            const updatedWallet = await tx.wallet.update({
+                where: { id: user.wallet!.id },
+                data: { balance: { decrement: totalAmount } },
+            });
+
+            // Create transaction ledger
+            const transaction = await tx.transactionLedger.create({
+                data: {
+                    userId: user.id,
+                    amount: totalAmount,
+                    modeOfPayment: "Credits",
+                    isCredit: false,
+                    walletId: updatedWallet.id,
+                },
+            });
+
+            // Create order and items
+            const order = await tx.order.create({
+                data: {
+                    userId: user.id,
+                    amount: totalAmount,
+                    status: "PENDING",
+                    transactionId: transaction.id,
+                    items: {
+                        create: orderItemsData,
+                    },
+                },
+                include: { items: true },
+            });
+
+            return { order, updatedWallet };
+        });
+
+        return NextResponse.json({
+            message: "Order created successfully",
+            order: result.order,
+            wallet: result.updatedWallet,
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { error: "Can't create order", details: (error as Error).message },
+            { status: 500 }
+        );
+    }
+}
+
+export async function GET(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
+
+        if (!id) {
+            return NextResponse.json({ error: "Order id is required" }, { status: 400 });
+        }
+
+        const order = await prisma.order.findUnique({
+            where: { id: id },
+            include: {
+                items: {
+                    include: {
+                        variant: {
+                            include: {
+                                product: true,
+                            },
+                        },
+                    },
+                },
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+
+        return NextResponse.json({ data: order });
+    } catch (error) {
+        return NextResponse.json({ message: "Error retrieving order", error }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
+
+        if (!id) {
+            return NextResponse.json({ error: "Order id is required" }, { status: 400 });
+        }
+
+        await prisma.orderItem.deleteMany({ where: { orderId: id } });
+
+        // Fetch order with items and variants
+        await prisma.order.delete({
+            where: { id },
+        });
+
+        return NextResponse.json({ message: "Order deleted successfully" });
+    } catch (error) {
+        return NextResponse.json({ message: "Error deleting order", error }, { status: 500 });
+    }
+}

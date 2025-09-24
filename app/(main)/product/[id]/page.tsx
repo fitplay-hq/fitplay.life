@@ -41,6 +41,7 @@ export default function ProductPage({
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<string>("");
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
 
   // Helper function to format category names
   const formatCategoryName = (category: string) => {
@@ -79,8 +80,23 @@ export default function ProductPage({
   const handleAddToCart = () => {
     if (!product) return;
 
+    // Determine the correct variantId to use
+    let variantIdToUse = selectedVariantId;
+    if (!variantIdToUse && product.variants && product.variants.length > 0) {
+      // For products with variants but none selected, use the first variant
+      variantIdToUse = (product.variants[0] as any).id;
+    }
+
     for (let i = 0; i < quantity; i++) {
-      const result = addToCart({ product, selectedVariant });
+      const result = addToCart({
+        product,
+        selectedVariant:
+          selectedVariant ||
+          (product.variants && product.variants.length > 0
+            ? (product.variants[0] as any).variantValue
+            : ""),
+        variantId: variantIdToUse,
+      });
       setCartAnimation(true);
       setTimeout(() => setCartAnimation(false), 600);
 
@@ -317,7 +333,10 @@ export default function ProductPage({
                         : "outline"
                     }
                     size="sm"
-                    onClick={() => setSelectedVariant(variant.variantValue)}
+                    onClick={() => {
+                      setSelectedVariant(variant.variantValue);
+                      setSelectedVariantId(variant.id);
+                    }}
                     className={
                       selectedVariant === variant.variantValue
                         ? "bg-emerald-500 hover:bg-emerald-600 text-white"

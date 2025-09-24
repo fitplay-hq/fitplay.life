@@ -66,8 +66,8 @@ export default function CartPage() {
     toast.success("Cart cleared successfully!");
   };
 
-  const handleRemoveFromCart = (id: number) => {
-    const removedItem = removeFromCart(id);
+  const handleRemoveFromCart = (variantKey: string) => {
+    const removedItem = removeFromCart(variantKey);
 
     if (removedItem) {
       toast.info(`${removedItem.title} removed from cart`);
@@ -80,9 +80,6 @@ export default function CartPage() {
 
   // Address form state
   const [address, setAddress] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -102,28 +99,65 @@ export default function CartPage() {
 
   const validateAddress = () => {
     return (
-      address.fullName &&
-      address.email &&
-      address.phone &&
-      address.addressLine1 &&
-      address.city &&
-      address.state &&
-      address.pincode
+      address.addressLine1 && address.city && address.state && address.pincode
     );
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (currentStep === "cart") {
       if (!hasEnoughCredits) {
         return; // Don't proceed if not enough credits
       }
       setCurrentStep("address");
     } else if (currentStep === "address" && validateAddress()) {
-      setCurrentStep("confirmation");
-      // Clear cart after successful order
-      setTimeout(() => {
-        clearCart();
-      }, 3000);
+      try {
+        // Prepare order items - filter out items with null variantId
+        const items = cartItems
+          .filter((item) => item.variantId && item.variantId.trim() !== "")
+          .map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          }));
+
+        if (items.length === 0) {
+          toast.error("No valid items to order", {
+            description: "Please ensure all cart items have valid variants.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        const response = await fetch("/api/orders/order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ items }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to create order");
+        }
+
+        toast.success("Order created successfully!", {
+          description: "Your order has been placed and will be processed soon.",
+          duration: 3000,
+        });
+
+        setCurrentStep("confirmation");
+        // Clear cart after successful order
+        setTimeout(() => {
+          clearCart();
+        }, 3000);
+      } catch (error) {
+        toast.error("Failed to create order", {
+          description:
+            error instanceof Error ? error.message : "An error occurred",
+          duration: 5000,
+        });
+      }
     }
   };
 
@@ -220,7 +254,7 @@ export default function CartPage() {
                 <div className="space-y-4">
                   {cartItems.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.variantKey}
                       className="flex gap-4 p-4 border border-gray-200 rounded-lg"
                     >
                       <ImageWithFallback
@@ -243,7 +277,7 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRemoveFromCart(item.id)}
+                          onClick={() => handleRemoveFromCart(item.variantKey!)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -252,7 +286,7 @@ export default function CartPage() {
                           <button
                             onClick={() =>
                               updateCartQuantity({
-                                id: item.id,
+                                variantKey: item.variantKey!,
                                 quantity: item.quantity - 1,
                               })
                             }
@@ -266,7 +300,7 @@ export default function CartPage() {
                           <button
                             onClick={() =>
                               updateCartQuantity({
-                                id: item.id,
+                                variantKey: item.variantKey!,
                                 quantity: item.quantity + 1,
                               })
                             }
@@ -375,40 +409,6 @@ export default function CartPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <Label htmlFor="fullName">Full Name *</Label>
-                    <Input
-                      id="fullName"
-                      value={address.fullName}
-                      onChange={(e) =>
-                        setAddress({ ...address, fullName: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={address.email}
-                      onChange={(e) =>
-                        setAddress({ ...address, email: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      value={address.phone}
-                      onChange={(e) =>
-                        setAddress({ ...address, phone: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="addressLine1">Address Line 1 *</Label>
                     <Input

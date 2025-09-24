@@ -28,16 +28,20 @@ export const fetchWallet = async (): Promise<WalletData> => {
 };
 
 export const useWallet = () => {
-  const { data, error, isLoading, mutate } = useSWR<WalletData>('wallet', fetchWallet, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateIfStale: true,
-    dedupingInterval: 30000, // 30 seconds
-    focusThrottleInterval: 30000,
-    errorRetryCount: 2,
-    errorRetryInterval: 5000,
-    loadingTimeout: 10000,
-  });
+  const { data, error, isLoading, mutate } = useSWR<WalletData>(
+    typeof window !== 'undefined' ? 'wallet' : null,
+    fetchWallet,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      revalidateIfStale: true,
+      dedupingInterval: 30000, // 30 seconds
+      focusThrottleInterval: 30000,
+      errorRetryCount: 2,
+      errorRetryInterval: 5000,
+      loadingTimeout: 10000,
+    }
+  );
 
   return {
     wallet: data?.wallet,

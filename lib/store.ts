@@ -2,15 +2,14 @@ import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
 export interface CartItem {
-  id: number;
-  productId: string; // Changed from title/brand to productId
+  productId: string;
   title: string;
   brand: string;
   credits: number;
   image: string;
   quantity: number;
-  selectedVariants?: Record<string, string>; // Add selected variants
-  variantKey?: string; // Unique key for variant combination
+  variantKey?: string; // Unique key for variant combination (used as identifier)
+  variantId?: string; // Store the variant ID for API
 }
 
 export const cartItemsAtom = atomWithStorage<CartItem[]>('cartItems', []);
@@ -38,7 +37,7 @@ export const clearCartAtom = atom(null, (get, set) => {
 
 export const addToCartAtom = atom(
   null,
-  (get, set, { product, selectedVariant }: { product: any; selectedVariant?: string }) => {
+  (get, set, { product, selectedVariant, variantId }: { product: any; selectedVariant?: string; variantId?: string }) => {
     const currentItems = get(cartItemsAtom);
 
     // Create a unique key for this variant
@@ -73,7 +72,6 @@ export const addToCartAtom = atom(
       // If new variant, add to cart with quantity 1
       result.isNewItem = true;
       const newItem: CartItem = {
-        id: Date.now() + Math.random(), // Ensure unique ID
         productId: product.id,
         title: product.name,
         brand: product.brand || 'FitPlay',
@@ -82,8 +80,8 @@ export const addToCartAtom = atom(
           : (product.price || product.variants?.[0]?.mrp || 0) * 2,
         image: product.images?.[0] || '',
         quantity: 1,
-        selectedVariants: selectedVariant ? { variant: selectedVariant } : undefined,
-        variantKey
+        variantKey,
+        variantId
       };
       result.item = newItem;
 
@@ -108,43 +106,43 @@ function getSelectedVariantPrice(product: any, selectedVariant: string) {
 
 export const removeFromCartAtom = atom(
   null,
-  (get, set, itemId: number) => {
+  (get, set, itemKey: string) => {
     const currentItems = get(cartItemsAtom);
-    const itemToRemove = currentItems.find(item => item.id === itemId);
-    
+    const itemToRemove = currentItems.find(item => item.variantKey === itemKey);
+
     if (itemToRemove) {
-      const updatedItems = currentItems.filter(item => item.id !== itemId);
+      const updatedItems = currentItems.filter(item => item.variantKey !== itemKey);
       set(cartItemsAtom, updatedItems);
       return itemToRemove;
     }
-    
+
     return null;
   }
 );
 
 export const updateCartQuantityAtom = atom(
   null,
-  (get, set, { id, quantity }: { id: number, quantity: number }) => {
+  (get, set, { variantKey, quantity }: { variantKey: string, quantity: number }) => {
     const currentItems = get(cartItemsAtom);
-    const itemExists = currentItems.find(item => item.id === id);
-    
+    const itemExists = currentItems.find(item => item.variantKey === variantKey);
+
     if (!itemExists) {
       return null;
     }
-    
+
     if (quantity <= 0) {
-      const updatedItems = currentItems.filter(item => item.id !== id);
+      const updatedItems = currentItems.filter(item => item.variantKey !== variantKey);
       set(cartItemsAtom, updatedItems);
       return { action: 'removed', item: itemExists };
     }
-    
+
     // Update the quantity
     const updatedItems = currentItems.map(item =>
-      item.id === id ? { ...item, quantity } : item
+      item.variantKey === variantKey ? { ...item, quantity } : item
     );
     set(cartItemsAtom, updatedItems);
-    
-    const updatedItem = updatedItems.find(item => item.id === id);
+
+    const updatedItem = updatedItems.find(item => item.variantKey === variantKey);
     return { action: 'updated', item: updatedItem };
   }
 );

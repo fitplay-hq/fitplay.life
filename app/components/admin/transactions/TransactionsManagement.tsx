@@ -36,133 +36,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import DatePickerWithRange from "@/components/date-picker-with-range";
+import useSWR from "swr";
 
-// Mock transactions data
-const transactionsData = [
-  {
-    id: "TXN-2024-001",
-    employee: {
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@techcorp.com",
-      company: "TechCorp India",
-    },
-    amount: 3000,
-    type: "credit_redemption",
-    description: "Redeemed credits for yoga mat and resistance bands",
-    date: "2024-03-15T10:30:00Z",
-    status: "completed",
-    orderId: "ORD-2024-001",
-    method: "credits",
-  },
-  {
-    id: "TXN-2024-002",
-    employee: {
-      name: "Priya Sharma",
-      email: "priya.sharma@innovatetech.com",
-      company: "InnovateTech Solutions",
-    },
-    amount: 1600,
-    type: "inr_payment",
-    description: "INR payment for whey protein powder",
-    date: "2024-03-14T14:20:00Z",
-    status: "completed",
-    orderId: "ORD-2024-002",
-    method: "credit_card",
-  },
-  {
-    id: "TXN-2024-003",
-    employee: {
-      name: "Amit Patel",
-      email: "amit.patel@healthfirst.com",
-      company: "HealthFirst Ltd",
-    },
-    amount: 1800,
-    type: "credit_redemption",
-    description: "Redeemed credits for meditation cushion and foam roller",
-    date: "2024-03-13T09:15:00Z",
-    status: "completed",
-    orderId: "ORD-2024-003",
-    method: "credits",
-  },
-  {
-    id: "TXN-2024-004",
-    employee: {
-      name: "Sneha Reddy",
-      email: "sneha.reddy@globaltech.com",
-      company: "GlobalTech Enterprise",
-    },
-    amount: 600,
-    type: "inr_payment",
-    description: "INR payment for professional yoga mat",
-    date: "2024-03-10T11:45:00Z",
-    status: "completed",
-    orderId: "ORD-2024-004",
-    method: "upi",
-  },
-  {
-    id: "TXN-2024-005",
-    employee: {
-      name: "Corporate Account",
-      email: "admin@techcorp.com",
-      company: "TechCorp India",
-    },
-    amount: 50000,
-    type: "credit_allocation",
-    description: "Monthly credit allocation for employees",
-    date: "2024-03-01T00:00:00Z",
-    status: "completed",
-    orderId: null,
-    method: "bulk_allocation",
-  },
-  {
-    id: "TXN-2024-006",
-    employee: {
-      name: "Vikram Singh",
-      email: "vikram.singh@datasoft.com",
-      company: "DataSoft Solutions",
-    },
-    amount: 1800,
-    type: "refund",
-    description: "Refund for cancelled order - resistance band set",
-    date: "2024-03-12T18:45:00Z",
-    status: "processed",
-    orderId: "ORD-2024-005",
-    method: "credit_return",
-  },
-  {
-    id: "TXN-2024-007",
-    employee: {
-      name: "Anita Desai",
-      email: "anita.desai@innovatetech.com",
-      company: "InnovateTech Solutions",
-    },
-    amount: 2500,
-    type: "credit_purchase",
-    description: "Purchased additional credits (5000 credits for ₹2500)",
-    date: "2024-03-11T15:30:00Z",
-    status: "completed",
-    orderId: null,
-    method: "credit_card",
-  },
-  {
-    id: "TXN-2024-008",
-    employee: {
-      name: "Rohit Gupta",
-      email: "rohit.gupta@healthfirst.com",
-      company: "HealthFirst Ltd",
-    },
-    amount: 2400,
-    type: "mixed_payment",
-    description: "Mixed payment: 1600 credits + ₹400 for fitness equipment",
-    date: "2024-03-09T12:20:00Z",
-    status: "completed",
-    orderId: "ORD-2024-008",
-    method: "mixed",
-  },
-];
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json());
 
 const TransactionsManagement = () => {
-  const [transactions, setTransactions] = useState(transactionsData);
+  const { data, error, isLoading } = useSWR(
+    "/api/admin/wallet-transactions",
+    fetcher
+  );
+  const transactions = data?.transactions || [];
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -503,85 +387,97 @@ const TransactionsManagement = () => {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Transaction ID</TableHead>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTransactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>
-                      <div className="font-medium text-emerald-600">
-                        {transaction.id}
-                      </div>
-                      {transaction.orderId && (
-                        <div className="text-xs text-gray-500">
-                          Order: {transaction.orderId}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-400" />
-                          {transaction.employee.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {transaction.employee.email}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">
-                          {transaction.employee.company}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getTypeBadge(transaction.type)}</TableCell>
-                    <TableCell>
-                      <div className="max-w-xs">
-                        <p
-                          className="text-sm text-gray-900 truncate"
-                          title={transaction.description}
-                        >
-                          {transaction.description}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="font-medium">
-                        {getAmountDisplay(transaction)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {transaction.method.replace("_", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {formatDate(transaction.date)}
-                      </div>
-                    </TableCell>
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="text-gray-500">Loading transactions...</div>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <div className="text-red-600">Error loading transactions</div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Transaction ID</TableHead>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredTransactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>
+                        <div className="font-medium text-emerald-600">
+                          {transaction.id}
+                        </div>
+                        {transaction.orderId && (
+                          <div className="text-xs text-gray-500">
+                            Order: {transaction.orderId}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-400" />
+                            {transaction.employee.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {transaction.employee.email}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">
+                            {transaction.employee.company}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getTypeBadge(transaction.type)}</TableCell>
+                      <TableCell>
+                        <div className="max-w-xs">
+                          <p
+                            className="text-sm text-gray-900 truncate"
+                            title={transaction.description}
+                          >
+                            {transaction.description}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="font-medium">
+                          {getAmountDisplay(transaction)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {transaction.method.replace("_", " ")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(transaction.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {formatDate(transaction.date)}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
-          {filteredTransactions.length === 0 && (
+          {!isLoading && !error && filteredTransactions.length === 0 && (
             <div className="text-center py-8">
               <Coins className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">

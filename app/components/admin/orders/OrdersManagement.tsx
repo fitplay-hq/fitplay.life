@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Search,
   Filter,
@@ -194,10 +195,27 @@ const OrdersManagement = () => {
     return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
-  // TODO: Implement API calls for order actions
   const handleOrderAction = async (orderId: string, action: string) => {
-    // For now, just refresh the data
-    mutate();
+    try {
+      const response = await fetch(`/api/orders/order?id=${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ action }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update order");
+      }
+
+      mutate();
+    } catch (error) {
+      console.error("Error updating order:", error);
+      // TODO: Show error toast
+    }
   };
 
   const handleBulkAction = async (action: string) => {
@@ -236,6 +254,12 @@ const OrdersManagement = () => {
           </p>
         </div>
         <div className="flex gap-3">
+          <Link href="/admin/orders/create">
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Create Order
+            </Button>
+          </Link>
           {selectedOrders.length > 0 && (
             <>
               <Button

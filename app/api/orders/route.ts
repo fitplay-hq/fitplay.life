@@ -32,6 +32,11 @@ export async function GET(req: NextRequest) {
                             id: true,
                             name: true,
                             email: true,
+                            company: {
+                                select: {
+                                    name: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -61,6 +66,11 @@ export async function GET(req: NextRequest) {
                             id: true,
                             name: true,
                             email: true,
+                            company: {
+                                select: {
+                                    name: true,
+                                },
+                            },
                         },
                     },
                 },

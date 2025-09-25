@@ -8,24 +8,23 @@ export interface CartItem {
   credits: number;
   image: string;
   quantity: number;
-  variantKey?: string; // Unique key for variant combination (used as identifier)
-  variantId?: string; // Store the variant ID for API
+  variantKey: string; // Unique key: variantId for variants, productId for non-variants
+  variantId?: string; // Store the variant ID for API (null for non-variants)
 }
 
 export const cartItemsAtom = atomWithStorage<CartItem[]>('cartItems', []);
 
 export const getCartItemQuantityAtom = atom(
-  (get) => (productId: string, selectedVariant?: string): number => {
+  (get) => (productId: string, variantId?: string): number => {
     const cartItems = get(cartItemsAtom);
 
-    if (selectedVariant) {
-      // For variant products, find by variant key
-      const variantKey = `${productId}-${selectedVariant}`;
-      const item = cartItems.find(item => item.variantKey === variantKey);
+    if (variantId) {
+      // For variant products, find by variantId
+      const item = cartItems.find(item => item.variantKey === variantId);
       return item ? item.quantity : 0;
     } else {
-      // For non-variant products, find by productId (legacy support)
-      const item = cartItems.find(item => item.productId === productId && !item.variantKey);
+      // For non-variant products, find by productId
+      const item = cartItems.find(item => item.variantKey === productId);
       return item ? item.quantity : 0;
     }
   }
@@ -40,8 +39,8 @@ export const addToCartAtom = atom(
   (get, set, { product, selectedVariant, variantId }: { product: any; selectedVariant?: string; variantId?: string }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Create a unique key for this variant
-    const variantKey = selectedVariant ? `${product.id}-${selectedVariant}` : product.id;
+    // Create a unique key: variantId for variants, productId for non-variants
+    const variantKey = variantId || product.id;
 
     // Check if this exact variant already exists in cart
     const existingItem = currentItems.find(item =>
@@ -149,21 +148,16 @@ export const updateCartQuantityAtom = atom(
 
 export const updateCartQuantityByProductAtom = atom(
   null,
-  (get, set, { productId, quantity, selectedVariant }: {
+  (get, set, { productId, quantity, variantId }: {
     productId: string;
     quantity: number;
-    selectedVariant?: string;
+    variantId?: string;
   }) => {
     const currentItems = get(cartItemsAtom);
 
-    // Find the item by productId and variant
-    let existingItem;
-    if (selectedVariant) {
-      const variantKey = `${productId}-${selectedVariant}`;
-      existingItem = currentItems.find(item => item.variantKey === variantKey);
-    } else {
-      existingItem = currentItems.find(item => item.productId === productId && !item.variantKey);
-    }
+    // Find the item by variantKey (variantId or productId)
+    const variantKey = variantId || productId;
+    const existingItem = currentItems.find(item => item.variantKey === variantKey);
 
     if (!existingItem) {
       return { action: 'not_found', productId } as const;
@@ -171,32 +165,16 @@ export const updateCartQuantityByProductAtom = atom(
 
     if (quantity <= 0) {
       // Remove item if quantity is 0 or negative
-      let updatedItems;
-      if (selectedVariant) {
-        const variantKey = `${productId}-${selectedVariant}`;
-        updatedItems = currentItems.filter(item => item.variantKey !== variantKey);
-      } else {
-        updatedItems = currentItems.filter(item => item.productId !== productId && !item.variantKey);
-      }
+      const updatedItems = currentItems.filter(item => item.variantKey !== variantKey);
       set(cartItemsAtom, updatedItems);
       return { action: 'removed', item: existingItem } as const;
     } else {
       // Update the quantity
-      let updatedItems;
-      if (selectedVariant) {
-        const variantKey = `${productId}-${selectedVariant}`;
-        updatedItems = currentItems.map(item =>
-          item.variantKey === variantKey
-            ? { ...item, quantity }
-            : item
-        );
-      } else {
-        updatedItems = currentItems.map(item =>
-          item.productId === productId && !item.variantKey
-            ? { ...item, quantity }
-            : item
-        );
-      }
+      const updatedItems = currentItems.map(item =>
+        item.variantKey === variantKey
+          ? { ...item, quantity }
+          : item
+      );
       set(cartItemsAtom, updatedItems);
 
       const updatedItem = { ...existingItem, quantity };

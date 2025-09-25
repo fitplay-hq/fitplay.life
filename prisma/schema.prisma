@@ -157,8 +157,10 @@ model OrderItem {
 
 enum Status {
   PENDING
-  SHIPPED
+  APPROVED
+  DISPATCHED
   DELIVERED
+  CANCELLED
 }
 
 enum Modes {

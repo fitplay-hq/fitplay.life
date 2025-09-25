@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { items } = body;
+        const { items, userId: requestedUserId } = body;
 
         if (!items || items.length === 0) {
             return NextResponse.json(
@@ -20,7 +20,12 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const userId = session.user.id;
+        let userId: string;
+        if (session.user.role === "ADMIN" || session.user.role === "HR") {
+            userId = requestedUserId || session.user.id;
+        } else {
+            userId = session.user.id;
+        }
 
         // Get user with wallet
         const user = await prisma.user.findUnique({
@@ -195,6 +200,75 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: order });
     } catch (error) {
         return NextResponse.json({ message: "Error retrieving order", error }, { status: 500 });
+    }
+}
+
+export async function PUT(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        if (session.user.role !== "ADMIN" && session.user.role !== "HR") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
+
+        if (!id) {
+            return NextResponse.json({ error: "Order id is required" }, { status: 400 });
+        }
+
+        const body = await req.json();
+        const { action } = body;
+
+        if (!action || !["approve", "reject", "dispatch"].includes(action)) {
+            return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+        }
+
+        const statusMap: Record<string, any> = {
+            approve: "APPROVED",
+            reject: "CANCELLED",
+            dispatch: "DISPATCHED",
+        };
+
+        const order = await prisma.order.findUnique({
+            where: { id },
+            include: { items: true },
+        });
+
+        if (!order) {
+            return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+
+        if (action === "reject" && order.status !== "PENDING") {
+            return NextResponse.json({ error: "Can only reject pending orders" }, { status: 400 });
+        }
+
+        if (action === "approve" && order.status !== "PENDING") {
+            return NextResponse.json({ error: "Can only approve pending orders" }, { status: 400 });
+        }
+
+        if (action === "dispatch" && order.status !== "APPROVED") {
+            return NextResponse.json({ error: "Can only dispatch approved orders" }, { status: 400 });
+        }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id },
+            data: { status: statusMap[action] as any },
+        });
+
+        return NextResponse.json({
+            message: `Order ${action}d successfully`,
+            order: updatedOrder,
+        });
+    } catch (error) {
+        return NextResponse.json(
+            { error: "Can't update order", details: (error as Error).message },
+            { status: 500 }
+        );
     }
 }
 

@@ -94,7 +94,9 @@ export default function WellnessStore() {
   const setCartAnimation = useSetAtom(cartAnimationAtom);
 
   // Helper function to get the lowest priced variant
-  const getLowestPricedVariant = (product: Product): string | undefined => {
+  const getLowestPricedVariant = (
+    product: Product
+  ): { id: string; value: string } | undefined => {
     if (!product.variants || product.variants.length === 0) return undefined;
 
     const lowestVariant = product.variants.reduce((lowest, current) => {
@@ -103,7 +105,7 @@ export default function WellnessStore() {
       return currentMRP < lowestMRP ? current : lowest;
     });
 
-    return lowestVariant.variantValue;
+    return { id: lowestVariant.id, value: lowestVariant.variantValue };
   };
 
   const handleAddToCart = (product: any) => {
@@ -123,8 +125,12 @@ export default function WellnessStore() {
     }
 
     // Get the lowest priced variant automatically
-    const lowestPricedVariant = getLowestPricedVariant(product as Product);
-    const result = addToCart({ product, selectedVariant: lowestPricedVariant });
+    const lowestVariant = getLowestPricedVariant(product as Product);
+    const result = addToCart({
+      product,
+      selectedVariant: lowestVariant?.value,
+      variantId: lowestVariant?.id,
+    });
 
     // Trigger cart animation
     setCartAnimation(true);
@@ -329,8 +335,8 @@ export default function WellnessStore() {
   });
 
   const QuantitySelector = ({ product }: { product: any }) => {
-    const lowestPricedVariant = getLowestPricedVariant(product as Product);
-    const quantity = getCartItemQuantity(product.id, lowestPricedVariant);
+    const lowestVariant = getLowestPricedVariant(product as Product);
+    const quantity = getCartItemQuantity(product.id, lowestVariant?.id);
 
     if (quantity === 0) {
       return (
@@ -351,7 +357,7 @@ export default function WellnessStore() {
             updateCartQuantityByProduct({
               productId: product.id,
               quantity: Math.max(0, quantity - 1),
-              selectedVariant: lowestPricedVariant,
+              variantId: lowestVariant?.id,
             })
           }
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
@@ -366,7 +372,7 @@ export default function WellnessStore() {
             updateCartQuantityByProduct({
               productId: product.id,
               quantity: Math.max(0, quantity + 1),
-              selectedVariant: lowestPricedVariant,
+              variantId: lowestVariant?.id,
             })
           }
           className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"

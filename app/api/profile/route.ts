@@ -14,6 +14,10 @@ export async function GET(req: NextRequest) {
 
         const profile = await prisma.user.findUnique({
             where: { id: session.user.id },
+            include: {
+                wallet: true,
+                orders: true,
+            }
         });
 
         return new NextResponse(JSON.stringify({ data: profile }), { status: 200 });

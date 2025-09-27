@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Edit,
@@ -17,6 +17,9 @@ import {
   Database,
   Mail,
   AlertTriangle,
+  Users,
+  Link,
+  Copy,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -165,6 +168,35 @@ export default function AdminSettingsPage() {
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [isAddDiscountOpen, setIsAddDiscountOpen] = useState(false);
   const [isAddBundleOpen, setIsAddBundleOpen] = useState(false);
+  const [isCreateInviteOpen, setIsCreateInviteOpen] = useState(false);
+  const [inviteLink, setInviteLink] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteRole, setInviteRole] = useState("HR");
+
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      setLoadingCompanies(true);
+      try {
+        const res = await fetch("/api/companies");
+        if (res.ok) {
+          const data = await res.json();
+          setCompanies(data);
+        } else {
+          console.error("Failed to fetch companies");
+        }
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+      } finally {
+        setLoadingCompanies(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   // Notification settings state
   const [notifications, setNotifications] = useState({
@@ -212,7 +244,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="categories" className="flex items-center gap-2">
             <Tags className="h-4 w-4" />
             Categories
@@ -224,6 +256,10 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="bundles" className="flex items-center gap-2">
             <Gift className="h-4 w-4" />
             Bundles
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Users
           </TabsTrigger>
           <TabsTrigger value="credits" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -631,6 +667,239 @@ export default function AdminSettingsPage() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Users */}
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>User Invites</CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Create invite links for new users (HR or employees)
+                  </p>
+                </div>
+                <Dialog
+                  open={isCreateInviteOpen}
+                  onOpenChange={setIsCreateInviteOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button className="bg-emerald-600 hover:bg-emerald-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Invite
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Create User Invite</DialogTitle>
+                    </DialogHeader>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(
+                          e.target as HTMLFormElement
+                        );
+                        let companyName: string;
+                        let companyAddress: string | undefined;
+                        if (inviteRole === "HR") {
+                          companyName = formData.get("companyName") as string;
+                          companyAddress = formData.get(
+                            "companyAddress"
+                          ) as string;
+                          if (!companyName || !companyAddress) {
+                            alert(
+                              "Company name and address are required for HR"
+                            );
+                            return;
+                          }
+                        } else {
+                          companyName = selectedCompany;
+                          if (!companyName) {
+                            alert("Please select a company");
+                            return;
+                          }
+                        }
+                        const role = inviteRole;
+                        const employeeCount = parseInt(
+                          (formData.get("employeeCount") as string) || "0"
+                        );
+
+                        setInviteLoading(true);
+                        try {
+                          const res = await fetch(
+                            "/api/auth/signup/create-invite",
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                companyName,
+                                companyAddress,
+                                role,
+                                employeeCount:
+                                  role === "EMPLOYEE"
+                                    ? employeeCount
+                                    : undefined,
+                              }),
+                            }
+                          );
+
+                          const data = await res.json();
+                          if (res.ok) {
+                            setInviteLink(data.signupLink);
+                            setIsCreateInviteOpen(false);
+                          } else {
+                            alert(data.error || "Failed to create invite");
+                          }
+                        } catch (error) {
+                          alert("Failed to create invite");
+                        } finally {
+                          setInviteLoading(false);
+                        }
+                      }}
+                      className="space-y-4 py-4"
+                    >
+                      {inviteRole === "HR" ? (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="companyName">Company Name</Label>
+                            <Input
+                              id="companyName"
+                              name="companyName"
+                              placeholder="Enter company name"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="companyAddress">
+                              Company Address
+                            </Label>
+                            <Input
+                              id="companyAddress"
+                              name="companyAddress"
+                              placeholder="Enter company address"
+                              required
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-2">
+                          <Label htmlFor="companySelect">Select Company</Label>
+                          <Select
+                            value={selectedCompany}
+                            onValueChange={setSelectedCompany}
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select existing company" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {loadingCompanies ? (
+                                <SelectItem value="">Loading...</SelectItem>
+                              ) : companies.length > 0 ? (
+                                companies.map((company) => (
+                                  <SelectItem
+                                    key={company.id}
+                                    value={company.name}
+                                  >
+                                    {company.name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="" disabled>
+                                  No companies found
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="role">Role</Label>
+                        <Select
+                          name="role"
+                          value={inviteRole}
+                          onValueChange={setInviteRole}
+                          required
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="HR">HR</SelectItem>
+                            <SelectItem value="EMPLOYEE">
+                              Employee(s)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {inviteRole === "EMPLOYEE" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="employeeCount">
+                            Number of Employees
+                          </Label>
+                          <Input
+                            id="employeeCount"
+                            name="employeeCount"
+                            type="number"
+                            min="1"
+                            placeholder="Enter number of employees"
+                            required
+                          />
+                        </div>
+                      )}
+                      <div className="flex justify-end gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsCreateInviteOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          disabled={inviteLoading}
+                        >
+                          {inviteLoading ? "Creating..." : "Create Invite"}
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {inviteLink && (
+                <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-800">
+                        Invite Link Generated
+                      </p>
+                      <p className="text-xs text-emerald-600 break-all">
+                        {inviteLink}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(inviteLink);
+                        alert("Link copied to clipboard!");
+                      }}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div className="text-center text-gray-500 mt-8">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No users created yet. Create your first invite above.</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -3,11 +3,12 @@
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShoppingCart, Shield } from "lucide-react";
+import { Menu, ShoppingCart, Shield, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAtomValue } from "jotai";
 import { cartCountAtom } from "@/lib/store";
+import { useWallet } from "@/app/hooks/useWallet";
 
 interface NavItem {
   name: string;
@@ -22,6 +23,7 @@ export function MobileMenu(props: { navItems: readonly NavItem[] }) {
   const handleClose = useCallback(() => setIsOpen(false), []);
 
   const cartCount = useAtomValue(cartCountAtom);
+  const { credits, isLoading: walletLoading } = useWallet();
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -38,6 +40,17 @@ export function MobileMenu(props: { navItems: readonly NavItem[] }) {
       </SheetTrigger>
       <SheetContent side="right" className="w-72">
         <div className="flex flex-col space-y-4 mt-8">
+          <Link href="/benefits" onClick={handleClose}>
+            <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg mx-4 hover:bg-blue-100 transition-colors cursor-pointer">
+              <div className="flex items-center space-x-2">
+                <Coins className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800">
+                  Available Credits: {walletLoading ? "..." : credits}
+                </span>
+              </div>
+            </div>
+          </Link>
+
           {props.navItems.map((item) => (
             <Link
               key={item.path}

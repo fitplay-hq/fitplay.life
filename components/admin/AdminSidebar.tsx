@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import {
   Sidebar,
@@ -15,19 +15,29 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   BarChart3,
   Package,
   ShoppingCart,
   CreditCard,
   Building2,
+  DollarSign,
   Settings,
   LogOut,
   Bell,
+  ChevronRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -43,14 +53,29 @@ const adminNavItems = [
     icon: Package,
   },
   {
-    title: "Vendors",
-    url: "/admin/vendors",
-    icon: Building2,
-  },
-  {
     title: "Orders",
     url: "/admin/orders",
     icon: ShoppingCart,
+    items: [
+      {
+        title: "All Orders",
+        url: "/admin/orders",
+      },
+      {
+        title: "Create Order",
+        url: "/admin/orders/create",
+      },
+    ],
+  },
+  {
+    title: "Wallets",
+    url: "/admin/wallets",
+    icon: DollarSign,
+  },
+  {
+    title: "Vendors",
+    url: "/admin/vendors",
+    icon: Building2,
   },
   {
     title: "Transactions",
@@ -164,27 +189,91 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {adminNavItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={`
-                        px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                        ${
-                          pathname === item.url
-                            ? "bg-emerald-50 text-emerald-700 border-r-2 border-emerald-600"
-                            : "text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
-                        }
-                      `}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.url} className="flex items-center gap-3">
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {adminNavItems.map((item) => {
+                  const isActive = pathname === item.url;
+                  const hasSubItems = item.items && item.items.length > 0;
+                  const isSubActive =
+                    hasSubItems &&
+                    item.items.some((sub) => pathname === sub.url);
+
+                  if (hasSubItems) {
+                    return (
+                      <Collapsible
+                        key={item.title}
+                        asChild
+                        defaultOpen={isSubActive}
+                      >
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton
+                              className={`
+                                px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                                ${
+                                  isActive || isSubActive
+                                    ? "bg-emerald-50 text-emerald-700 border-r-2 border-emerald-600"
+                                    : "text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                                }
+                              `}
+                              tooltip={item.title}
+                            >
+                              <item.icon className="h-5 w-5" />
+                              <span>{item.title}</span>
+                              <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.items.map((subItem) => (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    className={`
+                                      px-3 py-1.5 rounded text-sm transition-colors
+                                      ${
+                                        pathname === subItem.url
+                                          ? "bg-emerald-100 text-emerald-700"
+                                          : "text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                                      }
+                                    `}
+                                  >
+                                    <Link href={subItem.url}>
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          ${
+                            isActive
+                              ? "bg-emerald-50 text-emerald-700 border-r-2 border-emerald-600"
+                              : "text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                          }
+                        `}
+                        tooltip={item.title}
+                      >
+                        <Link
+                          href={item.url}
+                          className="flex items-center gap-3"
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -193,15 +282,14 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
         <SidebarFooter className="p-4 border-t border-gray-200">
           <SidebarMenu>
             <SidebarMenuItem>
-              <form action="/api/auth/signout" method="POST" className="w-full">
-                <SidebarMenuButton
-                  size="sm"
-                  className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
-                >
-                  <LogOut />
-                  <span>Sign Out</span>
-                </SidebarMenuButton>
-              </form>
+              <SidebarMenuButton
+                size="sm"
+                className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
+                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              >
+                <LogOut />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
           <div className="text-xs text-gray-500 text-center mt-4">

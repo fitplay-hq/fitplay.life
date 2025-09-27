@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const signupLink = `${process.env.FRONTEND_URL}/signup?token=${signupToken}`;
+      const signupLink = `${process.env.VERCEL_URL}/signup?token=${signupToken}`;
       return NextResponse.json({ signupLink });
     } else {
       if (!employeeCount || employeeCount < 1)
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const signupLink = `${process.env.FRONTEND_URL}/signup?token=${signupToken}`;
+      const signupLink = `${process.env.VERCEL_URL}/signup?token=${signupToken}`;
       return NextResponse.json({ signupLink });
     }
   } catch (err) {

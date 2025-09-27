@@ -94,7 +94,7 @@ export async function PATCH(req: NextRequest) {
             },
         });
 
-        const verifyLink = `${process.env.FRONTEND_URL}/verify?token=${verifyToken}`;
+        const verifyLink = `${process.env.VERCEL_URL}/verify?token=${verifyToken}`;
         const verificationMail = process.env.VERIFICATION_MAIL || "noreply@fitplaysolutions.com";
 
         await resend.emails.send({

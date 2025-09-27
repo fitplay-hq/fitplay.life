@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Calendar,
   Clock,
@@ -11,17 +13,67 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
-import { getServerAuthSession } from "@/lib/auth";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import useSWR from "swr";
 
-export default async function BenefitsPage() {
-  const session = await getServerAuthSession();
-
-  const creditBalance = {
-    total: 500,
-    used: 180,
-    remaining: 320,
-    expiryDate: "2024-12-31",
+interface WalletData {
+  wallet: {
+    balance: number;
+    expiryDate: string;
   };
+  dashboardStats: {
+    creditsRemaining: number;
+    creditsUsed: number;
+  };
+  walletHistory: Array<{
+    id: string;
+    date: string;
+    type: string;
+    amount: number;
+    balance: number;
+    description: string;
+  }>;
+}
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export default function BenefitsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (session?.user?.role === "ADMIN") {
+      router.push("/admin");
+    }
+  }, [session, status, router]);
+
+  const {
+    data: walletData,
+    error,
+    isLoading,
+  } = useSWR<WalletData>(
+    session?.user ? "/api/wallets?personal=true" : null,
+    fetcher
+  );
+
+  const creditBalance = walletData
+    ? {
+        total:
+          walletData.dashboardStats.creditsRemaining +
+          walletData.dashboardStats.creditsUsed,
+        used: walletData.dashboardStats.creditsUsed,
+        remaining: walletData.dashboardStats.creditsRemaining,
+        expiryDate: walletData.wallet.expiryDate.split("T")[0], // Format to YYYY-MM-DD
+      }
+    : {
+        total: 0,
+        used: 0,
+        remaining: 0,
+        expiryDate: "",
+      };
 
   const redeemableItems = [
     {
@@ -70,38 +122,46 @@ export default async function BenefitsPage() {
     },
   ];
 
-  const creditHistory = [
-    {
-      date: "2024-01-15",
-      type: "Allocated",
-      amount: 500,
-      description: "Q1 2024 Wellness Credits",
+  const creditHistory =
+    walletData?.walletHistory.map((transaction) => ({
+      date: transaction.date,
+      type:
+        transaction.type === "Credit"
+          ? "Allocated"
+          : transaction.type === "Purchase"
+          ? "Used"
+          : "Bonus",
+      amount: transaction.amount,
+      description: transaction.description,
       status: "completed",
-    },
-    {
-      date: "2024-01-20",
-      type: "Used",
-      amount: -80,
-      description: "Protein Powder Purchase",
-      status: "completed",
-    },
-    {
-      date: "2024-02-03",
-      type: "Used",
-      amount: -100,
-      description: "Gym Equipment Purchase",
-      status: "completed",
-    },
-    {
-      date: "2024-02-15",
-      type: "Bonus",
-      amount: 50,
-      description: "Wellness Challenge Reward",
-      status: "completed",
-    },
-  ];
+    })) || [];
 
-  const usagePercentage = (creditBalance.used / creditBalance.total) * 100;
+  const usagePercentage =
+    creditBalance.total > 0
+      ? (creditBalance.used / creditBalance.total) * 100
+      : 0;
+
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading benefits...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">
+            Failed to load wallet data. Please try again.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -223,7 +283,10 @@ export default async function BenefitsPage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {redeemableItems.map((item) => (
-            <Card key={item.id} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={item.id}
+              className="hover:shadow-lg transition-shadow p-0"
+            >
               <CardContent className="p-0">
                 <ImageWithFallback
                   src={item.image}

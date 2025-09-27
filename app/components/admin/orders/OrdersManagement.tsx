@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Search,
   Filter,
@@ -55,116 +56,39 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useSWR from "swr";
 
-// Mock orders data
-const ordersData = [
-  {
-    id: "ORD-2024-001",
-    employee: {
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@techcorp.com",
-      company: "TechCorp India",
-    },
-    products: [
-      { name: "Professional Yoga Mat", quantity: 2, credits: 1200 },
-      { name: "Resistance Band Set", quantity: 1, credits: 600 },
-    ],
-    totalCredits: 3000,
-    inrAmount: 1500,
-    paymentMode: "credits",
-    status: "pending",
-    orderDate: "2024-03-15T10:30:00Z",
-    approvedDate: null,
-    dispatchedDate: null,
-    deliveredDate: null,
-    trackingId: null,
-    notes: "Employee wellness program purchase",
-  },
-  {
-    id: "ORD-2024-002",
-    employee: {
-      name: "Priya Sharma",
-      email: "priya.sharma@innovatetech.com",
-      company: "InnovateTech Solutions",
-    },
-    products: [
-      { name: "Whey Protein Powder (2kg)", quantity: 1, credits: 3200 },
-    ],
-    totalCredits: 3200,
-    inrAmount: 1600,
-    paymentMode: "mixed",
-    status: "approved",
-    orderDate: "2024-03-14T14:20:00Z",
-    approvedDate: "2024-03-14T15:00:00Z",
-    dispatchedDate: null,
-    deliveredDate: null,
-    trackingId: null,
-    notes: "Approved for fitness program participant",
-  },
-  {
-    id: "ORD-2024-003",
-    employee: {
-      name: "Amit Patel",
-      email: "amit.patel@healthfirst.com",
-      company: "HealthFirst Ltd",
-    },
-    products: [
-      { name: "Meditation Cushion Set", quantity: 1, credits: 800 },
-      { name: "Foam Roller - Deep Tissue", quantity: 1, credits: 1000 },
-    ],
-    totalCredits: 1800,
-    inrAmount: 900,
-    paymentMode: "credits",
-    status: "dispatched",
-    orderDate: "2024-03-13T09:15:00Z",
-    approvedDate: "2024-03-13T11:00:00Z",
-    dispatchedDate: "2024-03-14T16:30:00Z",
-    deliveredDate: null,
-    trackingId: "TRK123456789",
-    notes: "Mental wellness initiative order",
-  },
-  {
-    id: "ORD-2024-004",
-    employee: {
-      name: "Sneha Reddy",
-      email: "sneha.reddy@globaltech.com",
-      company: "GlobalTech Enterprise",
-    },
-    products: [{ name: "Professional Yoga Mat", quantity: 1, credits: 1200 }],
-    totalCredits: 1200,
-    inrAmount: 600,
-    paymentMode: "inr",
-    status: "delivered",
-    orderDate: "2024-03-10T11:45:00Z",
-    approvedDate: "2024-03-10T12:00:00Z",
-    dispatchedDate: "2024-03-11T10:00:00Z",
-    deliveredDate: "2024-03-13T14:30:00Z",
-    trackingId: "TRK987654321",
-    notes: "Delivered successfully",
-  },
-  {
-    id: "ORD-2024-005",
-    employee: {
-      name: "Vikram Singh",
-      email: "vikram.singh@datasoft.com",
-      company: "DataSoft Solutions",
-    },
-    products: [{ name: "Resistance Band Set", quantity: 3, credits: 600 }],
-    totalCredits: 1800,
-    inrAmount: 900,
-    paymentMode: "credits",
-    status: "cancelled",
-    orderDate: "2024-03-12T16:20:00Z",
-    approvedDate: null,
-    dispatchedDate: null,
-    deliveredDate: null,
-    trackingId: null,
-    notes: "Cancelled due to product unavailability",
-  },
-];
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json());
 
 const OrdersManagement = () => {
-  const [orders, setOrders] = useState(ordersData);
+  const { data, error, isLoading, mutate } = useSWR("/api/orders", fetcher);
+
+  // Transform API data to match component expectations
+  const orders = (data?.orders || []).map((order: any) => ({
+    id: order.id,
+    employee: {
+      name: order.user?.name || "Unknown",
+      email: order.user?.email || "Unknown",
+      company: order.user?.company?.name || "Unknown",
+    },
+    products: order.items.map((item: any) => ({
+      name:
+        item.variant?.product?.name || item.product?.name || "Unknown Product",
+      quantity: item.quantity,
+      credits: item.price,
+    })),
+    totalCredits: order.amount,
+    inrAmount: Math.floor(order.amount / 2),
+    paymentMode: "credits", // Assuming all are credits for now
+    status: order.status.toLowerCase(),
+    orderDate: order.createdAt,
+    approvedDate: null, // TODO: Add these fields to API
+    dispatchedDate: null,
+    deliveredDate: null,
+    trackingId: null,
+    notes: "",
+  }));
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
@@ -271,70 +195,33 @@ const OrdersManagement = () => {
     return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
-  const handleOrderAction = (orderId: string, action: string) => {
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id === orderId) {
-          const now = new Date().toISOString();
-          switch (action) {
-            case "approve":
-              return { ...order, status: "approved", approvedDate: now };
-            case "reject":
-              return {
-                ...order,
-                status: "cancelled",
-                notes: "Rejected by admin",
-              };
-            case "dispatch":
-              return {
-                ...order,
-                status: "dispatched",
-                dispatchedDate: now,
-                trackingId: `TRK${Math.random()
-                  .toString(36)
-                  .substr(2, 9)
-                  .toUpperCase()}`,
-              };
-            default:
-              return order;
-          }
-        }
-        return order;
-      })
-    );
+  const handleOrderAction = async (orderId: string, action: string) => {
+    try {
+      const response = await fetch(`/api/orders/order?id=${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ action }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update order");
+      }
+
+      mutate();
+    } catch (error) {
+      console.error("Error updating order:", error);
+      // TODO: Show error toast
+    }
   };
 
-  const handleBulkAction = (action: string) => {
+  const handleBulkAction = async (action: string) => {
     if (selectedOrders.length === 0) return;
-
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (selectedOrders.includes(order.id)) {
-          const now = new Date().toISOString();
-          switch (action) {
-            case "approve":
-              return order.status === "pending"
-                ? { ...order, status: "approved", approvedDate: now }
-                : order;
-            case "dispatch":
-              return order.status === "approved"
-                ? {
-                    ...order,
-                    status: "dispatched",
-                    dispatchedDate: now,
-                    trackingId: `TRK${Math.random()
-                      .toString(36)
-                      .substr(2, 9)
-                      .toUpperCase()}`,
-                  }
-                : order;
-            default:
-              return order;
-          }
-        }
-        return order;
-      })
-    );
+    // For now, just refresh the data
+    mutate();
     setSelectedOrders([]);
   };
 
@@ -367,6 +254,12 @@ const OrdersManagement = () => {
           </p>
         </div>
         <div className="flex gap-3">
+          <Link href="/admin/orders/create">
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Create Order
+            </Button>
+          </Link>
           {selectedOrders.length > 0 && (
             <>
               <Button

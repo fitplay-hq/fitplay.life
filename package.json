@@ -9,7 +9,6 @@
     "lint": "next lint",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "seed": "prisma db seed",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate"
   },

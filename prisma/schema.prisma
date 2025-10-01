@@ -43,6 +43,17 @@ model User {
   wallet       Wallet?
 }
 
+model Vendor {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  email     String   @unique
+  phone     String   @unique
+  password  String
+  products  Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
 model VerificationToken {
   id         String   @id @default(uuid())
   identifier String
@@ -66,7 +77,6 @@ model Product {
   name           String       @db.VarChar(50)
   images         String[]
   description    String
-  vendorName     String       @db.VarChar(50)
   discount       Int?
   sku            String       @unique @db.VarChar(100)
   availableStock Int
@@ -80,6 +90,8 @@ model Product {
   orderItems     OrderItem[]
   variants       Variant[]
   companies      Company[]    @relation("CompanyToProduct")
+  vendor         Vendor?       @relation(fields: [vendorId], references: [id])
+  vendorId       String?      
 }
 
 model Variant {

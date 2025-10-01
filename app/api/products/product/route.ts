@@ -49,6 +49,11 @@ export async function GET(req: NextRequest) {
         where: { id },
         include: {
           variants: true,
+          vendor: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
       if (!product) {
@@ -59,6 +64,11 @@ export async function GET(req: NextRequest) {
       const products = await prisma.product.findMany({
         include: {
           variants: true,
+          vendor: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
       console.log("Fetched products with variants:", products.map(p => ({ id: p.id, name: p.name, variants: p.variants })));

@@ -20,7 +20,6 @@ interface Product {
   name: string;
   images: string[];
   description: string;
-  vendorName: string;
   discount?: number;
   sku: string;
   availableStock: number;
@@ -30,6 +29,10 @@ interface Product {
   avgRating?: number;
   noOfReviews?: number;
   variants: Variant[];
+  vendor?: {
+    id: string;
+    name: string;
+  } | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -181,12 +184,14 @@ export default function WellnessStore() {
     ...dynamicCategories,
   ];
 
-  // Generate dynamic brands from products (using vendorName as brand)
+  // Generate dynamic brands from products (using vendor.name as brand)
   const brands = Array.from(
-    new Set(products.map((product) => product.vendorName).filter(Boolean))
+    new Set(
+      products.map((product) => (product as any).vendor?.name).filter(Boolean)
+    )
   ).map((brand) => ({
     name: brand as string,
-    count: products.filter((p) => p.vendorName === brand).length,
+    count: products.filter((p) => (p as any).vendor?.name === brand).length,
   }));
 
   const priceRanges = [
@@ -275,16 +280,19 @@ export default function WellnessStore() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.vendorName &&
-        product.vendorName.toLowerCase().includes(searchTerm.toLowerCase()));
+      ((product as any).vendor?.name &&
+        (product as any).vendor.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()));
     const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
     const matchesBrand =
       selectedBrands.length === 0 ||
-      (product.vendorName && selectedBrands.includes(product.vendorName));
+      ((product as any).vendor?.name &&
+        selectedBrands.includes((product as any).vendor.name));
 
     // Price range filter (using lowest credits from variants)
-    const productCredits = getLowestCredits(product as Product);
+    const productCredits = getLowestCredits(product as any);
     const matchesPriceRange =
       selectedPriceRanges.length === 0 ||
       selectedPriceRanges.some((rangeValue) => {
@@ -314,13 +322,13 @@ export default function WellnessStore() {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "price-low": {
-        const aCredits = getLowestCredits(a as Product);
-        const bCredits = getLowestCredits(b as Product);
+        const aCredits = getLowestCredits(a as any);
+        const bCredits = getLowestCredits(b as any);
         return aCredits - bCredits;
       }
       case "price-high": {
-        const aCredits = getLowestCredits(a as Product);
-        const bCredits = getLowestCredits(b as Product);
+        const aCredits = getLowestCredits(a as any);
+        const bCredits = getLowestCredits(b as any);
         return bCredits - aCredits;
       }
       case "rating":
@@ -431,7 +439,7 @@ export default function WellnessStore() {
       <div className="bg-gray-50 py-4">
         <h2 className="text-2xl text-primary mb-6">Shop by Category</h2>
         <div
-          className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"
+          className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-5"
           role="tablist"
           aria-label="Product categories"
         >
@@ -442,7 +450,7 @@ export default function WellnessStore() {
               role="tab"
               aria-selected={selectedCategory === category.value}
               aria-label={`Select ${category.label} category`}
-              className={`group cursor-pointer transition-all duration-300 focus:outline-none ${
+              className={`group cursor-pointer transition-all duration-300 ${
                 selectedCategory === category.value
                   ? "transform scale-105"
                   : "hover:transform hover:scale-105"
@@ -450,10 +458,10 @@ export default function WellnessStore() {
               onClick={() => setSelectedCategory(category.value)}
             >
               <div
-                className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                className={`relative overflow-hidden rounded-lg border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-1 ${
                   selectedCategory === category.value
-                    ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
-                    : "border-gray-200 hover:border-emerald-300 hover:shadow-md"
+                    ? "ring-emerald-600 shadow-lg"
+                    : "ring-gray-200 hover:ring-emerald-500"
                 }`}
               >
                 {/* Image Container */}
@@ -716,13 +724,6 @@ export default function WellnessStore() {
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        {/* Rating Badge */}
-                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1 shadow-sm">
-                          <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                          <span className="text-xs font-semibold text-gray-700">
-                            {product.avgRating?.toFixed(1) ?? "0.0"}
-                          </span>
-                        </div>
                         {/* Stock Status */}
                         {product.availableStock === 0 && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -735,23 +736,36 @@ export default function WellnessStore() {
 
                       {/* Content */}
                       <div className="p-4 flex-1 flex flex-col">
+                        {/* Header with Vendor and Rating */}
+                        <div className="flex items-center justify-between mb-3">
+                          {/* Vendor */}
+                          {(product as any).vendor?.name && (
+                            <p className="text-sm text-gray-500 line-clamp-1">
+                              by {(product as any).vendor.name}
+                            </p>
+                          )}
+
+                          {/* Rating */}
+                          {product.avgRating && (
+                            <div className="flex items-center space-x-1">
+                              <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                              <span className="text-xs font-semibold text-gray-700">
+                                {product.avgRating.toFixed(1)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
                         {/* Product Name */}
-                        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-3 group-hover:text-emerald-600 transition-colors leading-tight">
+                        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
                           {product.name}
                         </h3>
-
-                        {/* Vendor */}
-                        {product.vendorName && (
-                          <p className="text-sm text-gray-500 mb-3 line-clamp-1">
-                            by {product.vendorName}
-                          </p>
-                        )}
 
                         {/* Price Section */}
                         <div className="mt-auto mb-4">
                           <div className="flex items-baseline gap-2 mb-1">
                             <span className="text-2xl font-bold text-emerald-600">
-                              {getLowestCredits(product)}
+                              {getLowestCredits(product as any)}
                             </span>
                             <span className="text-sm font-medium text-emerald-600">
                               credits

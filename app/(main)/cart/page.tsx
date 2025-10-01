@@ -11,6 +11,12 @@ import {
   MapPin,
   Check,
   AlertCircle,
+  Package,
+  CreditCard,
+  Calendar,
+  Hash,
+  User,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,9 +61,9 @@ export default function CartPage() {
 
   const handleCreditPurchase = (credits: number) => {
     const newCredits = purchaseCredits(credits);
-    toast.success("Credits purchased successfully!", {
-      description: `Your new balance is ${newCredits} credits.`,
-      duration: 3000,
+    toast.success("Demo: Credits added to balance!", {
+      description: `Your demo balance is now ${newCredits} credits. Contact HR for actual credits.`,
+      duration: 5000,
     });
   };
 
@@ -87,6 +93,15 @@ export default function CartPage() {
     pincode: "",
     instructions: "",
   });
+
+  const [addressErrors, setAddressErrors] = useState({
+    pincode: "",
+  });
+
+  const [orderDetails, setOrderDetails] = useState<{
+    order: any;
+    wallet: any;
+  } | null>(null);
 
   // Calculate totals
   const totalCredits = cartItems.reduce(
@@ -144,6 +159,12 @@ export default function CartPage() {
         toast.success("Order created successfully!", {
           description: "Your order has been placed and will be processed soon.",
           duration: 3000,
+        });
+
+        // Store complete order details for confirmation page
+        setOrderDetails({
+          order: result.order,
+          wallet: result.wallet,
         });
 
         setCurrentStep("confirmation");
@@ -408,9 +429,14 @@ export default function CartPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <Label htmlFor="addressLine1">Address Line 1 *</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2 space-y-2">
+                    <Label
+                      htmlFor="addressLine1"
+                      className="text-sm font-medium"
+                    >
+                      Address Line 1 *
+                    </Label>
                     <Input
                       id="addressLine1"
                       value={address.addressLine1}
@@ -418,20 +444,29 @@ export default function CartPage() {
                         setAddress({ ...address, addressLine1: e.target.value })
                       }
                       required
+                      className="h-11"
                     />
                   </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="addressLine2">Address Line 2</Label>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label
+                      htmlFor="addressLine2"
+                      className="text-sm font-medium"
+                    >
+                      Address Line 2
+                    </Label>
                     <Input
                       id="addressLine2"
                       value={address.addressLine2}
                       onChange={(e) =>
                         setAddress({ ...address, addressLine2: e.target.value })
                       }
+                      className="h-11"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="city">City *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="text-sm font-medium">
+                      City *
+                    </Label>
                     <Input
                       id="city"
                       value={address.city}
@@ -439,10 +474,13 @@ export default function CartPage() {
                         setAddress({ ...address, city: e.target.value })
                       }
                       required
+                      className="h-11"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="state">State *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="state" className="text-sm font-medium">
+                      State *
+                    </Label>
                     <Input
                       id="state"
                       value={address.state}
@@ -450,21 +488,45 @@ export default function CartPage() {
                         setAddress({ ...address, state: e.target.value })
                       }
                       required
+                      className="h-11"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="pincode">Pincode *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="pincode" className="text-sm font-medium">
+                      Pincode *
+                    </Label>
                     <Input
                       id="pincode"
                       value={address.pincode}
-                      onChange={(e) =>
-                        setAddress({ ...address, pincode: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 6);
+                        setAddress({ ...address, pincode: value });
+                        setAddressErrors({
+                          ...addressErrors,
+                          pincode:
+                            value.length === 6
+                              ? ""
+                              : value.length > 0
+                              ? "Pincode must be exactly 6 digits"
+                              : "",
+                        });
+                      }}
+                      pattern="[0-9]{6}"
+                      title="Pincode must be exactly 6 digits"
+                      maxLength={6}
                       required
+                      className="h-11"
                     />
                   </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="instructions">Delivery Instructions</Label>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label
+                      htmlFor="instructions"
+                      className="text-sm font-medium"
+                    >
+                      Delivery Instructions
+                    </Label>
                     <Textarea
                       id="instructions"
                       value={address.instructions}
@@ -472,6 +534,7 @@ export default function CartPage() {
                         setAddress({ ...address, instructions: e.target.value })
                       }
                       placeholder="Any special instructions for delivery..."
+                      className="min-h-[100px] resize-none"
                     />
                   </div>
                 </div>
@@ -527,47 +590,220 @@ export default function CartPage() {
       )}
 
       {/* Confirmation Step */}
-      {currentStep === "confirmation" && (
-        <div className="text-center space-y-6 max-w-2xl mx-auto">
-          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-            <Check className="w-12 h-12 text-emerald-600" />
+      {currentStep === "confirmation" && orderDetails && (
+        <div className="space-y-8 max-w-4xl mx-auto">
+          {/* Success Header */}
+          <div className="text-center space-y-6">
+            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-12 h-12 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
+              <p className="text-gray-600">
+                Your wellness products have been ordered successfully using your
+                company wellness credits.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
-            <p className="text-gray-600 mb-6">
-              Your wellness products have been ordered successfully using your
-              company wellness credits.
-            </p>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 mb-6">
-              <h3 className="font-medium text-emerald-800 mb-2">
-                Order Summary
-              </h3>
-              <div className="space-y-1 text-sm text-emerald-700">
-                <div className="flex justify-between">
-                  <span>Total Items:</span>
-                  <span>{totalItems}</span>
+
+          {/* Order Details Grid */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Order Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Package className="w-5 h-5" />
+                  <span>Order Details</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Order ID:</span>
+                    <div className="font-mono text-primary flex items-center space-x-1">
+                      <Hash className="w-3 h-3" />
+                      <span>{orderDetails.order.id}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Status:</span>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="capitalize">
+                        {orderDetails.order.status.toLowerCase()}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Order Date:</span>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        {new Date(
+                          orderDetails.order.createdAt
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Amount:</span>
+                    <div className="font-bold text-emerald-600">
+                      {orderDetails.order.amount} credits
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Credits Used:</span>
-                  <span>{totalCredits}</span>
+
+                {/* Transaction ID */}
+                <div className="pt-2 border-t">
+                  <span className="text-gray-600 text-sm">Transaction ID:</span>
+                  <div className="font-mono text-sm text-gray-800">
+                    {orderDetails.order.transactionId}
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Remaining Credits:</span>
-                  <span>
-                    {walletLoading
-                      ? "Loading..."
-                      : walletError
-                      ? "Error"
-                      : userCredits - totalCredits}
+              </CardContent>
+            </Card>
+
+            {/* Wallet Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Wallet className="w-5 h-5" />
+                  <span>Wallet Update</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Previous Balance:</span>
+                    <div className="font-bold">
+                      {orderDetails.wallet.balance + orderDetails.order.amount}{" "}
+                      credits
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Amount Deducted:</span>
+                    <div className="font-bold text-red-600">
+                      -{orderDetails.order.amount} credits
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">New Balance:</span>
+                    <div className="font-bold text-emerald-600 text-lg">
+                      {orderDetails.wallet.balance} credits
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <span className="text-gray-600 text-sm">Wallet Expiry:</span>
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-3 h-3" />
+                    <span className="text-sm">
+                      {new Date(
+                        orderDetails.wallet.expiryDate
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Order Items */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <ShoppingBag className="w-5 h-5" />
+                <span>Order Items ({orderDetails.order.items.length})</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {orderDetails.order.items.map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <ImageWithFallback
+                          src={
+                            item.variant?.product?.images?.[0] ||
+                            "/placeholder.png"
+                          }
+                          alt={item.variant?.product?.name || "Product"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-primary">
+                          {item.variant?.product?.name || "Product"}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Variant: {item.variant?.variantValue || "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Product ID: {item.productId}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center space-x-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Quantity</p>
+                          <p className="font-bold">{item.quantity}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Unit Price</p>
+                          <p className="font-bold text-emerald-600">
+                            {item.price} credits
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Total</p>
+                          <p className="font-bold text-primary">
+                            {item.price * item.quantity} credits
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Order Total */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-medium">Order Total:</span>
+                  <span className="text-2xl font-bold text-emerald-600">
+                    {orderDetails.order.amount} credits
                   </span>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Next Steps */}
+          <div className="text-center space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-medium text-blue-800 mb-2">What's Next?</h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>
+                  • Your order is being processed and will be approved by HR
+                </li>
+                <li>• You'll receive email updates on order status</li>
+                <li>• Products will be delivered once order is approved</li>
+              </ul>
             </div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/benefits">
+              <Link href="/profile">
                 <Button className="bg-emerald-500 hover:bg-emerald-600">
-                  View My Benefits
+                  View Order History
                 </Button>
+              </Link>
+              <Link href="/benefits">
+                <Button variant="outline">View My Benefits</Button>
               </Link>
               <Link href="/store">
                 <Button variant="outline">Continue Shopping</Button>

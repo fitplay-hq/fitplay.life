@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import NotificationPreferences from "@/components/profile/notification-preferences";
 import Dashboard from "@/components/profile/dashboard";
 import WalletComponent from "@/components/profile/wallet";
 import { WalletTransaction } from "@/components/profile/wallet";
@@ -25,17 +24,18 @@ import {
   cartAnimationAtom,
 } from "@/lib/store";
 import useSWR from "swr";
+import { useOrders } from "@/app/hooks/useOrders";
 
 interface DashboardStats {
   totalOrders: number;
   totalSpent: number;
   creditsUsed: number;
   creditsRemaining: number;
-  wellnessScore: number;
 }
 
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading } = useUser();
+  const { orders, isLoading: ordersLoading } = useOrders();
   const wishlistItems = useAtomValue(wishlistItemsAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
   const addToCart = useSetAtom(addToCartAtom);
@@ -53,11 +53,10 @@ export default function ProfilePage() {
   );
 
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
-    totalOrders: 12,
-    totalSpent: 450,
+    totalOrders: 0,
+    totalSpent: 0,
     creditsUsed: 0,
     creditsRemaining: 0,
-    wellnessScore: 85,
   });
 
   const walletHistory = walletData?.walletHistory || [];
@@ -72,44 +71,41 @@ export default function ProfilePage() {
     }
   }, [walletData]);
 
-  const orderHistory = [
-    {
-      id: "ORD-001",
-      date: "2024-02-15",
-      item: "Premium Protein Powder",
-      amount: 89,
-      credits: 60,
-      status: "Delivered",
-      vendor: "NutriMax",
-    },
-    {
-      id: "ORD-002",
-      date: "2024-02-08",
-      item: "Resistance Bands Set",
-      amount: 45,
-      credits: 45,
-      status: "Delivered",
-      vendor: "FitZone",
-    },
-    {
-      id: "ORD-003",
-      date: "2024-01-28",
-      item: "Health Screening",
-      amount: 199,
-      credits: 150,
-      status: "Completed",
-      vendor: "WellCare Labs",
-    },
-    {
-      id: "ORD-004",
-      date: "2024-01-20",
-      item: "Ergonomic Mouse Pad",
-      amount: 35,
-      credits: 35,
-      status: "Delivered",
-      vendor: "WorkWell",
-    },
-  ];
+  useEffect(() => {
+    if (orders.length > 0) {
+      const totalOrders = orders.length;
+      const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
+      setDashboardStats((prev: DashboardStats) => ({
+        ...prev,
+        totalOrders,
+        totalSpent,
+      }));
+    }
+  }, [orders]);
+
+  // Transform orders data to match History component interface
+  const orderHistory = orders.map((order) => {
+    const firstItem = order.items[0];
+    const itemName =
+      order.items.length === 1
+        ? firstItem.variant.product.name
+        : `${firstItem.variant.product.name} + ${order.items.length - 1} more`;
+
+    const vendorName =
+      order.items.length === 1
+        ? firstItem.variant.product.vendorName
+        : `${firstItem.variant.product.vendorName} + others`;
+
+    return {
+      id: order.id,
+      date: new Date(order.createdAt).toISOString().split("T")[0],
+      item: itemName,
+      amount: order.amount,
+      credits: order.amount, // Since credits are used as currency
+      status: order.status,
+      vendor: vendorName,
+    };
+  });
 
   const handleLogout = () => {
     signOut();
@@ -213,43 +209,55 @@ export default function ProfilePage() {
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6">
-          <Dashboard
-            dashboardStats={dashboardStats}
-            orderHistory={orderHistory}
-          />
+          {ordersLoading || walletLoading ? (
+            <div className="space-y-6">
+              {/* Stats Skeleton */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-6 text-center">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-3 animate-pulse"></div>
+                      <div className="h-8 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Orders Skeleton */}
+              <Card>
+                <CardHeader>
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 border border-gray-100 rounded-lg"
+                      >
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+                          <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                        </div>
+                        <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Dashboard
+              dashboardStats={dashboardStats}
+              orderHistory={orderHistory}
+            />
+          )}
         </TabsContent>
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-6">
-          <div className="grid lg:grid-cols-2 gap-6">
-            <PersonalInformation user={user} />
-            <NotificationPreferences />
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Shield className="w-5 h-5" />
-                <span>Privacy & Security</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
-                  Change Password
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Download My Data
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-red-600 border-red-300 hover:bg-red-50"
-                >
-                  Delete Account
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <PersonalInformation user={user} />
         </TabsContent>
 
         {/* Wallet Tab */}
@@ -280,7 +288,26 @@ export default function ProfilePage() {
 
         {/* History Tab */}
         <TabsContent value="history" className="space-y-6">
-          <HistoryComponent orderHistory={orderHistory} />
+          {ordersLoading ? (
+            <div className="space-y-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-64 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      </div>
+                      <div className="h-7 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <HistoryComponent orderHistory={orderHistory} />
+          )}
         </TabsContent>
 
         {/* Wishlist Tab - Only for user role */}

@@ -150,9 +150,9 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-16 md:space-y-24">
+    <div className="space-y-8 md:space-y-12">
       {/* Enhanced Hero Section - Without Image */}
-      <section className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-24 md:py-32 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-16 md:py-20 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-500 rounded-full blur-xl"></div>
@@ -245,9 +245,9 @@ export default function HomePage() {
       </section>
 
       {/* Explore Wellness Section */}
-      <section className="py-16">
+      <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl text-primary mb-4">
               Explore Wellness Domains
             </h2>
@@ -278,9 +278,9 @@ export default function HomePage() {
       </section>
 
       {/* Featured Offers */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl text-primary mb-4">
               Featured Offers
             </h2>
@@ -323,7 +323,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Brand Banner - Sova Health */}
-      <section className="py-12 bg-gradient-to-r from-emerald-500 to-green-500">
+      <section className="py-6 bg-gradient-to-r from-emerald-500 to-green-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div className="text-white space-y-4">
@@ -364,7 +364,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-white text-white hover:bg-white/10"
+                  className="border-white text-white hover:bg-white/10 bg-white/20"
                 >
                   Book Consultation
                 </Button>
@@ -417,9 +417,9 @@ export default function HomePage() {
       </section>
 
       {/* Featured Brands */}
-      <section className="py-16">
+      <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl text-primary mb-4">
               Trusted Wellness Partners
             </h2>
@@ -446,9 +446,9 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-gradient-to-br from-emerald-50 to-green-50">
+      <section className="py-8 bg-gradient-to-br from-emerald-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl text-primary mb-4">
               How It Works
             </h2>
@@ -478,9 +478,9 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl text-primary mb-4">
               Voices of Transformation
             </h2>
@@ -536,7 +536,7 @@ export default function HomePage() {
       </section>
 
       {/* Contact */}
-      <section className="py-16">
+      <section className="py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl text-primary mb-4">
             Ready to Begin Your Wellness Evolution?

@@ -99,6 +99,10 @@ export function CreditPurchase({
           <Wallet className="w-5 h-5" />
           <span>Insufficient Credits</span>
         </CardTitle>
+        <p className="text-sm text-orange-600 mt-2">
+          Demo Mode: Credit purchases are simulated. Contact your HR admin for
+          actual credit allocation.
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between text-sm">
@@ -318,10 +322,10 @@ export function CreditPurchase({
                     {isProcessing ? (
                       <div className="flex items-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Processing Payment...
+                        Processing Demo Payment...
                       </div>
                     ) : (
-                      `Pay ₹${costInINR.toFixed(2)}`
+                      `Demo Purchase - ₹${costInINR.toFixed(2)}`
                     )}
                   </Button>
                 </div>

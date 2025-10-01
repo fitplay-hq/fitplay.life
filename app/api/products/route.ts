@@ -59,6 +59,11 @@ export async function GET(req: NextRequest) {
             },
             include: {
                 variants: true,
+                vendor: {
+                    select: {
+                        name: true,
+                    },
+                },
             },
         });
         return NextResponse.json({ message: "Products retrieved successfully", data: products });

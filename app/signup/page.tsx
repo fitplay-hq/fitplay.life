@@ -32,6 +32,7 @@ function SignupForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const handleSignup = async (formData: FormData) => {
     if (!token) {
@@ -192,7 +193,16 @@ function SignupForm() {
                       id="phone"
                       name="phone"
                       type="tel"
-                      placeholder="Enter your phone number"
+                      placeholder="Enter your 10-digit phone number"
+                      value={phone}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setPhone(value);
+                      }}
+                      pattern="[0-9]{10}"
+                      title="Phone number must be exactly 10 digits"
                       className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                       required
                     />

@@ -16,7 +16,15 @@ export async function GET(req:NextRequest) {
                     contains: query.trim(),
                     mode: "insensitive"
                 }
-            }
+            },
+            include: {
+                variants: true,
+                vendor: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
 
         if (!products || products.length === 0) {

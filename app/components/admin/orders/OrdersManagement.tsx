@@ -241,6 +241,102 @@ const OrdersManagement = () => {
     return acc;
   }, {} as Record<string, number>);
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-80 mt-2 animate-pulse"></div>
+          </div>
+          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white border border-gray-200 rounded-lg p-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-8 mt-1 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="h-10 bg-gray-200 rounded w-64 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-36 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Table Skeleton */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-gray-50 border-b border-gray-200 p-4">
+              <div className="flex gap-4">
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-4 bg-gray-200 rounded animate-pulse flex-1"
+                  ></div>
+                ))}
+              </div>
+            </div>
+            <div className="divide-y divide-gray-200">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="p-4">
+                  <div className="flex gap-4">
+                    <div className="h-4 bg-gray-200 rounded w-4 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-36 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-14 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="text-red-600 text-lg font-semibold mb-2">
+              Error Loading Orders
+            </div>
+            <div className="text-gray-600 mb-4">
+              {error.message || "An error occurred"}
+            </div>
+            <Button onClick={() => mutate()}>Try Again</Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}

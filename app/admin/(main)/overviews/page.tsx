@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,28 +18,153 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import useSWR from "swr";
+
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json());
 
 export default function AdminDashboard() {
-  // Mock data - in real app this would come from your APIs
+  const { data: ordersData, isLoading: ordersLoading } = useSWR(
+    "/api/orders",
+    fetcher
+  );
+  const { data: productsData, isLoading: productsLoading } = useSWR(
+    "/api/products",
+    fetcher
+  );
+  const { data: usersData, isLoading: usersLoading } = useSWR(
+    "/api/users",
+    fetcher
+  );
+
+  const isLoading = ordersLoading || productsLoading || usersLoading;
+
+  // Calculate stats from API data
+  const orders = ordersData?.orders || [];
+  const products = productsData?.products || [];
+  const users = usersData?.users || [];
+
   const stats = {
-    totalUsers: 1247,
-    totalProducts: 89,
-    totalOrders: 324,
-    totalRevenue: 45678,
+    totalUsers: users.length,
+    totalProducts: products.length,
+    totalOrders: orders.length,
+    totalRevenue: orders.reduce(
+      (sum: number, order: any) => sum + (order.amount || 0),
+      0
+    ),
     recentActivity: [
       {
         type: "order",
-        message: "New order from John Doe",
-        time: "2 minutes ago",
+        message:
+          orders.length > 0
+            ? `New order from ${orders[0]?.user?.name || "User"}`
+            : "No recent orders",
+        time: orders.length > 0 ? "Recent" : "N/A",
       },
       {
         type: "product",
-        message: 'Product "Yoga Mat Pro" added',
-        time: "15 minutes ago",
+        message:
+          products.length > 0
+            ? `Product "${products[0]?.name || "Product"}" available`
+            : "No products available",
+        time: products.length > 0 ? "Recent" : "N/A",
       },
-      { type: "user", message: "New user registration", time: "1 hour ago" },
+      {
+        type: "user",
+        message:
+          users.length > 0 ? "New user registration" : "No users registered",
+        time: users.length > 0 ? "Recent" : "N/A",
+      },
     ],
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {/* Welcome Header Skeleton */}
+        <div className="bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="h-8 bg-white/20 rounded w-64 animate-pulse"></div>
+              <div className="h-4 bg-white/20 rounded w-80 mt-1 animate-pulse"></div>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions & Recent Activity Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Quick Actions Skeleton */}
+          <Card>
+            <CardHeader>
+              <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-10 bg-gray-200 rounded animate-pulse"
+                ></div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity Skeleton */}
+          <Card>
+            <CardHeader>
+              <div className="h-6 bg-gray-200 rounded w-36 animate-pulse"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-start space-x-3">
+                    <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* System Status Skeleton */}
+        <Card>
+          <CardHeader>
+            <div className="h-6 bg-gray-200 rounded w-28 animate-pulse"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse flex-1"></div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

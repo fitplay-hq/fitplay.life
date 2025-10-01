@@ -143,9 +143,153 @@ export default function BenefitsPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading benefits...</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Header Skeleton */}
+        <div className="space-y-4">
+          <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded w-96 animate-pulse"></div>
+        </div>
+
+        {/* Credit Cards Skeleton */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-lg border border-gray-200 p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-16 animate-pulse"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                <div className="h-8 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Progress Bar Skeleton */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </div>
+            <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+            <div className="flex justify-between">
+              <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+              <div className="flex items-center space-x-1">
+                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Redeemable Items Skeleton */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg border border-gray-200 p-0 overflow-hidden"
+              >
+                <div className="aspect-square bg-gray-200 animate-pulse"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  <div className="h-5 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <div className="h-5 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  </div>
+                  <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Grid Skeleton */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Credit History Skeleton */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3 border border-gray-100 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Company Info Skeleton */}
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <div className="h-5 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                <div className="space-y-1">
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-4 bg-gray-200 rounded animate-pulse"
+                    ></div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="h-5 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="h-6 bg-gray-200 rounded w-8 mx-auto mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="h-5 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded mb-3 animate-pulse"></div>
+                <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

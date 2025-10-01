@@ -349,70 +349,89 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Total Items:</span>
-                    <span>{totalItems}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Credits:</span>
-                    <span className="font-bold text-emerald-600">
-                      {totalCredits}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Available Credits:</span>
-                    <span className="text-emerald-600">
-                      {walletLoading
-                        ? "Loading..."
-                        : walletError
-                        ? "Error"
-                        : userCredits}
-                    </span>
-                  </div>
-                  {!hasEnoughCredits && (
-                    <>
-                      <Separator />
-                      <div className="flex justify-between text-orange-600">
-                        <span>Credits Needed:</span>
-                        <span className="font-bold">{creditsShortfall}</span>
+            {walletLoading ? (
+              <Card>
+                <CardHeader>
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex justify-between">
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
                       </div>
-                    </>
+                    ))}
+                  </div>
+
+                  <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+
+                  <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Total Items:</span>
+                      <span>{totalItems}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total Credits:</span>
+                      <span className="font-bold text-emerald-600">
+                        {totalCredits}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Available Credits:</span>
+                      <span className="text-emerald-600">
+                        {walletError ? "Error" : userCredits}
+                      </span>
+                    </div>
+                    {!hasEnoughCredits && (
+                      <>
+                        <Separator />
+                        <div className="flex justify-between text-orange-600">
+                          <span>Credits Needed:</span>
+                          <span className="font-bold">{creditsShortfall}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {!hasEnoughCredits && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        You need {creditsShortfall} additional credits to
+                        complete this order. You can purchase more credits
+                        below.
+                      </AlertDescription>
+                    </Alert>
                   )}
-                </div>
 
-                {!hasEnoughCredits && (
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      You need {creditsShortfall} additional credits to complete
-                      this order. You can purchase more credits below.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <Button
-                  onClick={handleCheckout}
-                  disabled={!hasEnoughCredits}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {hasEnoughCredits
-                    ? "Proceed to Checkout"
-                    : "Purchase Credits to Continue"}
-                </Button>
-
-                <Link href="/store">
-                  <Button variant="outline" className="w-full">
-                    Continue Shopping
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={!hasEnoughCredits}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {hasEnoughCredits
+                      ? "Proceed to Checkout"
+                      : "Purchase Credits to Continue"}
                   </Button>
-                </Link>
-              </CardContent>
-            </Card>
+
+                  <Link href="/store">
+                    <Button variant="outline" className="w-full">
+                      Continue Shopping
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       )}
@@ -562,29 +581,47 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Total Items:</span>
-                    <span>{totalItems}</span>
+            {walletLoading ? (
+              <Card>
+                <CardHeader>
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex justify-between">
+                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between">
-                    <span>Total Credits:</span>
-                    <span className="font-bold text-emerald-600">
-                      {totalCredits}
-                    </span>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Total Items:</span>
+                      <span>{totalItems}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total Credits:</span>
+                      <span className="font-bold text-emerald-600">
+                        {totalCredits}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Using Credits:</span>
+                      <span className="text-emerald-600">{totalCredits}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Using Credits:</span>
-                    <span className="text-emerald-600">{totalCredits}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       )}

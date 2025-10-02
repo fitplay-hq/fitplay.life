@@ -1,128 +1,78 @@
-import { compare } from "bcryptjs";
-
-import { getServerSession, NextAuthOptions } from "next-auth";
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import { compare } from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { $Enums } from "@/lib/generated/prisma";
-import {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-} from "next";
 
 type UserRole = $Enums.Role;
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    // For hr/employee
     CredentialsProvider({
-      id: "users",
+      id: "credentials",
       name: "Credentials",
       credentials: {
-        email: {
-          label: "Email",
-          type: "text",
-          placeholder: "Enter your email",
-        },
-        password: {
-          label: "Password",
-          type: "password",
-          placeholder: "Enter your password",
-        },
+        email: { label: "Email", type: "text", placeholder: "Enter email" },
+        password: { label: "Password", type: "password", placeholder: "Enter password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user) {
-          throw new Error("No user found");
+        // 1. Check Admin
+        const admin = await prisma.admin.findUnique({ where: { email: credentials.email } });
+        if (admin) {
+          const isValid = await compare(credentials.password, admin.password);
+          if (!isValid) throw new Error("Invalid password");
+          return {
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: $Enums.Role.ADMIN,
+          };
         }
 
-        if (!user.verified) {
-          throw new Error("Please verify your email to login");
+        // 2. Check User (HR / Employee)
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        if (user) {
+          const isValid = await compare(credentials.password, user.password);
+          if (!isValid) throw new Error("Invalid password");
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role, // HR or EMPLOYEE (enum from your schema)
+          };
         }
 
-        const isValid = await compare(credentials.password, user.password);
-
-        if (!isValid) {
-          throw new Error("Invalid password");
+        // 3. Check Vendor
+        const vendor = await prisma.vendor.findUnique({ where: { email: credentials.email } });
+        if (vendor) {
+          const isValid = await compare(credentials.password, vendor.password);
+          if (!isValid) throw new Error("Invalid password");
+          return {
+            id: vendor.id,
+            name: vendor.name,
+            email: vendor.email,
+            role: "VENDOR", // you can add to Role enum if needed
+          };
         }
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
-      },
-    }),
-
-    // Admin login provider
-    CredentialsProvider({
-      id: "admin",
-      name: "Admin",
-      credentials: {
-        email: {
-          label: "Email",
-          type: "text",
-          placeholder: "Enter admin email",
-        },
-        password: {
-          label: "Password",
-          type: "password",
-          placeholder: "Enter admin password",
-        },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
-        }
-
-        if (credentials.email !== process.env.ADMIN_EMAIL) {
-          throw new Error("Unauthorized admin email");
-        }
-
-        const admin = await prisma.admin.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!admin) {
-          throw new Error("No admin found");
-        }
-
-        const isValid = await compare(credentials.password, admin.password);
-
-        if (!isValid) {
-          throw new Error("Invalid password");
-        }
-
-        console.log("Admin logged in:", admin.email);
-        return {
-          id: admin.id,
-          name: admin.name,
-          email: admin.email,
-          role: $Enums.Role.ADMIN,
-        };
+        throw new Error("No user found with this email");
       },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.role = user.role;
+        token.role = (user as any).role;
       }
       return token;
     },
@@ -132,7 +82,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           name: token.name as string,
           email: token.email as string,
-          role: token.role as UserRole,
+          role: token.role as UserRole | "VENDOR",
         };
       }
       return session;
@@ -140,14 +90,10 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-    newUser: "/",
+    error: "/auth/error",
   },
   debug: process.env.NODE_ENV === "development",
 };
 
-export const getServerAuthSession = (
-  ...args:
-    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
-    | [NextApiRequest, NextApiResponse]
-    | []
-) => getServerSession(...args, authOptions);
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

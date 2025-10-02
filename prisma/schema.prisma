@@ -44,14 +44,15 @@ model User {
 }
 
 model Vendor {
-  id        String   @id @default(uuid())
-  name      String   @db.VarChar(50)
-  email     String   @unique
-  phone     String   @unique
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(50)
+  email     String    @unique
+  phone     String    @unique
   password  String
+  role      Role      @default(VENDOR)
   products  Product[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }
 
 model VerificationToken {
@@ -90,8 +91,8 @@ model Product {
   orderItems     OrderItem[]
   variants       Variant[]
   companies      Company[]    @relation("CompanyToProduct")
-  vendor         Vendor?       @relation(fields: [vendorId], references: [id])
-  vendorId       String?      
+  vendor         Vendor?      @relation(fields: [vendorId], references: [id])
+  vendorId       String?
 }
 
 model Variant {
@@ -100,6 +101,7 @@ model Variant {
   variantValue    String      @db.VarChar(100)
   mrp             Int
   credits         String?
+  availableStock  Int?
   productId       String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @default(now()) @updatedAt
@@ -200,4 +202,5 @@ enum Role {
   ADMIN
   HR
   EMPLOYEE
+  VENDOR
 }

@@ -71,7 +71,6 @@ export async function GET(req: NextRequest) {
           },
         },
       });
-      console.log("Fetched products with variants:", products.map(p => ({ id: p.id, name: p.name, variants: p.variants })));
       return NextResponse.json({ message: "Products fetched successfully", data: products });
     }
   } catch (error) {

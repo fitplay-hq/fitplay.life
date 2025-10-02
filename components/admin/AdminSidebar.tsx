@@ -98,7 +98,7 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
     if (status === "loading") return; // Still loading
 
     if (!session || session.user.role !== "ADMIN") {
-      router.push("/admin/login");
+      router.push("/login");
     }
   }, [session, status, router]);
 
@@ -285,7 +285,7 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
               <SidebarMenuButton
                 size="sm"
                 className="w-full text-gray-600 hover:text-emerald-600 hover:bg-emerald-50"
-                onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                onClick={() => signOut({ callbackUrl: "/login" })}
               >
                 <LogOut />
                 <span>Sign Out</span>

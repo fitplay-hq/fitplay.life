@@ -15,17 +15,18 @@ import { Heart, Shield, Users } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import { useUser } from "@/app/hooks/useUser";
+import { use, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
-  const { login, isLoading, loginError } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const session = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,17 +37,34 @@ export default function LoginPage() {
     }
 
     try {
-      const result = await login(email, password, rememberMe);
+      setIsLoading(true);
 
-      if (!result.success) {
-        toast.error(result.error || "Login failed");
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        rememberMe,
+      });
+
+      if (result?.error) {
+        toast.error(result.error || "Invalid credentials");
       } else {
-        toast.success("Login successful!");
-        router.replace("/");
+        if (session.data?.user.role === "EMPLOYEE" || session.data?.user.role === "HR") {
+          toast.success("Login successful!");
+          router.replace("/");
+        } else if (session.data?.user.role === "VENDOR") {
+          toast.success("Vendor login successful!");
+          router.replace("/vendor");
+        } else {
+          toast.error("Admin login Successful");
+          router.replace("/admin");
+        }
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
       console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -141,12 +159,6 @@ export default function LoginPage() {
               >
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
-
-              {loginError && (
-                <div className="text-red-600 text-sm text-center mt-2">
-                  {loginError}
-                </div>
-              )}
             </form>
 
             <div className="mt-6 text-center">

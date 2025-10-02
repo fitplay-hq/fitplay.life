@@ -14,28 +14,41 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                company: {
-                    select: {
-                        name: true,
-                    },
-                },
-                wallet: {
-                    select: {
-                        balance: true,
-                    },
-                },
-            },
-            orderBy: {
-                name: "asc",
-            },
-        });
+        if (session.user.role === "HR") {
+            const hr = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { companyId: true },
+            });
 
-        return NextResponse.json({ users });
+            if (!hr || !hr.companyId) {
+                return NextResponse.json({ error: "HR does not belong to any company" }, { status: 400 });
+            }
+
+            const users = await prisma.user.findMany({
+                where: { companyId: hr.companyId },
+                orderBy: {
+                    name: "asc",
+                },
+            });
+
+            return NextResponse.json({ users });
+        } else if (session.user.role === "ADMIN") {
+            const searchParams = req.nextUrl.searchParams;
+            const companyId = searchParams.get("companyId");
+
+            if (!companyId) {
+                return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+            }
+
+            const users = await prisma.user.findMany({
+                where: { companyId },
+                orderBy: {
+                    name: "asc",
+                },
+            });
+
+            return NextResponse.json({ users });
+        }
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

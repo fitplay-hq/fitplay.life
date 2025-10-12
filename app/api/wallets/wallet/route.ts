@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+        if (!session || (session.user.role !== "ADMIN" && session.user.role !== "HR") || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "userId and amount are required" }, { status: 400 });
         }
 
-        // Assuming you have a function to get the wallet by userId
         const wallet = await prisma.wallet.findUnique({
             where: { userId },
         });
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+        if (!session || (session.user.role !== "ADMIN" && session.user.role !== "HR") || session.user.email !== process.env.ADMIN_EMAIL) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 

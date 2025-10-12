@@ -7,18 +7,40 @@ import { NextRequest, NextResponse } from "next/server";
 // Add credits to multiple employees in a company
 export async function POST(req: NextRequest) {
     try {
+        let companyId: string | null = null;
         const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+        if (!session || !session.user) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
+
+        if (session.user.role !== "ADMIN" && session.user.role !== "HR") {
+            return NextResponse.json({ message: "Only super admin can add credits to multiple employees" }, { status: 401 });
+        }
         const body = await req.json();
-        const { companyId, employeesEmailID, creditAmount } = body;
+        const {employeesEmailID, creditAmount } = body;
 
         if (!companyId || !employeesEmailID?.length || !creditAmount) {
             return NextResponse.json(
                 { error: "companyId, employeesEmailID and creditAmount are required" },
                 { status: 400 }
             );
+        }
+
+        if (session.user.role === "HR") {
+            const hrUser = await prisma.user.findUnique({
+                where: { email: session.user.email },
+                select: { companyId: true },
+            });
+            if (!hrUser || hrUser.companyId !== companyId) {
+              return NextResponse.json({ error: "Unauthorized for this company" }, { status: 401 });
+            }
+            companyId = hrUser?.companyId;
+        }else {
+            companyId = body.companyId;
+        }
+
+        if (!companyId) {
+            return NextResponse.json({ error: "companyId not found" }, { status: 400 });
         }
 
         const company = await prisma.company.findUnique({
@@ -93,7 +115,7 @@ export async function POST(req: NextRequest) {
   export async function PATCH(req: NextRequest) {
     try {
       const session = await getServerSession(authOptions);
-      if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+      if (!session || (session.user.role !== "ADMIN" && session.user.role !== "HR") || session.user.email !== process.env.ADMIN_EMAIL) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
   
@@ -183,7 +205,7 @@ export async function GET(req: NextRequest) {
     const isPersonal = searchParams.get("personal") === "true";
 
     if (isPersonal) {
-      if (!["EMPLOYEE", "HR"].includes(session.user.role)) {
+      if (!["EMPLOYEE", "VENDOR"].includes(session.user.role)) {
         return NextResponse.json(
           { message: "Unauthorized role for personal wallet" },
           { status: 401 }

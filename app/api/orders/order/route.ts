@@ -116,6 +116,7 @@ export async function POST(req: NextRequest) {
                     amount: totalAmount,
                     status: "PENDING",
                     transactionId: transaction.id,
+                    remarks: session.user.role === "ADMIN" ? body.remarks || null : null,
                     items: {
                         create: orderItemsData,
                     },
@@ -123,9 +124,9 @@ export async function POST(req: NextRequest) {
                 include: { items: true },
             });
 
-            if (!order){
+            if (!order) {
                 throw new Error("Order creation failed");
-            }else {
+            } else {
                 // Decrease stock for each product variant
                 for (const item of orderItemsData) {
                     const variant = await tx.variant.findUnique({
@@ -168,6 +169,7 @@ export async function GET(req: NextRequest) {
         if (!session || !session.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
         const { searchParams } = new URL(req.url);
         const id = searchParams.get("id");
 
@@ -176,7 +178,7 @@ export async function GET(req: NextRequest) {
         }
 
         const order = await prisma.order.findUnique({
-            where: { id: id },
+            where: { id },
             include: {
                 items: {
                     include: {
@@ -197,13 +199,28 @@ export async function GET(req: NextRequest) {
             },
         });
 
-        return NextResponse.json({ data: order });
+        if (!order) {
+            return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+
+        // 🚨 Remove remarks if user is not ADMIN
+        const sanitizedOrder =
+            session.user.role === "ADMIN"
+                ? order
+                : (() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { remarks, ...rest } = order;
+                    return rest;
+                })();
+
+        return NextResponse.json({ data: sanitizedOrder });
     } catch (error) {
+        console.error("Error retrieving order:", error);
         return NextResponse.json({ message: "Error retrieving order", error }, { status: 500 });
     }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user) {
@@ -255,15 +272,50 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ error: "Can only dispatch approved orders" }, { status: 400 });
         }
 
-        const updatedOrder = await prisma.order.update({
-            where: { id },
-            data: { status: statusMap[action] as any },
-        });
+        if (action !== "reject") {
+            const updatedOrder = await prisma.order.update({
+                where: { id },
+                data: { status: statusMap[action] as any },
+            });
+            return NextResponse.json({
+                message: `Order ${action}d successfully`,
+                order: updatedOrder,
+            });
+        }
+        else {
+            // Restore stock for each product variant in the order
+            for (const item of order.items) {
+                if (!item.variantId) continue;
 
-        return NextResponse.json({
-            message: `Order ${action}d successfully`,
-            order: updatedOrder,
-        });
+                const variant = await prisma.variant.findUnique({
+                    where: { id: item.variantId },
+                    include: { product: true },
+                });
+
+                if (variant && variant.productId) {
+                    await prisma.product.update({
+                        where: { id: variant.productId },
+                        data: {
+                            availableStock: {
+                                increment: item.quantity,
+                            },
+                        },
+                    });
+                }
+            }
+
+            const updatedOrder = await prisma.order.update({
+                where: { id },
+                data: { 
+                    status: statusMap[action] as any,
+                    remarks: session.user.role === "ADMIN" ? body.remarks || null : null,
+                 },
+            });
+            return NextResponse.json({
+                message: `Order ${action}d successfully`,
+                order: updatedOrder,
+            });
+        }
     } catch (error) {
         return NextResponse.json(
             { error: "Can't update order", details: (error as Error).message },
@@ -305,7 +357,7 @@ export async function DELETE(req: NextRequest) {
         // Restore stock for each product variant
         for (const item of order.items) {
             if (!item.variantId) continue;
-            
+
             const variant = await prisma.variant.findUnique({
                 where: { id: item.variantId },
                 include: { product: true },

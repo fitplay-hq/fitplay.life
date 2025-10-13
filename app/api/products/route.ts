@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
     try {
+        const session = await getServerSession(authOptions);
         const { searchParams } = new URL(req.url);
         const sortBy = searchParams.get("sortBy") || "name";
         const sortOrder = searchParams.get("sortOrder") || "asc";
@@ -53,19 +54,48 @@ export async function GET(req: NextRequest) {
         const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : "name";
         const safeSortOrder = sortOrder === "desc" ? "desc" : "asc";
 
-        const products = await prisma.product.findMany({
-            orderBy: {
-                [safeSortBy]: safeSortOrder,
-            },
-            include: {
-                variants: true,
-                vendor: {
-                    select: {
-                        name: true,
+        let products;
+
+        if (!session || !session.user) {
+            products = await prisma.product.findMany({
+                orderBy: {
+                    [safeSortBy]: safeSortOrder,
+                },
+                include: {
+                    variants: true,
+                    vendor: {
+                        select: {
+                            name: true,
+                        },
                     },
                 },
-            },
-        });
+            });
+        } else if (session.user.role === "EMPLOYEE" || session.user.role === "HR") {
+            const companyId = await prisma.user
+                .findUnique({
+                    where: { id: session.user.id },
+                    select: { companyId: true },
+                })
+                .then((user) => user?.companyId);
+
+            if (!companyId) {
+                return NextResponse.json({ message: "User does not belong to any company" }, { status: 400 });
+            }
+            products = await prisma.product.findMany({
+                where: { companies: { some: { id: companyId } } },
+                orderBy: {
+                    [safeSortBy]: safeSortOrder,
+                },
+                include: {
+                    variants: true,
+                    vendor: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            });
+        }
         return NextResponse.json({ message: "Products retrieved successfully", data: products });
     } catch (error) {
         return NextResponse.json({ message: "Error retrieving products", error }, { status: 500 });

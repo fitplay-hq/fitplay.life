@@ -15,10 +15,10 @@ import { Heart, Shield, Users } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { use, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,7 +26,6 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const session = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,17 +47,36 @@ export default function LoginPage() {
 
       if (result?.error) {
         toast.error(result.error || "Invalid credentials");
-      } else {
-        if (session.data?.user.role === "EMPLOYEE" || session.data?.user.role === "HR") {
-          toast.success("Login successful!");
+        return;
+      }
+
+      // ✅ Fetch updated session after successful signIn
+      const session = await getSession();
+      const role = session?.user?.role;
+
+      if (!role) {
+        toast.error("Unknown user role");
+        console.error("Login successful but role is undefined");
+        return;
+      }
+
+      toast.success("Login successful!");
+
+      switch (role) {
+        case "EMPLOYEE":
+        case "HR":
           router.replace("/");
-        } else if (session.data?.user.role === "VENDOR") {
-          toast.success("Vendor login successful!");
+          break;
+        case "VENDOR":
           router.replace("/vendor");
-        } else {
-          toast.error("Admin login Successful");
+          break;
+        case "ADMIN":
           router.replace("/admin");
-        }
+          break;
+        default:
+          toast.error("Unknown user role");
+          console.error("Unknown role:", role);
+          break;
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -78,18 +96,14 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center">
             <Logo />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your wellness account</p>
         </div>
 
-        {/* Login Card */}
         <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center text-gray-900">
@@ -175,7 +189,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Trust indicators */}
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
           <div className="flex flex-col items-center space-y-2">
             <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">

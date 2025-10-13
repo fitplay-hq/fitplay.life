@@ -125,6 +125,21 @@ export async function POST(req: NextRequest) {
             });
 
             if (!order) {
+                // return credits to the wallet in case of failure
+                const updatedWallet = await tx.wallet.update({
+                    where: { id: user.wallet!.id },
+                    data: { balance: { increment: totalAmount } },
+                });
+
+                const transaction = await tx.transactionLedger.create({
+                    data: {
+                        userId: user.id,
+                        amount: totalAmount,
+                        modeOfPayment: "Credits",
+                        isCredit: true,
+                        walletId: updatedWallet.id,
+                    },
+                });
                 throw new Error("Order creation failed");
             } else {
                 // Decrease stock for each product variant

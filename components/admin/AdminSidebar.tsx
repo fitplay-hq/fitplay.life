@@ -109,9 +109,11 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
           <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Admin Dashboard
-                </h2>
+                <Link href="/" className="block">
+                  <h2 className="text-lg font-semibold text-gray-900 hover:text-emerald-600 transition-colors cursor-pointer">
+                    FitPlay
+                  </h2>
+                </Link>
                 <div className="mt-1">
                   <Badge
                     variant="destructive"
@@ -161,9 +163,11 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Admin Dashboard
-              </h2>
+              <Link href="/" className="block">
+                <h2 className="text-lg font-semibold text-gray-900 hover:text-emerald-600 transition-colors cursor-pointer">
+                  FitPlay
+                </h2>
+              </Link>
               <div className="mt-1">
                 <Badge
                   variant="destructive"

@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
-import { MapPin, Phone, Package, Calendar, Hash } from "lucide-react";
+import { MapPin, Phone, Package, Calendar, Hash, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Order {
   id: string;
@@ -37,6 +39,8 @@ interface HistoryProps {
 }
 
 export default function History({ orderHistory }: HistoryProps) {
+  const router = useRouter();
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "delivered":
@@ -98,11 +102,22 @@ export default function History({ orderHistory }: HistoryProps) {
                         {order.items?.length || 1} items
                       </p>
                     </div>
-                    <Badge
-                      className={`${getStatusColor(order.status)} border-0`}
-                    >
-                      {order.status.toUpperCase()}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/orders/${order.id}`)}
+                        className="text-xs"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View Details
+                      </Button>
+                      <Badge
+                        className={`${getStatusColor(order.status)} border-0`}
+                      >
+                        {order.status.toUpperCase()}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
 

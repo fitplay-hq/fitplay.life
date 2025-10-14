@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Settings, Wallet, History } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, Settings, Wallet, History, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface DashboardStats {
   totalOrders: number;
@@ -47,6 +49,7 @@ export default function Dashboard({
   dashboardStats,
   orderHistory,
 }: DashboardProps) {
+  const router = useRouter();
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -98,17 +101,27 @@ export default function Dashboard({
                 key={order.id}
                 className="flex items-center justify-between p-3 border border-gray-100 rounded-lg"
               >
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-sm">{order.item}</p>
                   <p className="text-xs text-gray-500">{order.date}</p>
                 </div>
-                <Badge
-                  variant={
-                    order.status === "Delivered" ? "default" : "secondary"
-                  }
-                >
-                  {order.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push(`/orders/${order.id}`)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Eye className="h-3 w-3" />
+                  </Button>
+                  <Badge
+                    variant={
+                      order.status === "Delivered" ? "default" : "secondary"
+                    }
+                  >
+                    {order.status}
+                  </Badge>
+                </div>
               </div>
             ))}
           </div>

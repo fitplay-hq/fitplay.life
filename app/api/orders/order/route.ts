@@ -267,12 +267,9 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { action, remarks, status } = body;
 
-    if (
-      !action ||
-      !["approve", "reject", "dispatch", "update"].includes(action)
-    ) {
-      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-    }
+        if (!action || !["approve", "reject", "dispatch"].includes(action)) {
+            return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+        }
 
     const statusMap: Record<string, any> = {
       approve: "APPROVED",
@@ -289,34 +286,24 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    if (action === "reject") {
-      // Restock the variants
-      for (const item of order.items) {
-        if (!item.variantId) continue;
-        await prisma.variant.update({
-          where: { id: item.variantId },
-          data: { availableStock: { increment: item.quantity } },
+        if (action === "reject") {
+            // Restock the variants
+            for (const item of order.items) {
+                if (!item.variantId) continue;
+                await prisma.variant.update({
+                    where: { id: item.variantId },
+                    data: { availableStock: { increment: item.quantity } },
+                });
+            }
+        }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id },
+            data: {
+                status: statusMap[action] as any,
+                remarks: session.user.role === "ADMIN" ? body.remarks || null : undefined,
+            },
         });
-      }
-    }
-
-    const updateData: any = {
-      remarks: session.user.role === "ADMIN" ? remarks || null : undefined,
-    };
-
-    // Handle status updates
-    if (action === "update" && status) {
-      // For update action, use the provided status
-      updateData.status = status;
-    } else if (action !== "update") {
-      // For other actions, use the predefined status mapping
-      updateData.status = statusMap[action];
-    }
-
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: updateData,
-    });
 
     return NextResponse.json({
       message: `Order ${action}d successfully`,

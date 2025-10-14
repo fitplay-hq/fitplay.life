@@ -99,7 +99,6 @@ const OrdersManagement = () => {
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [updateAction, setUpdateAction] = useState("");
   const [updateRemarks, setUpdateRemarks] = useState("");
@@ -673,124 +672,26 @@ const OrdersManagement = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setSelectedOrder(order)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>
-                                Order Details - {selectedOrder?.id}
-                              </DialogTitle>
-                            </DialogHeader>
-                            {selectedOrder && (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <h4 className="font-medium mb-2">
-                                      Employee Information
-                                    </h4>
-                                    <div className="space-y-1 text-sm">
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Name:
-                                        </span>{" "}
-                                        {selectedOrder.employee.name}
-                                      </p>
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Email:
-                                        </span>{" "}
-                                        {selectedOrder.employee.email}
-                                      </p>
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Company:
-                                        </span>{" "}
-                                        {selectedOrder.employee.company}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <h4 className="font-medium mb-2">
-                                      Order Timeline
-                                    </h4>
-                                    <div className="space-y-1 text-sm">
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Ordered:
-                                        </span>{" "}
-                                        {formatDate(selectedOrder.orderDate)}
-                                      </p>
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Approved:
-                                        </span>{" "}
-                                        {formatDate(selectedOrder.approvedDate)}
-                                      </p>
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Dispatched:
-                                        </span>{" "}
-                                        {formatDate(
-                                          selectedOrder.dispatchedDate
-                                        )}
-                                      </p>
-                                      <p>
-                                        <span className="text-gray-600">
-                                          Delivered:
-                                        </span>{" "}
-                                        {formatDate(
-                                          selectedOrder.deliveredDate
-                                        )}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium mb-2">Products</h4>
-                                  <div className="border rounded-lg p-3 space-y-2">
-                                    {selectedOrder.products.map(
-                                      (product: any, index: number) => (
-                                        <div
-                                          key={index}
-                                          className="flex justify-between items-center"
-                                        >
-                                          <span>{product.name}</span>
-                                          <span className="text-sm text-gray-600">
-                                            {product.quantity} ×{" "}
-                                            {product.credits} credits
-                                          </span>
-                                        </div>
-                                      )
-                                    )}
-                                    <div className="border-t pt-2 flex justify-between font-medium">
-                                      <span>Total:</span>
-                                      <span>
-                                        {selectedOrder.totalCredits.toLocaleString()}{" "}
-                                        credits
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                {selectedOrder.notes && (
-                                  <div>
-                                    <h4 className="font-medium mb-2">Notes</h4>
-                                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                                      {selectedOrder.notes}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            window.open(`/admin/orders/${order.id}`, "_blank")
+                          }
+                          title="View Order Details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            window.open(`/admin/orders/${order.id}`, "_blank")
+                          }
+                          title="View Full Order Details"
+                        >
+                          <Package className="h-4 w-4" />
+                        </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">

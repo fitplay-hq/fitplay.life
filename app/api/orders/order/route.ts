@@ -11,15 +11,20 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { items, userId: requestedUserId } = body;
+        const {
+            items,
+            userId: requestedUserId,
+            phNumber: providedPhNumber,
+            address: providedAddress,
+            deliveryInstructions,
+            remarks,
+        } = body;
 
         if (!items || items.length === 0) {
-            return NextResponse.json(
-                { error: "items are required" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "items are required" }, { status: 400 });
         }
 
+        // Determine userId based on role
         let userId: string;
         if (session.user.role === "ADMIN" || session.user.role === "HR") {
             userId = requestedUserId || session.user.id;
@@ -37,12 +42,30 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "User wallet not found" }, { status: 404 });
         }
 
+        // Determine address and phone
+        let finalPhNumber: string | null = null;
+        let finalAddress: string | null = null;
+        const finalDeliveryInstructions: string | null = deliveryInstructions ?? null;
+
+        if (session.user.role === "ADMIN") {
+            if (!providedPhNumber || !providedAddress) {
+                return NextResponse.json(
+                    { error: "Admin must provide phNumber and address" },
+                    { status: 400 }
+                );
+            }
+            finalPhNumber = providedPhNumber;
+            finalAddress = providedAddress;
+        } else {
+            finalPhNumber = providedPhNumber || user.phone;
+            finalAddress = providedAddress || user.address || null;
+        }
+
         // Calculate order total
         let totalAmount = 0;
         const orderItemsData: any[] = [];
 
         for (const item of items) {
-            // Fetch variant (price comes from here)
             const variant = await prisma.variant.findUnique({
                 where: { id: item.variantId },
                 include: { product: true },
@@ -55,15 +78,13 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            // Check stock availability
-            if (variant.product.availableStock < item.quantity) {
+            if ((variant.availableStock ?? 0) < item.quantity) {
                 return NextResponse.json(
-                    { error: `Not enough stock for product ${variant.product.name}` },
+                    { error: `Not enough stock for variant ${variant.variantValue}` },
                     { status: 400 }
                 );
             }
 
-            // Calculate price: MRP - %discount
             const mrp = variant.mrp;
             const discountPercent = variant.product.discount ?? 0;
             const discountedPrice = Math.max(
@@ -78,27 +99,21 @@ export async function POST(req: NextRequest) {
                 productId: variant.product.id,
                 variantId: variant.id,
                 quantity: item.quantity,
-                price: discountedPrice, // snapshot price
+                price: discountedPrice,
             });
         }
 
-        // Check wallet balance
         if (user.wallet.balance < totalAmount) {
-            return NextResponse.json(
-                { error: "Insufficient wallet balance" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Insufficient wallet balance" }, { status: 400 });
         }
 
-        // Deduct from wallet and create transaction + order atomically
-        const result = await prisma.$transaction(async (tx) => {
-            // Deduct balance
+        // Transaction: deduct balance, create order + transaction ledger
+        const result: { enrichedOrder: any; updatedWallet: any } = await prisma.$transaction(async (tx) => {
             const updatedWallet = await tx.wallet.update({
                 where: { id: user.wallet!.id },
                 data: { balance: { decrement: totalAmount } },
             });
 
-            // Create transaction ledger
             const transaction = await tx.transactionLedger.create({
                 data: {
                     userId: user.id,
@@ -109,14 +124,16 @@ export async function POST(req: NextRequest) {
                 },
             });
 
-            // Create order and items
             const order = await tx.order.create({
                 data: {
                     userId: user.id,
                     amount: totalAmount,
                     status: "PENDING",
                     transactionId: transaction.id,
-                    remarks: session.user.role === "ADMIN" ? body.remarks || null : null,
+                    phNumber: finalPhNumber,
+                    address: finalAddress,
+                    deliveryInstructions: finalDeliveryInstructions,
+                    remarks: session.user.role === "ADMIN" ? remarks || null : null,
                     items: {
                         create: orderItemsData,
                     },
@@ -124,50 +141,34 @@ export async function POST(req: NextRequest) {
                 include: { items: true },
             });
 
-            if (!order) {
-                // return credits to the wallet in case of failure
-                const updatedWallet = await tx.wallet.update({
-                    where: { id: user.wallet!.id },
-                    data: { balance: { increment: totalAmount } },
+            // Decrease variant stock for each item
+            for (const item of orderItemsData) {
+                await tx.variant.update({
+                    where: { id: item.variantId },
+                    data: { availableStock: { decrement: item.quantity } },
                 });
-
-                const transaction = await tx.transactionLedger.create({
-                    data: {
-                        userId: user.id,
-                        amount: totalAmount,
-                        modeOfPayment: "Credits",
-                        isCredit: true,
-                        walletId: updatedWallet.id,
-                    },
-                });
-                throw new Error("Order creation failed");
-            } else {
-                // Decrease stock for each product variant
-                for (const item of orderItemsData) {
-                    const variant = await tx.variant.findUnique({
-                        where: { id: item.variantId },
-                        include: { product: true },
-                    });
-
-                    if (variant && variant.product) {
-                        await tx.product.update({
-                            where: { id: variant.product.id },
-                            data: {
-                                availableStock: {
-                                    decrement: item.quantity,
-                                },
-                            },
-                        });
-                    }
-                }
             }
 
-            return { order, updatedWallet };
+            const enrichedOrder = await tx.order.findUnique({
+                where: { id: order.id },
+                include: {
+                    items: {
+                        include: {
+                            product: { select: { name: true, images: true } },
+                            variant: true,
+                        },
+                    },
+                },
+            });
+
+            if (!enrichedOrder) throw new Error("Order not found after creation");
+
+            return { enrichedOrder, updatedWallet };
         });
 
         return NextResponse.json({
             message: "Order created successfully",
-            order: result.order,
+            order: result.enrichedOrder,
             wallet: result.updatedWallet,
         });
     } catch (error) {
@@ -198,18 +199,12 @@ export async function GET(req: NextRequest) {
                 items: {
                     include: {
                         variant: {
-                            include: {
-                                product: true,
-                            },
+                            include: { product: true },
                         },
                     },
                 },
                 user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
+                    select: { id: true, name: true, email: true },
                 },
             },
         });
@@ -218,19 +213,16 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
-        // 🚨 Remove remarks if user is not ADMIN
         const sanitizedOrder =
             session.user.role === "ADMIN"
                 ? order
                 : (() => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    const { remarks, ...rest } = order;
-                    return rest;
-                })();
+                      const { remarks, ...rest } = order;
+                      return rest;
+                  })();
 
         return NextResponse.json({ data: sanitizedOrder });
     } catch (error) {
-        console.error("Error retrieving order:", error);
         return NextResponse.json({ message: "Error retrieving order", error }, { status: 500 });
     }
 }
@@ -248,7 +240,6 @@ export async function PATCH(req: NextRequest) {
 
         const { searchParams } = new URL(req.url);
         const id = searchParams.get("id");
-
         if (!id) {
             return NextResponse.json({ error: "Order id is required" }, { status: 400 });
         }
@@ -275,62 +266,29 @@ export async function PATCH(req: NextRequest) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
-        if (action === "reject" && order.status !== "PENDING") {
-            return NextResponse.json({ error: "Can only reject pending orders" }, { status: 400 });
-        }
-
-        if (action === "approve" && order.status !== "PENDING") {
-            return NextResponse.json({ error: "Can only approve pending orders" }, { status: 400 });
-        }
-
-        if (action === "dispatch" && order.status !== "APPROVED") {
-            return NextResponse.json({ error: "Can only dispatch approved orders" }, { status: 400 });
-        }
-
-        if (action !== "reject") {
-            const updatedOrder = await prisma.order.update({
-                where: { id },
-                data: { status: statusMap[action] as any },
-            });
-            return NextResponse.json({
-                message: `Order ${action}d successfully`,
-                order: updatedOrder,
-            });
-        }
-        else {
-            // Restore stock for each product variant in the order
+        if (action === "reject") {
+            // Restock the variants
             for (const item of order.items) {
                 if (!item.variantId) continue;
-
-                const variant = await prisma.variant.findUnique({
+                await prisma.variant.update({
                     where: { id: item.variantId },
-                    include: { product: true },
+                    data: { availableStock: { increment: item.quantity } },
                 });
-
-                if (variant && variant.productId) {
-                    await prisma.product.update({
-                        where: { id: variant.productId },
-                        data: {
-                            availableStock: {
-                                increment: item.quantity,
-                            },
-                        },
-                    });
-                }
             }
-
-            const updatedOrder = await prisma.order.update({
-                where: { id },
-                data: { 
-                    status: statusMap[action] as any,
-                    remarks: session.user.role === "ADMIN" ? body.remarks || null : null,
-                 },
-            });
-            return NextResponse.json({
-                message: `Order ${action}d successfully`,
-                order: updatedOrder,
-            });
         }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id },
+            data: {
+                status: statusMap[action] as any,
+                remarks: session.user.role === "ADMIN" && action === "reject" ? body.remarks || null : undefined,
+            },
+        });
+
+        return NextResponse.json({
+            message: `Order ${action}d successfully`,
+            order: updatedOrder,
+        });
     } catch (error) {
         return NextResponse.json(
             { error: "Can't update order", details: (error as Error).message },
@@ -345,14 +303,13 @@ export async function DELETE(req: NextRequest) {
         if (!session || !session.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
         const { searchParams } = new URL(req.url);
         const id = searchParams.get("id");
-
         if (!id) {
             return NextResponse.json({ error: "Order id is required" }, { status: 400 });
         }
 
-        // Fetch order with items and variants
         const order = await prisma.order.findUnique({
             where: { id },
             include: { items: true },
@@ -362,33 +319,17 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
-        await prisma.orderItem.deleteMany({ where: { orderId: id } });
-
-        // Fetch order with items and variants
-        await prisma.order.delete({
-            where: { id },
-        });
-
-        // Restore stock for each product variant
+        // Restock the variants before deleting
         for (const item of order.items) {
             if (!item.variantId) continue;
-
-            const variant = await prisma.variant.findUnique({
+            await prisma.variant.update({
                 where: { id: item.variantId },
-                include: { product: true },
+                data: { availableStock: { increment: item.quantity } },
             });
-
-            if (variant && variant.productId) {
-                await prisma.product.update({
-                    where: { id: variant.productId },
-                    data: {
-                        availableStock: {
-                            increment: item.quantity,
-                        },
-                    },
-                });
-            }
         }
+
+        await prisma.orderItem.deleteMany({ where: { orderId: id } });
+        await prisma.order.delete({ where: { id } });
 
         return NextResponse.json({ message: "Order deleted successfully" });
     } catch (error) {

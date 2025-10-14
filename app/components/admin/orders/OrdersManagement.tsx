@@ -26,6 +26,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
   Table,
   TableBody,
   TableCell,
@@ -41,13 +52,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -57,6 +61,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSWR from "swr";
+import { toast } from "sonner";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
@@ -95,6 +100,12 @@ const OrdersManagement = () => {
   const [dateFilter, setDateFilter] = useState("all");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateAction, setUpdateAction] = useState("");
+  const [updateRemarks, setUpdateRemarks] = useState("");
+  const [updateOrderId, setUpdateOrderId] = useState("");
+  const [updateOrderStatus, setUpdateOrderStatus] = useState("");
+  const [currentOrderStatus, setCurrentOrderStatus] = useState("");
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -195,15 +206,33 @@ const OrdersManagement = () => {
     return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
-  const handleOrderAction = async (orderId: string, action: string) => {
+  const openUpdateModal = (
+    orderId: string,
+    action: string,
+    currentStatus?: string
+  ) => {
+    setUpdateOrderId(orderId);
+    setUpdateAction(action);
+    setUpdateRemarks("");
+    setCurrentOrderStatus(currentStatus || "");
+    setUpdateOrderStatus(currentStatus || "");
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleOrderAction = async (
+    orderId: string,
+    action: string,
+    remarks?: string,
+    status?: string
+  ) => {
     try {
       const response = await fetch(`/api/orders/order?id=${orderId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, remarks, status }),
       });
 
       if (!response.ok) {
@@ -211,11 +240,27 @@ const OrdersManagement = () => {
         throw new Error(error.error || "Failed to update order");
       }
 
+      toast.success(`Order ${action}d successfully`);
       mutate();
     } catch (error) {
       console.error("Error updating order:", error);
-      // TODO: Show error toast
+      toast.error("Failed to update order");
     }
+  };
+
+  const confirmOrderUpdate = async () => {
+    await handleOrderAction(
+      updateOrderId,
+      updateAction,
+      updateRemarks,
+      updateOrderStatus
+    );
+    setIsUpdateModalOpen(false);
+    setUpdateRemarks("");
+    setUpdateOrderId("");
+    setUpdateAction("");
+    setUpdateOrderStatus("");
+    setCurrentOrderStatus("");
   };
 
   const handleBulkAction = async (action: string) => {
@@ -757,7 +802,11 @@ const OrdersManagement = () => {
                               <>
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    handleOrderAction(order.id, "approve")
+                                    openUpdateModal(
+                                      order.id,
+                                      "approve",
+                                      order.status
+                                    )
                                   }
                                   className="text-emerald-600"
                                 >
@@ -766,7 +815,11 @@ const OrdersManagement = () => {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    handleOrderAction(order.id, "reject")
+                                    openUpdateModal(
+                                      order.id,
+                                      "reject",
+                                      order.status
+                                    )
                                   }
                                   className="text-red-600"
                                 >
@@ -778,7 +831,11 @@ const OrdersManagement = () => {
                             {order.status === "approved" && (
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleOrderAction(order.id, "dispatch")
+                                  openUpdateModal(
+                                    order.id,
+                                    "dispatch",
+                                    order.status
+                                  )
                                 }
                                 className="text-purple-600"
                               >
@@ -787,6 +844,19 @@ const OrdersManagement = () => {
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() =>
+                                openUpdateModal(
+                                  order.id,
+                                  "update",
+                                  order.status
+                                )
+                              }
+                              className="text-blue-600"
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Update Order
+                            </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Download className="h-4 w-4 mr-2" />
                               Download Invoice
@@ -810,6 +880,102 @@ const OrdersManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Order Update Modal */}
+      <Dialog open={isUpdateModalOpen} onOpenChange={setIsUpdateModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {updateAction === "approve" && "Approve Order"}
+              {updateAction === "reject" && "Reject Order"}
+              {updateAction === "dispatch" && "Mark as Dispatched"}
+              {updateAction === "update" && "Update Order"}
+            </DialogTitle>
+            <DialogDescription>
+              {updateAction === "approve" &&
+                "Are you sure you want to approve this order? You can add optional remarks below."}
+              {updateAction === "reject" &&
+                "Are you sure you want to reject this order? Please provide a reason for rejection."}
+              {updateAction === "dispatch" &&
+                "Mark this order as dispatched. You can add tracking information or notes below."}
+              {updateAction === "update" &&
+                "Update the order status and add remarks or notes for this order."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {updateAction === "update" && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <Select
+                  value={updateOrderStatus}
+                  onValueChange={setUpdateOrderStatus}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="DISPATCHED">Dispatched</SelectItem>
+                    <SelectItem value="DELIVERED">Delivered</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="remarks" className="text-right">
+                Remarks
+              </Label>
+              <Textarea
+                id="remarks"
+                placeholder={
+                  updateAction === "approve"
+                    ? "Optional approval notes..."
+                    : updateAction === "reject"
+                    ? "Reason for rejection..."
+                    : updateAction === "dispatch"
+                    ? "Dispatch notes or tracking info..."
+                    : "Add remarks or notes for this order..."
+                }
+                className="col-span-3"
+                value={updateRemarks}
+                onChange={(e) => setUpdateRemarks(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsUpdateModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmOrderUpdate}
+              className={
+                updateAction === "approve"
+                  ? "bg-emerald-600 hover:bg-emerald-700"
+                  : updateAction === "reject"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : updateAction === "dispatch"
+                  ? "bg-purple-600 hover:bg-purple-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
+            >
+              {updateAction === "approve" && "Approve Order"}
+              {updateAction === "reject" && "Reject Order"}
+              {updateAction === "dispatch" && "Mark as Dispatched"}
+              {updateAction === "update" && "Update Order"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -26,6 +26,96 @@ import {
 import useSWR from "swr";
 import { useOrders } from "@/app/hooks/useOrders";
 
+// Define the Order type to match the API response
+interface Order {
+  id: string;
+  userId: string;
+  amount: number;
+  status: string;
+  phNumber?: string | null;
+  address?: string | null;
+  deliveryInstructions?: string | null;
+  transactionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: Array<{
+    id: string;
+    orderId: string;
+    productId: string;
+    variantId?: string | null;
+    quantity: number;
+    price: number;
+    createdAt: string;
+    updatedAt: string;
+    variant?: {
+      id: string;
+      variantCategory: string;
+      variantValue: string;
+      mrp: number;
+      credits?: string | null;
+      availableStock?: number | null;
+      productId: string;
+      createdAt: string;
+      updatedAt: string;
+      product: {
+        id: string;
+        name: string;
+        images: string[];
+        description: string;
+        discount?: number | null;
+        sku: string;
+        availableStock: number;
+        category: string;
+        avgRating?: number | null;
+        noOfReviews?: number | null;
+        createdAt: string;
+        updatedAt: string;
+        specifications?: any;
+        subCategory?: string | null;
+        vendorId?: string | null;
+      };
+    } | null;
+  }>;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    company: {
+      name: string;
+    };
+  };
+}
+
+// Define the transformed order type for History component
+interface TransformedOrder {
+  id: string;
+  date: string;
+  item: string;
+  amount: number;
+  credits: number;
+  status: string;
+  phNumber?: string | null;
+  address?: string | null;
+  deliveryInstructions?: string | null;
+  transactionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    price: number;
+    product: {
+      id: string;
+      name: string;
+      images: string[];
+    };
+    variant: {
+      id: string;
+      variantValue: string;
+    } | null;
+  }>;
+}
+
 interface DashboardStats {
   totalOrders: number;
   totalSpent: number;
@@ -84,17 +174,13 @@ export default function ProfilePage() {
   }, [orders]);
 
   // Transform orders data to match History component interface
-  const orderHistory = orders.map((order) => {
+  const orderHistory: TransformedOrder[] = orders.map((order) => {
     const firstItem = order.items[0];
-    const itemName =
-      order.items.length === 1
+    const itemName = firstItem?.variant?.product?.name
+      ? order.items.length === 1
         ? firstItem.variant.product.name
-        : `${firstItem.variant.product.name} + ${order.items.length - 1} more`;
-
-    const vendorName =
-      order.items.length === 1
-        ? firstItem.variant.product.vendorName
-        : `${firstItem.variant.product.vendorName} + others`;
+        : `${firstItem.variant.product.name} + ${order.items.length - 1} more`
+      : "Unknown Product";
 
     return {
       id: order.id,
@@ -103,7 +189,28 @@ export default function ProfilePage() {
       amount: order.amount,
       credits: order.amount, // Since credits are used as currency
       status: order.status,
-      vendor: vendorName,
+      phNumber: order.phNumber,
+      address: order.address,
+      deliveryInstructions: order.deliveryInstructions,
+      transactionId: order.transactionId,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      items: order.items.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        product: {
+          id: item.variant?.product?.id || "unknown",
+          name: item.variant?.product?.name || "Unknown Product",
+          images: item.variant?.product?.images || [],
+        },
+        variant: item.variant
+          ? {
+              id: item.variant.id,
+              variantValue: item.variant.variantValue,
+            }
+          : null,
+      })),
     };
   });
 

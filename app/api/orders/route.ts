@@ -56,12 +56,15 @@ export async function GET(req: NextRequest) {
     const sanitizedOrders =
       session.user.role === "ADMIN"
         ? orders
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        : orders.map(({ remarks, ...rest }) => rest);
+        : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          orders.map(({ remarks, ...rest }) => rest);
 
     return NextResponse.json({ orders: sanitizedOrders });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

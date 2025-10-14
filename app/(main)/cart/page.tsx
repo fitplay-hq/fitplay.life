@@ -47,7 +47,7 @@ export default function CartPage() {
     data: walletData,
     error: walletError,
     isLoading: walletLoading,
-  } = useSWR("/api/wallets?personal=true", fetcher);
+  } = useSWR("/api/orders?personal=true", fetcher);
 
   const walletBalance = walletData?.wallet?.balance || 0;
 
@@ -91,11 +91,13 @@ export default function CartPage() {
     city: "",
     state: "",
     pincode: "",
+    phone: "",
     instructions: "",
   });
 
   const [addressErrors, setAddressErrors] = useState({
     pincode: "",
+    phone: "",
   });
 
   const [orderDetails, setOrderDetails] = useState<{
@@ -114,7 +116,11 @@ export default function CartPage() {
 
   const validateAddress = () => {
     return (
-      address.addressLine1 && address.city && address.state && address.pincode
+      address.addressLine1 &&
+      address.city &&
+      address.state &&
+      address.pincode &&
+      address.phone
     );
   };
 
@@ -142,12 +148,22 @@ export default function CartPage() {
           return;
         }
 
+        // Prepare address string
+        const fullAddress = `${address.addressLine1}${
+          address.addressLine2 ? ", " + address.addressLine2 : ""
+        }, ${address.city}, ${address.state} ${address.pincode}`;
+
         const response = await fetch("/api/orders/order", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ items }),
+          body: JSON.stringify({
+            items,
+            phNumber: address.phone,
+            address: fullAddress,
+            deliveryInstructions: address.instructions || null,
+          }),
         });
 
         const result = await response.json();
@@ -539,6 +555,43 @@ export default function CartPage() {
                       className="h-11"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="phone-number"
+                      className="text-sm font-medium"
+                    >
+                      Phone Number *
+                    </Label>
+                    <Input
+                      id="phone-number"
+                      value={address.phone}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setAddress({ ...address, phone: value });
+                        setAddressErrors({
+                          ...addressErrors,
+                          phone:
+                            value.length === 10
+                              ? ""
+                              : value.length > 0
+                              ? "Phone number must be exactly 10 digits"
+                              : "",
+                        });
+                      }}
+                      pattern="[0-9]{10}"
+                      title="Phone number must be exactly 10 digits"
+                      maxLength={10}
+                      required
+                      className="h-11"
+                    />
+                    {addressErrors.phone && (
+                      <p className="text-sm text-red-600">
+                        {addressErrors.phone}
+                      </p>
+                    )}
+                  </div>
                   <div className="md:col-span-2 space-y-2">
                     <Label
                       htmlFor="instructions"
@@ -762,19 +815,16 @@ export default function CartPage() {
                     className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                         <ImageWithFallback
-                          src={
-                            item.variant?.product?.images?.[0] ||
-                            "/placeholder.png"
-                          }
-                          alt={item.variant?.product?.name || "Product"}
+                          src={item.product?.images?.[0] || "/placeholder.png"}
+                          alt={item.product?.name || "Product"}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
                         <h4 className="font-medium text-primary">
-                          {item.variant?.product?.name || "Product"}
+                          {item.product?.name || "Product"}
                         </h4>
                         <p className="text-sm text-gray-600">
                           Variant: {item.variant?.variantValue || "N/A"}

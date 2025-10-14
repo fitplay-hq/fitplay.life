@@ -16,7 +16,26 @@ interface Order {
   amount: number;
   credits: number;
   status: string;
-  vendor: string;
+  phNumber?: string | null;
+  address?: string | null;
+  deliveryInstructions?: string | null;
+  transactionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    price: number;
+    product: {
+      id: string;
+      name: string;
+      images: string[];
+    };
+    variant: {
+      id: string;
+      variantValue: string;
+    } | null;
+  }>;
 }
 
 interface DashboardProps {
@@ -81,9 +100,7 @@ export default function Dashboard({
               >
                 <div>
                   <p className="font-medium text-sm">{order.item}</p>
-                  <p className="text-xs text-gray-500">
-                    {order.date} • {order.vendor}
-                  </p>
+                  <p className="text-xs text-gray-500">{order.date}</p>
                 </div>
                 <Badge
                   variant={

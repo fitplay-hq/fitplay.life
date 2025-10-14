@@ -1,32 +1,72 @@
-import useSWR from 'swr';
+import useSWR from "swr";
 
 interface Order {
   id: string;
-  createdAt: string;
+  userId: string;
   amount: number;
   status: string;
+  phNumber?: string | null;
+  address?: string | null;
+  deliveryInstructions?: string | null;
+  transactionId?: string | null;
+  createdAt: string;
+  updatedAt: string;
   items: Array<{
     id: string;
+    orderId: string;
+    productId: string;
+    variantId?: string | null;
     quantity: number;
     price: number;
-    variant: {
+    createdAt: string;
+    updatedAt: string;
+    variant?: {
+      id: string;
+      variantCategory: string;
+      variantValue: string;
+      mrp: number;
+      credits?: string | null;
+      availableStock?: number | null;
+      productId: string;
+      createdAt: string;
+      updatedAt: string;
       product: {
+        id: string;
         name: string;
         images: string[];
-        vendorName: string;
+        description: string;
+        discount?: number | null;
+        sku: string;
+        availableStock: number;
+        category: string;
+        avgRating?: number | null;
+        noOfReviews?: number | null;
+        createdAt: string;
+        updatedAt: string;
+        specifications?: any;
+        subCategory?: string | null;
+        vendorId?: string | null;
       };
-    };
+    } | null;
   }>;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    company: {
+      name: string;
+    };
+  };
 }
 
 export const fetchOrders = async (): Promise<Order[]> => {
-  const response = await fetch('/api/orders').then(res => res.json());
+  const response = await fetch("/api/orders").then((res) => res.json());
   return response.orders || [];
 };
 
 export const useOrders = () => {
   const { data, error, isLoading, mutate } = useSWR<Order[]>(
-    typeof window !== 'undefined' ? 'orders' : null,
+    typeof window !== "undefined" ? "orders" : null,
     fetchOrders,
     {
       revalidateOnFocus: false,

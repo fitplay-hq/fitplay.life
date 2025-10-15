@@ -47,7 +47,7 @@ export default function CartPage() {
     data: walletData,
     error: walletError,
     isLoading: walletLoading,
-  } = useSWR("/api/orders?personal=true", fetcher);
+  } = useSWR("/api/wallets?personal=true", fetcher);
 
   const walletBalance = walletData?.wallet?.balance || 0;
 

@@ -131,6 +131,7 @@ export async function POST(req: NextRequest) {
             amount: totalAmount,
             modeOfPayment: "Credits",
             isCredit: false,
+            transactionType: "PURCHASE",
             walletId: updatedWallet.id,
           },
         });

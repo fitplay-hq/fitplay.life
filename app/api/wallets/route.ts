@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
                     amount: creditAmount,
                     modeOfPayment: "Credits",
                     isCredit: true,
+                    transactionType: "CREDIT",
                     walletId: wallet.id,
                 },
             });
@@ -172,6 +173,7 @@ export async function POST(req: NextRequest) {
           amount: Math.abs(creditAmount),
           modeOfPayment: "Credits",
           isCredit: creditAmount > 0,
+          transactionType: "CREDIT",
           walletId: wallet.id,
           cashAmount: 0,
         },
@@ -244,7 +246,7 @@ export async function GET(req: NextRequest) {
       const transactions = recentTransactions.map((tx) => ({
         id: tx.id,
         date: tx.createdAt.toISOString().split("T")[0],
-        type: tx.isCredit ? "Credit" : "Purchase",
+        type: tx.transactionType,
         amount: tx.isCredit ? tx.amount : -tx.amount,
         balance: wallet.balance, // Use current balance for simplicity
         description: tx.isCredit ? "Credits added by admin" : "Purchase made",

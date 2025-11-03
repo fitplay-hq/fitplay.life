@@ -228,7 +228,7 @@ export async function GET(req: NextRequest) {
     const isPersonal = searchParams.get("personal") === "true";
 
     if (isPersonal) {
-      if (!["EMPLOYEE", "VENDOR"].includes(session.user.role)) {
+      if (!["EMPLOYEE", "VENDOR", "HR"].includes(session.user.role)) {
         return NextResponse.json(
           { message: "Unauthorized role for personal wallet" },
           { status: 401 }

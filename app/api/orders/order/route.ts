@@ -2,6 +2,11 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
+
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) throw new Error("RESEND_API_KEY is not defined");
+const resend = new Resend(resendApiKey);
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,13 +26,9 @@ export async function POST(req: NextRequest) {
     } = body;
 
     if (!items || items.length === 0) {
-      return NextResponse.json(
-        { error: "items are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "items are required" }, { status: 400 });
     }
 
-    // Determine userId based on role
     let userId: string;
     if (session.user.role === "ADMIN" || session.user.role === "HR") {
       userId = requestedUserId || session.user.id;
@@ -35,24 +36,18 @@ export async function POST(req: NextRequest) {
       userId = session.user.id;
     }
 
-    // Get user with wallet
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { wallet: true },
     });
 
     if (!user || !user.wallet) {
-      return NextResponse.json(
-        { error: "User wallet not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User wallet not found" }, { status: 404 });
     }
 
-    // Determine address and phone
     let finalPhNumber: string | null = null;
     let finalAddress: string | null = null;
-    const finalDeliveryInstructions: string | null =
-      deliveryInstructions ?? null;
+    const finalDeliveryInstructions: string | null = deliveryInstructions ?? null;
 
     if (session.user.role === "ADMIN") {
       if (!providedPhNumber || !providedAddress) {
@@ -68,7 +63,6 @@ export async function POST(req: NextRequest) {
       finalAddress = providedAddress || user.address || null;
     }
 
-    // Calculate order total
     let totalAmount = 0;
     const orderItemsData: any[] = [];
 
@@ -117,7 +111,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Transaction: deduct balance, create order + transaction ledger
     const result: { enrichedOrder: any; updatedWallet: any } =
       await prisma.$transaction(async (tx) => {
         const updatedWallet = await tx.wallet.update({
@@ -146,14 +139,11 @@ export async function POST(req: NextRequest) {
             address: finalAddress,
             deliveryInstructions: finalDeliveryInstructions,
             remarks: session.user.role === "ADMIN" ? remarks || null : null,
-            items: {
-              create: orderItemsData,
-            },
+            items: { create: orderItemsData },
           },
           include: { items: true },
         });
 
-        // Decrease variant stock for each item
         for (const item of orderItemsData) {
           await tx.variant.update({
             where: { id: item.variantId },
@@ -166,7 +156,7 @@ export async function POST(req: NextRequest) {
           include: {
             items: {
               include: {
-                product: { select: { name: true, images: true } },
+                product: { select: { name: true } },
                 variant: true,
               },
             },
@@ -177,6 +167,62 @@ export async function POST(req: NextRequest) {
 
         return { enrichedOrder, updatedWallet };
       });
+
+    if (!result) throw new Error("Order creation failed");
+
+    const orderSummaryTable = `
+      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+        <thead style="background-color: #f2f2f2;">
+          <tr>
+            <th align="left">Item</th>
+            <th align="left">Variant</th>
+            <th align="center">Qty</th>
+            <th align="right">Price (Credits)</th>
+            <th align="right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${result.enrichedOrder.items
+            .map(
+              (item: any) => `
+              <tr>
+                <td>${item.product.name}</td>
+                <td>${item.variant.variantValue}</td>
+                <td align="center">${item.quantity}</td>
+                <td align="right">${item.price}</td>
+                <td align="right">${item.price * item.quantity}</td>
+              </tr>
+            `
+            )
+            .join("")}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" align="right" style="font-weight: bold;">Grand Total</td>
+            <td align="right" style="font-weight: bold;">${totalAmount}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p><strong>Delivery Address:</strong> ${finalAddress ?? "Not Provided"}</p>
+      <p><strong>Contact Number:</strong> ${finalPhNumber ?? "Not Provided"}</p>
+      ${
+        finalDeliveryInstructions
+          ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>`
+          : ""
+      }
+    `;
+
+    await resend.emails.send({
+      from: "admin@fitplaysolutions.com",
+      to: user.email,
+      subject: "Order Summary - FitPlay Solutions",
+      html: `
+        <h2>Your Order Has Been Created Successfully!</h2>
+        <p>Order ID: <strong>${result.enrichedOrder.id}</strong></p>
+        ${orderSummaryTable}
+        <p style="margin-top: 20px;">Thank you for your purchase! You can check your wallet and order history anytime in your account.</p>
+      `,
+    });
 
     return NextResponse.json({
       message: "Order created successfully",
@@ -190,6 +236,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 
 export async function GET(req: NextRequest) {
   try {
@@ -232,9 +279,9 @@ export async function GET(req: NextRequest) {
       session.user.role === "ADMIN"
         ? order
         : (() => {
-            const { remarks, ...rest } = order;
-            return rest;
-          })();
+          const { remarks, ...rest } = order;
+          return rest;
+        })();
 
     return NextResponse.json({ data: sanitizedOrder });
   } catch (error) {
@@ -268,43 +315,52 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { action, remarks, status } = body;
 
-        if (!action || !["approve", "reject", "dispatch"].includes(action)) {
-            return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-        }
+    if (!action || !["approve", "reject", "dispatch", "pending", "delivered"].includes(action)) {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    }
 
     const statusMap: Record<string, any> = {
+      pending: "PENDING",
       approve: "APPROVED",
       reject: "CANCELLED",
       dispatch: "DISPATCHED",
+      delivered: "DELIVERED",
     };
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { items: true },
+      include: { items: true, user: { select: { email: true } } },
     });
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-        if (action === "reject") {
-            // Restock the variants
-            for (const item of order.items) {
-                if (!item.variantId) continue;
-                await prisma.variant.update({
-                    where: { id: item.variantId },
-                    data: { availableStock: { increment: item.quantity } },
-                });
-            }
-        }
-
-        const updatedOrder = await prisma.order.update({
-            where: { id },
-            data: {
-                status: statusMap[action] as any,
-                remarks: session.user.role === "ADMIN" ? body.remarks || null : undefined,
-            },
+    if (action === "reject") {
+      // Restock the variants
+      for (const item of order.items) {
+        if (!item.variantId) continue;
+        await prisma.variant.update({
+          where: { id: item.variantId },
+          data: { availableStock: { increment: item.quantity } },
         });
+      }
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: {
+        status: statusMap[action] as any,
+        remarks: session.user.role === "ADMIN" ? body.remarks || null : undefined,
+      },
+    });
+
+    await resend.emails.send({
+      from: "no-reply@fitplaysolutions.com",
+      to: order.user.email,
+      subject: `Order Updated Successfully`,
+      html: `<p>Your order status has been updated to ${statusMap[action]} successfully.</p>`,
+    });
 
     return NextResponse.json({
       message: `Order ${action}d successfully`,

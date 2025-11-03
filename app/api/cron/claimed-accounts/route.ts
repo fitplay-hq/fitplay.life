@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         // Calculate the cutoff time (24 hours ago)
         const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-        // Delete users where claimed = false and createdAt < cutoff
+        // Delete wallets first (due to foreign key constraint)
         const deleted = await prisma.wallet.deleteMany({
             where: {
                 user: {
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
             },
         });
 
+        // Then delete users
         const deletedUsers = await prisma.user.deleteMany({
             where: {
                 claimed: false,

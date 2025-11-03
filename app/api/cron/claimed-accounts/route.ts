@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
 
     // Deploy to see this automated job in action!
 
-    // Calculate the cutoff time (1 min ago)
-    const cutoff = new Date(Date.now() - 60 * 1000);
+    // Calculate the cutoff time (24 hours ago)
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     // Delete users where claimed = false and createdAt < cutoff
     const deleted = await prisma.wallet.deleteMany({

@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+<<<<<<< HEAD
         console.log("Running claimed accounts cleanup cron job");
         console.log("Received secret:", secret ? "✅ present" : "❌ missing");
         console.log("DB URL:", process.env.DATABASE_URL ? "✅ set" : "❌ missing");
@@ -26,6 +27,21 @@ export async function GET(req: NextRequest) {
         });
 
         // Then delete users
+=======
+        // Calculate the cutoff time (24 hours ago)
+        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        // Delete users where claimed = false and createdAt < cutoff
+        const deleted = await prisma.wallet.deleteMany({
+            where: {
+                user: {
+                    claimed: false,
+                    createdAt: { lt: cutoff },
+                },
+            },
+        });
+
+>>>>>>> ce99274 (feat:Added expiring credits logic and notifications)
         const deletedUsers = await prisma.user.deleteMany({
             where: {
                 claimed: false,
@@ -33,6 +49,7 @@ export async function GET(req: NextRequest) {
             },
         });
 
+<<<<<<< HEAD
         console.log(`Deleted ${deletedUsers.count} unclaimed users and ${deleted.count} wallets`);
         return NextResponse.json({ 
             message: `Deleted ${deletedUsers.count} unclaimed users and ${deleted.count} wallets`,
@@ -41,6 +58,10 @@ export async function GET(req: NextRequest) {
         });
     } catch (error) {
         console.error("Cron job error:", error);
+=======
+        return NextResponse.json({ message: `Deleted ${deleted.count} unclaimed users` });
+    } catch (error) {
+>>>>>>> ce99274 (feat:Added expiring credits logic and notifications)
         const message =
             error instanceof Error ? error.message : typeof error === "string" ? error : "Couldn't Delete Unclaimed Users";
         return NextResponse.json({ error: message }, { status: 500 });

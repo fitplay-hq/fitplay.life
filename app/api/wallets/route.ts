@@ -2,6 +2,11 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
+
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) throw new Error("RESEND_API_KEY is not defined");
+const resend = new Resend(resendApiKey);
 
 
 // Add credits to multiple employees in a company
@@ -99,6 +104,15 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        for (const emp of employeesEmailID) {
+            await resend.emails.send({
+                from: "no-reply@fitplaysolutions.com",
+                to: emp,
+                subject: "Wallet Credits Added",
+                html: `<p>Your wallet has been credited with ${creditAmount} credits.</p>`,
+            });
+        }
+
         return NextResponse.json({
             message: "Credits added successfully",
             data: results,
@@ -178,7 +192,14 @@ export async function POST(req: NextRequest) {
           cashAmount: 0,
         },
       });
-  
+
+      await resend.emails.send({
+        from: "no-reply@fitplaysolutions.com",
+        to: user.email,
+        subject: "Wallet Updated Successfully",
+        html: `<p>Credits have been added to your wallet successfully. New balance: ${updatedWallet.balance} credits.</p>`,
+      });
+
       return NextResponse.json({
         message: "Wallet updated successfully",
         data: {

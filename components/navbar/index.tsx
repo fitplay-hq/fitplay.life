@@ -27,11 +27,11 @@ export function Navbar() {
   const { credits, isLoading: walletLoading } = useWallet();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <Logo />
           </Link>
 
@@ -42,14 +42,14 @@ export function Navbar() {
           />
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             {isAuthenticated && <CartButton />}
 
             {isAuthenticated && (
               <Link href="/benefits">
-                <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
-                  <Coins className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">
+                <div className="flex items-center space-x-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full hover:bg-emerald-100 transition-all duration-200 cursor-pointer">
+                  <Coins className="w-4 h-4 text-emerald-600" />
+                  <span className="text-sm font-semibold text-emerald-700">
                     {walletLoading ? "..." : credits}
                   </span>
                 </div>
@@ -59,9 +59,8 @@ export function Navbar() {
             {/* Partner with Us Button */}
             <Link href="/partner">
               <Button
-                variant="outline"
                 size="sm"
-                className="hidden sm:flex border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                className="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-full font-medium"
               >
                 Partner with Us
               </Button>
@@ -69,17 +68,17 @@ export function Navbar() {
 
             {/* Profile Icon */}
             <Link href="/profile">
-              <Button variant="ghost" size="sm" className="p-2">
-                <User className="w-5 h-5" />
+              <Button variant="ghost" size="sm" className="p-3 rounded-full hover:bg-gray-100">
+                <User className="w-5 h-5 text-gray-600" />
               </Button>
             </Link>
 
             {/* Admin Portal Button */}
             <Link href="/admin">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="hidden sm:flex border-red-400 text-red-600 hover:bg-red-50"
+                className="hidden lg:flex text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-full"
               >
                 <Shield className="w-4 h-4 mr-2" />
                 Admin

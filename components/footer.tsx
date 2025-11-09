@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import Logo from "@/components/logo";
 
 export default function Footer() {
@@ -14,6 +14,33 @@ export default function Footer() {
               Transforming corporate wellness with intelligent credit systems
               and premium health solutions.
             </p>
+            {/* Social Media Icons */}
+            <div className="flex space-x-3 pt-2">
+              <a 
+                href="#" 
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+              >
+                <Facebook className="w-4 h-4 text-emerald-600 group-hover:text-white" />
+              </a>
+              <a 
+                href="#" 
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+              >
+                <Twitter className="w-4 h-4 text-emerald-600 group-hover:text-white" />
+              </a>
+              <a 
+                href="#" 
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+              >
+                <Instagram className="w-4 h-4 text-emerald-600 group-hover:text-white" />
+              </a>
+              <a 
+                href="#" 
+                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+              >
+                <Linkedin className="w-4 h-4 text-emerald-600 group-hover:text-white" />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}

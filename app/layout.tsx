@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { preload } from "swr";
 import { fetchProducts } from "./hooks/useProducts";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <ScrollReveal />
+        </SessionProvider>
         <Toaster />
       </body>
     </html>

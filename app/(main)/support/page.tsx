@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, MessageCircle, Phone, Mail, FileText, Send } from 'lucide-react';
+import { Search, MessageCircle, Phone, Mail, FileText, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -149,15 +150,25 @@ export default function SupportPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="text-center mb-12">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="text-center mb-12"
+      >
         <h1 className="text-3xl md:text-4xl text-primary mb-4">Help & Support</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Find answers to common questions or get in touch with our wellness support team
         </p>
-      </div>
+      </motion.div>
 
       {/* Search and Filter */}
-      <div className="max-w-4xl mx-auto mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+        className="max-w-4xl mx-auto mb-8"
+      >
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -181,93 +192,128 @@ export default function SupportPage() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </motion.div>
 
       {/* Contact Options */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        viewport={{ once: true }}
+        className="grid md:grid-cols-3 gap-6 mb-12"
+      >
         {contactOptions.map((option, index) => (
-          <Card key={index} className={`hover:shadow-lg transition-shadow ${
-            option.primary ? 'ring-2 ring-emerald-500 bg-emerald-50' : ''
-          }`}>
-            <CardContent className="p-6 text-center space-y-4">
-              <div className={`w-12 h-12 rounded-lg mx-auto flex items-center justify-center ${
-                option.primary ? 'bg-emerald-500' : 'bg-gray-100'
-              }`}>
-                <option.icon className={`w-6 h-6 ${
-                  option.primary ? 'text-white' : 'text-gray-600'
-                }`} />
-              </div>
-              <div>
-                <h3 className="font-medium text-primary mb-1">{option.title}</h3>
-                <p className="text-sm text-gray-600 mb-2">{option.description}</p>
-                <p className="text-xs text-gray-500">{option.availability}</p>
-              </div>
-              <Button 
-                variant={option.primary ? 'default' : 'outline'} 
-                size="sm"
-                className={option.primary ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-emerald-500 text-emerald-600 hover:bg-emerald-50'}
-              >
-                {option.action}
-              </Button>
-            </CardContent>
-          </Card>
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+            viewport={{ once: true }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          >
+            <Card className={`hover:shadow-lg transition-shadow ${
+              option.primary ? 'ring-2 ring-emerald-500 bg-emerald-50' : ''
+            }`}>
+              <CardContent className="p-6 text-center space-y-4">
+                <div className={`w-12 h-12 rounded-lg mx-auto flex items-center justify-center ${
+                  option.primary ? 'bg-emerald-500' : 'bg-gray-100'
+                }`}>
+                  <option.icon className={`w-6 h-6 ${
+                    option.primary ? 'text-white' : 'text-gray-600'
+                  }`} />
+                </div>
+                <div>
+                  <h3 className="font-medium text-primary mb-1">{option.title}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{option.description}</p>
+                  <p className="text-xs text-gray-500">{option.availability}</p>
+                </div>
+                <Button 
+                  variant={option.primary ? 'default' : 'outline'} 
+                  size="sm"
+                  className={option.primary ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-emerald-500 text-emerald-600 hover:bg-emerald-50'}
+                >
+                  {option.action}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        viewport={{ once: true }}
+        className="grid lg:grid-cols-3 gap-8"
+      >
         {/* FAQ Section */}
         <div className="lg:col-span-2">
-          <div className="flex justify-between items-center mb-6">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="flex justify-between items-center mb-6"
+          >
             <h2 className="text-2xl text-primary">Frequently Asked Questions</h2>
             <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">
               {filteredFaqs.length} results
             </Badge>
-          </div>
+          </motion.div>
 
           <div className="space-y-4">
-            {filteredFaqs.map((faq) => (
-              <Card key={faq.id}>
-                <CardContent className="p-0">
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value={`faq-${faq.id}`} className="border-0">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                        <div className="text-left">
-                          <h3 className="font-medium text-primary">{faq.question}</h3>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-700">
-                              {faqCategories.find(cat => cat.id === faq.category)?.name}
-                            </Badge>
-                            <span className="text-xs text-gray-500">
-                              {faq.helpful} people found this helpful
-                            </span>
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-4">
-                        <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">Was this helpful?</span>
-                            <Button variant="outline" size="sm" className="border-emerald-500 text-emerald-600 hover:bg-emerald-50">
-                              👍 Yes
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              👎 No
-                            </Button>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {faq.tags.map((tag, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs bg-emerald-100 text-emerald-700">
-                                {tag}
+            {filteredFaqs.map((faq, index) => (
+              <motion.div
+                key={faq.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card>
+                  <CardContent className="p-0">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value={`faq-${faq.id}`} className="border-0">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                          <div className="text-left">
+                            <h3 className="font-medium text-primary">{faq.question}</h3>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-700">
+                                {faqCategories.find(cat => cat.id === faq.category)?.name}
                               </Badge>
-                            ))}
+                              <span className="text-xs text-gray-500">
+                                {faq.helpful} people found this helpful
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-              </Card>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-4">
+                          <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-gray-600">Was this helpful?</span>
+                              <Button variant="outline" size="sm" className="border-emerald-500 text-emerald-600 hover:bg-emerald-50">
+                                👍 Yes
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                👎 No
+                              </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {faq.tags.map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs bg-emerald-100 text-emerald-700">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
 
@@ -285,7 +331,12 @@ export default function SupportPage() {
         </div>
 
         {/* Contact Form */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
           <Card>
             <CardHeader>
               <CardTitle>Contact Support</CardTitle>
@@ -377,8 +428,8 @@ export default function SupportPage() {
               </Button>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

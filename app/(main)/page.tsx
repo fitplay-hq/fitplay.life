@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
+import FloatingElements from "@/components/FloatingElements";
+import HeroIllustration from "@/components/HeroIllustration";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -61,14 +63,14 @@ export default function HomePage() {
 
   // Network of Companies
   const partnerCompanies = [
-    { name: 'Zomato', logo: 'ZO' },
-    { name: 'Swiggy', logo: 'SW' },
-    { name: 'Paytm', logo: 'PT' },
-    { name: 'Flipkart', logo: 'FK' },
-    { name: 'Ola', logo: 'OL' },
-    { name: 'Byju\'s', logo: 'BJ' },
-    { name: 'Razorpay', logo: 'RP' },
-    { name: 'Freshworks', logo: 'FW' }
+    { name: 'Zomato', logo: 'https://logo.clearbit.com/zomato.com' },
+    { name: 'Swiggy', logo: 'https://logo.clearbit.com/swiggy.com' },
+    { name: 'Paytm', logo: 'https://logo.clearbit.com/paytm.com' },
+    { name: 'Flipkart', logo: 'https://logo.clearbit.com/flipkart.com' },
+    { name: 'Ola', logo: 'https://images.seeklogo.com/logo-png/30/1/ola-logo-png_seeklogo-306525.png' },
+    { name: 'Byju\'s', logo: 'https://logo.clearbit.com/byjus.com' },
+    { name: 'Razorpay', logo: 'https://logo.clearbit.com/razorpay.com' },
+    { name: 'Freshworks', logo: 'https://logo.clearbit.com/freshworks.com' }
   ];
 
   // Categories We Offer
@@ -134,14 +136,14 @@ export default function HomePage() {
 
   // Trusted Wellness Partners
   const wellnessPartners = [
-    { name: 'Cult.fit', category: 'Fitness', logo: 'CF' },
-    { name: 'HealthKart', category: 'Nutrition', logo: 'HK' },
-    { name: 'Thyrocare', category: 'Diagnostics', logo: 'TC' },
-    { name: 'Practo', category: 'Mental Health', logo: 'PR' },
-    { name: 'Decathlon', category: 'Equipment', logo: 'DC' },
-    { name: 'MediBuddy', category: 'Services', logo: 'MB' },
-    { name: '1mg', category: 'Wellness', logo: '1M' },
-    { name: 'MyFitness', category: 'Supplements', logo: 'MF' }
+    { name: 'Cult.fit', category: 'Fitness', logo: 'https://logo.clearbit.com/cure.fit' },
+    { name: 'HealthKart', category: 'Nutrition', logo: 'https://logo.clearbit.com/healthkart.com' },
+    { name: 'Thyrocare', category: 'Diagnostics', logo: 'https://logo.clearbit.com/thyrocare.com' },
+    { name: 'Practo', category: 'Mental Health', logo: 'https://logo.clearbit.com/practo.com' },
+    { name: 'Decathlon', category: 'Equipment', logo: 'https://logo.clearbit.com/decathlon.com' },
+    { name: 'MediBuddy', category: 'Services', logo: 'https://logo.clearbit.com/medibuddy.in' },
+    { name: '1mg', category: 'Wellness', logo: 'https://logo.clearbit.com/1mg.com' },
+    { name: 'Nykaa', category: 'Beauty & Wellness', logo: 'https://logo.clearbit.com/nykaa.com' }
   ];
 
   const wellnessDomains = [
@@ -237,17 +239,10 @@ export default function HomePage() {
     },
   ];
 
-  const heroStats = [
-    { icon: Users, number: "25,000+", label: "Happy Employees" },
-    { icon: Award, number: "100+", label: "Partner Companies" },
-    { icon: ShoppingBag, number: "1,000+", label: "Wellness Products" },
-    { icon: TrendingUp, number: "90%", label: "Satisfaction Rate" },
-  ];
-
   const testimonials = [
     {
       quote:
-        "FitPlay has revolutionized how our employees approach wellness. The seamless integration of credits with premium health services creates an experience that genuinely transforms lives.",
+        "FitPlay made it so easy for our team to access wellness benefits. The credit system is straightforward, and our employees actually use it regularly.",
       name: "Priya Sharma",
       role: "Software Engineer",
       company: "TechCorp",
@@ -257,9 +252,9 @@ export default function HomePage() {
     },
     {
       quote:
-        "The variety of wellness products and the intuitive credit system helped me maintain my fitness goals effortlessly. It's like having a personal wellness concierge.",
+        "Finally, a wellness platform that our employees love. The product selection is great and the ordering process is seamless.",
       name: "Arjun Patel",
-      role: "Marketing Manager",
+      role: "Marketing Manager", 
       company: "StartupX",
       image:
         "https://ui-avatars.com/api/?name=Arjun+Patel&background=059669&color=fff",
@@ -267,7 +262,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "What sets FitPlay apart is the premium curation of wellness solutions. Every product feels thoughtfully selected for maximum impact on employee health.",
+        "We've seen a 40% increase in wellness benefit utilization since switching to FitPlay. Our employees appreciate the flexibility.",
       name: "Meera Singh",
       role: "HR Director",
       company: "InnovateLab",
@@ -279,77 +274,123 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8 md:space-y-12">
-      {/* Enhanced Hero Section - Without Image */}
-      <section className="relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-16 md:py-20 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-500 rounded-full blur-xl"></div>
-          <div className="absolute top-40 right-20 w-32 h-32 bg-green-500 rounded-full blur-xl"></div>
-          <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-teal-500 rounded-full blur-xl"></div>
-        </div>
+      {/* New Hero Section from src */}
+      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950">
+        <FloatingElements />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center space-y-12">
-            <div className="space-y-8">
-              <Badge className="bg-emerald-100 text-emerald-800 px-6 py-3 text-lg">
-                ✨ The Future of Corporate Wellness
-              </Badge>
-              <h1 className="text-5xl md:text-6xl lg:text-8xl text-primary max-w-6xl mx-auto leading-tight">
-                Redefining Wellness
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
+
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Content */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-left space-y-8 z-10"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-medium text-emerald-300">Your Wellness Journey Starts Here</span>
+              </div>
+
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
+                  Track Your Wellness
+                </span>
                 <br />
-                <span className="text-emerald-600">
-                  for the Modern Workforce
+                <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                  Effortlessly
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                Experience the evolution of employee benefits. Our intelligent
-                wellness ecosystem transforms company investments into
-                personalized health journeys, delivering premium solutions that
-                adapt to your unique lifestyle and aspirations.
+
+              <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-xl">
+                Redeem your wellness credits for fitness, nutrition, and healthcare rewards — all in one place.
               </p>
-            </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/login">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-10 py-5 text-xl"
-                >
-                  Begin Your Transformation
-                  <ArrowRight className="ml-3 w-6 h-6" />
-                </Button>
-              </Link>
-              <Link href="/benefits">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-10 py-5 text-xl"
-                >
-                  Explore Your Benefits
-                </Button>
-              </Link>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Link href="/store">
+                  <button className="group px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold text-lg shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 hover:scale-105">
+                    <span className="flex items-center justify-center gap-2">
+                      Start Tracking Now
+                      <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    </span>
+                  </button>
+                </Link>
 
-            {/* Hero Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16">
-              {heroStats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-emerald-100">
-                      <stat.icon className="w-8 h-8 text-emerald-600" />
-                    </div>
+                <Link href="/store">
+                  <button className="px-8 py-4 rounded-full bg-white/5 backdrop-blur-sm border-2 border-white/10 text-white font-semibold text-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                    Explore Wellness Store
+                  </button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6 pt-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="space-y-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-emerald-400" />
+                    <p className="text-2xl font-bold text-white">50,000+</p>
                   </div>
-                  <div className="text-3xl md:text-5xl font-bold text-primary">
-                    {stat.number}
+                  <p className="text-sm text-gray-400">Active Users</p>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="space-y-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-teal-400" />
+                    <p className="text-2xl font-bold text-white">200+</p>
                   </div>
-                  <div className="text-base md:text-lg text-gray-600">
-                    {stat.label}
+                  <p className="text-sm text-gray-400">Corporate Partners</p>
+                </motion.div>
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                  className="space-y-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-cyan-400" />
+                    <p className="text-2xl font-bold text-white">95%</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                  <p className="text-sm text-gray-400">Satisfaction Rate</p>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Right Illustration */}
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="relative lg:pl-12"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 blur-3xl rounded-full"></div>
+              <HeroIllustration />
+            </motion.div>
           </div>
+        </div>
 
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)" fillOpacity="1"/>
+          </svg>
+        </div>
+      </section>
+
+      {/* Trust Indicators */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Trust Indicators */}
           <div className="mt-20 text-center">
             <p className="text-gray-600 text-lg mb-8">
@@ -390,7 +431,7 @@ export default function HomePage() {
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -401,13 +442,21 @@ export default function HomePage() {
                 key={index}
                 variants={scaleVariants}
                 whileHover={{ y: -5, scale: 1.05 }}
-                className="bg-white rounded-2xl p-6 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100"
+                className="bg-white rounded-2xl p-8 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
               >
                 <div className="text-center">
-                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center mx-auto mb-3 text-white text-lg font-bold">
-                    {company.logo}
+                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-2">
+                    <img 
+                      src={company.logo} 
+                      alt={company.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-bold text-sm">${company.name.slice(0,2).toUpperCase()}</div>`;
+                      }}
+                    />
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">{company.name}</div>
+                  <div className="text-sm font-medium text-gray-700">{company.name}</div>
                 </div>
               </motion.div>
             ))}
@@ -528,99 +577,7 @@ export default function HomePage() {
         </div>
       </section>
 
-  {/* Featured Brand Banner - Sova Health */}
-  <section data-reveal className="py-6 bg-gradient-to-r from-emerald-500 to-green-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="text-white space-y-4">
-              <Badge className="bg-white/20 text-white border-white/30">
-                Featured Wellness Partner
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold">
-                Transform Your Gut Health with Sova Health
-              </h2>
-              <p className="text-lg text-emerald-50">
-                End-to-end gut health solutions including comprehensive testing,
-                personalized nutrition plans, and expert consultations to
-                optimize your digestive wellness.
-              </p>
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Comprehensive Gut Microbiome Testing</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Personalized Diet Plans</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Expert Gastroenterologist Consultations</span>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="bg-white text-emerald-600 hover:bg-gray-50"
-                >
-                  Explore Gut Health Solutions
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-white text-white hover:bg-white/10 bg-white/20"
-                >
-                  Book Consultation
-                </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                      <Stethoscope className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div className="text-white">
-                      <h3 className="font-semibold">Sova Health</h3>
-                      <p className="text-emerald-100 text-sm">
-                        Gut Health Specialists
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-white">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">95%</div>
-                      <div className="text-xs text-emerald-100">
-                        Success Rate
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">10k+</div>
-                      <div className="text-xs text-emerald-100">
-                        Patients Helped
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 text-yellow-400 fill-current"
-                      />
-                    ))}
-                    <span className="text-white text-sm ml-2">
-                      4.9/5 Rating
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Why FitPlay */}
       <section className="py-24 bg-gradient-to-br from-emerald-900 to-green-800 text-white relative overflow-hidden">
@@ -694,7 +651,7 @@ export default function HomePage() {
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -705,10 +662,18 @@ export default function HomePage() {
                 key={index}
                 variants={scaleVariants}
                 whileHover={{ scale: 1.05 }}
-                className="bg-white rounded-2xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100"
+                className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-white text-lg font-bold">
-                  {partner.logo}
+                <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-2">
+                  <img 
+                    src={partner.logo} 
+                    alt={partner.name}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-bold text-sm">${partner.name.slice(0,2).toUpperCase()}</div>`;
+                    }}
+                  />
                 </div>
                 <div className="font-semibold text-gray-900 text-sm mb-1">{partner.name}</div>
                 <div className="text-xs text-emerald-600 font-medium">{partner.category}</div>
@@ -797,10 +762,10 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Voices of Transformation
+              What Our Partners Say
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Discover how we are revolutionizing wellness experiences for employees across leading organizations
+              See how companies are improving employee wellness with FitPlay
             </p>
           </motion.div>
           
@@ -871,29 +836,29 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white">
-              Ready to Begin Your Wellness Evolution?
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Transform Your Employee Wellness?
             </h2>
             <p className="text-emerald-50 text-lg max-w-2xl mx-auto leading-relaxed">
-              Our wellness experts are here to guide you on your transformative health journey
+              Join hundreds of companies making employee wellness simple and effective
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
               <Link href="/partner">
                 <Button 
                   size="lg" 
-                  className="bg-white text-emerald-600 hover:bg-gray-50 px-10 py-7 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                  className="bg-white text-emerald-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold shadow-lg"
                 >
-                  <Sparkles className="mr-2 w-5 h-5" />
-                  Partner With Us
+                  Get Started
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="/store">
+              <Link href="/support">
                 <Button 
                   size="lg" 
-                  className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-emerald-600 px-10 py-7 text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                  variant="outline"
+                  className="border-2 border-white text-white hover:bg-white/10 bg-transparent px-8 py-4 text-lg font-semibold backdrop-blur-sm"
                 >
-                  Explore Wellness Store
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                  Learn More
                 </Button>
               </Link>
             </div>

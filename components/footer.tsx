@@ -1,173 +1,106 @@
-import Link from "next/link";
-import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-import Logo from "@/components/logo";
+"use client";
+
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { 
+  Facebook, 
+  Twitter, 
+  Instagram, 
+  Linkedin, 
+  Mail, 
+  Phone, 
+  MapPin 
+} from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Description */}
+    <footer className="bg-gray-900 text-white py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
+          {/* Company Info */}
           <div className="space-y-4">
-            <Logo />
-            <p className="text-gray-600 text-sm">
-              Transforming corporate wellness with intelligent credit systems
-              and premium health solutions.
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
+              FitPlay.life
+            </h3>
+            <p className="text-gray-400 leading-relaxed">
+              Transforming corporate wellness through innovative technology and curated health solutions.
             </p>
-            {/* Social Media Icons */}
-            <div className="flex space-x-3 pt-2">
-              <a 
+            <div className="flex space-x-4 pt-4">
+              <motion.a 
                 href="#" 
-                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 transition-all duration-300"
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
-                <Facebook className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </a>
-              <a 
+                <Facebook className="w-5 h-5" />
+              </motion.a>
+              <motion.a 
                 href="#" 
-                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 transition-all duration-300"
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
-                <Twitter className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </a>
-              <a 
+                <Twitter className="w-5 h-5" />
+              </motion.a>
+              <motion.a 
                 href="#" 
-                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 transition-all duration-300"
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
-                <Instagram className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </a>
-              <a 
+                <Instagram className="w-5 h-5" />
+              </motion.a>
+              <motion.a 
                 href="#" 
-                className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all duration-300 group"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-emerald-500 transition-all duration-300"
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
-                <Linkedin className="w-4 h-4 text-emerald-600 group-hover:text-white" />
-              </a>
+                <Linkedin className="w-5 h-5" />
+              </motion.a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-primary font-semibold">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/store"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Wellness Store
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/benefits"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  My Benefits
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/profile"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Profile
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/support"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Support
-                </Link>
-              </li>
+          <div>
+            <h4 className="text-lg font-bold mb-6">Quick Links</h4>
+            <ul className="space-y-3">
+              <li><Link href="/" className="text-gray-400 hover:text-emerald-400 transition-colors">Home</Link></li>
+              <li><Link href="/store" className="text-gray-400 hover:text-emerald-400 transition-colors">Wellness Store</Link></li>
+              <li><Link href="/benefits" className="text-gray-400 hover:text-emerald-400 transition-colors">My Benefits</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-emerald-400 transition-colors">Help & Support</Link></li>
             </ul>
           </div>
 
           {/* Company */}
-          <div className="space-y-4">
-            <h3 className="text-primary font-semibold">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/partner"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Partner With Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  About FitPlay
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/careers"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/press"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors"
-                >
-                  Press
-                </Link>
-              </li>
+          <div>
+            <h4 className="text-lg font-bold mb-6">Company</h4>
+            <ul className="space-y-3">
+              <li><Link href="/partner" className="text-gray-400 hover:text-emerald-400 transition-colors">Partner With Us</Link></li>
+              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">About Us</a></li>
             </ul>
           </div>
 
           {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="text-primary font-semibold">Contact Us</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Mail className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-gray-600 text-sm">
-                  support@fitplay.life
-                </span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-gray-600 text-sm">+91 98765 43210</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="text-gray-600 text-sm">Gurugram, India</span>
-              </div>
-            </div>
+          <div>
+            <h4 className="text-lg font-bold mb-6">Contact Us</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start space-x-3">
+                <Mail className="w-5 h-5 text-emerald-400 mt-0.5" />
+                <span className="text-gray-400">support@fitplay.life</span>
+              </li>
+              <li className="flex items-start space-x-3">
+                <Phone className="w-5 h-5 text-emerald-400 mt-0.5" />
+                <span className="text-gray-400">+91 1800-123-4567</span>
+              </li>
+              <li className="flex items-start space-x-3">
+                <MapPin className="w-5 h-5 text-emerald-400 mt-0.5" />
+                <span className="text-gray-400">Mumbai, India</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-600 text-sm">
-            © 2024 FitPlay. All rights reserved.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link
-              href="/privacy"
-              className="text-gray-600 hover:text-emerald-600 transition-colors text-sm"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/terms"
-              className="text-gray-600 hover:text-emerald-600 transition-colors text-sm"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href="/cookies"
-              className="text-gray-600 hover:text-emerald-600 transition-colors text-sm"
-            >
-              Cookie Policy
-            </Link>
-          </div>
+        <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+          <p>&copy; 2025 FitPlay.life. All rights reserved. Empowering wellness, one employee at a time.</p>
         </div>
       </div>
     </footer>

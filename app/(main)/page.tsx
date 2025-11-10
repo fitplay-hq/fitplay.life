@@ -20,7 +20,6 @@ import {
   Building2,
   Sparkles,
   Target,
-  Leaf,
   Activity,
   Coffee,
   Trophy,
@@ -28,10 +27,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ImageWithFallback } from "@/components/ImageWithFallback";
 import FloatingElements from "@/components/FloatingElements";
 import HeroIllustration from "@/components/HeroIllustration";
 import Link from "next/link";
+import Hero from '@/components/Hero';
 
 export default function HomePage() {
   // Animation Variants
@@ -275,118 +274,7 @@ export default function HomePage() {
   return (
     <div className="space-y-8 md:space-y-12">
       {/* New Hero Section from src */}
-      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950">
-        <FloatingElements />
-
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Content */}
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-left space-y-8 z-10"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm font-medium text-emerald-300">Your Wellness Journey Starts Here</span>
-              </div>
-
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
-                  Track Your Wellness
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-                  Effortlessly
-                </span>
-              </h1>
-
-              <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-xl">
-                Redeem your wellness credits for fitness, nutrition, and healthcare rewards — all in one place.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link href="/store">
-                  <button className="group px-8 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold text-lg shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 hover:scale-105">
-                    <span className="flex items-center justify-center gap-2">
-                      Start Tracking Now
-                      <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    </span>
-                  </button>
-                </Link>
-
-                <Link href="/store">
-                  <button className="px-8 py-4 rounded-full bg-white/5 backdrop-blur-sm border-2 border-white/10 text-white font-semibold text-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                    Explore Wellness Store
-                  </button>
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6 pt-8">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  className="space-y-1"
-                >
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-emerald-400" />
-                    <p className="text-2xl font-bold text-white">50,000+</p>
-                  </div>
-                  <p className="text-sm text-gray-400">Active Users</p>
-                </motion.div>
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  className="space-y-1"
-                >
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-teal-400" />
-                    <p className="text-2xl font-bold text-white">200+</p>
-                  </div>
-                  <p className="text-sm text-gray-400">Corporate Partners</p>
-                </motion.div>
-
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                  className="space-y-1"
-                >
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-cyan-400" />
-                    <p className="text-2xl font-bold text-white">95%</p>
-                  </div>
-                  <p className="text-sm text-gray-400">Satisfaction Rate</p>
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Right Illustration */}
-            <motion.div 
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="relative lg:pl-12"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 blur-3xl rounded-full"></div>
-              <HeroIllustration />
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)" fillOpacity="1"/>
-          </svg>
-        </div>
-      </section>
+      <Hero/>
 
       {/* Trust Indicators */}
       <section className="py-16 bg-white">
@@ -422,16 +310,16 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
               Trusted by Leading Organizations
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-xl text-gray-600">
               Join the network of companies transforming employee wellness
             </p>
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -442,17 +330,17 @@ export default function HomePage() {
                 key={index}
                 variants={scaleVariants}
                 whileHover={{ y: -5, scale: 1.05 }}
-                className="bg-white rounded-2xl p-8 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
+                className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-2">
+                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 p-3 shadow-sm">
                     <img 
-                      src={company.logo} 
+                      src={company.logo}
                       alt={company.name}
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-bold text-sm">${company.name.slice(0,2).toUpperCase()}</div>`;
+                        e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center text-white text-xl font-bold">${company.name.charAt(0)}</div>`;
                       }}
                     />
                   </div>
@@ -463,225 +351,8 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-
-      {/* Featured Offers */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Featured Offers
-            </h2>
-            <p className="text-lg text-gray-600">
-              Don't miss out on these exclusive wellness deals
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {featuredOffers.map((offer) => (
-              <motion.div
-                key={offer.id}
-                variants={scaleVariants}
-                whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Card className="hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden">
-                  <CardContent className="p-0">
-                    <ImageWithFallback
-                      src={offer.image}
-                      alt={offer.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-6 space-y-3">
-                      <div className="text-sm text-gray-500 font-medium">{offer.brand}</div>
-                      <h3 className="text-xl font-bold text-primary">{offer.title}</h3>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-2xl text-primary font-bold">
-                          {offer.credits} credits
-                        </span>
-                        <span className="text-lg text-gray-500 line-through">
-                          {offer.originalPrice}
-                        </span>
-                        <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-                          Great Value
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Categories We Offer */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Categories We Offer
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Comprehensive wellness solutions across multiple categories
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {categories.map((category, index) => (
-              <motion.div
-                key={index}
-                variants={scaleVariants}
-                whileHover={{ y: -10, scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Link href="/store">
-                  <Card className={`group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden cursor-pointer ${category.bgColor}`}>
-                    <CardContent className="p-8">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
-                        <category.icon className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-xl font-bold text-primary mb-3">{category.title}</h3>
-                      <p className="text-gray-600">{category.description}</p>
-                      <div className="mt-6 flex items-center text-emerald-600 group-hover:translate-x-2 transition-transform duration-300">
-                        <span className="font-medium">Explore</span>
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-
-
-      {/* Why FitPlay */}
-      <section className="py-24 bg-gradient-to-br from-emerald-900 to-green-800 text-white relative overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 opacity-10"
-          animate={{ 
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-          style={{
-            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }}
-        />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div 
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why FitPlay?
-            </h2>
-            <p className="text-lg text-emerald-100">
-              The complete solution for corporate wellness excellence
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid md:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {whyFitplay.map((reason, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300"
-              >
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6">
-                  <reason.icon className={`w-8 h-8 ${reason.color}`} />
-                </div>
-                <h3 className="text-2xl font-bold mb-4">{reason.title}</h3>
-                <p className="text-emerald-100 text-lg leading-relaxed">{reason.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Trusted Wellness Partners */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Trusted Wellness Partners
-            </h2>
-            <p className="text-lg text-gray-600">
-              We partner with leading brands to bring you the best in wellness
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {wellnessPartners.map((partner, index) => (
-              <motion.div
-                key={index}
-                variants={scaleVariants}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
-              >
-                <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-2">
-                  <img 
-                    src={partner.logo} 
-                    alt={partner.name}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-bold text-sm">${partner.name.slice(0,2).toUpperCase()}</div>`;
-                    }}
-                  />
-                </div>
-                <div className="font-semibold text-gray-900 text-sm mb-1">{partner.name}</div>
-                <div className="text-xs text-emerald-600 font-medium">{partner.category}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>      {/* How It Works */}
+      
+      {/* How It Works */}
       <section className="py-24 bg-gradient-to-br from-emerald-50 via-green-50/50 to-teal-50 relative overflow-hidden">
         <motion.div 
           className="absolute top-0 right-0 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl"
@@ -752,6 +423,162 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Categories We Offer */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Categories We Offer
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Comprehensive wellness solutions across multiple categories
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+          >
+            {categories.map((category, index) => (
+              <motion.div
+                key={index}
+                variants={scaleVariants}
+                whileHover={{ y: -10, scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Link href="/store">
+                  <Card className={`group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden cursor-pointer ${category.bgColor}`}>
+                    <CardContent className="p-8">
+                      <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
+                        <category.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-primary mb-3">{category.title}</h3>
+                      <p className="text-gray-600">{category.description}</p>
+                      <div className="mt-6 flex items-center text-emerald-600 group-hover:translate-x-2 transition-transform duration-300">
+                        <span className="font-medium">Explore</span>
+                        <ArrowRight className="ml-2 w-5 h-5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+       {/* Why FitPlay */}
+      <section className="py-24 bg-gradient-to-br from-emerald-900 to-green-800 text-white relative overflow-hidden">
+        <motion.div 
+          className="absolute inset-0 opacity-10"
+          animate={{ 
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+          style={{
+            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <motion.div 
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Why FitPlay?
+            </h2>
+            <p className="text-lg text-emerald-100">
+              The complete solution for corporate wellness excellence
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="grid md:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+          >
+            {whyFitplay.map((reason, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                whileHover={{ y: -10, scale: 1.05 }}
+                className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300"
+              >
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6">
+                  <reason.icon className={`w-8 h-8 ${reason.color}`} />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{reason.title}</h3>
+                <p className="text-emerald-100 text-lg leading-relaxed">{reason.description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trusted Wellness Partners */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+              Trusted Wellness Partners
+            </h2>
+            <p className="text-xl text-gray-600">
+              We partner with leading brands to bring you the best in wellness
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+          >
+            {wellnessPartners.map((partner, index) => (
+              <motion.div
+                key={index}
+                variants={scaleVariants}
+                whileHover={{ scale: 1.05 }}
+                className="bg-gradient-to-br from-gray-50 to-emerald-50 rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-4 shadow-sm">
+                  <img 
+                    src={partner.logo}
+                    alt={partner.name}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center"><svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>`;
+                    }}
+                  />
+                </div>
+                <div className="font-bold text-gray-900 mb-1">{partner.name}</div>
+                <div className="text-sm text-emerald-600">{partner.category}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>     
+
       {/* Testimonials */}
       <section className="py-24 bg-gradient-to-br from-emerald-50 to-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -761,11 +588,11 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              What Our Partners Say
+            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+              Voices of Transformation
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              See how companies are improving employee wellness with FitPlay
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Discover how we are revolutionizing wellness experiences for employees across leading organizations
             </p>
           </motion.div>
           
@@ -799,7 +626,7 @@ export default function HomePage() {
                           </motion.div>
                         ))}
                       </div>
-                      <p className="text-gray-700 leading-relaxed text-lg">"{testimonial.quote}"</p>
+                      <p className="text-gray-700 leading-relaxed text-lg">&ldquo;{testimonial.quote}&rdquo;</p>
                       <div className="pt-4 border-t border-gray-100">
                         <div className="font-bold text-primary text-lg">{testimonial.name}</div>
                         <div className="text-sm text-gray-600">{testimonial.role}</div>

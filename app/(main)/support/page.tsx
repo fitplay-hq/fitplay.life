@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, MessageCircle, Phone, Mail, FileText, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import { Search, MessageCircle, Phone, Mail, FileText, Send, HeartHandshake } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import FloatingElements from '@/components/FloatingElements';
 
 export default function SupportPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,119 +149,185 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="text-center mb-12"
-      >
-        <h1 className="text-3xl md:text-4xl text-primary mb-4">Help & Support</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Find answers to common questions or get in touch with our wellness support team
-        </p>
-      </motion.div>
+    <div className="space-y-16 md:space-y-24">
+      {/* Hero Section */}
+      <section className="relative min-h-[60vh] overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950">
+        <FloatingElements />
 
-      {/* Search and Filter */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-        className="max-w-4xl mx-auto mb-8"
-      >
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder="Search for help topics, keywords, or questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
+
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-32">
+          <div className="text-center space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="space-y-6"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
+                <HeartHandshake className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-medium text-emerald-300">We&apos;re Here to Help</span>
+              </div>
+
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
+                  Help & Support
+                </span>
+              </h1>
+
+              <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+                Find answers to common questions or get in touch with our wellness support team for personalized assistance.
+              </p>
+            </motion.div>
           </div>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="md:w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {faqCategories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
-      </motion.div>
 
-      {/* Contact Options */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        viewport={{ once: true }}
-        className="grid md:grid-cols-3 gap-6 mb-12"
-      >
-        {contactOptions.map((option, index) => (
-          <motion.div
-            key={index}
+        {/* Bottom Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)" fillOpacity="1"/>
+          </svg>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      {/* Search and Filter Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-            viewport={{ once: true }}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-          >
-            <Card className={`hover:shadow-lg transition-shadow ${
-              option.primary ? 'ring-2 ring-emerald-500 bg-emerald-50' : ''
-            }`}>
-              <CardContent className="p-6 text-center space-y-4">
-                <div className={`w-12 h-12 rounded-lg mx-auto flex items-center justify-center ${
-                  option.primary ? 'bg-emerald-500' : 'bg-gray-100'
-                }`}>
-                  <option.icon className={`w-6 h-6 ${
-                    option.primary ? 'text-white' : 'text-gray-600'
-                  }`} />
-                </div>
-                <div>
-                  <h3 className="font-medium text-primary mb-1">{option.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{option.description}</p>
-                  <p className="text-xs text-gray-500">{option.availability}</p>
-                </div>
-                <Button 
-                  variant={option.primary ? 'default' : 'outline'} 
-                  size="sm"
-                  className={option.primary ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-emerald-500 text-emerald-600 hover:bg-emerald-50'}
-                >
-                  {option.action}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        viewport={{ once: true }}
-        className="grid lg:grid-cols-3 gap-8"
-      >
-        {/* FAQ Section */}
-        <div className="lg:col-span-2">
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="flex justify-between items-center mb-6"
+            className="max-w-4xl mx-auto"
           >
-            <h2 className="text-2xl text-primary">Frequently Asked Questions</h2>
-            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">
-              {filteredFaqs.length} results
-            </Badge>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Search for help topics, keywords, or questions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-12 text-base border-2 border-gray-200 focus:border-emerald-500"
+                />
+              </div>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="md:w-48 h-12 border-2 border-gray-200 focus:border-emerald-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {faqCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Contact Options */}
+      <section className="py-24 bg-gradient-to-br from-emerald-900 to-green-800 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-400 rounded-full blur-xl"></div>
+          <div className="absolute top-40 right-20 w-32 h-32 bg-green-400 rounded-full blur-xl"></div>
+          <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-teal-400 rounded-full blur-xl"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Get Support Your Way
+            </h2>
+            <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
+              Choose the support method that works best for you
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-3 gap-8"
+          >
+            {contactOptions.map((option, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2, ease: "easeOut" }}
+                viewport={{ once: true }}
+                whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                className="group"
+              >
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300 h-full">
+                  <CardContent className="p-8 text-center space-y-6 h-full flex flex-col justify-between">
+                    <div>
+                      <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6 transition-all duration-300 ${
+                        option.primary 
+                          ? 'bg-gradient-to-br from-emerald-400 to-teal-500 group-hover:scale-110' 
+                          : 'bg-white/20 group-hover:bg-emerald-500'
+                      }`}>
+                        <option.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-3">{option.title}</h3>
+                      <p className="text-emerald-100 mb-4">{option.description}</p>
+                      <p className="text-sm text-emerald-200">{option.availability}</p>
+                    </div>
+                    <Button 
+                      size="lg"
+                      className={`w-full transition-all duration-300 ${
+                        option.primary 
+                          ? 'bg-white text-emerald-900 hover:bg-emerald-50 hover:scale-105' 
+                          : 'bg-emerald-500 text-white hover:bg-emerald-400 hover:scale-105'
+                      }`}
+                    >
+                      {option.action}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ and Contact Form */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="grid lg:grid-cols-3 gap-12"
+          >
+            {/* FAQ Section */}
+            <div className="lg:col-span-2">
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+                viewport={{ once: true }}
+                className="flex justify-between items-center mb-8"
+              >
+                <h2 className="text-4xl font-bold text-primary">Frequently Asked Questions</h2>
+                <Badge variant="secondary" className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 px-4 py-2 text-lg">
+                  {filteredFaqs.length} results
+                </Badge>
+              </motion.div>
 
           <div className="space-y-4">
             {filteredFaqs.map((faq, index) => (
@@ -282,24 +349,12 @@ export default function SupportPage() {
                               <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-700">
                                 {faqCategories.find(cat => cat.id === faq.category)?.name}
                               </Badge>
-                              <span className="text-xs text-gray-500">
-                                {faq.helpful} people found this helpful
-                              </span>
                             </div>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-4">
                           <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-600">Was this helpful?</span>
-                              <Button variant="outline" size="sm" className="border-emerald-500 text-emerald-600 hover:bg-emerald-50">
-                                👍 Yes
-                              </Button>
-                              <Button variant="outline" size="sm">
-                                👎 No
-                              </Button>
-                            </div>
+                          <div className="flex justify-end mt-4 pt-4 border-t border-gray-100">
                             <div className="flex flex-wrap gap-1">
                               {faq.tags.map((tag, index) => (
                                 <Badge key={index} variant="secondary" className="text-xs bg-emerald-100 text-emerald-700">
@@ -428,8 +483,11 @@ export default function SupportPage() {
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
-      </motion.div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+      </div>
     </div>
   );
 }

@@ -45,11 +45,11 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+
 import {
   Select,
   SelectContent,
@@ -80,7 +80,7 @@ import { getLowestCredits, getLowestMRP } from "@/lib/utils";
 import { ProductWithVariant } from "@/lib/types";
 
 export default function WellnessStore() {
-  const { user, isAuthenticated, isLoading: userLoading } = useUser();
+  const { isAuthenticated } = useUser();
   const { products, isLoading: productsLoading, error } = useProducts();
 
   // Prefetch products on component mount for better performance
@@ -161,7 +161,7 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);
@@ -351,7 +351,7 @@ export default function WellnessStore() {
         <Button
           size="sm"
           onClick={() => handleAddToCart(product)}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 transition-all duration-200 hover:scale-105 active:scale-95"
+          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 rounded-2xl font-semibold"
         >
           Add to Cart
         </Button>
@@ -359,7 +359,7 @@ export default function WellnessStore() {
     }
 
     return (
-      <div className="flex items-center border border-emerald-300 rounded-lg bg-emerald-50 w-full">
+      <div className="flex items-center border-2 border-emerald-200 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 w-full shadow-sm">
         <button
           onClick={() =>
             updateCartQuantityByProduct({
@@ -368,11 +368,11 @@ export default function WellnessStore() {
               variantId: lowestVariant?.id,
             })
           }
-          className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
+          className="px-3 py-2.5 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-l-2xl hover:scale-110"
         >
           <Minus className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 text-emerald-800 font-medium min-w-[40px] text-center border-x border-emerald-200">
+        <span className="px-4 py-2.5 text-emerald-800 font-bold min-w-[50px] text-center border-x-2 border-emerald-200">
           {quantity}
         </span>
         <button
@@ -383,7 +383,7 @@ export default function WellnessStore() {
               variantId: lowestVariant?.id,
             })
           }
-          className="px-3 py-2 hover:bg-emerald-100 text-emerald-700 transition-colors flex-1 flex items-center justify-center"
+          className="px-3 py-2.5 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-r-2xl hover:scale-110"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -392,57 +392,86 @@ export default function WellnessStore() {
   };
 
   return (
-    <div className="min-h-screen max-w-[1600px] py-12 space-y-4 mx-auto bg-background px-8">
-      {/* Header */}
-      <div className="bg-white">
-        <h1 className="text-3xl md:text-4xl text-primary mb-6">
-          Wellness Store
-        </h1>
-        <p className="text-gray-600 max-w-4xl text-lg leading-relaxed mb-8">
-          Discover curated wellness products, fitness equipment, and health
-          supplements. Use your company wellness credits to invest in your
-          health journey.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50">
+      {/* Hero Header */}
+      <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
+              <Package className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-300">Premium Wellness Products</span>
+            </div>
 
-        {/* Top Search and Filters Bar - Full Width */}
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
-          {/* Search - Takes most of the width */}
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder="Search products, brands, categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 py-4 text-base bg-gray-100 text-gray-500 placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 focus:text-gray-900"
-            />
-          </div>
+            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+              <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
+                Wellness Store
+              </span>
+            </h1>
 
-          {/* Sort Filter */}
-          <div className="flex gap-4 items-center lg:w-auto">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full lg:w-56 py-4 bg-gray-100 border-gray-200 text-gray-500 focus:bg-white focus:border-emerald-500 focus:text-gray-900">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
-              </SelectContent>
-            </Select>
+            <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
+              Discover curated wellness products, fitness equipment, and health supplements. 
+              Use your company wellness credits to invest in your health journey.
+            </p>
           </div>
+        </div>
+
+        {/* Wave separator */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)" fillOpacity="1"/>
+          </svg>
         </div>
       </div>
 
-      {/* Category Banners */}
-      <div className="bg-gray-50 py-4">
-        <h2 className="text-2xl text-primary mb-6">Shop by Category</h2>
-        <div
-          className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-5"
-          role="tablist"
-          aria-label="Product categories"
-        >
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 -mt-8 space-y-8">
+        {/* Search and Filters Bar */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
+            {/* Search - Takes most of the width */}
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-400 w-5 h-5" />
+              <Input
+                placeholder="Search products, brands, categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 py-4 text-base bg-gradient-to-r from-gray-50 to-emerald-50/30 border-gray-200 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500/20 focus:text-gray-900 rounded-xl transition-all duration-300"
+              />
+            </div>
+
+            {/* Sort Filter */}
+            <div className="flex gap-4 items-center lg:w-auto">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full lg:w-56 py-4 bg-gradient-to-r from-gray-50 to-emerald-50/30 border-gray-200 text-gray-700 focus:bg-white focus:border-emerald-500 rounded-xl transition-all duration-300">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Banners */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <Package className="w-5 h-5 text-white" />
+            </div>
+            Shop by Category
+          </h2>
+          <div
+            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-6"
+            role="tablist"
+            aria-label="Product categories"
+          >
           {categoryBanners.map((category) => (
             <button
               key={category.value}
@@ -458,10 +487,10 @@ export default function WellnessStore() {
               onClick={() => setSelectedCategory(category.value)}
             >
               <div
-                className={`relative overflow-hidden rounded-lg border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-1 ${
+                className={`relative overflow-hidden rounded-2xl border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-2 ${
                   selectedCategory === category.value
-                    ? "ring-emerald-600 shadow-lg"
-                    : "ring-gray-200 hover:ring-emerald-500"
+                    ? "ring-emerald-500 shadow-xl shadow-emerald-500/20 scale-105"
+                    : "ring-transparent hover:ring-emerald-300 hover:shadow-lg"
                 }`}
               >
                 {/* Image Container */}
@@ -492,23 +521,27 @@ export default function WellnessStore() {
 
                 {/* Selection Indicator */}
                 {selectedCategory === category.value && (
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+                  <div className="absolute top-3 right-3 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                  </div>
                 )}
               </div>
             </button>
           ))}
+          </div>
         </div>
-      </div>
 
-      <div className="flex gap-8">
-        {/* Left Sidebar - Filters */}
-        <div className="w-72 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
-            {/* Filter Header */}
-            <div className="flex items-center gap-2 mb-5">
-              <Filter className="w-4 h-4 text-emerald-600" />
-              <h3 className="font-medium text-gray-900 text-sm">Filters</h3>
-            </div>
+        <div className="flex gap-8">
+          {/* Left Sidebar - Filters */}
+          <div className="w-80 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-xl shadow-gray-100/50">
+              {/* Filter Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                  <Filter className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 text-lg">Filters</h3>
+              </div>
 
             {/* Price Range Filter */}
             <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
@@ -630,63 +663,68 @@ export default function WellnessStore() {
               </CollapsibleContent>
             </Collapsible>
 
-            {/* Clear Filters */}
-            {(selectedBrands.length > 0 ||
-              selectedPriceRanges.length > 0 ||
-              selectedRatings.length > 0 ||
-              selectedCategory !== "all" ||
-              searchTerm) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedBrands([]);
-                  setSelectedPriceRanges([]);
-                  setSelectedRatings([]);
-                  setSelectedCategory("all");
-                  setSearchTerm("");
-                }}
-                className="w-full mt-5 text-gray-600 border-gray-300 hover:border-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 text-xs transition-colors"
-              >
-                Clear All Filters
-              </Button>
-            )}
+              {/* Clear Filters */}
+              {(selectedBrands.length > 0 ||
+                selectedPriceRanges.length > 0 ||
+                selectedRatings.length > 0 ||
+                selectedCategory !== "all" ||
+                searchTerm) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedBrands([]);
+                    setSelectedPriceRanges([]);
+                    setSelectedRatings([]);
+                    setSelectedCategory("all");
+                    setSearchTerm("");
+                  }}
+                  className="w-full mt-6 bg-gradient-to-r from-gray-50 to-emerald-50 border-emerald-300 text-emerald-700 hover:border-emerald-500 hover:text-emerald-800 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-emerald-100 text-sm font-medium transition-all duration-300 rounded-xl"
+                >
+                  Clear All Filters
+                </Button>
+              )}
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          {/* Results Header */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-gray-600">
-              {productsLoading ? (
-                "Loading products..."
-              ) : (
-                <>
-                  Showing {sortedProducts.length} of {products.length} products
-                  {searchTerm && <span> for "{searchTerm}"</span>}
-                  {selectedCategory !== "all" && (
-                    <span> in {selectedCategory.replace(/_/g, " ")}</span>
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Results Header */}
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
+              <div className="flex items-center justify-between">
+                <p className="text-gray-600 font-medium">
+                  {productsLoading ? (
+                    "Loading products..."
+                  ) : (
+                    <>
+                      Showing {sortedProducts.length} of {products.length} products
+                      {searchTerm && <span> for &ldquo;{searchTerm}&rdquo;</span>}
+                      {selectedCategory !== "all" && (
+                        <span> in {selectedCategory.replace(/_/g, " ")}</span>
+                      )}
+                    </>
                   )}
-                </>
-              )}
-            </p>
-          </div>
+                </p>
+              </div>
+            </div>
 
           {/* Loading State */}
           {productsLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {Array.from({ length: 10 }).map((_, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 animate-pulse"
+                  className="relative group animate-pulse"
                 >
-                  <div className="aspect-square bg-gray-200"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                    <div className="h-8 bg-gray-200 rounded"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25"></div>
+                  <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                    <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
+                    <div className="p-6 space-y-4">
+                      <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-3/4"></div>
+                      <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-1/2"></div>
+                      <div className="h-6 bg-gradient-to-r from-emerald-200 to-emerald-300 rounded-lg w-1/3"></div>
+                      <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -695,28 +733,35 @@ export default function WellnessStore() {
 
           {/* Error State */}
           {error && (
-            <div className="text-center py-12">
-              <p className="text-red-600 mb-4 text-sm">
-                Error loading products: {error.message}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.reload()}
-                className="border-red-500 text-red-600 hover:bg-red-50"
-              >
-                Try Again
-              </Button>
+            <div className="text-center py-20">
+              <div className="relative inline-block">
+                <div className="absolute -inset-4 bg-gradient-to-r from-red-400 via-pink-500 to-red-500 rounded-2xl blur opacity-20"></div>
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+                  <p className="text-red-600 mb-6 text-lg font-medium">
+                    Error loading products: {error.message}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-red-500 text-red-600 hover:bg-red-50 px-8 py-3"
+                    onClick={() => window.location.reload()}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Product Grid */}
-          {!productsLoading && !error && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {/* Product Grid */}
+            {!productsLoading && !error && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {sortedProducts.map((product, index) => (
-                <div key={index} className="group">
-                  <Link href={`/product/${product.id}`} className="block">
-                    <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 h-full flex flex-col">
+                  <div key={index} className="group">
+                    <Link href={`/product/${product.id}`} className="block">
+                      <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
+                        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden border border-white/20 h-full flex flex-col group-hover:bg-white/90">
                       {/* Image Container */}
                       <div className="relative aspect-square overflow-hidden bg-gray-50">
                         <ImageWithFallback
@@ -735,7 +780,7 @@ export default function WellnessStore() {
                       </div>
 
                       {/* Content */}
-                      <div className="p-4 flex-1 flex flex-col">
+                      <div className="p-6 flex-1 flex flex-col">
                         {/* Header with Vendor and Rating */}
                         <div className="flex items-center justify-between mb-3">
                           {/* Vendor */}
@@ -757,17 +802,17 @@ export default function WellnessStore() {
                         </div>
 
                         {/* Product Name */}
-                        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
+                        <h3 className="text-gray-900 font-bold text-lg line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight mb-3">
                           {product.name}
                         </h3>
 
                         {/* Price Section */}
                         <div className="mt-auto mb-4">
-                          <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-2xl font-bold text-emerald-600">
+                          <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                               {getLowestCredits(product as any)}
                             </span>
-                            <span className="text-sm font-medium text-emerald-600">
+                            <span className="text-base font-semibold text-emerald-600">
                               credits
                             </span>
                           </div>
@@ -793,12 +838,13 @@ export default function WellnessStore() {
                       </div>
 
                       {/* Action Button */}
-                      <div className="p-4 pt-0">
+                      <div className="p-6 pt-0">
                         <div onClick={(e) => e.preventDefault()}>
                           <QuantitySelector product={product} />
                         </div>
                       </div>
-                    </div>
+                        </div>
+                      </div>
                   </Link>
                 </div>
               ))}
@@ -807,25 +853,31 @@ export default function WellnessStore() {
 
           {/* No Results */}
           {!productsLoading && !error && sortedProducts.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">
-                No products found matching your criteria.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelectedBrands([]);
-                  setSelectedPriceRanges([]);
-                  setSelectedRatings([]);
-                  setSelectedCategory("all");
-                  setSearchTerm("");
-                }}
-                className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-6 py-2"
-              >
-                Clear All Filters
-              </Button>
+            <div className="text-center py-20">
+              <div className="relative inline-block">
+                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
+                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+                  <p className="text-gray-600 mb-6 text-lg font-medium">
+                    No products found matching your criteria.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedBrands([]);
+                      setSelectedPriceRanges([]);
+                      setSelectedRatings([]);
+                      setSelectedCategory("all");
+                      setSearchTerm("");
+                    }}
+                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-8 py-3 font-medium"
+                  >
+                    Clear All Filters
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

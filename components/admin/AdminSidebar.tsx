@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/collapsible";
 import {
   BarChart3,
+  TrendingUp,
   Package,
   ShoppingCart,
   CreditCard,
@@ -46,6 +47,11 @@ const adminNavItems = [
     title: "Overview",
     url: "/admin",
     icon: BarChart3,
+  },
+  {
+    title: "Analytics",
+    url: "/admin/analytics",
+    icon: TrendingUp,
   },
   {
     title: "Products",

@@ -1,4 +1,6 @@
-import {Navbar} from "@/components/navbar";
+"use client";
+
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/footer";
 
 export default function RootLayout({
@@ -7,10 +9,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between">
       <Navbar />
 
-      <main className="pt-16 flex-grow">{children}</main>
+      <main className="flex-grow">{children}</main>
 
       <Footer />
     </div>

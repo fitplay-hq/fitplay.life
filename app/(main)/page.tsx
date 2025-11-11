@@ -277,7 +277,7 @@ export default function HomePage() {
       <Hero/>
 
       {/* Trust Indicators */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Trust Indicators */}
           <div className="mt-20 text-center">

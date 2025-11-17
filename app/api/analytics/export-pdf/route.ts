@@ -28,7 +28,7 @@ async function exportOrders(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const dateFrom = searchParams.get('dateFrom');
   const dateTo = searchParams.get('dateTo');
-  const clientId = searchParams.get('clientId');
+  const userId = searchParams.get('userId');
   const companyId = searchParams.get('companyId');
   const status = searchParams.get('status');
 
@@ -38,8 +38,10 @@ async function exportOrders(request: NextRequest) {
     if (dateFrom) filters.createdAt.gte = new Date(dateFrom);
     if (dateTo) filters.createdAt.lte = new Date(dateTo);
   }
-  if (clientId) filters.clientId = clientId;
-  if (companyId) filters.companyId = companyId;
+  if (userId) filters.userId = userId;
+  if (companyId) {
+    filters.user = { companyId: companyId };
+  };
   if (status) filters.status = status;
 
   const orders = await prisma.order.findMany({
@@ -116,7 +118,11 @@ async function exportInventory(request: NextRequest) {
   const companyId = searchParams.get('companyId');
 
   const filters: any = {};
-  if (companyId) filters.companyId = companyId;
+  if (companyId) {
+    filters.companies = {
+      some: { id: companyId }
+    };
+  }
 
   const products = await prisma.product.findMany({
     where: filters,

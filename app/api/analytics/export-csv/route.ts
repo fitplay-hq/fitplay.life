@@ -20,17 +20,20 @@ export async function GET(request: NextRequest) {
 
         let companyId = searchParams.get("companyId");
 
+        // HR company restriction
         if (session.user.role === "HR") {
             const company = await prisma.user.findUnique({
                 where: { id: session.user.id },
                 select: { companyId: true }
             });
             companyId = company?.companyId || null;
+
             if (exportType === "inventory" || exportType === "categoryDistribution") {
                 return NextResponse.json({ error: "HR cannot export inventory analytics" }, { status: 403 });
             }
         }
 
+        // ROUTING
         if (exportType === "overview") {
             return await exportOverviewAnalytics(dateFrom, dateTo, period, status, companyId);
         }
@@ -48,6 +51,7 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json({ error: "Invalid export type" }, { status: 400 });
+
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Failed to export analytics" }, { status: 500 });
@@ -56,44 +60,56 @@ export async function GET(request: NextRequest) {
 
 async function buildOrdersFilter(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId?: string | null) {
     const dateFilter: any = {};
+
     if (dateFrom) dateFilter.gte = new Date(dateFrom);
     if (dateTo) dateFilter.lte = new Date(dateTo);
 
+    // If only period provided → auto date range
     if (!dateFrom && !dateTo) {
         const now = new Date();
         const daysBack = period === "7d" ? 7 : period === "90d" ? 90 : 30;
-        dateFilter.gte = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+        dateFilter.gte = new Date(now.getTime() - daysBack * 86400000);
     }
 
     const filters: any = { createdAt: dateFilter };
+
     if (companyId) filters.companyId = companyId;
     if (status) filters.status = status;
 
     return filters;
 }
 
+// ----------------------------------
+// 🟢 FIXED: Overview now returns full order list same as Orders export
+// ----------------------------------
 async function exportOverviewAnalytics(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId: string | null) {
-    const filters = await buildOrdersFilter(dateFrom, dateTo, period, status, companyId);
-
-    const orders = await prisma.order.findMany({ where: filters });
-    const totalRevenue = orders.reduce((s, o) => s + (o.amount || 0), 0);
-    const avgOrderValue = orders.length ? totalRevenue / orders.length : 0;
-
-    const overview = [
-        { Metric: "Total Orders", Value: orders.length },
-        { Metric: "Total Revenue", Value: totalRevenue },
-        { Metric: "Average Order Value", Value: avgOrderValue }
-    ];
-
-    return buildExcelResponse(overview, "overview");
-}
-
-async function exportOrdersAnalytics(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId?: string | null) {
     const filters = await buildOrdersFilter(dateFrom, dateTo, period, status, companyId);
 
     const orders = await prisma.order.findMany({
         where: filters,
-        include: { user: { select: { name: true } }, items: true }
+        include: { user: { select: { name: true } }, items: true },
+        orderBy: { createdAt: "desc" }
+    });
+
+    const data = orders.map((o) => ({
+        OrderID: o.id,
+        Client: o.user?.name || "N/A",
+        Items: o.items.length,
+        Amount: o.amount,
+        Status: o.status,
+        Date: new Date(o.createdAt).toLocaleDateString()
+    }));
+
+    return buildExcelResponse(data, "overview-orders");
+}
+
+async function exportOrdersAnalytics(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId: string | null | undefined) {
+    const filters = await buildOrdersFilter(dateFrom, dateTo, period, status, companyId);
+
+    const orders = await prisma.order.findMany({
+        where: filters,
+        include: { user: { select: { name: true } }, items: true },
+        orderBy: { createdAt: "desc" }
     });
 
     const data = orders.map((o) => ({
@@ -125,12 +141,12 @@ async function exportInventoryAnalytics(companyId?: string | null) {
     return buildExcelResponse(data, "inventory");
 }
 
-async function exportTopUsers(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId?: string | null) {
+async function exportTopUsers(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId: string | null | undefined) {
     const filters = await buildOrdersFilter(dateFrom, dateTo, period, status, companyId);
 
     const orders = await prisma.order.findMany({
         where: filters,
-        include: { user: true } 
+        include: { user: true }
     });
 
     const clients: Record<string, any> = {};
@@ -149,7 +165,7 @@ async function exportTopUsers(dateFrom: string | null, dateTo: string | null, pe
     return buildExcelResponse(data, "top-clients");
 }
 
-async function exportTopProducts(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId?: string | null) {
+async function exportTopProducts(dateFrom: string | null, dateTo: string | null, period: string, status: string | null, companyId: string | null | undefined) {
     const filters = await buildOrdersFilter(dateFrom, dateTo, period, status, companyId);
 
     const orders = await prisma.order.findMany({

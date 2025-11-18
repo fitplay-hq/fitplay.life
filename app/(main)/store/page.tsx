@@ -761,9 +761,9 @@ export default function WellnessStore() {
                     <Link href={`/product/${product.id}`} className="block">
                       <div className="relative">
                         <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
-                        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden border border-white/20 h-full flex flex-col group-hover:bg-white/90">
-                      {/* Image Container */}
-                      <div className="relative aspect-square overflow-hidden bg-gray-50">
+                        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden border border-white/20 flex flex-col group-hover:bg-white/90" style={{ height: '520px' }}>
+                      {/* Image Container - Fixed height */}
+                      <div className="relative overflow-hidden bg-gray-50" style={{ height: '240px' }}>
                         <ImageWithFallback
                           src={product.images[0] || "/placeholder.png"}
                           alt={product.name}
@@ -779,68 +779,72 @@ export default function WellnessStore() {
                         )}
                       </div>
 
-                      {/* Content */}
-                      <div className="p-6 flex-1 flex flex-col">
-                        {/* Header with Vendor and Rating */}
-                        <div className="flex items-center justify-between mb-3">
-                          {/* Vendor */}
-                          {(product as any).vendor?.name && (
-                            <p className="text-sm text-gray-500 line-clamp-1">
-                              by {(product as any).vendor.name}
-                            </p>
-                          )}
+                      {/* Content - Flex grow to fill available space */}
+                      <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          {/* Header with Vendor and Rating */}
+                          <div className="flex items-center justify-between">
+                            {/* Vendor */}
+                            {(product as any).vendor?.name && (
+                              <p className="text-sm text-gray-500 line-clamp-1">
+                                by {(product as any).vendor.name}
+                              </p>
+                            )}
 
-                          {/* Rating */}
-                          {product.avgRating && (
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                              <span className="text-xs font-semibold text-gray-700">
-                                {product.avgRating.toFixed(1)}
+                            {/* Rating */}
+                            {product.avgRating && (
+                              <div className="flex items-center space-x-1">
+                                <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                <span className="text-xs font-semibold text-gray-700">
+                                  {product.avgRating.toFixed(1)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Product Name - Fixed height container */}
+                          <div style={{ height: '56px' }}>
+                            <h3 className="text-gray-900 font-bold text-lg line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
+                              {product.name}
+                            </h3>
+                          </div>
+
+                          {/* Price Section */}
+                          <div className="space-y-2">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                                {getLowestCredits(product as any)}
+                              </span>
+                              <span className="text-sm font-semibold text-emerald-600">
+                                credits
                               </span>
                             </div>
-                          )}
-                        </div>
-
-                        {/* Product Name */}
-                        <h3 className="text-gray-900 font-bold text-lg line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight mb-3">
-                          {product.name}
-                        </h3>
-
-                        {/* Price Section */}
-                        <div className="mt-auto mb-4">
-                          <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                              {getLowestCredits(product as any)}
-                            </span>
-                            <span className="text-base font-semibold text-emerald-600">
-                              credits
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 line-through">
-                              ₹{getLowestMRP(product as ProductWithVariant)}
-                            </span>
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                              Save{" "}
-                              {Math.round(
-                                ((getLowestMRP(product as ProductWithVariant) -
-                                  getLowestCredits(
-                                    product as ProductWithVariant
-                                  ) /
-                                    2) /
-                                  getLowestMRP(product as ProductWithVariant)) *
-                                  100
-                              )}
-                              %
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500 line-through">
+                                ₹{getLowestMRP(product as ProductWithVariant)}
+                              </span>
+                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                                Save{" "}
+                                {Math.round(
+                                  ((getLowestMRP(product as ProductWithVariant) -
+                                    getLowestCredits(
+                                      product as ProductWithVariant
+                                    ) /
+                                      2) /
+                                    getLowestMRP(product as ProductWithVariant)) *
+                                    100
+                                )}
+                                %
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Action Button */}
-                      <div className="p-6 pt-0">
-                        <div onClick={(e) => e.preventDefault()}>
-                          <QuantitySelector product={product} />
+                        {/* Action Button - Always at bottom */}
+                        <div className="mt-4">
+                          <div onClick={(e) => e.preventDefault()}>
+                            <QuantitySelector product={product} />
+                          </div>
                         </div>
                       </div>
                         </div>
@@ -855,7 +859,7 @@ export default function WellnessStore() {
           {!productsLoading && !error && sortedProducts.length === 0 && (
             <div className="text-center py-20">
               <div className="relative inline-block">
-                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
+                <div className="absolute -inset-4 bg-linear-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
                 <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
                   <p className="text-gray-600 mb-6 text-lg font-medium">
                     No products found matching your criteria.

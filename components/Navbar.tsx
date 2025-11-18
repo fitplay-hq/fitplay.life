@@ -35,7 +35,7 @@ export default function Navbar() {
       }}
     >
       {isScrolled && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/30 to-slate-900/10 backdrop-blur-md border-b border-white/5 shadow-lg shadow-emerald-500/5 transition-all duration-500"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/95 via-teal-950/90 to-emerald-950/85 backdrop-blur-md border-b border-emerald-400/20 shadow-lg shadow-emerald-500/30 transition-all duration-500"></div>
       )}
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -132,7 +132,7 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-gradient-to-b from-slate-900 to-slate-950 border-b border-white/10 backdrop-blur-xl animate-in slide-in-from-top-2">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-gradient-to-b from-slate-900/95 via-teal-950/80 to-emerald-950/70 border-b border-emerald-400/20 backdrop-blur-xl animate-in slide-in-from-top-2">
           <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
             {navLinks.map((link) => (
               <Link

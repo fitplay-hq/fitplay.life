@@ -642,20 +642,19 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 relative overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 opacity-20"
-          animate={{ 
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-          style={{
-            backgroundImage: 'radial-gradient(circle, white 2px, transparent 2px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
+      <section className="py-24 relative overflow-hidden">
+        {/* Video Background */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/cta.mp4" type="video/mp4" />
+        </video>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -663,27 +662,27 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
               Ready to Transform Your Employee Wellness?
             </h2>
-            <p className="text-emerald-50 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed drop-shadow-md">
               Join hundreds of companies making employee wellness simple and effective
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-10">
               <Link href="/partner">
                 <Button 
                   size="lg" 
-                  className="bg-white text-emerald-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold shadow-lg"
+                  className="bg-emerald-500 text-white hover:bg-emerald-600 px-10 py-6 text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-emerald-500/30 transition-all duration-300 rounded-full border-2 border-emerald-400"
                 >
                   Get Started
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-3 w-6 h-6" />
                 </Button>
               </Link>
               <Link href="/support">
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white/10 bg-transparent px-8 py-4 text-lg font-semibold backdrop-blur-sm"
+                  className="border-3 border-white text-white hover:bg-white/20 bg-white/10 px-10 py-6 text-xl font-bold backdrop-blur-md hover:scale-110 transition-all duration-300 rounded-full shadow-xl"
                 >
                   Learn More
                 </Button>

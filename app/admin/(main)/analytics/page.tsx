@@ -22,8 +22,10 @@ import {
   Download,
   RefreshCw,
   Calendar,
+  FileText,
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { toast } from "sonner";
 
 interface AnalyticsData {
   overview: {
@@ -102,22 +104,61 @@ export default function AnalyticsPage() {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  const handleExport = async (format: 'csv' | 'pdf') => {
+  const handleExport = async (format: 'csv' | 'pdf', exportType?: string) => {
     try {
-      const response = await fetch(`/api/analytics/export-${format}?period=${period}`);
+      const type = exportType || 'overview';
+      const formatLabel = format === 'csv' ? 'Excel' : 'PDF';
+      const typeLabel = {
+        'overview': 'Overview',
+        'orders': 'Orders',
+        'topProducts': 'Products',
+        'topClients': 'Clients',
+        'inventory': 'Inventory'
+      }[type] || type;
+      
+      toast.loading(`Preparing ${typeLabel} ${formatLabel} export...`, { id: 'export-loading' });
+      
+      const params = new URLSearchParams({
+        period: period,
+        type: type
+      });
+      
+      // Add additional parameters based on export type
+      if (type === 'orders') {
+        // Add date range for orders if needed
+        const now = new Date();
+        const daysAgo = parseInt(period.replace('d', ''));
+        const dateFrom = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+        params.append('dateFrom', dateFrom.toISOString().split('T')[0]);
+        params.append('dateTo', now.toISOString().split('T')[0]);
+      }
+      
+      const response = await fetch(`/api/analytics/export-${format}?${params}`);
+      
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `analytics-${period}.${format}`;
+        
+        // Fix file extension - CSV API returns Excel files
+        const fileExtension = format === 'csv' ? 'xlsx' : format;
+        a.download = `analytics-${type}-${period}.${fileExtension}`;
+        
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        
+        toast.success(`${typeLabel} ${formatLabel} export completed successfully!`, { id: 'export-loading' });
+      } else {
+        const errorText = await response.text();
+        console.error(`Export failed: ${response.status} ${response.statusText}`, errorText);
+        toast.error(`Export failed: ${response.status} ${response.statusText}`, { id: 'export-loading' });
       }
     } catch (error) {
       console.error(`Failed to export ${format}:`, error);
+      toast.error(`Failed to export ${format}: ${error instanceof Error ? error.message : 'Unknown error'}`, { id: 'export-loading' });
     }
   };
 
@@ -203,16 +244,6 @@ export default function AnalyticsPage() {
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          
-          <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-            <Download className="w-4 h-4 mr-2" />
-            CSV
-          </Button>
-          
-          <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
-            <Download className="w-4 h-4 mr-2" />
-            PDF
-          </Button>
           
           <Button variant="outline" size="sm" onClick={fetchAnalytics}>
             <RefreshCw className="w-4 h-4" />
@@ -320,6 +351,18 @@ export default function AnalyticsPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          <div className="flex justify-end mb-4">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleExport('csv', 'overview')}>
+                <Download className="w-4 h-4 mr-2" />
+                Export Overview Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'overview')}>
+                <Download className="w-4 h-4 mr-2" />
+                Export Overview PDF
+              </Button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Revenue Over Time */}
             <Card>
@@ -396,7 +439,19 @@ export default function AnalyticsPage() {
         <TabsContent value="orders" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Orders</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Recent Orders</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleExport('csv', 'orders')}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Orders Excel
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'orders')}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Orders PDF
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -436,6 +491,18 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="products" className="space-y-6">
+          <div className="flex justify-end mb-4">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleExport('csv', 'topProducts')}>
+                <Download className="w-4 h-4 mr-2" />
+                Export Products Excel
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'products')}>
+                <FileText className="w-4 h-4 mr-2" />
+                Export Products PDF
+              </Button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -480,7 +547,19 @@ export default function AnalyticsPage() {
         <TabsContent value="clients" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Top Clients by Revenue</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Top Clients by Revenue</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleExport('csv', 'topClients')}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Clients Excel
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'topClients')}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Export Clients PDF
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

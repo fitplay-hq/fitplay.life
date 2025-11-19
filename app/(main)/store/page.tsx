@@ -48,8 +48,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+
 import {
   Select,
   SelectContent,
@@ -80,7 +79,7 @@ import { getLowestCredits, getLowestMRP } from "@/lib/utils";
 import { ProductWithVariant } from "@/lib/types";
 
 export default function WellnessStore() {
-  const { user, isAuthenticated, isLoading: userLoading } = useUser();
+  const { isAuthenticated } = useUser();
   const { products, isLoading: productsLoading, error } = useProducts();
 
   // Prefetch products on component mount for better performance
@@ -161,7 +160,7 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);
@@ -179,10 +178,7 @@ export default function WellnessStore() {
     count: products.filter((p) => p.category === category).length,
   }));
 
-  const categories = [
-    { value: "all", label: "All Categories", count: products.length },
-    ...dynamicCategories,
-  ];
+
 
   // Generate dynamic brands from products (using vendor.name as brand)
   const brands = Array.from(

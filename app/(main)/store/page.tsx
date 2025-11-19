@@ -162,7 +162,7 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-
+  
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);

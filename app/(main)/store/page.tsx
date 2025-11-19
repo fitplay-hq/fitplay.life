@@ -50,6 +50,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+
 import {
   Select,
   SelectContent,
@@ -161,7 +162,7 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-
+  
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);
@@ -179,10 +180,7 @@ export default function WellnessStore() {
     count: products.filter((p) => p.category === category).length,
   }));
 
-  const categories = [
-    { value: "all", label: "All Categories", count: products.length },
-    ...dynamicCategories,
-  ];
+
 
   // Generate dynamic brands from products (using vendor.name as brand)
   const brands = Array.from(

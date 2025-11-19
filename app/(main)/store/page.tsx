@@ -351,7 +351,7 @@ export default function WellnessStore() {
         <Button
           size="sm"
           onClick={() => handleAddToCart(product)}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 rounded-2xl font-semibold"
+          className="w-full bg-emerald-500 hover:bg-emerald-600 transition-all duration-200 hover:scale-105 active:scale-95 text-white font-medium text-sm rounded-lg h-9"
         >
           Add to Cart
         </Button>
@@ -359,7 +359,7 @@ export default function WellnessStore() {
     }
 
     return (
-      <div className="flex items-center border-2 border-emerald-200 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 w-full shadow-sm">
+      <div className="flex items-center border border-emerald-300 rounded-lg bg-emerald-50 w-full h-9">
         <button
           onClick={() =>
             updateCartQuantityByProduct({
@@ -368,11 +368,11 @@ export default function WellnessStore() {
               variantId: lowestVariant?.id,
             })
           }
-          className="px-3 py-2.5 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-l-2xl hover:scale-110"
+          className="px-2 py-1 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-l-lg"
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-3 h-3" />
         </button>
-        <span className="px-4 py-2.5 text-emerald-800 font-bold min-w-[50px] text-center border-x-2 border-emerald-200">
+        <span className="px-3 py-1 text-emerald-800 font-semibold min-w-10 text-center text-sm border-x border-emerald-300">
           {quantity}
         </span>
         <button
@@ -383,9 +383,9 @@ export default function WellnessStore() {
               variantId: lowestVariant?.id,
             })
           }
-          className="px-3 py-2.5 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-r-2xl hover:scale-110"
+          className="px-2 py-1 hover:bg-emerald-100 text-emerald-700 transition-all duration-200 flex-1 flex items-center justify-center rounded-r-lg"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3 h-3" />
         </button>
       </div>
     );
@@ -755,19 +755,19 @@ export default function WellnessStore() {
 
             {/* Product Grid */}
             {!productsLoading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
               {sortedProducts.map((product, index) => (
                   <div key={index} className="group">
                     <Link href={`/product/${product.id}`} className="block">
                       <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
-                        <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden border border-white/20 flex flex-col group-hover:bg-white/90" style={{ height: '520px' }}>
-                      {/* Image Container - Fixed height */}
-                      <div className="relative overflow-hidden bg-gray-50" style={{ height: '240px' }}>
+                        <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gray-50/50" style={{ height: '450px' }}>
+                      {/* Image Container - Reduced height */}
+                      <div className="relative overflow-hidden bg-gray-50" style={{ height: '220px' }}>
                         <ImageWithFallback
                           src={product.images[0] || "/placeholder.png"}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         {/* Stock Status */}
                         {product.availableStock === 0 && (
@@ -777,54 +777,49 @@ export default function WellnessStore() {
                             </span>
                           </div>
                         )}
+                        {/* Rating Badge */}
+                        {product.avgRating && (
+                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1">
+                            <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                            <span className="text-xs font-semibold text-gray-700">
+                              {product.avgRating.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Content - Flex grow to fill available space */}
-                      <div className="p-6 flex-1 flex flex-col justify-between">
+                      {/* Content - Optimized spacing */}
+                      <div className="p-4 flex-1 flex flex-col justify-between">
                         <div className="space-y-3">
-                          {/* Header with Vendor and Rating */}
-                          <div className="flex items-center justify-between">
-                            {/* Vendor */}
-                            {(product as any).vendor?.name && (
-                              <p className="text-sm text-gray-500 line-clamp-1">
-                                by {(product as any).vendor.name}
-                              </p>
-                            )}
+                          {/* Vendor Name */}
+                          {(product as any).vendor?.name && (
+                            <p className="text-xs text-gray-500 truncate">
+                              by {(product as any).vendor.name}
+                            </p>
+                          )}
 
-                            {/* Rating */}
-                            {product.avgRating && (
-                              <div className="flex items-center space-x-1">
-                                <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                                <span className="text-xs font-semibold text-gray-700">
-                                  {product.avgRating.toFixed(1)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Product Name - Fixed height container */}
-                          <div style={{ height: '56px' }}>
-                            <h3 className="text-gray-900 font-bold text-lg line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
+                          {/* Product Name - Better text handling */}
+                          <div className="min-h-12 flex items-start">
+                            <h3 className="text-gray-900 font-semibold text-sm group-hover:text-emerald-600 transition-colors leading-5 line-clamp-2">
                               {product.name}
                             </h3>
                           </div>
 
-                          {/* Price Section */}
-                          <div className="space-y-2">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                          {/* Price Section - Compact */}
+                          <div className="space-y-1">
+                            <div className="flex items-baseline gap-1 flex-wrap">
+                              <span className="text-lg font-bold text-emerald-600">
                                 {getLowestCredits(product as any)}
                               </span>
-                              <span className="text-sm font-semibold text-emerald-600">
+                              <span className="text-xs font-medium text-emerald-600">
                                 credits
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-500 line-through">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs text-gray-500 line-through truncate">
                                 ₹{getLowestMRP(product as ProductWithVariant)}
                               </span>
-                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                                Save{" "}
+                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium shrink-0">
                                 {Math.round(
                                   ((getLowestMRP(product as ProductWithVariant) -
                                     getLowestCredits(
@@ -833,15 +828,14 @@ export default function WellnessStore() {
                                       2) /
                                     getLowestMRP(product as ProductWithVariant)) *
                                     100
-                                )}
-                                %
+                                )}% off
                               </span>
                             </div>
                           </div>
                         </div>
 
                         {/* Action Button - Always at bottom */}
-                        <div className="mt-4">
+                        <div className="mt-3">
                           <div onClick={(e) => e.preventDefault()}>
                             <QuantitySelector product={product} />
                           </div>

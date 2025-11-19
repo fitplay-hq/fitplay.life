@@ -441,7 +441,7 @@ async function exportOverview(request: NextRequest) {
     
     // Calculate date range based on period
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
     
     switch (period) {
       case '7d':

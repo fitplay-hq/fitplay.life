@@ -372,7 +372,7 @@ export default function WellnessStore() {
         >
           <Minus className="w-4 h-4" />
         </button>
-        <span className="px-4 py-2 text-emerald-800 font-medium min-w-[40px] text-center border-x border-emerald-200">
+        <span className="px-4 py-2 text-emerald-800 font-medium min-w-10 text-center border-x border-emerald-200">
           {quantity}
         </span>
         <button
@@ -478,7 +478,7 @@ export default function WellnessStore() {
                 </div>
 
                 {/* Category Label */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
                   <h3
                     className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
                       selectedCategory === category.value
@@ -502,7 +502,7 @@ export default function WellnessStore() {
 
       <div className="flex gap-8">
         {/* Left Sidebar - Filters */}
-        <div className="w-72 flex-shrink-0">
+        <div className="w-72 shrink-0">
           <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
             {/* Filter Header */}
             <div className="flex items-center gap-2 mb-5">
@@ -756,27 +756,28 @@ export default function WellnessStore() {
                           )}
                         </div>
 
-                        {/* Product Name */}
-                        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
-                          {product.name}
-                        </h3>
+                        {/* Product Name - Fixed height container */}
+                        <div className="h-12 mb-3">
+                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight overflow-hidden">
+                            {product.name}
+                          </h3>
+                        </div>
 
                         {/* Price Section */}
-                        <div className="mt-auto mb-4">
-                          <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-2xl font-bold text-emerald-600">
+                        <div className="mt-auto mb-3">
+                          <div className="flex items-baseline gap-1 mb-1">
+                            <span className="text-lg font-bold text-emerald-600">
                               {getLowestCredits(product as any)}
                             </span>
-                            <span className="text-sm font-medium text-emerald-600">
+                            <span className="text-xs font-medium text-emerald-600">
                               credits
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 line-through">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 line-through">
                               ₹{getLowestMRP(product as ProductWithVariant)}
                             </span>
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                              Save{" "}
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
                               {Math.round(
                                 ((getLowestMRP(product as ProductWithVariant) -
                                   getLowestCredits(
@@ -785,17 +786,16 @@ export default function WellnessStore() {
                                     2) /
                                   getLowestMRP(product as ProductWithVariant)) *
                                   100
-                              )}
-                              %
+                              )}% off
                             </span>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Action Button */}
-                      <div className="p-4 pt-0">
-                        <div onClick={(e) => e.preventDefault()}>
-                          <QuantitySelector product={product} />
+                        {/* Action Button */}
+                        <div className="mt-2">
+                          <div onClick={(e) => e.preventDefault()}>
+                            <QuantitySelector product={product} />
+                          </div>
                         </div>
                       </div>
                     </div>

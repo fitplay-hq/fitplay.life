@@ -372,7 +372,7 @@ export default function WellnessStore() {
         >
           <Minus className="w-3 h-3" />
         </button>
-        <span className="px-3 py-1 text-emerald-800 font-semibold min-w-10 text-center text-sm border-x border-emerald-300">
+        <span className="px-4 py-2 text-emerald-800 font-medium min-w-10 text-center border-x border-emerald-200">
           {quantity}
         </span>
         <button
@@ -507,7 +507,7 @@ export default function WellnessStore() {
                 </div>
 
                 {/* Category Label */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
                   <h3
                     className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
                       selectedCategory === category.value
@@ -531,17 +531,15 @@ export default function WellnessStore() {
           </div>
         </div>
 
-        <div className="flex gap-8">
-          {/* Left Sidebar - Filters */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-xl shadow-gray-100/50">
-              {/* Filter Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                  <Filter className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-semibold text-gray-900 text-lg">Filters</h3>
-              </div>
+      <div className="flex gap-8">
+        {/* Left Sidebar - Filters */}
+        <div className="w-72 shrink-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
+            {/* Filter Header */}
+            <div className="flex items-center gap-2 mb-5">
+              <Filter className="w-4 h-4 text-emerald-600" />
+              <h3 className="font-medium text-gray-900 text-sm">Filters</h3>
+            </div>
 
             {/* Price Range Filter */}
             <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
@@ -788,61 +786,49 @@ export default function WellnessStore() {
                         )}
                       </div>
 
-                      {/* Content - Optimized spacing */}
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div className="space-y-3">
-                          {/* Vendor Name */}
-                          {(product as any).vendor?.name && (
-                            <p className="text-xs text-gray-500 truncate">
-                              by {(product as any).vendor.name}
-                            </p>
-                          )}
+                        {/* Product Name - Fixed height container */}
+                        <div className="h-12 mb-3">
+                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight overflow-hidden">
+                            {product.name}
+                          </h3>
+                        </div>
 
-                          {/* Product Name - Better text handling */}
-                          <div className="min-h-12 flex items-start">
-                            <h3 className="text-gray-900 font-semibold text-sm group-hover:text-emerald-600 transition-colors leading-5 line-clamp-2">
-                              {product.name}
-                            </h3>
+                        {/* Price Section */}
+                        <div className="mt-auto mb-3">
+                          <div className="flex items-baseline gap-1 mb-1">
+                            <span className="text-lg font-bold text-emerald-600">
+                              {getLowestCredits(product as any)}
+                            </span>
+                            <span className="text-xs font-medium text-emerald-600">
+                              credits
+                            </span>
                           </div>
-
-                          {/* Price Section - Compact */}
-                          <div className="space-y-1">
-                            <div className="flex items-baseline gap-1 flex-wrap">
-                              <span className="text-lg font-bold text-emerald-600">
-                                {getLowestCredits(product as any)}
-                              </span>
-                              <span className="text-xs font-medium text-emerald-600">
-                                credits
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs text-gray-500 line-through truncate">
-                                ₹{getLowestMRP(product as ProductWithVariant)}
-                              </span>
-                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium shrink-0">
-                                {Math.round(
-                                  ((getLowestMRP(product as ProductWithVariant) -
-                                    getLowestCredits(
-                                      product as ProductWithVariant
-                                    ) /
-                                      2) /
-                                    getLowestMRP(product as ProductWithVariant)) *
-                                    100
-                                )}% off
-                              </span>
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 line-through">
+                              ₹{getLowestMRP(product as ProductWithVariant)}
+                            </span>
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
+                              {Math.round(
+                                ((getLowestMRP(product as ProductWithVariant) -
+                                  getLowestCredits(
+                                    product as ProductWithVariant
+                                  ) /
+                                    2) /
+                                  getLowestMRP(product as ProductWithVariant)) *
+                                  100
+                              )}% off
+                            </span>
                           </div>
                         </div>
 
-                        {/* Action Button - Always at bottom */}
-                        <div className="mt-3">
+                        {/* Action Button */}
+                        <div className="mt-2">
                           <div onClick={(e) => e.preventDefault()}>
                             <QuantitySelector product={product} />
                           </div>
                         </div>
                       </div>
-                        </div>
-                      </div>
+                    </div>
                   </Link>
                 </div>
               ))}

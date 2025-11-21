@@ -653,6 +653,9 @@ export default function HomePage() {
         >
           <source src="/cta.mp4" type="video/mp4" />
         </video>
+        
+        {/* Dark Overlay for Better Text Readability */}
+        <div className="absolute inset-0 bg-black/50 z-5"></div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
@@ -662,17 +665,17 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-2xl shadow-black/80" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
               Ready to Transform Your Employee Wellness?
             </h2>
-            <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+            <p className="text-white text-lg md:text-xl max-w-3xl mx-auto leading-relaxed drop-shadow-xl" style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}>
               Join hundreds of companies making employee wellness simple and effective
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-10">
               <Link href="/partner">
                 <Button 
                   size="lg" 
-                  className="bg-emerald-500 text-white hover:bg-emerald-600 px-10 py-6 text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-emerald-500/30 transition-all duration-300 rounded-full border-2 border-emerald-400"
+                  className="bg-emerald-500 text-white hover:bg-emerald-600 px-10 py-6 text-xl font-bold shadow-2xl hover:scale-110 hover:shadow-emerald-500/50 transition-all duration-300 rounded-full border-2 border-emerald-400 drop-shadow-xl"
                 >
                   Get Started
                   <ArrowRight className="ml-3 w-6 h-6" />
@@ -682,7 +685,7 @@ export default function HomePage() {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="border-3 border-white text-white hover:bg-white/20 bg-white/10 px-10 py-6 text-xl font-bold backdrop-blur-md hover:scale-110 transition-all duration-300 rounded-full shadow-xl"
+                  className="border-3 border-white text-white hover:bg-white/30 bg-white/20 px-10 py-6 text-xl font-bold backdrop-blur-md hover:scale-110 transition-all duration-300 rounded-full shadow-2xl drop-shadow-xl"
                 >
                   Learn More
                 </Button>

@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
                     },
                 },
             });
-        } else if (session.user.role === "EMPLOYEE" || session.user.role === "HR") {
+        } else if (session.user.role === "EMPLOYEE") {
             const companyId = await prisma.user
                 .findUnique({
                     where: { id: session.user.id },
@@ -90,6 +90,27 @@ export async function GET(req: NextRequest) {
                     variants: true,
                     vendor: {
                         select: {
+                            name: true,
+                        },
+                    },
+                },
+            });
+        } else if (session.user.role === "HR") {
+            // HR users should see ALL products to manage visibility
+            products = await prisma.product.findMany({
+                orderBy: {
+                    [safeSortBy]: safeSortOrder,
+                },
+                include: {
+                    variants: true,
+                    vendor: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    companies: {
+                        select: {
+                            id: true,
                             name: true,
                         },
                     },

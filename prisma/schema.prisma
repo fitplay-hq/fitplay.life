@@ -8,6 +8,11 @@ generator zod {
   output   = "../lib/generated/zod"
 }
 
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
 model Admin { 
   id        String   @id @default(uuid())
   name      String   @default("admin")

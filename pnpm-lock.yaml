@@ -146,9 +146,6 @@ importers:
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
-      pdf-lib:
-        specifier: ^1.17.1
-        version: 1.17.1
       prisma:
         specifier: ^6.19.0
         version: 6.19.0(typescript@5.9.2)

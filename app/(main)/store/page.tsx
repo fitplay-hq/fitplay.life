@@ -370,7 +370,6 @@ export default function WellnessStore() {
           <Minus className="w-3 h-3" />
         </button>
         <span className="px-4 py-2 text-emerald-800 font-medium min-w-10 text-center border-x border-emerald-200">
-        <span className="px-4 py-2 text-emerald-800 font-medium min-w-10 text-center border-x border-emerald-200">
           {quantity}
         </span>
         <button

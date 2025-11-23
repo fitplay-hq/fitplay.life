@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
         let products;
 
-        if (!session || !session.user) {
+        if (!session || !session.user || session.user.role === "ADMIN") {
             products = await prisma.product.findMany({
                 orderBy: {
                     [safeSortBy]: safeSortOrder,

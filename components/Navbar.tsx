@@ -28,17 +28,14 @@ export default function Navbar() {
 
   return (
     <nav 
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500" 
-      style={{ 
-        background: isScrolled ? undefined : 'transparent !important',
-        backgroundColor: isScrolled ? undefined : 'transparent !important' 
-      }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? 'bg-gradient-to-r from-emerald-800 to-emerald-900 border-b border-emerald-700/50 shadow-lg shadow-emerald-500/20' 
+          : 'bg-transparent'
+      }`}
     >
-      {isScrolled && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/30 to-slate-900/10 backdrop-blur-md border-b border-white/5 shadow-lg shadow-emerald-500/5 transition-all duration-500"></div>
-      )}
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
           <div className="relative">
             <div className={`absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-lg blur transition-opacity duration-500 ${

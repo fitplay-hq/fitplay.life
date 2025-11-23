@@ -756,9 +756,9 @@ export default function WellnessStore() {
                   <div key={index} className="group">
                     <Link href={`/product/${product.id}`} className="block">
                       <div className="relative">
-                        <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-                        <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gray-50/50" style={{ height: '450px' }}>
-                      {/* Image Container - Reduced height */}
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gray-50/50" style={{ height: '460px' }}>
+                      {/* Image Container */}
                       <div className="relative overflow-hidden bg-gray-50" style={{ height: '220px' }}>
                         <ImageWithFallback
                           src={product.images[0] || "/placeholder.png"}
@@ -784,9 +784,11 @@ export default function WellnessStore() {
                         )}
                       </div>
 
-                        {/* Product Name - Fixed height container */}
-                        <div className="h-12 mb-3">
-                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight overflow-hidden">
+                      {/* Content Container with proper spacing */}
+                      <div className="p-4 flex flex-col flex-grow">
+                        {/* Product Name - Flexible height container */}
+                        <div className="mb-3" style={{ minHeight: '48px' }}>
+                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-3 group-hover:text-emerald-600 transition-colors leading-tight">
                             {product.name}
                           </h3>
                         </div>
@@ -827,6 +829,7 @@ export default function WellnessStore() {
                         </div>
                       </div>
                     </div>
+                    </div>
                   </Link>
                 </div>
               ))}
@@ -837,7 +840,7 @@ export default function WellnessStore() {
           {!productsLoading && !error && sortedProducts.length === 0 && (
             <div className="text-center py-20">
               <div className="relative inline-block">
-                <div className="absolute -inset-4 bg-linear-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
                 <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
                   <p className="text-gray-600 mb-6 text-lg font-medium">
                     No products found matching your criteria.

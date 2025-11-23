@@ -48,7 +48,10 @@ export async function GET(req: NextRequest) {
         if (userId) orderFilters.userId = userId;
         if (status) orderFilters.status = status;
         if (session.user.role === "HR" && companyId) {
-            orderFilters.companyId = companyId;
+            // For HR, filter orders by users who belong to the HR's company
+            orderFilters.user = {
+                companyId: companyId
+            };
         }
 
         const orders = await prisma.order.findMany({
@@ -170,7 +173,11 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json(analytics);
     } catch (error) {
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+        console.error("Analytics API error:", error);
+        return NextResponse.json({ 
+            message: "Internal Server Error", 
+            error: error instanceof Error ? error.message : "Unknown error"
+        }, { status: 500 });
     }
 }
 

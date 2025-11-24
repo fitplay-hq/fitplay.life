@@ -221,17 +221,26 @@ export default function ProfilePage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Loading Profile
-            </h2>
-            <p className="text-gray-600">
-              Please wait while we load your profile information...
-            </p>
+      <div className="min-h-screen">
+        {/* Green Header Section */}
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+                <h2 className="text-xl font-semibold text-white mb-2">
+                  Loading Profile
+                </h2>
+                <p className="text-emerald-200">
+                  Please wait while we load your profile information...
+                </p>
+              </div>
+            </div>
           </div>
+        </section>
+        {/* Content Section */}
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"></div>
         </div>
       </div>
     );
@@ -240,21 +249,39 @@ export default function ProfilePage() {
   // Not authenticated state
   if (!isAuthenticated || !user) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-8 h-8 text-red-600" />
+      <div className="min-h-screen">
+        {/* Green Header Section */}
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Profile <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Access</span>
+              </h1>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Access Denied
-            </h2>
-            <p className="text-gray-600 mb-4">
-              You need to be logged in to view your profile.
-            </p>
-            <Button onClick={() => (window.location.href = "/login")}>
-              Go to Login
-            </Button>
+          </div>
+        </section>
+        {/* Content Section */}
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <User className="w-8 h-8 text-red-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-emerald-800 mb-2">
+                  Access Denied
+                </h2>
+                <p className="text-emerald-600 mb-4">
+                  You need to be logged in to view your profile.
+                </p>
+                <Button 
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
+                  onClick={() => (window.location.href = "/login")}
+                >
+                  Go to Login
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -262,57 +289,92 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div className="flex items-center space-x-4 mb-4 md:mb-0">
-          <Avatar className="w-16 h-16">
-            <AvatarImage
-              src={`https://ui-avatars.com/api/?name=${user.name}&background=3b82f6&color=fff`}
-            />
-            <AvatarFallback className="bg-blue-600 text-white text-xl">
-              {/* TODO: */}
-              {(user.name || "")
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl text-primary">{user.name}</h1>
-            <p className="text-gray-600">
-              {/* TODO:  */}
-              {/* {user.department} • {user.employeeId} */}
-              {user.role}
-            </p>
+    <div className="min-h-screen">
+      {/* Green Header Section */}
+      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center space-x-6 mb-6 md:mb-0">
+              <div className="relative">
+                <Avatar className="w-20 h-20 border-4 border-emerald-300 shadow-xl">
+                  <AvatarImage
+                    src={`https://ui-avatars.com/api/?name=${user.name}&background=10b981&color=fff`}
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xl font-bold">
+                    {(user.name || "")
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {user.name}
+                </h1>
+                <p className="text-emerald-300 font-medium text-lg">
+                  {user.role === 'EMPLOYEE' ? '🏢 Employee' : user.role === 'HR' ? '👥 HR Manager' : '👑 Administrator'}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="text-red-400 border-red-400/50 hover:bg-red-500/20 hover:border-red-400 transition-all duration-200 shadow-lg bg-white/10 backdrop-blur-sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Log Out
+            </Button>
           </div>
         </div>
-        <Button
-          variant="outline"
-          className="text-red-600 border-red-300 hover:bg-red-50"
-          onClick={handleLogout}
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Log Out
-        </Button>
-      </div>
+      </section>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList
-          className={`grid w-full ${
-            user.role === $Enums.Role.EMPLOYEE ? "grid-cols-5" : "grid-cols-4"
-          }`}
-        >
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          <TabsTrigger value="wallet">Wallet</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          {user.role === $Enums.Role.EMPLOYEE && (
-            <TabsTrigger value="wishlist">
-              <Heart className="w-4 h-4 mr-1 inline" /> Wishlist
-            </TabsTrigger>
-          )}
-        </TabsList>
+      {/* Content Section */}
+      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+
+          <Tabs defaultValue="dashboard" className="space-y-8">
+            <TabsList
+              className={`grid w-full bg-white/70 backdrop-blur-sm border border-emerald-200 shadow-xl rounded-2xl p-2 ${
+                user.role === $Enums.Role.EMPLOYEE ? "grid-cols-5" : "grid-cols-4"
+              }`}
+            >
+              <TabsTrigger 
+                value="dashboard" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
+              >
+                📊 Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
+              >
+                ⚙️ Settings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="wallet" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
+              >
+                💳 Wallet
+              </TabsTrigger>
+              <TabsTrigger 
+                value="history" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
+              >
+                📈 History
+              </TabsTrigger>
+              {user.role === $Enums.Role.EMPLOYEE && (
+                <TabsTrigger 
+                  value="wishlist"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
+                >
+                  <Heart className="w-4 h-4 mr-1 inline" /> Wishlist
+                </TabsTrigger>
+              )}
+            </TabsList>
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6">
@@ -458,7 +520,9 @@ export default function ProfilePage() {
             />
           </TabsContent>
         )}
-      </Tabs>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

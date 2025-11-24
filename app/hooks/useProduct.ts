@@ -8,7 +8,7 @@ const fetchProduct = async (id: string): Promise<ProductModelType | null> => {
 
 export const useProduct = (id: string) => {
   const { data, error, isLoading, mutate } = useSWR<ProductModelType | null>(
-    typeof window !== 'undefined' && id ? `product/${id}` : null,
+    id ? `product/${id}` : null,
     () => fetchProduct(id),
     {
       revalidateOnFocus: false,

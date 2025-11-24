@@ -9,37 +9,27 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-foreground/80",
-          title: "group-[.toast]:text-foreground",
+            "group toast bg-white text-gray-900 border border-gray-200 shadow-xl rounded-lg backdrop-blur-sm",
+          description: "text-gray-600",
+          title: "text-gray-900 font-semibold",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground hover:group-[.toast]:bg-primary/90",
+            "bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-1 rounded-md font-medium",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground hover:group-[.toast]:bg-muted/80",
+            "bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded-md",
           success:
-            "group-[.toaster]:bg-green-500 group-[.toaster]:text-white group-[.toaster]:border-green-500",
+            "!bg-emerald-50 !text-emerald-800 !border-emerald-200 shadow-lg",
           error:
-            "group-[.toaster]:bg-red-500 group-[.toaster]:text-white group-[.toaster]:border-red-500",
+            "!bg-red-50 !text-red-800 !border-red-200 shadow-lg",
           warning:
-            "group-[.toaster]:bg-yellow-500 group-[.toaster]:text-black group-[.toaster]:border-yellow-500",
-          info: "group-[.toaster]:bg-blue-500 group-[.toaster]:text-white group-[.toaster]:border-blue-500",
+            "!bg-yellow-50 !text-yellow-800 !border-yellow-200 shadow-lg",
+          info: 
+            "!bg-blue-50 !text-blue-800 !border-blue-200 shadow-lg",
         },
       }}
-      style={
-        {
-          "--normal-bg": "var(--background)",
-          "--normal-text": "var(--foreground)",
-          "--normal-border": "var(--border)",
-          "--success-bg": "#22c55e",
-          "--success-text": "#ffffff",
-          "--error-bg": "#ef4444",
-          "--error-text": "#ffffff",
-          "--warning-bg": "#eab308",
-          "--warning-text": "#000000",
-          "--info-bg": "#3b82f6",
-          "--info-text": "#ffffff",
-        } as React.CSSProperties
-      }
+      position="top-right"
+      expand={false}
+      richColors={false}
+      closeButton={true}
       {...props}
     />
   );

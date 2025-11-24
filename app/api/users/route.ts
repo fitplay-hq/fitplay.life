@@ -26,6 +26,9 @@ export async function GET(req: NextRequest) {
 
             const users = await prisma.user.findMany({
                 where: { companyId: hr.companyId },
+                include: {
+                    wallet: true,
+                },
                 orderBy: {
                     name: "asc",
                 },
@@ -42,6 +45,9 @@ export async function GET(req: NextRequest) {
 
             const users = await prisma.user.findMany({
                 where: { companyId },
+                include: {
+                    wallet: true,
+                },
                 orderBy: {
                     name: "asc",
                 },

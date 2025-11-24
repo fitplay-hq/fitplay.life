@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
+import { cn } from "@/lib/utils";
 
 interface Product {
   id: string;
@@ -243,12 +244,23 @@ export default function HRProducts() {
                     </span>
                   </div>
                   
-                  <Switch
-                    checked={isVisible}
-                    onCheckedChange={(checked) => 
-                      updateProductVisibility(product?.id || "", checked)
-                    }
-                  />
+                  <button
+                    onClick={() => updateProductVisibility(product?.id || "", !isVisible)}
+                    className={cn(
+                      "relative inline-flex h-6 w-11 items-center rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+                      isVisible 
+                        ? "bg-emerald-600 border-emerald-700" 
+                        : "bg-gray-300 border-gray-400"
+                    )}
+                  >
+                    <span className="sr-only">Toggle product visibility</span>
+                    <span
+                      className={cn(
+                        "inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out",
+                        isVisible ? "translate-x-6" : "translate-x-1"
+                      )}
+                    />
+                  </button>
                 </div>
               </CardContent>
             </Card>

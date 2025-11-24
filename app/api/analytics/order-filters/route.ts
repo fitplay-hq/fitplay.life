@@ -13,9 +13,7 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const dateFrom = searchParams.get("dateFrom");
         const dateTo = searchParams.get("dateTo");
-        const userId =
-            searchParams.get("userId") ||
-            (session.user.role === "HR" ? session.user.id : undefined);
+        const userId = searchParams.get("userId");
 
         const companyId =
             session.user.role === "HR"

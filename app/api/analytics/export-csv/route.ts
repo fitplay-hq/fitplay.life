@@ -73,7 +73,7 @@ async function buildOrdersFilter(dateFrom: string | null, dateTo: string | null,
 
     const filters: any = { createdAt: dateFilter };
 
-    if (companyId) filters.companyId = companyId;
+    if (companyId) filters.user = { companyId };
     if (status) filters.status = status;
 
     return filters;

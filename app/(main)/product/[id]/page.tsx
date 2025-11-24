@@ -45,10 +45,12 @@ export default function ProductPage({
 
   // Helper function to format category names
   const formatCategoryName = (category: string) => {
+    if (!category) return 'Product';
     return category
       .replace(/_/g, " ") // Replace underscores with spaces
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word && word.length > 0 ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
+      .filter(word => word.length > 0)
       .join(" "); // Capitalize each word
   };
 
@@ -147,13 +149,26 @@ export default function ProductPage({
   };
 
   // Handle loading and error states
-  if (isLoading) {
+  if (isLoading || (!product && !error)) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-center items-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading product...</p>
+      <div className="min-h-screen">
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Loading <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Product</span>
+              </h1>
+            </div>
+          </div>
+        </section>
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-center items-center py-16">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+                <p className="text-emerald-600">Loading product...</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -162,19 +177,31 @@ export default function ProductPage({
 
   if (error) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-16">
-          <p className="text-red-600 mb-6 text-lg">
-            Error loading product: {error.message}
-          </p>
-          <Link href="/store">
-            <Button
-              variant="outline"
-              className="border-red-500 text-red-600 hover:bg-red-50"
-            >
-              Back to Store
-            </Button>
-          </Link>
+      <div className="min-h-screen">
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Product <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Error</span>
+              </h1>
+            </div>
+          </div>
+        </section>
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-16">
+              <p className="text-red-600 mb-6 text-lg">
+                Error loading product: {error.message}
+              </p>
+              <Link href="/store">
+                <Button
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
+                >
+                  Back to Store
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -182,12 +209,27 @@ export default function ProductPage({
 
   if (!product) {
     return (
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-16">
-          <p className="text-gray-600 mb-6 text-lg">Product not found</p>
-          <Link href="/store">
-            <Button variant="outline">Back to Store</Button>
-          </Link>
+      <div className="min-h-screen">
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Product <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Not Found</span>
+              </h1>
+            </div>
+          </div>
+        </section>
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-16">
+              <p className="text-emerald-600 mb-6 text-lg">Product not found</p>
+              <Link href="/store">
+                <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg">
+                  Back to Store
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -217,34 +259,42 @@ export default function ProductPage({
   ];
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Breadcrumb */}
-      <div className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-        <Link
-          href="/store"
-          className="hover:text-emerald-600 flex items-center"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Store
-        </Link>
-        <span>/</span>
-        <span>{formatCategoryName(product.category)}</span>
-        <span>/</span>
-        <span className="text-gray-900">{product.name}</span>
-      </div>
+    <div className="min-h-screen">
+      {/* Green Header Section */}
+      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          {/* Breadcrumb */}
+          <div className="flex items-center space-x-2 text-sm text-emerald-200 mb-6">
+            <Link
+              href="/store"
+              className="hover:text-white flex items-center transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Store
+            </Link>
+            <span>/</span>
+            <span>{formatCategoryName(product?.category || '')}</span>
+            <span>/</span>
+            <span className="text-white font-medium">{product?.name || 'Product'}</span>
+          </div>
+        </div>
+      </section>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      {/* Content Section */}
+      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-8">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <div className="grid lg:grid-cols-2 gap-8">
         {/* Product Images */}
         <div className="space-y-3">
           <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
             <ImageWithFallback
-              src={product.images[selectedImage]}
-              alt={product.name}
+              src={product?.images?.[selectedImage] || ''}
+              alt={product?.name || 'Product'}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            {product.images.map((image, index) => (
+            {(product?.images || []).map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
@@ -256,7 +306,7 @@ export default function ProductPage({
               >
                 <ImageWithFallback
                   src={image}
-                  alt={`${product.name} view ${index + 1}`}
+                  alt={`${product?.name || 'Product'} view ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -268,17 +318,27 @@ export default function ProductPage({
         <div className="space-y-4">
           {/* Title and Brand */}
           <div>
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="text-sm text-gray-600">
-                by {product.vendorName}
-              </span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">
+                    {product?.vendorName?.charAt(0)?.toUpperCase() || 'S'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-emerald-700">
+                    {product?.vendorName || 'Sova Health'}
+                  </p>
+                  <p className="text-xs text-gray-500">Trusted Wellness Partner</p>
+                </div>
+              </div>
               {product.availableStock > 0 && (
-                <span className="text-xs text-green-600 font-medium">
+                <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
                   In Stock
-                </span>
+                </Badge>
               )}
             </div>
-            <h1 className="text-2xl md:text-3xl text-gray-900 font-medium leading-tight">
+            <h1 className="text-2xl md:text-3xl text-gray-900 font-bold leading-tight mb-2">
               {product.name}
             </h1>
           </div>
@@ -457,11 +517,11 @@ export default function ProductPage({
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="flex items-center space-x-4 mb-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">FF</span>
+                  <span className="text-white font-bold text-sm">{product?.vendorName?.charAt(0)?.toUpperCase() || 'S'}</span>
                 </div>
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
-                    {product.vendorName}
+                    {product?.vendorName || 'Sova Health'}
                   </h3>
                   <p className="text-sm text-gray-600">
                     Trusted Wellness Partner
@@ -469,7 +529,7 @@ export default function ProductPage({
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-3">
-                {product.vendorName} has been providing premium wellness
+                {product?.vendorName || 'Sova Health'} has been providing premium wellness
                 products for over 15 years, helping millions achieve their
                 health goals.
               </p>
@@ -526,6 +586,8 @@ export default function ProductPage({
             Contact Support
           </Button>
         </Link>
+      </div>
+        </div>
       </div>
     </div>
   );

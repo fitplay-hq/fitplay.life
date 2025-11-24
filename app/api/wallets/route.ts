@@ -130,8 +130,16 @@ export async function POST(req: NextRequest) {
   export async function PATCH(req: NextRequest) {
     try {
       const session = await getServerSession(authOptions);
-      if (!session || (session.user.role !== "ADMIN" && session.user.role !== "HR") || session.user.email !== process.env.ADMIN_EMAIL) {
+      if (!session || !session.user) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+
+      // Allow ADMIN (with admin email check) or HR users
+      const isAdmin = session.user.role === "ADMIN" && session.user.email === process.env.ADMIN_EMAIL;
+      const isHR = session.user.role === "HR";
+      
+      if (!isAdmin && !isHR) {
+        return NextResponse.json({ message: "Unauthorized - Admin or HR role required" }, { status: 401 });
       }
   
       const body = await req.json();
@@ -151,6 +159,18 @@ export async function POST(req: NextRequest) {
   
       if (!user) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      // If HR user, ensure they can only manage employees in their company
+      if (isHR) {
+        const hrUser = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { companyId: true },
+        });
+        
+        if (!hrUser || hrUser.companyId !== user.companyId) {
+          return NextResponse.json({ error: "Unauthorized - Can only manage employees in your company" }, { status: 403 });
+        }
       }
   
       let wallet = user.wallet;

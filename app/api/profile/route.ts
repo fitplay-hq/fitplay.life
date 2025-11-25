@@ -37,6 +37,10 @@ export async function PATCH(req: NextRequest) {
         }
 
         const body = await req.json();
+        const {name, email, password, role, companyId, verified, claimed} = body;
+        if (name || email || password || role || companyId || verified || claimed) {
+            return new NextResponse(JSON.stringify({ error: "Can't update, invalid fields" }), { status: 400 });
+        }
         const parsedBody = UserUpdateInputObjectSchema.parse(body);
         const updatedUser = await prisma.user.update({
             where: { id: session.user.id },

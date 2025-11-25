@@ -55,8 +55,6 @@ export default function PersonalInformation({ user }: { user: User }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: editedProfile.name,
-          email: editedProfile.email,
           phone: editedProfile.phone,
         }),
       });
@@ -153,7 +151,7 @@ export default function PersonalInformation({ user }: { user: User }) {
           <Label>Full Name</Label>
           <Input
             value={editedProfile.name || ""}
-            disabled={!isEditing || saving}
+            disabled
             onChange={(e) =>
               setEditedProfile({ ...editedProfile, name: e.target.value })
             }
@@ -163,7 +161,7 @@ export default function PersonalInformation({ user }: { user: User }) {
           <Label>Email</Label>
           <Input
             value={editedProfile.email || ""}
-            disabled={!isEditing || saving}
+            disabled
             onChange={(e) =>
               setEditedProfile({ ...editedProfile, email: e.target.value })
             }

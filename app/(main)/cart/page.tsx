@@ -210,21 +210,49 @@ export default function CartPage() {
 
   if (cartItems.length === 0 && currentStep === "cart") {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center space-y-6">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-            <ShoppingBag className="w-12 h-12 text-gray-400" />
+      <div className="min-h-screen">
+        {/* Green Header Section */}
+        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            {/* Breadcrumb */}
+            <div className="flex items-center space-x-2 text-sm text-emerald-200 mb-6">
+              <Link
+                href="/store"
+                className="hover:text-white flex items-center transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back to Store
+              </Link>
+              <span>/</span>
+              <span className="text-white font-medium">Cart</span>
+            </div>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Shopping <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Cart</span>
+              </h1>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl text-primary mb-2">Your cart is empty</h2>
-            <p className="text-gray-600 mb-6">
-              Discover wellness products curated for your health journey
-            </p>
-            <Link href="/store">
-              <Button className="bg-emerald-500 hover:bg-emerald-600">
-                Start Shopping
-              </Button>
-            </Link>
+        </section>
+
+        {/* Content Section */}
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center space-y-6 py-16">
+              <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
+                <ShoppingBag className="w-12 h-12 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
+                <p className="text-gray-600 mb-6">
+                  Discover wellness products curated for your health journey
+                </p>
+                <Link href="/store">
+                  <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg">
+                    Start Shopping
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -232,10 +260,36 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen">
+      {/* Green Header Section */}
+      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          {/* Breadcrumb */}
+          <div className="flex items-center space-x-2 text-sm text-emerald-200 mb-6">
+            <Link
+              href="/store"
+              className="hover:text-white flex items-center transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Store
+            </Link>
+            <span>/</span>
+            <span className="text-white font-medium">Cart</span>
+          </div>
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+              Shopping <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Cart</span>
+            </h1>
+          </div>
+        </div>
+      </section>
+
+      {/* Content Section */}
+      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Progress Steps */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div
@@ -899,6 +953,8 @@ export default function CartPage() {
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }

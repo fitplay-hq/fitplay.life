@@ -391,10 +391,10 @@ export default function WellnessStore() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50">
       {/* Hero Header */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
         
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
               <Package className="w-4 h-4 text-emerald-400" />

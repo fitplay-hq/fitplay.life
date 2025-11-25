@@ -64,7 +64,7 @@ export default function LoginPage() {
 
       switch (role) {
         case "EMPLOYEE":
-          router.replace("/");
+          router.replace("/store");
           break;
         case "HR":
           router.replace("/hr");

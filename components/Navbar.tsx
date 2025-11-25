@@ -2,11 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import Link from "next/link";
-import { User, Menu, X, Sparkles } from 'lucide-react';
+import { User, Menu, X, Sparkles, ShoppingCart, Wallet } from 'lucide-react';
+import { useAtomValue } from 'jotai';
+import { cartItemsAtom } from '@/lib/store';
+import useSWR from 'swr';
+import { useUser } from '@/app/hooks/useUser';
+
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((res) => res.json());
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const cartItems = useAtomValue(cartItemsAtom);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+  const { isAuthenticated } = useUser();
+  const {
+    data: walletData,
+    error: walletError,
+    isLoading: walletLoading,
+  } = useSWR(
+    isAuthenticated ? "/api/wallets?personal=true" : null,
+    fetcher
+  );
+  
+  const walletBalance = walletData?.wallet?.balance || 0;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,6 +102,40 @@ export default function Navbar() {
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
+          {isAuthenticated && (
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-500 ${
+              isScrolled
+                ? 'bg-emerald-400/30 border border-emerald-400/60'
+                : 'bg-emerald-400/20 border border-emerald-400/40'
+            }`}>
+              <Wallet className={`w-4 h-4 transition-colors duration-500 ${
+                isScrolled ? 'text-emerald-200' : 'text-emerald-200/90'
+              }`} />
+              <span className={`text-sm font-semibold transition-colors duration-500 ${
+                isScrolled ? 'text-emerald-200' : 'text-emerald-200/90'
+              }`}>
+                {walletLoading ? '...' : walletError ? 'Error' : `${walletBalance} credits`}
+              </span>
+            </div>
+          )}
+          
+          <Link href="/cart">
+            <button className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+              isScrolled
+                ? 'bg-emerald-400/30 border border-emerald-400/60'
+                : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/25 hover:border-emerald-400/50'
+            } group`}>
+              <ShoppingCart className={`w-5 h-5 transition-colors duration-500 ${
+                isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
+              }`} />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              )}
+            </button>
+          </Link>
+
           <Link href="/partner">
             <button className={`relative group px-6 py-2.5 overflow-hidden transition-all duration-500 rounded-full ${
               isScrolled ? 'shadow-lg shadow-emerald-500/20' : 'shadow-lg shadow-emerald-500/10'
@@ -143,6 +198,29 @@ export default function Navbar() {
             ))}
 
             <div className="pt-4 border-t border-white/10 space-y-3">
+              {isAuthenticated && (
+                <div className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
+                  <Wallet className="w-5 h-5 text-emerald-300" />
+                  <span className="text-emerald-200 font-medium">
+                    {walletLoading ? 'Loading...' : walletError ? 'Error loading credits' : `${walletBalance} credits`}
+                  </span>
+                </div>
+              )}
+              
+              <Link href="/cart" onClick={() => setIsOpen(false)}>
+                <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                  <div className="relative">
+                    <ShoppingCart className="w-5 h-5 text-emerald-300" />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                        {totalItems > 9 ? '9+' : totalItems}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-white font-medium">Cart</span>
+                </button>
+              </Link>
+
               <Link href="/partner" onClick={() => setIsOpen(false)}>
                 <button className="w-full relative group px-6 py-2.5 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 transition-all duration-300 rounded-full"></div>

@@ -55,7 +55,7 @@ export default function PersonalInformation({ user }: { user: User }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          phone: editedProfile.phone, // Only allow phone number updates
+          phone: editedProfile.phone,
         }),
       });
       if (!response.ok) {
@@ -153,8 +153,9 @@ export default function PersonalInformation({ user }: { user: User }) {
           <Input
             value={editedProfile.name || ""}
             disabled
-            className="bg-gray-50 text-gray-600 cursor-not-allowed"
-            title="Name cannot be edited. Contact HR for changes."
+            onChange={(e) =>
+              setEditedProfile({ ...editedProfile, name: e.target.value })
+            }
           />
         </div>
         <div className="space-y-2">
@@ -162,8 +163,9 @@ export default function PersonalInformation({ user }: { user: User }) {
           <Input
             value={editedProfile.email || ""}
             disabled
-            className="bg-gray-50 text-gray-600 cursor-not-allowed"
-            title="Email cannot be edited. Contact HR for changes."
+            onChange={(e) =>
+              setEditedProfile({ ...editedProfile, email: e.target.value })
+            }
           />
         </div>
         <div className="space-y-2">

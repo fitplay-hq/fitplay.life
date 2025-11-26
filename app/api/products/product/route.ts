@@ -18,28 +18,84 @@ async function requireAdmin() {
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
-    if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!session)
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const result = ProductCreateInputObjectSchema.safeParse(body);
 
-    if (!result.success) {
-      console.error("Product creation failed:", result.error.format());
-      return NextResponse.json({ message: "Invalid product data", error: result.error.format() }, { status: 400 });
+    // required fields validation
+    const requiredFields = ["name", "sku", "availableStock", "category", "description"];
+    const missing = requiredFields.filter(f => body[f] === undefined);
+    if (missing.length > 0) {
+      return NextResponse.json(
+        { message: `Missing fields: ${missing.join(", ")}` },
+        { status: 400 }
+      );
     }
 
-    const productData = result.data;
+    const {
+      vendorName,
+      variants,
+      companies, // ignored intentionally
+      orderItems, // ignored intentionally
+      vendorId, // ignored
+      ...productData
+    } = body;
 
-    const created = await prisma.product.create({
-      data: productData,
+    let resolvedVendorId: string | null = null;
+
+    if (vendorName) {
+      const vendor = await prisma.vendor.findFirst({
+        where: { name: vendorName },
+        select: { id: true },
+      });
+
+      if (!vendor) {
+        return NextResponse.json(
+          { message: `Vendor '${vendorName}' not found` },
+          { status: 400 }
+        );
+      }
+
+      resolvedVendorId = vendor.id;
+    }
+
+    const createdProduct = await prisma.product.create({
+      data: {
+        ...productData,
+        vendorId: resolvedVendorId,
+        variants: variants?.create
+          ? {
+              create: variants.create.map((v: any) => ({
+                variantCategory: v.variantCategory,
+                variantValue: v.variantValue,
+                mrp: v.mrp,
+                credits: v.credits ?? null,
+                availableStock: v.availableStock ?? null,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        vendor: true,
+        variants: true,
+      },
     });
 
-    return NextResponse.json({ message: "Product created successfully", data: created }, { status: 201 });
+    return NextResponse.json(
+      { message: "Product created successfully", data: createdProduct },
+      { status: 201 }
+    );
+
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: "Error creating product", error }, { status: 500 });
+    console.error("Product creation error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error", error: String(error) },
+      { status: 500 }
+    );
   }
 }
+
 
 export async function GET(req: NextRequest) {
   try {
@@ -82,11 +138,11 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const session = await requireAdmin();
-    if (!session) 
+    if (!session)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const id = req.nextUrl.searchParams.get("id");
-    if (!id) 
+    if (!id)
       return NextResponse.json({ message: "Product ID is required" }, { status: 400 });
 
     // 1️⃣ Delete all variants associated with this product

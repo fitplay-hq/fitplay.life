@@ -87,10 +87,13 @@ model Product {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @default(now()) @updatedAt
   specifications Json?
+  vendorName     String?
   subCategory    SubCategory?
+  /// @zod.ignore()
   orderItems     OrderItem[]
   variants       Variant[]
-  companies      Company[]    @relation("CompanyToProduct")
+  /// @zod.ignore()
+  companies      Company[] @relation("CompanyToProduct")
   vendor         Vendor?      @relation(fields: [vendorId], references: [id])
   vendorId       String?
 }

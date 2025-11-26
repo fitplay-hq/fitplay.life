@@ -785,9 +785,16 @@ export default function WellnessStore() {
 
                       {/* Content Container with proper spacing */}
                       <div className="p-4 flex flex-col flex-grow">
+                        {/* Vendor Name */}
+                        <div className="mb-2">
+                          <p className="text-xs text-emerald-600 font-medium">
+                            {(product as any).vendor?.name || 'FitPlay'}
+                          </p>
+                        </div>
+                        
                         {/* Product Name - Flexible height container */}
-                        <div className="mb-3" style={{ minHeight: '48px' }}>
-                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-3 group-hover:text-emerald-600 transition-colors leading-tight">
+                        <div className="mb-3" style={{ minHeight: '40px' }}>
+                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
                             {product.name}
                           </h3>
                         </div>

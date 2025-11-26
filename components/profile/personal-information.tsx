@@ -55,9 +55,7 @@ export default function PersonalInformation({ user }: { user: User }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: editedProfile.name,
-          email: editedProfile.email,
-          phone: editedProfile.phone,
+          phone: editedProfile.phone, // Only allow phone number updates
         }),
       });
       if (!response.ok) {
@@ -143,34 +141,33 @@ export default function PersonalInformation({ user }: { user: User }) {
             }
           }}
           disabled={saving}
+          className="border-emerald-300 text-emerald-600 hover:bg-emerald-50"
         >
           <Edit2 className="w-4 h-4 mr-2" />
-          {isEditing ? "Cancel" : "Edit"}
+          {isEditing ? "Cancel" : "Edit Phone"}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Full Name</Label>
+          <Label className="text-gray-500">Full Name</Label>
           <Input
             value={editedProfile.name || ""}
-            disabled={!isEditing || saving}
-            onChange={(e) =>
-              setEditedProfile({ ...editedProfile, name: e.target.value })
-            }
+            disabled
+            className="bg-gray-50 text-gray-600 cursor-not-allowed"
+            title="Name cannot be edited. Contact HR for changes."
           />
         </div>
         <div className="space-y-2">
-          <Label>Email</Label>
+          <Label className="text-gray-500">Email</Label>
           <Input
             value={editedProfile.email || ""}
-            disabled={!isEditing || saving}
-            onChange={(e) =>
-              setEditedProfile({ ...editedProfile, email: e.target.value })
-            }
+            disabled
+            className="bg-gray-50 text-gray-600 cursor-not-allowed"
+            title="Email cannot be edited. Contact HR for changes."
           />
         </div>
         <div className="space-y-2">
-          <Label>Phone</Label>
+          <Label className={isEditing ? "text-emerald-600 font-medium" : ""}>Phone {isEditing && <span className="text-emerald-600"></span>}</Label>
           <Input
             value={editedProfile.phone || ""}
             disabled={!isEditing || saving}
@@ -181,19 +178,26 @@ export default function PersonalInformation({ user }: { user: User }) {
             pattern="[0-9]{10}"
             title="Phone number must be exactly 10 digits"
             maxLength={10}
+            className={isEditing ? "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500" : ""}
           />
         </div>
         <div className="space-y-2">
-          <Label>Role</Label>
-          <Input value={editedProfile.role} disabled />
+          <Label className="text-gray-500">Role</Label>
+          <Input 
+            value={editedProfile.role} 
+            disabled 
+            className="bg-gray-50 text-gray-600 cursor-not-allowed"
+            title="Role cannot be changed"
+          />
+          <p className="text-xs text-gray-500">Role is assigned by your organization</p>
         </div>
         {isEditing && (
           <Button
             onClick={handleSaveProfile}
-            className="w-full"
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
             disabled={saving}
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? "Updating Phone..." : "Update Phone Number"}
           </Button>
         )}
       </CardContent>

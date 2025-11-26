@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { User, Menu, X, Sparkles, ShoppingCart, Wallet } from 'lucide-react';
-import { useAtomValue } from 'jotai';
-import { cartItemsAtom } from '@/lib/store';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { cartItemsAtom, clearCartAtom, clearWishlistAtom } from '@/lib/store';
 import useSWR from 'swr';
 import { useUser } from '@/app/hooks/useUser';
 
@@ -14,8 +14,11 @@ const fetcher = (url: string) =>
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [wasAuthenticated, setWasAuthenticated] = useState<boolean | null>(null);
   const cartItems = useAtomValue(cartItemsAtom);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const clearCart = useSetAtom(clearCartAtom);
+  const clearWishlist = useSetAtom(clearWishlistAtom);
   
   const { isAuthenticated } = useUser();
   const {
@@ -40,6 +43,16 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Clear cart and wishlist when user logs out
+  useEffect(() => {
+    if (wasAuthenticated !== null && wasAuthenticated && !isAuthenticated) {
+      // User just logged out
+      clearCart();
+      clearWishlist();
+    }
+    setWasAuthenticated(isAuthenticated);
+  }, [isAuthenticated, wasAuthenticated, clearCart, clearWishlist]);
 
   const navLinks = [
     { label: 'Home', href: '/' },

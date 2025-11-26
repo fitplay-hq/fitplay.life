@@ -208,13 +208,13 @@ export function ProductForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200 shadow-xl">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">
             {editingProduct ? "Edit Product" : "Add New Product"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 py-4">
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 py-4 bg-white">
           <div className="space-y-2">
             <Label htmlFor="product-name">Product Name</Label>
             <Input
@@ -337,7 +337,7 @@ export function ProductForm({
             {variants.length > 0 && (
               <div className="space-y-3">
                 {variants.map((variant, index) => (
-                  <Card key={variant.id || index} className="p-4">
+                  <Card key={variant.id || index} className="p-4 bg-gray-50 border border-gray-200">
                     <div className="flex items-end gap-4">
                       <div className="flex-1 grid grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -414,12 +414,16 @@ export function ProductForm({
             )}
           </div>
         </form>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 bg-white">
+          <Button 
+            variant="outline" 
+            onClick={() => handleOpenChange(false)}
+            className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
             Cancel
           </Button>
           <Button
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
             onClick={handleSubmit}
           >
             {editingProduct ? "Update Product" : "Add Product"}

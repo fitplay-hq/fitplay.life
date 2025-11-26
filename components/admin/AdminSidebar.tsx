@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
@@ -114,11 +115,16 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
         <Sidebar className="border-r border-gray-200 bg-white">
           <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <Link href="/" className="block">
-                  <h2 className="text-lg font-semibold text-gray-900 hover:text-emerald-600 transition-colors cursor-pointer">
-                    FitPlay
-                  </h2>
+              <div className="flex flex-col items-start">
+                <Link href="/" className="block hover:opacity-80 transition-opacity">
+                  <Image
+                    src="/logo.png"
+                    alt="FitPlay Logo"
+                    width={100}
+                    height={100}
+                    className="rounded-lg object-contain max-w-none"
+                    priority
+                  />
                 </Link>
                 <div className="mt-1">
                   <Badge
@@ -168,11 +174,16 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
       <Sidebar className="border-r border-gray-200 bg-white p-0">
         <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <Link href="/" className="block">
-                <h2 className="text-lg font-semibold text-gray-900 hover:text-emerald-600 transition-colors cursor-pointer">
-                  FitPlay
-                </h2>
+            <div className="flex flex-col items-start">
+              <Link href="/" className="block hover:opacity-80 transition-opacity">
+                <Image
+                  src="/logo.png"
+                  alt="FitPlay Logo"
+                  width={100}
+                  height={100}
+                  className="rounded-lg object-contain max-w-none"
+                  priority
+                />
               </Link>
               <div className="mt-1">
                 <Badge

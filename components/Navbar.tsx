@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from "next/link";
+import Image from "next/image";
 import { User, Menu, X, Sparkles, ShoppingCart, Wallet } from 'lucide-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { cartItemsAtom, clearCartAtom, clearWishlistAtom } from '@/lib/store';
@@ -70,31 +71,15 @@ export default function Navbar() {
     >
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-          <div className="relative">
-            <div className={`absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-lg blur transition-opacity duration-500 ${
-              isScrolled ? 'opacity-30' : 'opacity-20 group-hover:opacity-25'
-            }`}></div>
-            <div className={`relative px-3 py-2 rounded-lg transition-all duration-500 ${
-              isScrolled 
-                ? 'bg-gradient-to-br from-emerald-500 to-teal-600' 
-                : 'bg-gradient-to-br from-emerald-500/50 to-teal-600/50'
-            }`}>
-              <Sparkles className={`w-6 h-6 transition-colors duration-500 ${
-                isScrolled ? 'text-white' : 'text-white/90'
-              }`} />
-            </div>
-          </div>
-          <span className={`text-2xl font-bold bg-clip-text text-transparent transition-all duration-500 ${
-            isScrolled
-              ? 'bg-gradient-to-r from-emerald-300 to-teal-200'
-              : 'bg-gradient-to-r from-emerald-200 to-teal-100 group-hover:from-emerald-100 group-hover:to-teal-50'
-          }`}>
-            FitPlay
-          </span>
-          <span className={`text-sm font-semibold transition-colors duration-500 ${
-            isScrolled ? 'text-emerald-300' : 'text-emerald-200/90 group-hover:text-emerald-100'
-          }`}>.life</span>
+        <Link href="/" className="group cursor-pointer">
+          <Image
+            src="/logo.png"
+            alt="FitPlay Logo"
+            width={isScrolled ? 100 : 108}
+            height={isScrolled ? 100 : 108}
+            className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg rounded-lg object-contain"
+            priority
+          />
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">

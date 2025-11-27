@@ -40,6 +40,7 @@ import {
   LogOut,
   Bell,
   ChevronRight,
+  Gift,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -78,6 +79,11 @@ const adminNavItems = [
     title: "Wallets",
     url: "/admin/wallets",
     icon: DollarSign,
+  },
+  {
+    title: "Vouchers",
+    url: "/admin/vouchers",
+    icon: Gift,
   },
   {
     title: "Vendors",

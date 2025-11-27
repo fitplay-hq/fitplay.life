@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { User, Settings, Wallet, History, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import VoucherRedemptionCard from "@/app/components/profile/VoucherRedemptionCard";
 
 interface DashboardStats {
   totalOrders: number;
@@ -89,6 +90,9 @@ export default function Dashboard({
           </CardContent>
         </Card>
       </div>
+
+      {/* Voucher Redemption */}
+      <VoucherRedemptionCard />
 
       <Card>
         <CardHeader>

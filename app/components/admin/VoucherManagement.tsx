@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Calendar, Gift, Users, Trash2, Eye } from 'lucide-react';
-import { useVouchers, createVoucher, type Voucher } from '@/app/hooks/useVouchers';
+import { useVouchers, createVoucher, updateVoucher, deleteVoucher, type Voucher } from '@/app/hooks/useVouchers';
 import { voucherToast } from '@/lib/voucherToast';
 import useSWR from 'swr';
 
@@ -24,8 +24,11 @@ interface Company {
 export default function VoucherManagement() {
   const { vouchers, isLoading, mutate } = useVouchers();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+  const [voucherToDelete, setVoucherToDelete] = useState<Voucher | null>(null);
 
   const { data: companiesData } = useSWR<{ companies: Company[] }>('/api/companies', fetcher);
   const companies = companiesData?.companies || [];
@@ -77,6 +80,71 @@ export default function VoucherManagement() {
     } catch (error) {
       console.error('Voucher creation error:', error);
       voucherToast.error(error instanceof Error ? error.message : 'Failed to create voucher');
+    }
+  };
+
+  const handleEdit = (voucher: Voucher) => {
+    setSelectedVoucher(voucher);
+    setFormData({
+      companyId: voucher.companies[0]?.id || '',
+      code: voucher.code,
+      credits: voucher.credits.toString(),
+      description: voucher.description || '',
+      expiryDate: voucher.expiryDate.split('T')[0],
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedVoucher || !formData.code || !formData.credits || !formData.expiryDate) {
+      voucherToast.error('Please fill all required fields');
+      return;
+    }
+
+    try {
+      await updateVoucher({
+        voucherId: selectedVoucher.id,
+        companyId: formData.companyId,
+        code: formData.code,
+        credits: parseInt(formData.credits),
+        description: formData.description || undefined,
+        expiryDate: formData.expiryDate,
+      });
+
+      voucherToast.success('Voucher updated successfully');
+      setIsEditDialogOpen(false);
+      setFormData({
+        companyId: '',
+        code: '',
+        credits: '',
+        description: '',
+        expiryDate: '',
+      });
+      setSelectedVoucher(null);
+      mutate();
+    } catch (error) {
+      voucherToast.error(error instanceof Error ? error.message : 'Failed to update voucher');
+    }
+  };
+
+  const handleDelete = (voucher: Voucher) => {
+    setVoucherToDelete(voucher);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!voucherToDelete) return;
+
+    try {
+      await deleteVoucher(voucherToDelete.id);
+      voucherToast.success('Voucher deleted successfully');
+      mutate();
+      setIsDeleteDialogOpen(false);
+      setVoucherToDelete(null);
+    } catch (error) {
+      voucherToast.error(error instanceof Error ? error.message : 'Failed to delete voucher');
     }
   };
 
@@ -207,6 +275,119 @@ export default function VoucherManagement() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Voucher Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle>Edit Voucher</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <Label htmlFor="editCompany">Company *</Label>
+                <Select value={formData.companyId} onValueChange={(value) => setFormData({ ...formData, companyId: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="editCode">Voucher Code *</Label>
+                <Input
+                  id="editCode"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                  placeholder="e.g., WELLNESS50"
+                  className="uppercase"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editCredits">Credits *</Label>
+                <Input
+                  id="editCredits"
+                  type="number"
+                  value={formData.credits}
+                  onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                  placeholder="e.g., 100"
+                  min="1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editDescription">Description</Label>
+                <Textarea
+                  id="editDescription"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Optional description"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editExpiryDate">Expiry Date *</Label>
+                <Input
+                  id="editExpiryDate"
+                  type="date"
+                  value={formData.expiryDate}
+                  onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700">
+                  Update Voucher
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader>
+              <DialogTitle>Confirm Delete</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm text-gray-600">
+                Are you sure you want to delete voucher <strong>"{voucherToDelete?.code}"</strong>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button 
+                onClick={confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                  setVoucherToDelete(null);
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Statistics */}
@@ -309,6 +490,20 @@ export default function VoucherManagement() {
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   Details
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(voucher)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(voucher)}
+                >
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>

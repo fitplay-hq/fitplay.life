@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { CreditPurchase } from "@/components/CreditPurchase";
+import CheckoutVoucherRedemption from "@/app/components/checkout/VoucherRedemption";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
@@ -415,6 +416,16 @@ export default function CartPage() {
                 onPurchaseComplete={handleCreditPurchase}
               />
             )}
+
+            {/* Voucher Redemption Section */}
+            <CheckoutVoucherRedemption 
+              onCreditsAdded={(credits) => {
+                // Refresh wallet data after voucher redemption
+                toast.success(`${credits} credits added from voucher!`);
+                // Force a refresh of the SWR data
+                window.location.reload();
+              }}
+            />
           </div>
 
           {/* Order Summary */}

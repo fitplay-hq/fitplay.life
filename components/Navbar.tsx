@@ -59,7 +59,6 @@ export default function Navbar() {
     { label: 'Home', href: '/' },
     { label: 'About us', href: '/about' },
     { label: 'Wellness Store', href: '/store' },
-    ...(isAuthenticated ? [{ label: 'Vouchers', href: '/vouchers' }] : []),
   ];
 
   return (

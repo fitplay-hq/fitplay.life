@@ -85,28 +85,30 @@ export default function VoucherRedemption() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Vouchers</h2>
-          <p className="text-gray-600">Redeem vouchers to earn wellness credits</p>
-        </div>
-        
-        <Dialog open={isRedeemDialogOpen} onOpenChange={setIsRedeemDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Redeem Voucher
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Redeem Voucher</DialogTitle>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">Vouchers</h1>
+              <p className="text-emerald-100 text-lg">Redeem vouchers to earn wellness credits</p>
+            </div>
+            
+            <Dialog open={isRedeemDialogOpen} onOpenChange={setIsRedeemDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-white text-emerald-600 hover:bg-emerald-50">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Redeem Voucher
+                </Button>
+              </DialogTrigger>
+          <DialogContent className="max-w-md bg-white">
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-lg">Redeem Voucher</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleRedeem} className="space-y-4">
-              <div>
-                <Label htmlFor="voucherCode">Voucher Code</Label>
+            <form onSubmit={handleRedeem} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="voucherCode" className="text-sm font-medium">Voucher Code</Label>
                 <Input
                   id="voucherCode"
                   value={voucherCode}
@@ -117,7 +119,7 @@ export default function VoucherRedemption() {
                 />
               </div>
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-3 pt-6">
                 <Button 
                   type="submit" 
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700"
@@ -137,9 +139,13 @@ export default function VoucherRedemption() {
             </form>
           </DialogContent>
         </Dialog>
+          </div>
+        </div>
       </div>
 
-      {/* Statistics */}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -307,6 +313,7 @@ export default function VoucherRedemption() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

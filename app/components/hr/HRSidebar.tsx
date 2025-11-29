@@ -28,6 +28,7 @@ import {
   LogOut,
   Building2,
   Bell,
+  UserPlus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -41,6 +42,11 @@ const hrNavItems = [
     title: "Employees",
     url: "/hr/employees",
     icon: Users,
+  },
+  {
+    title: "Invites",
+    url: "/hr/invites",
+    icon: UserPlus,
   },
   {
     title: "Product Visibility",

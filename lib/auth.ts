@@ -39,6 +39,12 @@ export const authOptions: NextAuthOptions = {
         if (user) {
           const isValid = await compare(credentials.password, user.password);
           if (!isValid) throw new Error("Invalid password");
+          
+          // Check if email is verified
+          if (!user.verified) {
+            throw new Error("Please verify your email first. Check your inbox for verification link.");
+          }
+          
           return {
             id: user.id,
             name: user.name,

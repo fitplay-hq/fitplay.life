@@ -1,0 +1,294 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CheckCircle, Shield, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import PasswordInput from "@/components/password-input";
+
+function ResetPasswordForm() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const token = searchParams.get("token");
+  
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!token) {
+      toast.error("Invalid reset token");
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/resetPassword", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          newPassword: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          toast.error("Invalid or expired reset token. Please request a new reset link.");
+        } else {
+          toast.error(data.error || "Failed to reset password");
+        }
+        return;
+      }
+
+      setIsSuccess(true);
+      toast.success("Password reset successfully!");
+
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="FitPlay Logo"
+              width={80}
+              height={80}
+              className="rounded-lg object-contain"
+              priority
+            />
+          </div>
+          <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl text-gray-900">
+                Invalid Reset Link
+              </CardTitle>
+              <CardDescription>
+                This password reset link is invalid or has expired. 
+                Please request a new password reset.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/forgot-password">Request New Reset Link</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/login">Back to Login</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center mb-4">
+              <Image
+                src="/logo.png"
+                alt="FitPlay Logo"
+                width={80}
+                height={80}
+                className="rounded-lg object-contain"
+                priority
+              />
+            </div>
+          </div>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl text-green-700">
+                Password Reset Successfully!
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Your password has been updated. You can now log in with your new password.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => router.push("/login")}
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600"
+              >
+                Continue to Login
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-500 rounded-full blur-xl"></div>
+        <div className="absolute top-40 right-20 w-32 h-32 bg-green-500 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-teal-500 rounded-full blur-xl"></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="FitPlay Logo"
+              width={80}
+              height={80}
+              className="rounded-lg object-contain"
+              priority
+            />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Set New Password
+          </h1>
+          <p className="text-gray-600">
+            Enter your new password below
+          </p>
+        </div>
+
+        {/* Reset Form */}
+        <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center text-gray-900">
+              Create New Password
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              Choose a strong password to secure your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-700">
+                  New Password
+                </Label>
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  placeholder="Enter your new password"
+                  required
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-gray-500">
+                  Password must be at least 8 characters long
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-700">
+                  Confirm New Password
+                </Label>
+                <PasswordInput
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  placeholder="Confirm your new password"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading || !password || !confirmPassword}
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5"
+              >
+                {isLoading ? "Resetting Password..." : "Reset Password"}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <Link
+                href="/login"
+                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+              >
+                Back to Login
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Password Requirements */}
+        <div className="mt-6 bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-emerald-100">
+          <div className="flex items-start gap-3">
+            <Shield className="w-5 h-5 text-emerald-600 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-gray-900 mb-2">Password Requirements:</p>
+              <ul className="text-gray-600 space-y-1">
+                <li className={password.length >= 8 ? "text-green-600" : ""}>
+                  • At least 8 characters long
+                </li>
+                <li className={password === confirmPassword && password ? "text-green-600" : ""}>
+                  • Passwords must match
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}

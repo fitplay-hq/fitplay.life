@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ function SignupForm() {
   const handleSignup = async (formData: FormData) => {
     if (!token) {
       setError(
-        "No invite token found. Please use the invite link from your admin."
+        "No invitation token found. Please use the invitation link provided by your administrator or HR."
       );
       return;
     }
@@ -96,17 +97,25 @@ function SignupForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+      <div className="h-screen overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
-          <Logo />
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="FitPlay Logo"
+              width={60}
+              height={60}
+              className="rounded-lg object-contain"
+              priority
+            />
+          </div>
           <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
             <CardHeader>
               <CardTitle className="text-2xl text-gray-900">
-                Invite Required
+                Invitation Required
               </CardTitle>
               <CardDescription>
-                This platform is invite-only. Please use the invite link
-                provided by your administrator to sign up.
+                FitPlay is an invite-only corporate wellness platform. Please use the invitation link provided by your company administrator or HR manager to create your account.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
@@ -121,7 +130,7 @@ function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-500 rounded-full blur-xl"></div>
@@ -129,34 +138,41 @@ function SignupForm() {
         <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-teal-500 rounded-full blur-xl"></div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center">
-            <Logo />
+      <div className="w-full max-w-lg relative z-10">
+        {/* Header with FitPlay Logo */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="FitPlay Logo"
+              width={70}
+              height={70}
+              className="rounded-lg object-contain"
+              priority
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Complete Your Signup
+            Complete Your Registration
           </h1>
           <p className="text-gray-600">
-            Fill in your details to claim your account
+            Fill in your details to activate your FitPlay account
           </p>
         </div>
 
         {/* Signup Card */}
-        <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
+        <Card className="bg-white/95 backdrop-blur-sm border-emerald-100 shadow-xl h-[calc(100vh-14rem)] flex flex-col">
           {!success ? (
             <>
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl text-center text-gray-900">
-                  Complete Registration
+              <CardHeader className="space-y-1 pb-4 flex-shrink-0">
+                <CardTitle className="text-xl text-center text-gray-900">
+                  Complete Your Account Setup
                 </CardTitle>
-                <CardDescription className="text-center text-gray-600">
-                  Enter your personal details to activate your wellness account
+                <CardDescription className="text-center text-gray-600 text-sm">
+                  You've been invited to join FitPlay. Fill in your details to create your account.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <form action={handleSignup} className="space-y-4">
+              <CardContent className="flex-1 overflow-y-auto px-6 scrollbar-hide">
+                <form action={handleSignup} className="space-y-4 pb-6">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-gray-700">
                       Full Name
@@ -314,12 +330,10 @@ function SignupForm() {
                   <CheckCircle className="w-12 h-12 text-green-500" />
                 </div>
                 <CardTitle className="text-xl text-green-700">
-                  Account Created Successfully!
+                  Registration Complete!
                 </CardTitle>
                 <CardDescription className="text-gray-600">
-                  We&apos;ve sent a verification email to your inbox. Please
-                  check your email and click the verification link to activate
-                  your account.
+                  Your FitPlay account has been created successfully! We&apos;ve sent a verification email to your inbox. Please check your email and click the verification link to activate your account and start accessing your wellness benefits.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
@@ -334,27 +348,7 @@ function SignupForm() {
           )}
         </Card>
 
-        {/* Trust indicators */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Shield className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">Secure Registration</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Users className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">Join 25,000+ Users</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Heart className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">Wellness Focused</p>
-          </div>
-        </div>
+
       </div>
     </div>
   );

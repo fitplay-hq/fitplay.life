@@ -41,6 +41,7 @@ import {
   Bell,
   ChevronRight,
   Gift,
+  UserPlus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -84,6 +85,11 @@ const adminNavItems = [
     title: "Vouchers",
     url: "/admin/vouchers",
     icon: Gift,
+  },
+  {
+    title: "Invites",
+    url: "/admin/invites",
+    icon: UserPlus,
   },
   {
     title: "Vendors",

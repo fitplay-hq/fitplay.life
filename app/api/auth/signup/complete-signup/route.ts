@@ -120,9 +120,10 @@ export async function PATCH(req: NextRequest) {
             },
         });
 
-        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
         const verifyLink = `${baseUrl}/verify?token=${verifyToken}`;
-        const verificationMail = process.env.VERIFICATION_MAIL || "onboarding@resend.dev";
+        // Use Resend's verified domain for better delivery
+        const verificationMail = "delivered@resend.dev";
 
             try {
             console.log(`🔧 Email configuration:`)

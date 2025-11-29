@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Heart, Shield, Users, CheckCircle } from "lucide-react";
+import { Heart, Shield, Users, CheckCircle, Mail, Clock } from "lucide-react";
 import Logo from "@/components/logo";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +34,48 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [phone, setPhone] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (success && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, countdown]);
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    setResendSuccess(false);
+    
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      if (res.ok) {
+        setResendSuccess(true);
+        setCountdown(60); // Reset countdown
+        setTimeout(() => setResendSuccess(false), 3000);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to resend verification email");
+      }
+    } catch (err) {
+      setError("Failed to resend verification email");
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   const handleSignup = async (formData: FormData) => {
     if (!token) {
@@ -86,6 +128,7 @@ function SignupForm() {
       if (!res.ok) {
         setError(data.error || "Something went wrong");
       } else {
+        setUserEmail(email); // Save email for resend functionality
         setSuccess(true);
       }
     } catch (err) {
@@ -160,7 +203,7 @@ function SignupForm() {
         </div>
 
         {/* Signup Card */}
-        <Card className="bg-white/95 backdrop-blur-sm border-emerald-100 shadow-xl h-[calc(100vh-14rem)] flex flex-col">
+        <Card className="bg-white/95 backdrop-blur-sm border-emerald-100 shadow-xl max-h-[85vh] flex flex-col">
           {!success ? (
             <>
               <CardHeader className="space-y-1 pb-4 flex-shrink-0">
@@ -171,7 +214,7 @@ function SignupForm() {
                   You've been invited to join FitPlay. Fill in your details to create your account.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto px-6 scrollbar-hide">
+              <CardContent className="flex-1 overflow-y-auto px-6 pb-8 scrollbar-hide">
                 <form action={handleSignup} className="space-y-4 pb-6">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-gray-700">
@@ -310,7 +353,7 @@ function SignupForm() {
                   </Button>
                 </form>
 
-                <div className="mt-6 text-center">
+                <div className="mt-8 pb-4 text-center">
                   <p className="text-sm text-gray-600">
                     Already have an account?{" "}
                     <Link
@@ -327,22 +370,94 @@ function SignupForm() {
             <>
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
-                  <CheckCircle className="w-12 h-12 text-green-500" />
+                  <CheckCircle className="w-16 h-16 text-green-500" />
                 </div>
-                <CardTitle className="text-xl text-green-700">
+                <CardTitle className="text-2xl text-green-700 mb-2">
                   Registration Complete!
                 </CardTitle>
-                <CardDescription className="text-gray-600">
-                  Your FitPlay account has been created successfully! We&apos;ve sent a verification email to your inbox. Please check your email and click the verification link to activate your account and start accessing your wellness benefits.
+                <CardDescription className="text-gray-600 text-base">
+                  Your FitPlay account has been created successfully! We&apos;ve sent a verification email to{" "}
+                  <span className="font-semibold text-emerald-600">{userEmail}</span>.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center">
-                <Button
-                  onClick={() => router.push("/login")}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white"
-                >
-                  Go to Login
-                </Button>
+              <CardContent className="space-y-4">
+                {/* Email Status */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Mail className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-blue-800">Check Your Email</span>
+                  </div>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Please check your inbox and click the verification link to activate your account.
+                  </p>
+                  {resendSuccess && (
+                    <div className="bg-green-100 border border-green-200 rounded p-2 mb-3">
+                      <p className="text-sm text-green-800">✅ Verification email resent successfully!</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Countdown Timer */}
+                {countdown > 0 ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Clock className="h-5 w-5 text-yellow-600" />
+                      <span className="font-medium text-yellow-800">Didn't receive the email?</span>
+                    </div>
+                    <p className="text-sm text-yellow-700 mb-3">
+                      You can request a new verification email in <span className="font-bold">{countdown}</span> seconds
+                    </p>
+                    <Button
+                      disabled={true}
+                      variant="outline"
+                      className="w-full opacity-50"
+                    >
+                      Resend Verification Email ({countdown}s)
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Mail className="h-5 w-5 text-gray-600" />
+                      <span className="font-medium text-gray-800">Still no email?</span>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">
+                      Check your spam folder or request a new verification email
+                    </p>
+                    <Button
+                      onClick={handleResendVerification}
+                      disabled={resendLoading}
+                      variant="outline"
+                      className="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                    >
+                      {resendLoading ? "Sending..." : "Resend Verification Email"}
+                    </Button>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                )}
+
+                <div className="pt-4">
+                  <Button
+                    onClick={() => router.push("/login")}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white"
+                  >
+                    Go to Login
+                  </Button>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">
+                    Having trouble?{" "}
+                    <a href="mailto:support@fitplay.life" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                      Contact Support
+                    </a>
+                  </p>
+                </div>
               </CardContent>
             </>
           )}

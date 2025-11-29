@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Resend } from "resend";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 function looksLikeEmail(value: string) {
@@ -64,20 +65,55 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-        // Send reset password email
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
         const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
-        await resend.emails.send({
-            from: "noreply@fitplaysolutions.com",
-            to: email,
-            subject: "Reset your password",
-            html: `
-        <p>Hello,</p>
-        <p>Click the link below to reset your password. This link is valid for 1 hour:</p>
-        <p><a href="${resetUrl}" target="_blank">${resetUrl}</a></p>
-        <p>If you did not request this, you can safely ignore this email.</p>
-      `,
-        });
+        // Use Resend's verified domain for better delivery
+        const verificationMail = "delivered@resend.dev";
+        
+        console.log(`🔧 Password Reset Email configuration:`);
+        console.log(`📧 From: ${verificationMail}`);
+        console.log(`📧 To: ${email}`);
+        console.log(`🔗 Reset Link: ${resetUrl}`);
+        console.log(`🔑 Resend API Key exists: ${!!process.env.RESEND_API_KEY}`);
+        
+        try {
+            const emailResponse = await resend.emails.send({
+                from: verificationMail,
+                to: email,
+                subject: "Reset your FitPlay password",
+                html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); padding: 20px; text-align: center;">
+                        <h1 style="color: white; margin: 0;">Password Reset Request</h1>
+                    </div>
+                    <div style="padding: 30px; background-color: #f9fafb;">
+                        <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">Hello,</p>
+                        <p style="font-size: 16px; color: #374151; margin-bottom: 25px;">
+                            You requested to reset your FitPlay account password. Click the button below to create a new password.
+                        </p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${resetUrl}" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                                Reset Password
+                            </a>
+                        </div>
+                        <p style="font-size: 14px; color: #6B7280; margin-top: 25px;">
+                            This password reset link will expire in 1 hour. If you didn't request this reset, you can safely ignore this email.
+                        </p>
+                        <div style="border-top: 1px solid #E5E7EB; margin-top: 30px; padding-top: 20px; text-align: center;">
+                            <p style="font-size: 12px; color: #9CA3AF;">
+                                © 2024 FitPlay.life - Your Health & Wellness Partner
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                `,
+            });
+            console.log(`✅ Password reset email sent successfully to ${email}. Email ID: ${emailResponse?.data?.id}`);
+            console.log(`📧 From: ${verificationMail} | To: ${email}`);
+        } catch (emailError) {
+            console.error("❌ Failed to send password reset email:", emailError);
+            return NextResponse.json({ error: "Failed to send reset email. Please try again later." }, { status: 500 });
+        }
 
         return NextResponse.json({ message: "Reset link sent successfully" });
     } catch (error) {

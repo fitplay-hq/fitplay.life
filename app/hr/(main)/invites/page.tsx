@@ -174,8 +174,8 @@ export default function HRInvitePage() {
                           {invite.employeeCount} invitation slots created
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600">
-                        Created: {invite.createdAt.toLocaleDateString()} at {invite.createdAt.toLocaleTimeString()}
+                      <div className="text-xs text-gray-500">
+                        Created: {new Date(invite.createdAt).toLocaleDateString()} at {new Date(invite.createdAt).toLocaleTimeString()}
                       </div>
                       <div className="bg-white p-3 rounded border font-mono text-sm break-all">
                         {invite.signupLink}

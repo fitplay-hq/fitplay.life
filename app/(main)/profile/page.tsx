@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { User, LogOut, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -124,7 +124,8 @@ interface DashboardStats {
   creditsRemaining: number;
 }
 
-export default function ProfilePage() {
+// Client component to handle search params
+function ProfileContent() {
   const { user, isAuthenticated, isLoading } = useUser();
   const { orders, isLoading: ordersLoading } = useOrders();
   const searchParams = useSearchParams();
@@ -553,5 +554,26 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main page component with Suspense
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-200 rounded w-48 mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-10 bg-slate-200 rounded"></div>
+              <div className="h-64 bg-slate-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }

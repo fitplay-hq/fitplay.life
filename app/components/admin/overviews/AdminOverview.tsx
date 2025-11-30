@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   Building2,
   Package,
@@ -13,9 +14,14 @@ import {
   AlertTriangle,
   Users,
   Star,
+  Plus,
+  UserPlus,
+  BarChart3,
+  Settings,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   LineChart,
   Line,
@@ -361,76 +367,63 @@ const AdminOverview = () => {
           </CardContent>
         </Card>
 
-        {/* Pending Actions */}
+        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              Pending Actions
+              <Settings className="h-5 w-5" />
+              Quick Actions
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 border border-red-200">
-                <div>
-                  <p className="font-medium text-red-900">
-                    Orders Awaiting Approval
-                  </p>
-                  <p className="text-sm text-red-700">
-                    12 orders need immediate attention
-                  </p>
-                </div>
-                <Badge variant="destructive">12</Badge>
-              </div>
+            <div className="grid gap-3">
+              {/* Add New Product */}
+              <Link href="/admin/products" className="block">
+                <Button className="w-full justify-start bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Product
+                </Button>
+              </Link>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                <div>
-                  <p className="font-medium text-yellow-900">
-                    Low Stock Products
-                  </p>
-                  <p className="text-sm text-yellow-700">
-                    5 products running low on inventory
-                  </p>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-yellow-600 text-yellow-600"
-                >
-                  5
-                </Badge>
-              </div>
+              {/* Manage Users */}
+              <Link href="/admin/users" className="block">
+                <Button variant="outline" className="w-full justify-start border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Users
+                </Button>
+              </Link>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 border border-blue-200">
-                <div>
-                  <p className="font-medium text-blue-900">
-                    Vendor Applications
-                  </p>
-                  <p className="text-sm text-blue-700">
-                    3 new vendors awaiting review
-                  </p>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-blue-600 text-blue-600"
-                >
-                  3
-                </Badge>
-              </div>
+              {/* Create Invite */}
+              <Link href="/admin/invites" className="block">
+                <Button variant="outline" className="w-full justify-start border-purple-600 text-purple-600 hover:bg-purple-50">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Create User Invite
+                </Button>
+              </Link>
 
-              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-                <div>
-                  <p className="font-medium text-emerald-900">System Updates</p>
-                  <p className="text-sm text-emerald-700">
-                    All systems running smoothly
-                  </p>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-emerald-600 text-emerald-600"
-                >
-                  ✓
-                </Badge>
-              </div>
+              {/* View Analytics */}
+              <Link href="/admin/analytics" className="block">
+                <Button variant="outline" className="w-full justify-start border-orange-600 text-orange-600 hover:bg-orange-50">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Analytics
+                </Button>
+              </Link>
+
+              {/* Manage Orders */}
+              <Link href="/admin/orders" className="block">
+                <Button variant="outline" className="w-full justify-start border-teal-600 text-teal-600 hover:bg-teal-50">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  View All Orders
+                </Button>
+              </Link>
+
+              {/* Manage Vouchers */}
+              <Link href="/admin/vouchers" className="block">
+                <Button variant="outline" className="w-full justify-start border-pink-600 text-pink-600 hover:bg-pink-50">
+                  <Star className="h-4 w-4 mr-2" />
+                  Manage Vouchers
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

@@ -447,12 +447,50 @@ export default function AnalyticsPage() {
 
       {/* Charts and Analytics */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="clients">Clients</TabsTrigger>
-        </TabsList>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-2">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-lg p-1 h-12">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out
+                         data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-600 
+                         data-[state=active]:border-emerald-200 hover:bg-white/60 hover:text-gray-700
+                         text-gray-600 border border-transparent"
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="orders" 
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out
+                         data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-blue-600 
+                         data-[state=active]:border-blue-200 hover:bg-white/60 hover:text-gray-700
+                         text-gray-600 border border-transparent"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden sm:inline">Orders</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="products" 
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out
+                         data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-purple-600 
+                         data-[state=active]:border-purple-200 hover:bg-white/60 hover:text-gray-700
+                         text-gray-600 border border-transparent"
+            >
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline">Products</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="clients" 
+              className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ease-in-out
+                         data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-orange-600 
+                         data-[state=active]:border-orange-200 hover:bg-white/60 hover:text-gray-700
+                         text-gray-600 border border-transparent"
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Clients</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="flex justify-end mb-4">

@@ -39,6 +39,9 @@ export default function VoucherManagement() {
     credits: '',
     description: '',
     expiryDate: '',
+    remarks: '',
+    userLimit: '',
+    restrictions: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,6 +78,9 @@ export default function VoucherManagement() {
         credits: '',
         description: '',
         expiryDate: '',
+        remarks: '',
+        userLimit: '',
+        restrictions: '',
       });
       mutate();
     } catch (error) {
@@ -91,6 +97,9 @@ export default function VoucherManagement() {
       credits: voucher.credits.toString(),
       description: voucher.description || '',
       expiryDate: voucher.expiryDate.split('T')[0],
+      remarks: voucher.remarks || '',
+      userLimit: voucher.userLimit?.toString() || '',
+      restrictions: voucher.restrictions || '',
     });
     setIsEditDialogOpen(true);
   };
@@ -250,6 +259,40 @@ export default function VoucherManagement() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Optional description"
                   rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="remarks">Terms & Conditions</Label>
+                <Textarea
+                  id="remarks"
+                  value={formData.remarks}
+                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                  placeholder="e.g., Once per user, Valid for first 100 users only"
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="userLimit">User Limit</Label>
+                <Input
+                  id="userLimit"
+                  type="number"
+                  value={formData.userLimit}
+                  onChange={(e) => setFormData({ ...formData, userLimit: e.target.value })}
+                  placeholder="Maximum number of users (optional)"
+                  min="1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="restrictions">Additional Restrictions</Label>
+                <Textarea
+                  id="restrictions"
+                  value={formData.restrictions}
+                  onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
+                  placeholder="Any additional restrictions or conditions"
+                  rows={2}
                 />
               </div>
 

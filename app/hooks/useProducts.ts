@@ -2,7 +2,10 @@ import useSWR from 'swr';
 import { ProductModelType } from '@/lib/generated/zod/schemas';
 
 export const fetchProducts = async (): Promise<ProductModelType[]> => {
-  const response = await fetch('/api/products').then(res => res.json());
+  // Skip during build time
+  if (typeof window === 'undefined') {        
+    return [];
+  }  const response = await fetch('/api/products').then(res => res.json());
   return response.data;
 };
 

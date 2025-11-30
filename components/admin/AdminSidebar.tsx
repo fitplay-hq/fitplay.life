@@ -35,7 +35,7 @@ import {
   ShoppingCart,
   CreditCard,
   Building2,
-  DollarSign,
+  Users,
   Settings,
   LogOut,
   Bell,
@@ -77,9 +77,9 @@ const adminNavItems = [
     ],
   },
   {
-    title: "Wallets",
-    url: "/admin/wallets",
-    icon: DollarSign,
+    title: "User Management",
+    url: "/admin/users",
+    icon: Users,
   },
   {
     title: "Vouchers",
@@ -105,6 +105,16 @@ const adminNavItems = [
     title: "Settings",
     url: "/admin/settings",
     icon: Settings,
+    items: [
+      {
+        title: "General Settings",
+        url: "/admin/settings",
+      },
+      {
+        title: "Admin Profile",
+        url: "/admin/settings/profile",
+      },
+    ],
   },
 ];
 
@@ -183,17 +193,17 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-gray-200 bg-white p-0">
-        <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col items-start">
+      <Sidebar className="border-r border-gray-200 bg-white p-0 w-64">
+        <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-4">
+          <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center">
               <Link href="/" className="block hover:opacity-80 transition-opacity">
                 <Image
                   src="/logo.png"
                   alt="FitPlay Logo"
-                  width={100}
-                  height={100}
-                  className="rounded-lg object-contain max-w-none"
+                  width={80}
+                  height={80}
+                  className="rounded-lg object-contain"
                   priority
                 />
               </Link>
@@ -206,15 +216,7 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
                 </Badge>
               </div>
             </div>
-            <div className="relative">
-              <Bell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-emerald-600 transition-colors" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs"
-              >
-                3
-              </Badge>
-            </div>
+
           </div>
         </SidebarHeader>
 

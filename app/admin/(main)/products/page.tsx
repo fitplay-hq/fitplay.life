@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Download, FileSpreadsheet, FileText } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,16 +40,24 @@ export default function AdminProductsPage() {
     .filter((product: any) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.vendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+        (product.vendor?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
       const matchesCategory =
         categoryFilter === "all" || product.category === categoryFilter;
-      const matchesStatus = statusFilter === "all";
+      
+      const matchesStatus = 
+        statusFilter === "all" || 
+        (statusFilter === "active" && product.availableStock > 0) ||
+        (statusFilter === "inactive" && product.availableStock === 0);
+      
       const matchesStock =
         stockFilter === "all" ||
-        (stockFilter === "low" && product.availableStock <= 10) ||
+        (stockFilter === "low" && product.availableStock > 0 && product.availableStock <= 10) ||
         (stockFilter === "out" && product.availableStock === 0) ||
         (stockFilter === "in_stock" && product.availableStock > 10);
+      
       return matchesSearch && matchesCategory && matchesStatus && matchesStock;
     })
     .sort((a: any, b: any) => {
@@ -50,13 +65,18 @@ export default function AdminProductsPage() {
         case "name":
           return a.name.localeCompare(b.name);
         case "credits":
-          return b.credits - a.credits;
+          // Sort by lowest variant price
+          const aCredits = a.variants?.length > 0 ? Math.min(...a.variants.map((v: any) => v.mrp || 0)) : 0;
+          const bCredits = b.variants?.length > 0 ? Math.min(...b.variants.map((v: any) => v.mrp || 0)) : 0;
+          return bCredits - aCredits;
         case "stock":
           return b.availableStock - a.availableStock;
         case "rating":
-          return b.rating - a.rating;
-        case "sold":
-          return b.totalSold - a.totalSold;
+          const aRating = a.avgRating || 0;
+          const bRating = b.avgRating || 0;
+          return bRating - aRating;
+        case "created":
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         default:
           return 0;
       }
@@ -68,56 +88,130 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      try {
-        await deleteAdminProduct(id);
-      } catch (err) {
-        console.error("Error deleting product:", err);
-        alert("Error deleting product");
+    // Use toast with confirmation buttons instead of browser confirm
+    toast.error(
+      <div className="space-y-2">
+        <p>Are you sure you want to delete this product?</p>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                await deleteAdminProduct(id);
+                toast.success("Product deleted successfully!");
+                mutate(); // Refresh the products list
+                toast.dismiss();
+              } catch (err: any) {
+                console.error("Error deleting product:", err);
+                const errorMessage = err.message || "Failed to delete product";
+                toast.error(errorMessage);
+              }
+            }}
+            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
+        duration: 10000, // 10 seconds to decide
+        id: `delete-${id}`, // Unique ID to prevent multiple toasts
       }
+    );
+  };
+
+  const handleExport = async (format: 'excel' | 'pdf') => {
+    try {
+      const response = await fetch(`/api/admin/products/export?format=${format}`);
+      if (!response.ok) throw new Error('Export failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `products-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : 'html'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success(`Products exported as ${format === 'excel' ? 'Excel' : 'PDF'} successfully`);
+    } catch (error) {
+      toast.error(`Failed to export products as ${format === 'excel' ? 'Excel' : 'PDF'}`);
+      console.error('Export error:', error);
     }
   };
 
   const handleSubmit = async (formData: any) => {
     try {
-      const variants = formData.variants.map((variant: any) => ({
-        variantCategory: variant.variantCategory,
-        variantValue: variant.variantValue,
-        mrp: variant.mrp,
-        id: variant.id,
-      }));
-
-      const productData = {
-        ...formData,
-        availableStock: parseInt(formData.availableStock),
-        companies: {},
-      };
-
-      if (editingProduct) {
-        await updateAdminProduct(editingProduct.id, {
-          ...productData,
-          variants: {
-            upsert: variants.map((variant: Variant) => ({
-              where: { id: variant.id },
-              create: variant,
-              update: variant,
-            })),
-          },
-        });
-      } else {
-        await createAdminProduct({
-          ...productData,
-          variants: {
-            create: variants,
-          },
-        });
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        toast.error("Product name is required");
+        return;
+      }
+      
+      if (!formData.sku?.trim()) {
+        toast.error("SKU is required");
+        return;
+      }
+      
+      if (!formData.category) {
+        toast.error("Category is required");
+        return;
       }
 
+      const variants = (formData.variants || []).map((variant: any) => ({
+        variantCategory: variant.variantCategory,
+        variantValue: variant.variantValue,
+        mrp: parseInt(variant.mrp) || 0,
+        id: variant.id,
+      })).filter((v: any) => v.variantCategory && v.variantValue && v.mrp > 0);
+
+      const productData = {
+        name: formData.name.trim(),
+        sku: formData.sku.trim(),
+        description: formData.description?.trim() || '',
+        category: formData.category,
+        subCategory: formData.subCategory || null,
+        availableStock: parseInt(formData.availableStock) || 0,
+        images: formData.images || [],
+        vendorId: formData.vendorId || null,
+        vendorName: formData.vendorName?.trim() || null,
+      };
+
+      let result;
+      if (editingProduct) {
+        result = await updateAdminProduct(editingProduct.id, {
+          ...productData,
+          variants: variants.length > 0 ? {
+            deleteMany: {},
+            create: variants.map(({ id, ...variant }) => variant),
+          } : undefined,
+        });
+        toast.success("Product updated successfully!");
+      } else {
+        result = await createAdminProduct({
+          ...productData,
+          variants: variants.length > 0 ? {
+            create: variants.map(({ id, ...variant }) => variant),
+          } : undefined,
+        });
+        toast.success("Product created successfully!");
+      }
+
+      // Refresh the products list
+      mutate();
+      
       setIsAddProductOpen(false);
       setEditingProduct(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving product:", err);
-      alert("Error saving product");
+      const errorMessage = err.message || "Failed to save product. Please check all fields and try again.";
+      toast.error(errorMessage);
     }
   };
 
@@ -147,18 +241,31 @@ export default function AdminProductsPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Bulk Upload
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             className="bg-emerald-600 hover:bg-emerald-700"
             onClick={() => {
-              setEditingProduct(null);
-              setIsAddProductOpen(true);
+              setEditingProduct(null); // Clear editing state first
+              setTimeout(() => {
+                setIsAddProductOpen(true); // Then open dialog after state clears
+              }, 0);
             }}
           >
             <Plus className="h-4 w-4 mr-2" />

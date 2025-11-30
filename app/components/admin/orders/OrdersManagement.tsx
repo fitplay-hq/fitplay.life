@@ -105,6 +105,7 @@ const OrdersManagement = () => {
   const [updateOrderId, setUpdateOrderId] = useState("");
   const [updateOrderStatus, setUpdateOrderStatus] = useState("");
   const [currentOrderStatus, setCurrentOrderStatus] = useState("");
+  const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any>(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -394,12 +395,6 @@ const OrdersManagement = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin/orders/create">
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Create Order
-            </Button>
-          </Link>
           {selectedOrders.length > 0 && (
             <>
               <Button
@@ -614,9 +609,13 @@ const OrdersManagement = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium text-emerald-600">
+                      <Button
+                        variant="link"
+                        className="font-medium text-emerald-600 p-0 h-auto"
+                        onClick={() => setSelectedOrderForDetails(order)}
+                      >
                         {order.id}
-                      </div>
+                      </Button>
                       {order.trackingId && (
                         <div className="text-xs text-gray-500">
                           Track: {order.trackingId}
@@ -875,6 +874,154 @@ const OrdersManagement = () => {
               {updateAction === "update" && "Update Order"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Order Details Dialog */}
+      <Dialog 
+        open={!!selectedOrderForDetails} 
+        onOpenChange={() => setSelectedOrderForDetails(null)}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-emerald-600" />
+              Order Details - {selectedOrderForDetails?.id}
+            </DialogTitle>
+            <DialogDescription>
+              Complete order information and management options
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrderForDetails && (
+            <div className="grid gap-6">
+              {/* Order Header Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Employee Details
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <div className="space-y-1">
+                      <p className="font-medium">{selectedOrderForDetails.employee.name}</p>
+                      <p className="text-sm text-gray-500">{selectedOrderForDetails.employee.email}</p>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Building2 className="h-3 w-3" />
+                        {selectedOrderForDetails.employee.company}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Order Timeline
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <div className="space-y-1">
+                      <div className="text-sm">
+                        <span className="text-gray-500">Ordered:</span> {new Date(selectedOrderForDetails.orderDate).toLocaleDateString()}
+                      </div>
+                      {selectedOrderForDetails.approvedDate && (
+                        <div className="text-sm">
+                          <span className="text-gray-500">Approved:</span> {new Date(selectedOrderForDetails.approvedDate).toLocaleDateString()}
+                        </div>
+                      )}
+                      {selectedOrderForDetails.dispatchedDate && (
+                        <div className="text-sm">
+                          <span className="text-gray-500">Dispatched:</span> {new Date(selectedOrderForDetails.dispatchedDate).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Order Status</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <div className="space-y-2">
+                      {getStatusBadge(selectedOrderForDetails.status)}
+                      {selectedOrderForDetails.trackingId && (
+                        <div className="text-sm">
+                          <span className="text-gray-500">Tracking:</span> {selectedOrderForDetails.trackingId}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Products Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Ordered Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product Name</TableHead>
+                        <TableHead className="text-center">Quantity</TableHead>
+                        <TableHead className="text-right">Credits per Unit</TableHead>
+                        <TableHead className="text-right">Total Credits</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedOrderForDetails.products.map((product: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell className="text-center">{product.quantity}</TableCell>
+                          <TableCell className="text-right">{product.credits}</TableCell>
+                          <TableCell className="text-right font-medium">
+                            {product.credits * product.quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="bg-gray-50">
+                        <TableCell colSpan={3} className="font-semibold">Total Order Value</TableCell>
+                        <TableCell className="text-right font-bold text-emerald-600">
+                          {selectedOrderForDetails.totalCredits} credits
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+              
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    // Export single order
+                    toast.info("Exporting order details...");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Order
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setUpdateOrderId(selectedOrderForDetails.id);
+                    setCurrentOrderStatus(selectedOrderForDetails.status);
+                    setSelectedOrderForDetails(null);
+                    setIsUpdateModalOpen(true);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  Update Status
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

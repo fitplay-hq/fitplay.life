@@ -141,9 +141,9 @@ export function ProductTable({
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium">{product.vendorName}</div>
+                  <div className="font-medium">{product.vendor?.name || 'No Vendor'}</div>
                   <div className="text-sm text-gray-500">
-                    {product.vendorName}
+                    {product.vendor?.name ? 'Verified Vendor' : 'Unassigned'}
                   </div>
                 </div>
               </TableCell>
@@ -167,8 +167,12 @@ export function ProductTable({
               <TableCell className="text-center">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span className="font-medium">4.8</span>
-                  <span className="text-xs text-gray-500">(234)</span>
+                  <span className="font-medium">
+                    {product.avgRating ? product.avgRating.toFixed(1) : '0.0'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ({product.noOfReviews || 0})
+                  </span>
                 </div>
               </TableCell>
               <TableCell className="text-center">

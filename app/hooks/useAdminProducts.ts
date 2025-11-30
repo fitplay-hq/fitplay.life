@@ -66,7 +66,7 @@ export const useAdminProduct = (id: string | null) => {
 
 // Create product
 export const createAdminProduct = async (productData: Prisma.ProductCreateInput) => {
-  const response = await fetch('/api/products/product', {
+  const response = await fetch('/api/admin/products', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export const createAdminProduct = async (productData: Prisma.ProductCreateInput)
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to create product');
+    throw new Error(error.error || 'Failed to create product');
   }
 
   const result = await response.json();
@@ -86,7 +86,7 @@ export const createAdminProduct = async (productData: Prisma.ProductCreateInput)
 
 // Update product
 export const updateAdminProduct = async (id: string, productData: Prisma.ProductUpdateInput) => {
-  const response = await fetch('/api/products/product', {
+  const response = await fetch('/api/admin/products', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ export const updateAdminProduct = async (id: string, productData: Prisma.Product
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to update product');
+    throw new Error(error.error || 'Failed to update product');
   }
 
   const result = await response.json();
@@ -107,13 +107,13 @@ export const updateAdminProduct = async (id: string, productData: Prisma.Product
 
 // Delete product
 export const deleteAdminProduct = async (id: string) => {
-  const response = await fetch(`/api/products/product?id=${id}`, {
+  const response = await fetch(`/api/admin/products?id=${id}`, {
     method: 'DELETE',
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to delete product');
+    throw new Error(error.error || 'Failed to delete product');
   }
 
   const result = await response.json();

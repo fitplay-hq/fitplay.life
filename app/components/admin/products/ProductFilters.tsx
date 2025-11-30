@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Download } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ProductFiltersProps {
@@ -98,9 +98,9 @@ export function ProductFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Stock</SelectItem>
-          <SelectItem value="in_stock">In Stock</SelectItem>
-          <SelectItem value="low">Low Stock</SelectItem>
-          <SelectItem value="out">Out of Stock</SelectItem>
+          <SelectItem value="in_stock">In Stock (&gt;10)</SelectItem>
+          <SelectItem value="low">Low Stock (1-10)</SelectItem>
+          <SelectItem value="out">Out of Stock (0)</SelectItem>
         </SelectContent>
       </Select>
       <Select value={sortBy} onValueChange={onSortChange}>
@@ -112,13 +112,9 @@ export function ProductFilters({
           <SelectItem value="credits">Credits</SelectItem>
           <SelectItem value="stock">Stock</SelectItem>
           <SelectItem value="rating">Rating</SelectItem>
-          <SelectItem value="sold">Total Sold</SelectItem>
+          <SelectItem value="created">Date Created</SelectItem>
         </SelectContent>
       </Select>
-      <Button variant="outline" size="sm">
-        <Download className="h-4 w-4 mr-2" />
-        Export
-      </Button>
     </div>
   );
 }

@@ -126,6 +126,11 @@ interface DashboardStats {
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading } = useUser();
   const { orders, isLoading: ordersLoading } = useOrders();
+  
+  // Add debugging for production
+  useEffect(() => {
+    console.log("Profile page - Auth status:", { isAuthenticated, isLoading, user });
+  }, [isAuthenticated, isLoading, user]);
   const wishlistItems = useAtomValue(wishlistItemsAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
   const addToCart = useSetAtom(addToCartAtom);
@@ -246,8 +251,14 @@ export default function ProfilePage() {
     );
   }
 
-  // Not authenticated state
+  // Not authenticated state - redirect to login instead of showing error page
   if (!isAuthenticated || !user) {
+    // In production, redirect immediately to prevent showing auth error
+    if (typeof window !== "undefined") {
+      window.location.href = "/login?returnUrl=/profile";
+      return null;
+    }
+    
     return (
       <div className="min-h-screen">
         {/* Green Header Section */}
@@ -269,14 +280,14 @@ export default function ProfilePage() {
                   <User className="w-8 h-8 text-red-600" />
                 </div>
                 <h2 className="text-xl font-semibold text-emerald-800 mb-2">
-                  Access Denied
+                  Redirecting to Login
                 </h2>
                 <p className="text-emerald-600 mb-4">
-                  You need to be logged in to view your profile.
+                  You need to be logged in to view your profile. Redirecting...
                 </p>
                 <Button 
                   className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
-                  onClick={() => (window.location.href = "/login")}
+                  onClick={() => (window.location.href = "/login?returnUrl=/profile")}
                 >
                   Go to Login
                 </Button>

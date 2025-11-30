@@ -9,7 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN" || session.user.email !== process.env.ADMIN_EMAIL) {
+  console.log('Session in requireAdmin:', session); // Debug log
+  
+  if (!session || session.user.role !== "ADMIN") {
     return null;
   }
   return session;
@@ -38,13 +40,16 @@ export async function POST(req: NextRequest) {
       variants,
       companies, // ignored intentionally
       orderItems, // ignored intentionally
-      vendorId, // ignored
+      vendorId,
       ...productData
     } = body;
 
     let resolvedVendorId: string | null = null;
 
-    if (vendorName) {
+    // Priority: vendorId from dropdown, then vendorName as fallback
+    if (vendorId) {
+      resolvedVendorId = vendorId;
+    } else if (vendorName) {
       const vendor = await prisma.vendor.findFirst({
         where: { name: vendorName },
         select: { id: true },
@@ -122,9 +127,13 @@ export async function GET(req: NextRequest) {
           variants: true,
           vendor: {
             select: {
+              id: true,
               name: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
       });
       return NextResponse.json({ message: "Products fetched successfully", data: products });

@@ -277,29 +277,7 @@ export default function HomePage() {
       <Hero/>
 
       {/* Trust Indicators */}
-      <section className="py-16 bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Trust Indicators */}
-          <div className="mt-20 text-center">
-            <p className="text-gray-600 text-lg mb-8">
-              Trusted by employees at leading companies worldwide
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-              {[
-                "TechCorp",
-                "StartupX",
-                "InnovateLab",
-                "FutureTech",
-                "DataSoft",
-              ].map((company, index) => (
-                <div key={index} className="text-gray-500 font-medium text-xl">
-                  {company}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Network of Companies */}
       <section className="py-20 bg-white">

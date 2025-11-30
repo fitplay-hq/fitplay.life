@@ -101,20 +101,22 @@ export default function Navbar() {
 
         <div className="hidden lg:flex items-center gap-4">
           {isAuthenticated && (
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-500 ${
-              isScrolled
-                ? 'bg-emerald-400/30 border border-emerald-400/60'
-                : 'bg-emerald-400/20 border border-emerald-400/40'
-            }`}>
-              <Wallet className={`w-4 h-4 transition-colors duration-500 ${
-                isScrolled ? 'text-emerald-200' : 'text-emerald-200/90'
-              }`} />
-              <span className={`text-sm font-semibold transition-colors duration-500 ${
-                isScrolled ? 'text-emerald-200' : 'text-emerald-200/90'
+            <Link href="/profile?tab=wallet">
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-500 cursor-pointer group ${
+                isScrolled
+                  ? 'bg-emerald-400/30 border border-emerald-400/60 hover:bg-emerald-400/40 hover:border-emerald-400/70'
+                  : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/30 hover:border-emerald-400/50'
               }`}>
-                {walletLoading ? '...' : walletError ? 'Error' : `${walletBalance} credits`}
-              </span>
-            </div>
+                <Wallet className={`w-4 h-4 transition-colors duration-500 ${
+                  isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
+                }`} />
+                <span className={`text-sm font-semibold transition-colors duration-500 ${
+                  isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
+                }`}>
+                  {walletLoading ? '...' : walletError ? 'Error' : `${walletBalance} credits`}
+                </span>
+              </div>
+            </Link>
           )}
           
           <Link href="/cart">
@@ -197,12 +199,14 @@ export default function Navbar() {
 
             <div className="pt-4 border-t border-white/10 space-y-3">
               {isAuthenticated && (
-                <div className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
-                  <Wallet className="w-5 h-5 text-emerald-300" />
-                  <span className="text-emerald-200 font-medium">
-                    {walletLoading ? 'Loading...' : walletError ? 'Error loading credits' : `${walletBalance} credits`}
-                  </span>
-                </div>
+                <Link href="/profile?tab=wallet" onClick={() => setIsOpen(false)}>
+                  <div className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 hover:bg-emerald-500/30 hover:border-emerald-400/40 transition-all duration-300 cursor-pointer">
+                    <Wallet className="w-5 h-5 text-emerald-300" />
+                    <span className="text-emerald-200 font-medium">
+                      {walletLoading ? 'Loading...' : walletError ? 'Error loading credits' : `${walletBalance} credits`}
+                    </span>
+                  </div>
+                </Link>
               )}
               
               <Link href="/cart" onClick={() => setIsOpen(false)}>

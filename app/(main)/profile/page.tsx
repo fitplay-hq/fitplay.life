@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { User, LogOut, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,6 +127,23 @@ interface DashboardStats {
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading } = useUser();
   const { orders, isLoading: ordersLoading } = useOrders();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // Get the tab from URL parameters, default to "dashboard"
+  const activeTab = searchParams.get('tab') || 'dashboard';
+  
+  // Handle tab change and update URL
+  const handleTabChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === 'dashboard') {
+      params.delete('tab');
+    } else {
+      params.set('tab', value);
+    }
+    const newUrl = params.toString() ? `/profile?${params.toString()}` : '/profile';
+    router.push(newUrl, { scroll: false });
+  };
   
   // Add debugging for production
   useEffect(() => {
@@ -347,7 +365,7 @@ export default function ProfilePage() {
       <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
 
-          <Tabs defaultValue="dashboard" className="space-y-8">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
             <TabsList
               className={`grid w-full bg-white/70 backdrop-blur-sm border border-emerald-200 shadow-xl rounded-2xl p-2 ${
                 user.role === $Enums.Role.EMPLOYEE ? "grid-cols-5" : "grid-cols-4"

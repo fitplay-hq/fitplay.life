@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
         const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
         // Use Resend's verified domain for better delivery
-        const verificationMail = "delivered@resend.dev";
+        const verificationMail = "no-reply@fitplaysolutions.com";
         
         console.log(`🔧 Password Reset Email configuration:`);
         console.log(`📧 From: ${verificationMail}`);

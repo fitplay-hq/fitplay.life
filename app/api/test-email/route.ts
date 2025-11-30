@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resendApiKey = process.env.RESEND_API_KEY;
-const verificationMail = process.env.VERIFICATION_MAIL || "onboarding@resend.dev";
+const verificationMail = process.env.VERIFICATION_MAIL || "no-reply@fitplaysolutions.com";
 
 export async function POST(req: NextRequest) {
     try {

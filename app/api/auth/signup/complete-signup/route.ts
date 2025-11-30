@@ -123,7 +123,7 @@ export async function PATCH(req: NextRequest) {
         const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
         const verifyLink = `${baseUrl}/verify?token=${verifyToken}`;
         // Use Resend's verified domain for better delivery
-        const verificationMail = "delivered@resend.dev";
+        const verificationMail = "no-reply@fitplaysolutions.com";
 
             try {
             console.log(`🔧 Email configuration:`)

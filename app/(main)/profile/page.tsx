@@ -271,10 +271,11 @@ function ProfileContent() {
   }
 
   // Not authenticated state - redirect to login instead of showing error page
-  if (!isAuthenticated || !user) {
+  if (!isLoading && (!isAuthenticated || !user)) {
     // In production, redirect immediately to prevent showing auth error
     if (typeof window !== "undefined") {
-      window.location.href = "/login?returnUrl=/profile";
+      const currentUrl = `/profile${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      window.location.href = `/login?callbackUrl=${encodeURIComponent(currentUrl)}`;
       return null;
     }
     

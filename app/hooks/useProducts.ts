@@ -16,13 +16,15 @@ export const useProducts = () => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      revalidateIfStale: true,
-      dedupingInterval: 60000, // 1 minute deduplication
-      focusThrottleInterval: 60000, // 1 minute throttle
-      errorRetryCount: 3,
-      errorRetryInterval: 5000,
-      loadingTimeout: 10000,
+      revalidateIfStale: false, // Don't auto-refresh stale data
+      dedupingInterval: 300000, // 5 minute deduplication for stability
+      focusThrottleInterval: 300000, // 5 minute throttle
+      errorRetryCount: 5,
+      errorRetryInterval: 2000,
+      loadingTimeout: 15000,
       fallbackData: [], // Prevent showing 0 products during initial load
+      keepPreviousData: true, // Keep previous data while loading new data
+      refreshInterval: 0, // Disable automatic refresh to prevent flickering
     }
   );
 

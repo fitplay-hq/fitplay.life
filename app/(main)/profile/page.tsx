@@ -126,7 +126,7 @@ interface DashboardStats {
 
 // Client component to handle search params
 function ProfileContent() {
-  const { user, isAuthenticated, isLoading } = useUser();
+  const { user, isAuthenticated, isLoading, refreshSession } = useUser();
   const { orders, isLoading: ordersLoading } = useOrders();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -148,8 +148,25 @@ function ProfileContent() {
   
   // Add debugging for production
   useEffect(() => {
-    console.log("Profile page - Auth status:", { isAuthenticated, isLoading, user });
+    console.log("Profile page - Auth status:", { isAuthenticated, isLoading, user, session: typeof window !== 'undefined' ? 'client' : 'server' });
   }, [isAuthenticated, isLoading, user]);
+
+  // Add a delay to prevent premature redirects in production
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  
+  useEffect(() => {
+    // Refresh session on profile page load to ensure we have latest auth state
+    if (typeof window !== 'undefined') {
+      refreshSession();
+    }
+    
+    // Wait a bit for session to load before checking authentication
+    const timer = setTimeout(() => {
+      setHasCheckedAuth(true);
+    }, 1500); // Give 1.5 seconds for session to load and refresh
+    
+    return () => clearTimeout(timer);
+  }, [refreshSession]);
   const wishlistItems = useAtomValue(wishlistItemsAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
   const addToCart = useSetAtom(addToCartAtom);
@@ -242,8 +259,8 @@ function ProfileContent() {
     signOut();
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state - show loading while checking auth or session is loading
+  if (isLoading || !hasCheckedAuth) {
     return (
       <div className="min-h-screen">
         {/* Green Header Section */}
@@ -271,7 +288,8 @@ function ProfileContent() {
   }
 
   // Not authenticated state - redirect to login instead of showing error page
-  if (!isLoading && (!isAuthenticated || !user)) {
+  if (hasCheckedAuth && !isLoading && (!isAuthenticated || !user)) {
+    console.log("Redirecting to login - Auth check failed:", { hasCheckedAuth, isLoading, isAuthenticated, user: !!user });
     // In production, redirect immediately to prevent showing auth error
     if (typeof window !== "undefined") {
       const currentUrl = `/profile${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;

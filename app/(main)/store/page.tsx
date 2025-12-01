@@ -82,11 +82,22 @@ import { ProductWithVariant } from "@/lib/types";
 export default function WellnessStore() {
   const { isAuthenticated } = useUser();
   const { products, isLoading: productsLoading, error } = useProducts();
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   // Prefetch products on component mount for better performance
   useEffect(() => {
     prefetchProducts();
   }, []);
+
+  // Track when products have loaded at least once to prevent flickering
+  useEffect(() => {
+    if (products.length > 0 && !hasLoadedOnce) {
+      setHasLoadedOnce(true);
+    }
+  }, [products.length, hasLoadedOnce]);
+
+  // Show loading only on initial load, not on subsequent fetches
+  const shouldShowLoading = productsLoading && !hasLoadedOnce;
 
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(
@@ -394,7 +405,7 @@ export default function WellnessStore() {
       <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
         
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
+        <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-16 lg:py-20">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
               <Package className="w-4 h-4 text-emerald-400" />
@@ -422,7 +433,7 @@ export default function WellnessStore() {
         </div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 -mt-8 space-y-8">
+      <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 pt-12 pb-16 space-y-8">
         {/* Search and Filters Bar */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
 
@@ -465,7 +476,7 @@ export default function WellnessStore() {
             Shop by Category
           </h2>
           <div
-            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-6"
+            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-4"
             role="tablist"
             aria-label="Product categories"
           >
@@ -533,9 +544,14 @@ export default function WellnessStore() {
         <div className="w-72 shrink-0">
           <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
             {/* Filter Header */}
-            <div className="flex items-center gap-2 mb-5">
-              <Filter className="w-4 h-4 text-emerald-600" />
-              <h3 className="font-medium text-gray-900 text-sm">Filters</h3>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-semibold text-gray-900 text-base">Refine Your Search</h3>
+              </div>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                {(selectedBrands.length + selectedPriceRanges.length + selectedRatings.length + (selectedCategory !== 'all' ? 1 : 0))} active
+              </span>
             </div>
 
             {/* Price Range Filter */}
@@ -704,8 +720,8 @@ export default function WellnessStore() {
             </div>
 
           {/* Loading State */}
-          {productsLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {shouldShowLoading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
@@ -749,14 +765,14 @@ export default function WellnessStore() {
           )}
 
             {/* Product Grid */}
-            {!productsLoading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
+            {!shouldShowLoading && !error && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-16">
               {sortedProducts.map((product, index) => (
-                  <div key={index} className="group">
+                  <div key={`${product.id}-${index}`} className="group">
                     <Link href={`/product/${product.id}`} className="block">
                       <div className="relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-                        <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gray-50/50" style={{ height: '460px' }}>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
+                        <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30" style={{ height: '480px' }}>
                       {/* Image Container */}
                       <div className="relative overflow-hidden bg-gray-50" style={{ height: '220px' }}>
                         <ImageWithFallback
@@ -773,28 +789,41 @@ export default function WellnessStore() {
                           </div>
                         )}
                         {/* Rating Badge */}
-                        {product.avgRating && (
-                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1">
-                            <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                            <span className="text-xs font-semibold text-gray-700">
+                        {product.avgRating && product.avgRating > 0 ? (
+                          <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-xl px-3 py-1.5 flex items-center space-x-1.5 shadow-lg">
+                            <Star className="w-4 h-4 fill-current" />
+                            <span className="text-sm font-bold">
                               {product.avgRating.toFixed(1)}
                             </span>
+                            <span className="text-xs opacity-90">
+                              ({product.noOfReviews || 0})
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="absolute top-3 right-3 bg-gray-100 text-gray-600 rounded-xl px-3 py-1.5 flex items-center space-x-1">
+                            <Star className="w-4 h-4" />
+                            <span className="text-xs font-medium">New</span>
                           </div>
                         )}
                       </div>
 
                       {/* Content Container with proper spacing */}
-                      <div className="p-4 flex flex-col flex-grow">
+                      <div className="p-6 flex flex-col flex-grow space-y-4">
                         {/* Vendor Name */}
-                        <div className="mb-2">
-                          <p className="text-xs text-emerald-600 font-medium">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
                             {(product as any).vendor?.name || 'FitPlay'}
                           </p>
+                          {product.availableStock <= 5 && product.availableStock > 0 && (
+                            <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
+                              Only {product.availableStock} left
+                            </span>
+                          )}
                         </div>
                         
                         {/* Product Name - Flexible height container */}
-                        <div className="mb-3" style={{ minHeight: '40px' }}>
-                          <h3 className="text-gray-900 font-semibold text-sm line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
+                        <div className="flex-grow" style={{ minHeight: '48px' }}>
+                          <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
                             {product.name}
                           </h3>
                         </div>
@@ -843,33 +872,50 @@ export default function WellnessStore() {
           )}
 
           {/* No Results */}
-          {!productsLoading && !error && sortedProducts.length === 0 && (
-            <div className="text-center py-20">
+          {!shouldShowLoading && !error && sortedProducts.length === 0 && (
+            <div className="text-center py-20 mb-16">
               <div className="relative inline-block">
                 <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
                 <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
-                  <p className="text-gray-600 mb-6 text-lg font-medium">
-                    No products found matching your criteria.
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-gray-900 font-bold text-xl mb-2">
+                    No Products Found
+                  </h3>
+                  <p className="text-gray-600 mb-6 text-base">
+                    We couldn't find any products matching your search criteria.
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedBrands([]);
-                      setSelectedPriceRanges([]);
-                      setSelectedRatings([]);
-                      setSelectedCategory("all");
-                      setSearchTerm("");
-                    }}
-                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-8 py-3 font-medium"
-                  >
-                    Clear All Filters
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedBrands([]);
+                        setSelectedPriceRanges([]);
+                        setSelectedRatings([]);
+                        setSelectedCategory("all");
+                        setSearchTerm("");
+                      }}
+                      className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-6 py-2 font-medium"
+                    >
+                      Clear All Filters
+                    </Button>
+                    <Button
+                      onClick={() => setSearchTerm("")}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 font-medium"
+                    >
+                      Browse All Products
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           )}
           </div>
         </div>
+        
+        {/* Bottom Spacing before footer */}
+        <div className="h-20"></div>
       </div>
     </div>
   );

@@ -146,27 +146,25 @@ function ProfileContent() {
     router.push(newUrl, { scroll: false });
   };
   
-  // Add debugging for production
+  // Simple auth check without excessive logging
   useEffect(() => {
-    console.log("Profile page - Auth status:", { isAuthenticated, isLoading, user, session: typeof window !== 'undefined' ? 'client' : 'server' });
-  }, [isAuthenticated, isLoading, user]);
+    // Only log once when component mounts for debugging if needed
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Profile page loaded - Auth:", { isAuthenticated, isLoading });
+    }
+  }, []); // Empty dependency array - only run once on mount
 
-  // Add a delay to prevent premature redirects in production
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  // Simple delay to ensure session is loaded before checking auth
+  const [initialLoad, setInitialLoad] = useState(true);
   
   useEffect(() => {
-    // Refresh session on profile page load to ensure we have latest auth state
-    if (typeof window !== 'undefined') {
-      refreshSession();
-    }
-    
-    // Wait a bit for session to load before checking authentication
+    // Small delay to let session initialize properly
     const timer = setTimeout(() => {
-      setHasCheckedAuth(true);
-    }, 1500); // Give 1.5 seconds for session to load and refresh
+      setInitialLoad(false);
+    }, 500); // Reduced delay - just enough to let session load
     
     return () => clearTimeout(timer);
-  }, [refreshSession]);
+  }, []); // Empty dependency array - only run once
   const wishlistItems = useAtomValue(wishlistItemsAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
   const addToCart = useSetAtom(addToCartAtom);
@@ -260,7 +258,7 @@ function ProfileContent() {
   };
 
   // Loading state - show loading while checking auth or session is loading
-  if (isLoading || !hasCheckedAuth) {
+  if (isLoading || initialLoad) {
     return (
       <div className="min-h-screen">
         {/* Green Header Section */}
@@ -288,8 +286,8 @@ function ProfileContent() {
   }
 
   // Not authenticated state - redirect to login instead of showing error page
-  if (hasCheckedAuth && !isLoading && (!isAuthenticated || !user)) {
-    console.log("Redirecting to login - Auth check failed:", { hasCheckedAuth, isLoading, isAuthenticated, user: !!user });
+  if (!initialLoad && !isLoading && (!isAuthenticated || !user)) {
+    console.log("Redirecting to login - Auth check failed:", { initialLoad, isLoading, isAuthenticated, user: !!user });
     // In production, redirect immediately to prevent showing auth error
     if (typeof window !== "undefined") {
       const currentUrl = `/profile${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;

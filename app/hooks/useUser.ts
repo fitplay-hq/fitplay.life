@@ -68,7 +68,7 @@ export const useUser = () => {
     } catch (error) {
       console.error('Session refresh error:', error);
     }
-  }, [update]);
+  }, []); // Remove update from dependencies to prevent callback recreation loop
 
   const requireAuth = useCallback((redirectTo = '/login') => {
     if (status === 'unauthenticated') {

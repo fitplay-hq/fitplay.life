@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface WishlistItem {
   id: string;
@@ -71,9 +72,11 @@ export default function Wishlist({
                   className="flex items-center justify-between border border-gray-100 rounded-lg p-4"
                 >
                   <div className="flex items-center space-x-4">
-                    <img
+                    <Image
                       src={wish.image}
                       alt={wish.title}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 object-cover rounded"
                     />
                     <div>

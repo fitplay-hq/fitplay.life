@@ -24,7 +24,7 @@ interface ProfileData {
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
-export default function PersonalInformation({ user }: { user: User }) {
+export default function PersonalInformation() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Settings, Wallet, History, Eye } from "lucide-react";
+import { Settings, Wallet, History, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import VoucherRedemptionCard from "@/app/components/profile/VoucherRedemptionCard";
 

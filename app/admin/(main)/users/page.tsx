@@ -40,7 +40,6 @@ import {
   Wallet,
   Building2,
   Mail,
-  Calendar,
   Plus,
   Minus
 } from "lucide-react";
@@ -801,7 +800,7 @@ export default function UserManagementPage() {
           <DialogHeader>
             <DialogTitle>Delete User</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete user "{userToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete user &quot;{userToDelete?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 pt-4">

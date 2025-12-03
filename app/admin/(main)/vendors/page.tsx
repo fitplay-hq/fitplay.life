@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -55,6 +55,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 // Mock vendor data from figma-admin
 const vendorsData = [
@@ -117,12 +118,327 @@ const vendorsData = [
 ];
 
 export default function AdminVendorsPage() {
-  const [vendors, setVendors] = useState(vendorsData);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
-  const [isApiManagementOpen, setIsApiManagementOpen] = useState(false);
+  const [isEditVendorOpen, setIsEditVendorOpen] = useState(false);
+  const [isViewProductsOpen, setIsViewProductsOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
+  const [vendorProducts, setVendorProducts] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  
+  // Clear form when dialog opens
+  const handleOpenAddVendor = () => {
+    setVendorForm({
+      name: "",
+      category: "",
+      email: "",
+      phone: "",
+      website: "",
+      integrationType: "",
+      description: ""
+    });
+    setIsAddVendorOpen(true);
+  };
+  
+  // Open edit vendor dialog
+  const handleOpenEditVendor = (vendor: any) => {
+    setVendorForm({
+      name: vendor.name,
+      category: vendor.category || "",
+      email: vendor.contact,
+      phone: vendor.phone,
+      website: vendor.website || "",
+      integrationType: vendor.integration === "API" ? "api" : "manual",
+      description: ""
+    });
+    setSelectedVendor(vendor);
+    setIsEditVendorOpen(true);
+  };
+  
+  const [isApiManagementOpen, setIsApiManagementOpen] = useState(false);
+
+  // Form state for add vendor
+  const [vendorForm, setVendorForm] = useState({
+    name: "",
+    category: "",
+    email: "",
+    phone: "",
+    website: "",
+    integrationType: "",
+    description: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch vendors from API
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const response = await fetch('/api/vendors');
+        if (response.ok) {
+          const vendorData = await response.json();
+          
+          // Transform API data to match the expected format
+          const transformedVendors = vendorData.map((vendor: any, index: number) => ({
+            id: vendor.id,
+            name: vendor.name,
+            category: vendor.category || "General",
+            status: vendor.status || "active",
+            integration: vendor.integrationType || "Manual",
+            products: vendor.productCount || 0,
+            totalOrders: vendor.totalOrders || 0,
+            revenue: vendor.totalRevenue || 0,
+            contact: vendor.email,
+            phone: vendor.phone || "N/A",
+            joinedDate: new Date(vendor.createdAt).toISOString().split('T')[0],
+            website: vendor.website || "",
+          }));
+          
+          setVendors(transformedVendors);
+        } else {
+          console.error('Failed to fetch vendors, using fallback data');
+          // Use mock data as fallback
+          setVendors(vendorsData);
+        }
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+        // Use mock data as fallback
+        setVendors(vendorsData);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVendors();
+  }, []);
+
+  // Handle form input changes
+  const handleFormChange = (field: string, value: string) => {
+    setVendorForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmitVendor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Prepare vendor data for API
+      const vendorData = {
+        name: vendorForm.name,
+        category: vendorForm.category,
+        email: vendorForm.email,
+        phone: vendorForm.phone,
+        website: vendorForm.website,
+        integrationType: vendorForm.integrationType,
+        description: vendorForm.description
+      };
+
+      // Call API to create vendor
+      const response = await fetch('/api/vendors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(vendorData),
+      });
+
+      if (response.ok) {
+        const newVendor = await response.json();
+        
+        // Add to local state with proper formatting
+        const formattedVendor = {
+          id: newVendor.id,
+          name: newVendor.name,
+          category: newVendor.category,
+          status: "pending",
+          integration: newVendor.integrationType === "api" ? "API" : "Manual",
+          products: 0,
+          totalOrders: 0,
+          revenue: 0,
+          contact: newVendor.email,
+          phone: newVendor.phone,
+          joinedDate: new Date().toISOString().split('T')[0],
+          website: newVendor.website,
+        };
+
+        setVendors(prev => [...prev, formattedVendor]);
+
+        // Reset form
+        setVendorForm({
+          name: "",
+          category: "",
+          email: "",
+          phone: "",
+          website: "",
+          integrationType: "",
+          description: ""
+        });
+
+        // Close dialog
+        setIsAddVendorOpen(false);
+
+        // Show success message
+        toast.success('Vendor added successfully!');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add vendor');
+      }
+    } catch (error) {
+      console.error('Error adding vendor:', error);
+      toast.error('Failed to add vendor. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle vendor delete
+  const handleDeleteVendor = async (vendorId: string) => {
+    // Show confirmation toast
+    toast.warning('Are you sure you want to delete this vendor?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            const response = await fetch(`/api/vendors/${vendorId}`, {
+              method: 'DELETE'
+            });
+
+            if (response.ok) {
+              setVendors(prev => prev.filter(v => v.id !== vendorId));
+              toast.success('Vendor deleted successfully!');
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to delete vendor');
+            }
+          } catch (error) {
+            console.error('Error deleting vendor:', error);
+            toast.error(error instanceof Error ? error.message : 'Failed to delete vendor. Please try again.');
+          }
+        }
+      }
+    });
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVendor) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/vendors/${selectedVendor.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: vendorForm.name,
+          email: vendorForm.email,
+          phone: vendorForm.phone,
+        }),
+      });
+
+      if (response.ok) {
+        const updatedVendor = await response.json();
+        setVendors(prev => prev.map(v => v.id === selectedVendor.id ? {
+          ...v,
+          name: updatedVendor.name,
+          contact: updatedVendor.email,
+          phone: updatedVendor.phone,
+        } : v));
+        
+        setIsEditVendorOpen(false);
+        setSelectedVendor(null);
+        toast.success('Vendor updated successfully!');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update vendor');
+      }
+    } catch (error) {
+      console.error('Error updating vendor:', error);
+      toast.error('Failed to update vendor. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle vendor status toggle
+  const handleToggleVendorStatus = async (vendorId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    try {
+      const response = await fetch(`/api/vendors/${vendorId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        setVendors(prev => prev.map(v => 
+          v.id === vendorId ? { ...v, status: newStatus } : v
+        ));
+        toast.success(`Vendor ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`);
+      } else {
+        throw new Error('Failed to update vendor status');
+      }
+    } catch (error) {
+      console.error('Error updating vendor status:', error);
+      toast.error('Failed to update vendor status. Please try again.');
+    }
+  };
+
+  const handleViewProducts = async (vendor: any) => {
+    setSelectedVendor(vendor);
+    setIsViewProductsOpen(true);
+    setProductsLoading(true);
+    setVendorProducts([]);
+
+    try {
+      // Validate vendor ID to prevent duplication
+      if (!vendor || !vendor.id || typeof vendor.id !== 'string') {
+        console.error('Invalid vendor object or ID:', vendor);
+        toast.error('Invalid vendor selected');
+        return;
+      }
+
+      // Clean and validate the ID
+      const cleanId = vendor.id.trim();
+      console.log('Fetching products for vendor ID:', cleanId);
+      console.log('Full vendor object:', vendor);
+      
+      const url = `/api/vendors/${cleanId}/products`;
+      console.log('Constructed URL:', url);
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Products data received:', data);
+        setVendorProducts(data.products || []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Failed to fetch vendor products. Status:', response.status, 'Error:', errorData);
+        
+        if (response.status === 503) {
+          toast.error('Database connection issue. Please try again later.');
+        } else {
+          toast.error(`Failed to load vendor products: ${errorData.error || response.status}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching vendor products:', error);
+      toast.error('Network error: Failed to load vendor products');
+    } finally {
+      setProductsLoading(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -189,31 +505,38 @@ export default function AdminVendorsPage() {
         </div>
         <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleOpenAddVendor}>
               <Plus className="h-4 w-4 mr-2" />
               Add New Vendor
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl bg-white shadow-xl border border-gray-200">
             <DialogHeader>
               <DialogTitle>Add New Vendor</DialogTitle>
             </DialogHeader>
+            <form onSubmit={handleSubmitVendor}>
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="vendor-name">Vendor Name</Label>
-                <Input id="vendor-name" placeholder="Enter vendor name" />
+                <Input 
+                  id="vendor-name" 
+                  placeholder="Enter vendor name" 
+                  value={vendorForm.name}
+                  onChange={(e) => handleFormChange('name', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vendor-category">Category</Label>
-                <Select>
+                <Select value={vendorForm.category} onValueChange={(value) => handleFormChange('category', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fitness">Fitness Equipment</SelectItem>
-                    <SelectItem value="nutrition">Nutrition</SelectItem>
-                    <SelectItem value="mental-health">Mental Health</SelectItem>
-                    <SelectItem value="wellness">Wellness Programs</SelectItem>
+                    <SelectItem value="Fitness Equipment">Fitness Equipment</SelectItem>
+                    <SelectItem value="Nutrition">Nutrition</SelectItem>
+                    <SelectItem value="Mental Health">Mental Health</SelectItem>
+                    <SelectItem value="Wellness Programs">Wellness Programs</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -223,19 +546,33 @@ export default function AdminVendorsPage() {
                   id="vendor-email"
                   type="email"
                   placeholder="vendor@example.com"
+                  value={vendorForm.email}
+                  onChange={(e) => handleFormChange('email', e.target.value)}
+                  required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vendor-phone">Phone Number</Label>
-                <Input id="vendor-phone" placeholder="+91 00000 00000" />
+                <Input 
+                  id="vendor-phone" 
+                  placeholder="+91 00000 00000" 
+                  value={vendorForm.phone}
+                  onChange={(e) => handleFormChange('phone', e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vendor-website">Website</Label>
-                <Input id="vendor-website" placeholder="www.vendor.com" />
+                <Input 
+                  id="vendor-website" 
+                  placeholder="www.vendor.com" 
+                  value={vendorForm.website}
+                  onChange={(e) => handleFormChange('website', e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="integration-type">Integration Type</Label>
-                <Select>
+                <Select value={vendorForm.integrationType} onValueChange={(value) => handleFormChange('integrationType', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select integration" />
                   </SelectTrigger>
@@ -250,20 +587,29 @@ export default function AdminVendorsPage() {
                 <Textarea
                   id="vendor-description"
                   placeholder="Brief description about the vendor"
+                  value={vendorForm.description}
+                  onChange={(e) => handleFormChange('description', e.target.value)}
                 />
               </div>
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setIsAddVendorOpen(false)}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                Add Vendor
+              <Button 
+                type="submit" 
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={isSubmitting || !vendorForm.name || !vendorForm.email || !vendorForm.phone}
+              >
+                {isSubmitting ? 'Adding...' : 'Add Vendor'}
               </Button>
             </div>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -366,6 +712,14 @@ export default function AdminVendorsPage() {
           </div>
         </CardHeader>
         <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading vendors...</p>
+              </div>
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -418,13 +772,13 @@ export default function AdminVendorsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenEditVendor(vendor)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Vendor
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewProducts(vendor)}>
                             <Globe className="h-4 w-4 mr-2" />
-                            View Products
+                            View Products ({vendor.products})
                           </DropdownMenuItem>
                           {vendor.integration === "API" && (
                             <DropdownMenuItem
@@ -440,9 +794,7 @@ export default function AdminVendorsPage() {
                           <DropdownMenuSeparator />
                           {vendor.status === "active" ? (
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(vendor.id, "inactive")
-                              }
+                              onClick={() => handleToggleVendorStatus(vendor.id, vendor.status)}
                               className="text-red-600"
                             >
                               <Power className="h-4 w-4 mr-2" />
@@ -451,18 +803,14 @@ export default function AdminVendorsPage() {
                           ) : vendor.status === "pending" ? (
                             <>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleStatusChange(vendor.id, "active")
-                                }
+                                onClick={() => handleToggleVendorStatus(vendor.id, vendor.status)}
                                 className="text-emerald-600"
                               >
                                 <CheckCircle className="h-4 w-4 mr-2" />
                                 Approve
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() =>
-                                  handleStatusChange(vendor.id, "inactive")
-                                }
+                                onClick={() => handleToggleVendorStatus(vendor.id, vendor.status)}
                                 className="text-red-600"
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
@@ -471,9 +819,7 @@ export default function AdminVendorsPage() {
                             </>
                           ) : (
                             <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(vendor.id, "active")
-                              }
+                              onClick={() => handleToggleVendorStatus(vendor.id, vendor.status)}
                               className="text-emerald-600"
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
@@ -481,7 +827,10 @@ export default function AdminVendorsPage() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteVendor(vendor.id)}
+                            className="text-red-600"
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -493,6 +842,7 @@ export default function AdminVendorsPage() {
               </TableBody>
             </Table>
           </div>
+          )}
         </CardContent>
       </Card>
 
@@ -675,6 +1025,164 @@ export default function AdminVendorsPage() {
             <Button className="bg-emerald-600 hover:bg-emerald-700">
               Save Configuration
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Vendor Dialog */}
+      <Dialog open={isEditVendorOpen} onOpenChange={setIsEditVendorOpen}>
+        <DialogContent className="max-w-2xl bg-white shadow-xl border border-gray-200">
+          <DialogHeader>
+            <DialogTitle>Edit Vendor</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit}>
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-vendor-name">Vendor Name</Label>
+                <Input 
+                  id="edit-vendor-name" 
+                  placeholder="Enter vendor name" 
+                  value={vendorForm.name}
+                  onChange={(e) => handleFormChange('name', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-vendor-email">Contact Email</Label>
+                <Input
+                  id="edit-vendor-email"
+                  type="email"
+                  placeholder="vendor@example.com"
+                  value={vendorForm.email}
+                  onChange={(e) => handleFormChange('email', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-vendor-phone">Phone Number</Label>
+                <Input 
+                  id="edit-vendor-phone" 
+                  placeholder="+91 00000 00000" 
+                  value={vendorForm.phone}
+                  onChange={(e) => handleFormChange('phone', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditVendorOpen(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={isSubmitting || !vendorForm.name || !vendorForm.email || !vendorForm.phone}
+              >
+                {isSubmitting ? 'Updating...' : 'Update Vendor'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Products Dialog */}
+      <Dialog open={isViewProductsOpen} onOpenChange={setIsViewProductsOpen}>
+        <DialogContent className="max-w-6xl bg-white shadow-xl border border-gray-200">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedVendor?.name} Products ({vendorProducts.length})
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {productsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                <p className="mt-2 text-gray-500">Loading products...</p>
+              </div>
+            ) : vendorProducts.length > 0 ? (
+              <div className="space-y-4">
+                <div className="rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Stock</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Orders</TableHead>
+                        <TableHead>Revenue</TableHead>
+                        <TableHead>Qty Sold</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {vendorProducts.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                                {product.imageUrl ? (
+                                  <img 
+                                    src={product.imageUrl} 
+                                    alt={product.name}
+                                    className="w-10 h-10 rounded-lg object-cover"
+                                  />
+                                ) : (
+                                  <Building2 className="h-5 w-5 text-gray-400" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">{product.name}</p>
+                                <p className="text-sm text-gray-500 truncate max-w-xs">{product.description}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{product.category}</TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-semibold">₹{product.price}</p>
+                              {product.originalPrice && product.originalPrice > product.price && (
+                                <p className="text-xs text-gray-500 line-through">₹{product.originalPrice}</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              product.stock > 10 
+                                ? 'bg-green-100 text-green-800'
+                                : product.stock > 0 
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}>
+                              {product.stock} units
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={product.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                              {product.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">{product.totalOrders}</TableCell>
+                          <TableCell className="font-semibold text-emerald-600">₹{product.totalRevenue?.toLocaleString() || '0'}</TableCell>
+                          <TableCell className="text-center">{product.totalQuantitySold}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No products found for this vendor</p>
+                <p className="text-sm text-gray-400 mt-1">Products will appear here once they are added to the system</p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

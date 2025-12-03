@@ -83,10 +83,36 @@ export default function WellnessStore() {
   const { isAuthenticated } = useUser();
   const { products, isLoading: productsLoading, error } = useProducts();
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // Prefetch products on component mount for better performance
   useEffect(() => {
     prefetchProducts();
+  }, []);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories || []);
+        } else {
+          console.error('Failed to fetch categories');
+          // Keep empty array as fallback
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Keep empty array as fallback
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // Track when products have loaded at least once to prevent flickering
@@ -95,6 +121,8 @@ export default function WellnessStore() {
       setHasLoadedOnce(true);
     }
   }, [products.length, hasLoadedOnce]);
+
+
 
   // Show loading only on initial load, not on subsequent fetches
   const shouldShowLoading = productsLoading && !hasLoadedOnce;
@@ -177,6 +205,15 @@ export default function WellnessStore() {
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);
 
+  // Debug category changes and products
+  useEffect(() => {
+    console.log('=== CATEGORY DEBUG ===');
+    console.log('Selected category:', selectedCategory);
+    console.log('Total products:', products.length);
+    console.log('First 3 products categories:', products.slice(0, 3).map(p => ({ name: p.name, category: p.category })));
+    console.log('Unique categories in products:', [...new Set(products.map(p => p.category))]);
+  }, [selectedCategory, products]);
+
   // Generate dynamic categories from products
   const dynamicCategories = Array.from(
     new Set(products.map((product) => product.category))
@@ -216,50 +253,7 @@ export default function WellnessStore() {
     { value: "3.0+", label: "3.0+ Stars", min: 3.0 },
   ];
 
-  const categoryBanners = [
-    {
-      value: "all",
-      label: "All Products",
-      image:
-        "https://images.unsplash.com/photo-1613637069737-2cce919a4ab7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWxsbmVzcyUyMG51dHJpdGlvbiUyMGhlYWx0aHklMjBsaWZlc3R5bGV8ZW58MXx8fHwxNzU3NzUxMTY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      description: "Complete Wellness Range",
-    },
-    {
-      value: "Fitness_And_Gym_Equipment",
-      label: "Fitness Equipment",
-      image:
-        "https://images.unsplash.com/photo-1652492041264-efba848755d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaXRuZXNzJTIwZXF1aXBtZW50JTIwZHVtYmJlbGxzJTIwZ3ltfGVufDF8fHx8MTc1Nzc1MTE1NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      description: "Gym Equipment & Gear",
-    },
-    {
-      value: "Nutrition_And_Health",
-      label: "Nutrition & Health",
-      image:
-        "https://images.unsplash.com/photo-1593181581874-361761582b9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXBwbGVtZW50cyUyMHZpdGFtaW5zJTIwbnV0cml0aW9ufGVufDF8fHx8MTc1Nzc1MTE1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      description: "Vitamins & Nutrition",
-    },
-    {
-      value: "Diagnostics_And_Prevention",
-      label: "Diagnostics",
-      image:
-        "https://images.unsplash.com/photo-1745256375848-1d599594635d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWFyYWJsZXMlMjBmaXRuZXNzJTIwdHJhY2tlciUyMHNtYXJ0d2F0Y2h8ZW58MXx8fHwxNzU3NzUxMTU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      description: "Health Monitoring",
-    },
-    {
-      value: "Ergonomics_And_Workspace_Comfort",
-      label: "Ergonomics",
-      image:
-        "https://images.unsplash.com/photo-1740748776786-74365e440be4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNvdmVyeSUyMHRoZXJhcHklMjBtYXNzYWdlJTIwc3BhfGVufDF8fHx8MTc1Nzc1MTE2Mnww&ixlib=rb-4.1.0&q=80&w=1080",
-      description: "Workspace Comfort",
-    },
-    {
-      value: "Health_And_Wellness_Services",
-      label: "Wellness Services",
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      description: "Professional Services",
-    },
-  ];
+  // Categories are now fetched from API and stored in state
 
   const handleBrandChange = (brand: string, checked: boolean) => {
     if (checked) {
@@ -294,6 +288,11 @@ export default function WellnessStore() {
           .includes(searchTerm.toLowerCase()));
     const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
+    
+    // Debug logging
+    if (selectedCategory !== "all") {
+      console.log('Filtering product:', product.name, 'category:', product.category, 'selectedCategory:', selectedCategory, 'matches:', matchesCategory);
+    }
     const matchesBrand =
       selectedBrands.length === 0 ||
       ((product as any).vendor?.name &&
@@ -326,6 +325,9 @@ export default function WellnessStore() {
       matchesRating
     );
   });
+
+  // Debug filtered results
+  console.log('Filtered products count:', filteredProducts.length, 'for category:', selectedCategory);
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
@@ -480,7 +482,19 @@ export default function WellnessStore() {
             role="tablist"
             aria-label="Product categories"
           >
-          {categoryBanners.map((category) => (
+          {categoriesLoading ? (
+            // Show skeleton loading for categories
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="group cursor-pointer">
+                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 aspect-square animate-pulse">
+                  <div className="absolute inset-0 bg-gray-300"></div>
+                </div>
+                <div className="mt-2 h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="mt-1 h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
+              </div>
+            ))
+          ) : (
+            categories.map((category) => (
             <button
               key={category.value}
               type="button"
@@ -492,7 +506,10 @@ export default function WellnessStore() {
                   ? "transform scale-105"
                   : "hover:transform hover:scale-105"
               }`}
-              onClick={() => setSelectedCategory(category.value)}
+              onClick={() => {
+                console.log('Clicking category:', category.value, 'label:', category.label);
+                setSelectedCategory(category.value);
+              }}
             >
               <div
                 className={`relative overflow-hidden rounded-2xl border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-2 ${
@@ -535,7 +552,8 @@ export default function WellnessStore() {
                 )}
               </div>
             </button>
-          ))}
+          ))
+          )}
           </div>
         </div>
 

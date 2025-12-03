@@ -70,10 +70,6 @@ const adminNavItems = [
         title: "All Orders",
         url: "/admin/orders",
       },
-      {
-        title: "Create Order",
-        url: "/admin/orders/create",
-      },
     ],
   },
   {

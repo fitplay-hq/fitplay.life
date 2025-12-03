@@ -3,15 +3,14 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
-    // Fetch products and extract unique categories from database
-    const products = await prisma.product.findMany({
-      select: {
-        category: true
-      }
-    });
-
-    // Get unique categories from products
-    const uniqueCategories = Array.from(new Set(products.map(p => p.category)));
+    // Define all available categories from the enum (regardless of product availability)
+    const allCategories = [
+      'Fitness_And_Gym_Equipment',
+      'Nutrition_And_Health', 
+      'Diagnostics_And_Prevention',
+      'Ergonomics_And_Workspace_Comfort',
+      'Health_And_Wellness_Services'
+    ];
 
     // Function to format category names from database
     const formatCategoryName = (category: string) => {
@@ -47,16 +46,16 @@ export async function GET(req: NextRequest) {
         image: "https://images.unsplash.com/photo-1613637069737-2cce919a4ab7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWxsbmVzcyUyMG51dHJpdGlvbiUyMGhlYWx0aHklMjBsaWZlc3R5bGV8ZW58MXx8fHwxNzU3NzUxMTY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
         description: "Complete Wellness Range",
       },
-      // Add categories that actually exist in the database with real names
-      ...uniqueCategories.map(category => ({
+      // Add ALL categories from enum (regardless of whether they have products)
+      ...allCategories.map(category => ({
         value: category,
-        label: formatCategoryName(category), // Use real formatted database name
-        image: getCategoryImage(category),
+        label: formatCategoryName(category),
+        image: getCategoryImage(category), 
         description: `${formatCategoryName(category)} products`
       }))
     ];
 
-    console.log('Fetched categories from database:', uniqueCategories);
+    console.log('All available categories:', allCategories);
     console.log('Returning categories:', categories);
 
     return new NextResponse(JSON.stringify({ categories }), {

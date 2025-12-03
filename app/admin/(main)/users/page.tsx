@@ -33,6 +33,7 @@ import {
   Users, 
   UserPlus, 
   Edit3, 
+  Trash2,
   Download, 
   Search, 
   Filter,
@@ -79,10 +80,27 @@ export default function UserManagementPage() {
     isLoading,
   } = useSWR("/api/admin/users", fetcher);
 
+  const { data: companiesData } = useSWR("/api/companies", fetcher);
+
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isCreditOpen, setIsCreditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{id: string, name: string} | null>(null);
   const [updating, setUpdating] = useState(false);
+  
+  // Form data for adding/editing users
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: 'EMPLOYEE',
+    companyId: '',
+    gender: '',
+    address: ''
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
@@ -127,30 +145,7 @@ export default function UserManagementPage() {
       }
     });
 
-  const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
-    setUpdating(true);
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to update user");
-      }
-
-      await globalMutate("/api/admin/users");
-      toast.success("User updated successfully");
-      setIsEditOpen(false);
-      setSelectedUser(null);
-    } catch (error) {
-      toast.error("Failed to update user");
-      console.error(error);
-    } finally {
-      setUpdating(false);
-    }
-  };
 
   const handleCreditTransaction = async () => {
     if (!selectedUser || creditTransaction.amount <= 0 || !creditTransaction.reason.trim()) {
@@ -182,6 +177,123 @@ export default function UserManagementPage() {
     } catch (error) {
       toast.error("Failed to update credits");
       console.error(error);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleAddUser = async () => {
+    if (!userForm.name || !userForm.email || !userForm.phone || !userForm.password || !userForm.companyId) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userForm)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create user');
+      }
+
+      await globalMutate('/api/admin/users');
+      toast.success('User created successfully');
+      setIsAddUserOpen(false);
+      setUserForm({
+        name: '',
+        email: '',
+        phone: '',
+        password: '',
+        role: 'EMPLOYEE',
+        companyId: '',
+        gender: '',
+        address: ''
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create user');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteUser = (userId: string, userName: string) => {
+    setUserToDelete({ id: userId, name: userName });
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    setUpdating(true);
+    try {
+      const response = await fetch(`/api/admin/users/${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete user');
+      }
+
+      await globalMutate('/api/admin/users');
+      toast.success('User deleted successfully');
+      setIsDeleteOpen(false);
+      setUserToDelete(null);
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to delete user');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setUserForm({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      password: '', // Don't pre-fill password for security
+      role: user.role,
+      companyId: user.companyId,
+      gender: user.gender || '',
+      address: user.address || ''
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser || !userForm.name || !userForm.email) {
+      toast.error("Please fill required fields");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userForm.name,
+          email: userForm.email
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+
+      await globalMutate('/api/admin/users');
+      toast.success('User updated successfully');
+      setIsEditOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error('Failed to update user');
     } finally {
       setUpdating(false);
     }
@@ -230,14 +342,117 @@ export default function UserManagementPage() {
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600 mt-2">Manage user accounts, credits, and permissions</p>
         </div>
-        <Button 
-          onClick={handleExportUsers}
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Export Users
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <UserPlus className="h-4 w-4" />
+                Add User
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md bg-white">
+              <DialogHeader>
+                <DialogTitle>Add New User</DialogTitle>
+                <DialogDescription>
+                  Create a new user account with wallet
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Name *</Label>
+                  <Input
+                    id="name"
+                    value={userForm.name}
+                    onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                    placeholder="Enter user name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={userForm.email}
+                    onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                    placeholder="Enter email address"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone *</Label>
+                  <Input
+                    id="phone"
+                    value={userForm.phone}
+                    onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={userForm.password}
+                    onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                    placeholder="Enter password"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="role">Role *</Label>
+                  <Select value={userForm.role} onValueChange={(value) => setUserForm({ ...userForm, role: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                      <SelectItem value="HR">HR Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="company">Company *</Label>
+                  <Select value={userForm.companyId} onValueChange={(value) => setUserForm({ ...userForm, companyId: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companiesData?.companies?.map((company: any) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    onClick={handleAddUser} 
+                    disabled={updating}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    {updating ? 'Creating...' : 'Create User'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsAddUserOpen(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Button 
+            onClick={handleExportUsers}
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export Users
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -407,15 +622,28 @@ export default function UserManagementPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          title="Edit User"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id, user.name)}
+                          title="Delete User"
+                          className="text-red-600 border-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        
                         <Dialog open={isEditOpen && selectedUser?.id === user.id} onOpenChange={setIsEditOpen}>
                           <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedUser(user)}
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </Button>
+                            <Button className="hidden">Hidden</Button>
                           </DialogTrigger>
                           <DialogContent className="bg-white">
                             <DialogHeader>
@@ -424,39 +652,41 @@ export default function UserManagementPage() {
                                 Update user information. Changes will be logged for audit purposes.
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-name" className="text-right">Name</Label>
+                            <div className="space-y-4">
+                              <div>
+                                <Label htmlFor="edit-name">Name</Label>
                                 <Input
                                   id="edit-name"
-                                  defaultValue={selectedUser?.name}
-                                  className="col-span-3"
+                                  value={userForm.name}
+                                  onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                                  placeholder="Enter user name"
                                 />
                               </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-email" className="text-right">Email</Label>
+                              <div>
+                                <Label htmlFor="edit-email">Email</Label>
                                 <Input
                                   id="edit-email"
-                                  defaultValue={selectedUser?.email}
-                                  className="col-span-3"
+                                  type="email"
+                                  value={userForm.email}
+                                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                                  placeholder="Enter email address"
                                 />
                               </div>
                             </div>
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-                                Cancel
-                              </Button>
+                            <div className="flex gap-2 pt-4">
                               <Button 
-                                onClick={() => {
-                                  const name = (document.getElementById('edit-name') as HTMLInputElement)?.value;
-                                  const email = (document.getElementById('edit-email') as HTMLInputElement)?.value;
-                                  if (selectedUser && name && email) {
-                                    handleUpdateUser(selectedUser.id, { name, email } as Partial<User>);
-                                  }
-                                }}
+                                onClick={handleUpdateUser}
                                 disabled={updating}
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                               >
                                 {updating ? "Updating..." : "Update User"}
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setIsEditOpen(false)}
+                                className="flex-1"
+                              >
+                                Cancel
                               </Button>
                             </div>
                           </DialogContent>
@@ -564,6 +794,35 @@ export default function UserManagementPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete user "{userToDelete?.name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={confirmDeleteUser}
+              disabled={updating}
+              variant="destructive"
+              className="flex-1"
+            >
+              {updating ? "Deleting..." : "Delete User"}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteOpen(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

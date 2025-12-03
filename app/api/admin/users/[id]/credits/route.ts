@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,8 @@ export async function POST(
     }
 
     const { type, amount, reason } = await request.json();
-    const userId = params.id;
+    const resolvedParams = await params;
+    const userId = resolvedParams.id;
 
     if (!type || !amount || !reason || amount <= 0) {
       return NextResponse.json(
@@ -58,13 +59,14 @@ export async function POST(
         where: { userId },
         data: { balance: newBalance },
       }),
-      prisma.walletTransaction.create({
+      prisma.transactionLedger.create({
         data: {
           userId,
-          type: type === 'ADD' ? 'CREDIT' : 'DEBIT',
+          walletId: currentWallet.id,
           amount: amount,
-          description: `${type === 'ADD' ? 'Credits added' : 'Credits removed'} by admin: ${reason}`,
-          adminId: session.user.id,
+          modeOfPayment: 'Credits',
+          transactionType: 'CREDIT',
+          isCredit: type === 'ADD',
         },
       }),
     ]);

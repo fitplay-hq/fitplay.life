@@ -61,19 +61,24 @@ export default function LoginPage() {
       }
 
       toast.success("Login successful!");
+      console.log("User:", session?.user);
 
       switch (role) {
         case "EMPLOYEE":
           router.replace("/store");
+          console.log("Redirecting EMPLOYEE to /store");
           break;
         case "HR":
           router.replace("/hr");
+          console.log("Redirecting HR to /hr");
           break;
         case "VENDOR":
           router.replace("/vendor");
+          console.log("Redirecting VENDOR to /vendor");
           break;
         case "ADMIN":
           router.replace("/admin");
+          console.log("Redirecting ADMIN to /admin");
           break;
         default:
           toast.error("Unknown user role");

@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
             id: vendor.id,
             name: vendor.name,
             email: vendor.email,
-            role: "VENDOR", // you can add to Role enum if needed
+            role: $Enums.Role.VENDOR, // you can add to Role enum if needed
           };
         }
 
@@ -102,7 +102,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id as string,
           name: token.name as string,
           email: token.email as string,
-          role: token.role as UserRole | "VENDOR",
+          role: token.role as UserRole,
         };
       }
       return session;

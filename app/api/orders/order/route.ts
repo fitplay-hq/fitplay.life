@@ -111,6 +111,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const date = new Date();
+    const yyyy = date.getFullYear().toString();
+    const mm = (date.getMonth() + 1).toString().padStart(2, "0");
+    const dd = date.getDate().toString().padStart(2, "0");
+    // Use a per-user sequential 6-digit counter: first order -> 000001, then 000002, ...
+    const userOrderCount = await prisma.order.count({ where: { userId: user.id } });
+    let nextSeq = userOrderCount + 1;
+    // ensure 6 digits padded with leading zeros
+    let lastSix = nextSeq.toString().padStart(6, "0");
+    let orderId = `FP-${yyyy}${mm}${dd}-${lastSix}`;
+
+    const existingOrder = await prisma.order.findFirst({
+      where: { id: orderId },
+    });
+    if (existingOrder) {
+      return NextResponse.json(
+        { error: "Order ID conflict, please try again" },
+        { status: 500 }
+      );
+    }
+
     const result: { enrichedOrder: any; updatedWallet: any } =
       await prisma.$transaction(async (tx) => {
         const updatedWallet = await tx.wallet.update({
@@ -131,6 +152,7 @@ export async function POST(req: NextRequest) {
 
         const order = await tx.order.create({
           data: {
+            id: orderId,
             userId: user.id,
             amount: totalAmount,
             status: "PENDING",

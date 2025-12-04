@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
             data: {
                 userId,
                 amount: voucher.credits,
+                balanceAfterTxn: newBalance,
                 transactionType: "CREDIT",
                 modeOfPayment: "Credits",
                 isCredit: true,

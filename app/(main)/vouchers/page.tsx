@@ -29,7 +29,7 @@ export default function EmployeeVouchersPage() {
     );
   }
 
-  if (!session || session.user.role !== "EMPLOYEE") {
+  if (!session || (session.user.role !== "EMPLOYEE" && session.user.role !== "HR")) {
     return null;
   }
 

@@ -64,6 +64,7 @@ export async function POST(
         data: {
           userId,
           walletId: currentWallet.id,
+          balanceAfterTxn: newBalance,
           amount: amount,
           modeOfPayment: 'Credits',
           transactionType: 'CREDIT',

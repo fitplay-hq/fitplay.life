@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
                     userId: emp.id,
                     amount: creditAmount,
                     modeOfPayment: "Credits",
+                    balanceAfterTxn: updatedWallet.balance,
                     isCredit: true,
                     transactionType: "CREDIT",
                     walletId: wallet.id,
@@ -205,6 +206,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId: user.id,
           amount: Math.abs(creditAmount),
+          balanceAfterTxn: updatedWallet.balance,
           modeOfPayment: "Credits",
           isCredit: creditAmount > 0,
           transactionType: "CREDIT",
@@ -289,7 +291,7 @@ export async function GET(req: NextRequest) {
         date: tx.createdAt.toISOString().split("T")[0],
         type: tx.transactionType,
         amount: tx.isCredit ? tx.amount : -tx.amount,
-        balance: wallet.balance, // Use current balance for simplicity
+        balance: tx.balanceAfterTxn || wallet!.balance, 
         description: tx.isCredit ? "Credits added by admin" : "Purchase made",
       }));
 

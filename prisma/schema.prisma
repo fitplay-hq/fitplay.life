@@ -131,6 +131,7 @@ model TransactionLedger {
   amount          Int
   modeOfPayment   Modes
   cashAmount      Int?
+  balanceAfterTxn Int?
   transactionType TransactionType?
   isCredit        Boolean
   walletId        String

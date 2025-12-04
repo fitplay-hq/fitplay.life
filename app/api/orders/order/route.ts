@@ -144,6 +144,7 @@ export async function POST(req: NextRequest) {
             userId: user.id,
             amount: totalAmount,
             modeOfPayment: "Credits",
+            balanceAfterTxn: updatedWallet.balance,
             isCredit: false,
             transactionType: "PURCHASE",
             walletId: updatedWallet.id,

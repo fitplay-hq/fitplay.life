@@ -53,12 +53,6 @@ export async function POST(
       );
     }
 
-    // generate unique txnId like TXN-FP-YYYYMM-<6hex>
-    const now = new Date();
-    const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
-    let randomSix = Math.floor(100000 + Math.random() * 900000);
-    let txnId = `TXN-FP-${yyyymm}-${randomSix}`;
-
 
     // Update wallet and create transaction record
     const [updatedWallet] = await prisma.$transaction([
@@ -68,7 +62,6 @@ export async function POST(
       }),
       prisma.transactionLedger.create({
         data: {
-          id: txnId,
           userId,
           walletId: currentWallet.id,
           amount: amount,

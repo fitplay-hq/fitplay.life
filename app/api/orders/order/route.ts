@@ -117,10 +117,10 @@ export async function POST(req: NextRequest) {
     const dd = date.getDate().toString().padStart(2, "0");
     // Use a per-user sequential 6-digit counter: first order -> 000001, then 000002, ...
     const userOrderCount = await prisma.order.count({ where: { userId: user.id } });
-    let nextSeq = userOrderCount + 1;
+    const nextSeq = userOrderCount + 1;
     // ensure 6 digits padded with leading zeros
-    let lastSix = nextSeq.toString().padStart(6, "0");
-    let orderId = `FP-${yyyy}${mm}${dd}-${lastSix}`;
+    const lastSix = nextSeq.toString().padStart(6, "0");
+    const orderId = `FP-${yyyy}${mm}${dd}-${lastSix}`;
 
     const existingOrder = await prisma.order.findFirst({
       where: { id: orderId },

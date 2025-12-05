@@ -189,7 +189,7 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-gray-200 bg-white p-0 w-64">
+      <Sidebar className="border-r border-gray-200 bg-white p-0 w-56">
         <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-4">
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center">

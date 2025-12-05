@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Filter,
@@ -69,6 +70,7 @@ const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
 const OrdersManagement = () => {
+  const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR("/api/orders", fetcher);
 
   // Transform API data to match component expectations
@@ -618,11 +620,11 @@ const OrdersManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="overflow-x-auto max-w-full">
+            <Table className="w-full table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12">
+                  <TableHead className="w-8">
                     <Checkbox
                       checked={
                         selectedOrders.length === filteredOrders.length &&
@@ -637,15 +639,15 @@ const OrdersManagement = () => {
                       }}
                     />
                   </TableHead>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Order Date</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
+                  <TableHead className="w-28">Order ID</TableHead>
+                  <TableHead className="w-32">Employee</TableHead>
+                  <TableHead className="hidden lg:table-cell w-24">Company</TableHead>
+                  <TableHead className="w-32">Products</TableHead>
+                  <TableHead className="text-right w-20">Total</TableHead>
+                  <TableHead className="w-20">Payment</TableHead>
+                  <TableHead className="w-20">Status</TableHead>
+                  <TableHead className="hidden xl:table-cell w-24">Date</TableHead>
+                  <TableHead className="text-center w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -668,50 +670,58 @@ const OrdersManagement = () => {
                     <TableCell>
                       <Button
                         variant="link"
-                        className="font-medium text-emerald-600 p-0 h-auto"
+                        className="font-medium text-emerald-600 p-0 h-auto text-xs"
                         onClick={() => setSelectedOrderForDetails(order)}
                       >
-                        {order.id}
+                        <div className="truncate max-w-[100px] text-xs">
+                          {order.id}
+                        </div>
                       </Button>
                       {order.trackingId && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 truncate">
                           Track: {order.trackingId}
                         </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{order.employee.name}</div>
-                        <div className="text-sm text-gray-500">
+                      <div className="max-w-[120px]">
+                        <div className="font-medium text-xs truncate">{order.employee.name}</div>
+                        <div className="text-xs text-gray-500 truncate">
                           {order.employee.email}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">
+                    <TableCell className="hidden lg:table-cell">
+                      <div className="flex items-center gap-1 max-w-[80px]">
+                        <Building2 className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                        <span className="text-xs truncate">
                           {order.employee.company}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {order.products.map((product, index) => (
-                          <div key={index} className="flex justify-between">
-                            <span>{product.name}</span>
-                            <span className="text-gray-500">
+                      <div className="text-xs max-w-[110px]">
+                        {order.products.slice(0, 1).map((product, index) => (
+                          <div key={index} className="flex justify-between mb-1">
+                            <span className="truncate flex-1 mr-1">{product.name}</span>
+                            <span className="text-gray-500 flex-shrink-0 text-xs">
                               ×{product.quantity}
                             </span>
                           </div>
                         ))}
+                        {order.products.length > 1 && (
+                          <div className="text-gray-400 text-xs">
+                            +{order.products.length - 1} more
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="text-sm">
+                      <div className="text-xs">
                         <div className="font-medium">
-                          {order.totalCredits.toLocaleString()} credits
+                          {order.totalCredits.toLocaleString()}
                         </div>
+                        <div className="text-gray-500">credits</div>
                         {order.paymentMode !== "credits" && (
                           <div className="text-gray-500">
                             ₹{order.inrAmount.toLocaleString()}
@@ -719,39 +729,34 @@ const OrdersManagement = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getPaymentBadge(order.paymentMode)}</TableCell>
-                    <TableCell>{getStatusBadge(order.status)}</TableCell>
                     <TableCell>
-                      <div className="text-sm">
+                      <div className="text-xs">{getPaymentBadge(order.paymentMode)}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-xs">{getStatusBadge(order.status)}</div>
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">
+                      <div className="text-xs">
                         {formatDate(order.orderDate)}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="flex gap-2">
+                      <div className="flex gap-0.5 justify-center">
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() =>
-                            window.open(`/admin/orders/${order.id}`, "_blank")
+                            router.push(`/admin/orders/${order.id}`)
                           }
                           title="View Order Details"
                         >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            window.open(`/admin/orders/${order.id}`, "_blank")
-                          }
-                          title="View Full Order Details"
-                        >
-                          <Package className="h-4 w-4" />
+                          <Eye className="h-3 w-3" />
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button variant="ghost" className="h-7 w-7 p-0">
+                              <MoreHorizontal className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -939,7 +944,7 @@ const OrdersManagement = () => {
         open={!!selectedOrderForDetails} 
         onOpenChange={() => setSelectedOrderForDetails(null)}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] lg:max-w-4xl max-h-[90vh] overflow-hidden bg-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-emerald-600" />
@@ -951,9 +956,9 @@ const OrdersManagement = () => {
           </DialogHeader>
           
           {selectedOrderForDetails && (
-            <div className="grid gap-6">
+            <div className="grid gap-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {/* Order Header Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm flex items-center gap-2">
@@ -1022,7 +1027,8 @@ const OrdersManagement = () => {
                   <CardTitle className="text-lg">Ordered Products</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <div className="overflow-x-auto">
+                    <Table className="min-w-full">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Product Name</TableHead>
@@ -1050,11 +1056,12 @@ const OrdersManagement = () => {
                       </TableRow>
                     </TableBody>
                   </Table>
+                  </div>
                 </CardContent>
               </Card>
               
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col sm:flex-row justify-end gap-3">
                 <Button 
                   variant="outline"
                   onClick={() => {

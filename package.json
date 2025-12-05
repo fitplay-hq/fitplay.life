@@ -58,6 +58,8 @@
     "framer-motion": "^12.23.24",
     "input-otp": "^1.4.2",
     "jotai": "^2.14.0",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.540.0",
     "next": "15.4.8",
     "next-auth": "^4.24.11",

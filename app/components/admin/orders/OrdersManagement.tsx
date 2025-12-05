@@ -20,6 +20,8 @@ import {
   Calendar,
   User,
   Building2,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -106,6 +108,47 @@ const OrdersManagement = () => {
   const [updateOrderStatus, setUpdateOrderStatus] = useState("");
   const [currentOrderStatus, setCurrentOrderStatus] = useState("");
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any>(null);
+
+  // Export functionality
+  const handleExport = async (format: 'excel' | 'pdf') => {
+    try {
+      const formatLabel = format === 'excel' ? 'Excel' : 'PDF';
+      toast.loading(`Preparing Orders ${formatLabel} export...`, { id: 'export-loading' });
+
+      // Build query parameters for filtering
+      const params = new URLSearchParams({
+        format,
+        searchTerm: searchTerm || '',
+        statusFilter: statusFilter !== 'all' ? statusFilter : '',
+        paymentFilter: paymentFilter !== 'all' ? paymentFilter : '',
+        dateFilter: dateFilter !== 'all' ? dateFilter : ''
+      });
+
+      const response = await fetch(`/api/orders/export?${params}`);
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `orders-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        toast.success(`Orders ${formatLabel} export completed successfully!`, { id: 'export-loading' });
+      } else {
+        const errorText = await response.text();
+        console.error(`Export failed: ${response.status} ${response.statusText}`, errorText);
+        toast.error(`Export failed: ${response.status} ${response.statusText}`, { id: 'export-loading' });
+      }
+    } catch (error) {
+      console.error(`Failed to export ${format}:`, error);
+      toast.error(`Failed to export ${format}: ${error instanceof Error ? error.message : 'Unknown error'}`, { id: 'export-loading' });
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -415,10 +458,24 @@ const OrdersManagement = () => {
               </Button>
             </>
           )}
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Orders
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

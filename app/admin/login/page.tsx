@@ -46,7 +46,9 @@ export default function AdminLoginPage() {
         toast.error("Invalid credentials");
       } else {
         toast.success("Login successful!");
+        console.log("Redirecting to admin dashboard...");
         router.push("/admin");
+        console.log("Redirected to admin dashboard");
       }
     } catch (err) {
       toast.error("An error occurred during login");

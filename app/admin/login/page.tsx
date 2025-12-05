@@ -44,12 +44,13 @@ export default function AdminLoginPage() {
 
       if (result?.error) {
         toast.error("Invalid credentials");
-      } else {
-        toast.success("Login successful!");
-        console.log("Redirecting to admin dashboard...");
-        router.push("/admin");
-        console.log("Redirected to admin dashboard");
+        return;
       }
+      toast.success("Login successful!");
+      console.log("Redirecting to admin dashboard...");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      router.refresh();
+      router.push("/admin");
     } catch (err) {
       toast.error("An error occurred during login");
     } finally {

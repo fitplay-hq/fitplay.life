@@ -15,6 +15,8 @@ import {
   CreditCard,
   TrendingUp,
   TrendingDown,
+  FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +37,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import DatePickerWithRange from "@/components/date-picker-with-range";
 import useSWR from "swr";
 
@@ -52,6 +61,43 @@ const TransactionsManagement = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [dateRange, setDateRange] = useState<any>(null);
+
+  const handleExport = async (format: 'excel' | 'pdf') => {
+    try {
+      toast.info(`Exporting transactions as ${format === 'excel' ? 'Excel' : 'PDF'}...`);
+      
+      const params = new URLSearchParams({
+        format,
+        searchTerm,
+        typeFilter,
+        statusFilter,
+        companyFilter,
+      });
+
+      const response = await fetch(`/api/transactions/export?${params}`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `transactions-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Transactions exported as ${format === 'excel' ? 'Excel' : 'PDF'} successfully`);
+    } catch (error) {
+      console.error('Error exporting transactions:', error);
+      toast.error(`Failed to export transactions as ${format === 'excel' ? 'Excel' : 'PDF'}`);
+    }
+  };
 
   const getTypeBadge = (type: string) => {
     switch (type) {
@@ -242,10 +288,24 @@ const TransactionsManagement = () => {
             <RefreshCcw className="h-4 w-4 mr-2" />
             Sync Transactions
           </Button>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

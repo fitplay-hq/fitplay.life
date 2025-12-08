@@ -127,20 +127,42 @@ export default function AdminProductsPage() {
 
   const handleExport = async (format: 'excel' | 'pdf') => {
     try {
-      const response = await fetch(`/api/admin/products/export?format=${format}`);
-      if (!response.ok) throw new Error('Export failed');
+      toast.loading(`Preparing ${format === 'excel' ? 'Excel' : 'PDF'} export...`);
+      
+      // Use different API endpoints based on format
+      const apiEndpoint = format === 'pdf' 
+        ? '/api/admin/products/export-pdf' 
+        : `/api/admin/products/export?format=${format}`;
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Export failed: ${response.status} - ${errorText}`);
+      }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `products-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : 'html'}`;
+      a.download = `products-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
       document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-      toast.success(`Products exported as ${format === 'excel' ? 'Excel' : 'PDF'} successfully`);
+      
+      toast.dismiss();
+      const formatNames = { excel: 'Excel', pdf: 'PDF' };
+      toast.success(`Products exported as ${formatNames[format]} successfully`);
     } catch (error) {
+      toast.dismiss();
       toast.error(`Failed to export products as ${format === 'excel' ? 'Excel' : 'PDF'}`);
       console.error('Export error:', error);
     }

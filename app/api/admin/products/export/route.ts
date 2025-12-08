@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'excel';
 
-    // Get all products with detailed information
+    // Get all products with essential information
     const products = await prisma.product.findMany({
       include: {
         vendor: {
@@ -28,24 +28,22 @@ export async function GET(request: NextRequest) {
             email: true,
           },
         },
-        variants: {
-          select: {
-            id: true,
-            variantCategory: true,
-            variantValue: true,
-            mrp: true,
-          },
-        },
-
-        orderItems: {
-          select: {
-            quantity: true,
-            credits: true,
-          },
-        },
+        variants: true,
       },
       orderBy: {
         createdAt: 'desc',
+      },
+    });
+
+    // Get order items separately to calculate sales data
+    const orderItemsData = await prisma.orderItem.groupBy({
+      by: ['productId'],
+      _sum: {
+        quantity: true,
+        price: true,
+      },
+      _count: {
+        id: true,
       },
     });
 
@@ -53,8 +51,10 @@ export async function GET(request: NextRequest) {
     const exportData = products.map((product) => {
       const avgRating = product.avgRating ? product.avgRating.toFixed(1) : '0.0';
       
-      const totalSold = product.orderItems.reduce((sum, item) => sum + item.quantity, 0);
-      const totalRevenue = product.orderItems.reduce((sum, item) => sum + (item.quantity * (item.credits || 0)), 0);
+      // Find order data for this product
+      const orderData = orderItemsData.find(item => item.productId === product.id);
+      const totalSold = orderData?._sum.quantity || 0;
+      const totalRevenue = orderData?._sum.price || 0;
       
       return {
         'Product ID': product.id,
@@ -79,6 +79,28 @@ export async function GET(request: NextRequest) {
     });
 
     if (format === 'excel') {
+      // Handle empty data case
+      if (exportData.length === 0) {
+        const emptyWorkbook = XLSX.utils.book_new();
+        const emptyData = [
+          ['No Products Found'],
+          ['Generated on', new Date().toLocaleDateString()],
+          ['Total Products', 0]
+        ];
+        const emptyWorksheet = XLSX.utils.aoa_to_sheet(emptyData);
+        XLSX.utils.book_append_sheet(emptyWorkbook, emptyWorksheet, 'Products Report');
+        
+        const buffer = XLSX.write(emptyWorkbook, { type: 'buffer', bookType: 'xlsx' });
+        
+        return new NextResponse(buffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': `attachment; filename=products-report-${new Date().toISOString().split('T')[0]}.xlsx`,
+          },
+        });
+      }
+      
       // Create professional Excel file
       const workbook = XLSX.utils.book_new();
       
@@ -91,11 +113,17 @@ export async function GET(request: NextRequest) {
         ['Out of Stock Products', products.filter(p => p.availableStock === 0).length],
         ['Low Stock Products', products.filter(p => p.availableStock > 0 && p.availableStock <= 10).length],
         ['Average Rating', products.length > 0 ? (products.reduce((sum, p) => sum + (p.avgRating || 0), 0) / products.length).toFixed(2) : '0.00'],
-        [''], // Empty row
+        [], // Empty row
       ];
       
-      // Create detailed products worksheet
-      const detailedData = [summaryData, [Object.keys(exportData[0] || {})], ...exportData.map(obj => Object.values(obj))].flat();
+      // Create detailed products worksheet - ensure proper array structure
+      const detailedData = [
+        ...summaryData,
+        [], // Another empty row before headers
+        Object.keys(exportData[0] || {}), // Headers row
+        ...exportData.map(obj => Object.values(obj)) // Data rows
+      ];
+      
       const worksheet = XLSX.utils.aoa_to_sheet(detailedData);
       
       // Style the worksheet
@@ -119,49 +147,30 @@ export async function GET(request: NextRequest) {
       });
       
     } else if (format === 'pdf') {
-      // Create HTML report that can be printed as PDF
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>FitPlay Products Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #059669; }
-            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; font-weight: bold; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .header-info { margin-bottom: 20px; }
-          </style>
-        </head>
-        <body>
-          <h1>FitPlay Products Report</h1>
-          <div class="header-info">
-            <p><strong>Generated on:</strong> ${new Date().toLocaleDateString()}</p>
-            <p><strong>Total Products:</strong> ${products.length}</p>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                ${Object.keys(exportData[0] || {}).map(key => `<th>${key}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-              ${exportData.map(product => 
-                `<tr>${Object.values(product).map(value => `<td>${value}</td>`).join('')}</tr>`
-              ).join('')}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `;
+      // For now, create a detailed CSV that can be easily converted to PDF
+      // In the future, we can integrate a proper PDF generation library
+      
+      const csvHeaders = Object.keys(exportData[0] || {}).join(',');
+      const csvRows = exportData.map(product => 
+        Object.values(product).map(value => 
+          typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+        ).join(',')
+      );
+      
+      const csvContent = [
+        '# FitPlay Products Report',
+        `# Generated on: ${new Date().toLocaleDateString()}`,
+        `# Total Products: ${products.length}`,
+        '',
+        csvHeaders,
+        ...csvRows
+      ].join('\n');
 
-      return new NextResponse(htmlContent, {
+      return new NextResponse(csvContent, {
         status: 200,
         headers: {
-          'Content-Type': 'text/html',
-          'Content-Disposition': `attachment; filename=products-${new Date().toISOString().split('T')[0]}.html`,
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename=products-report-${new Date().toISOString().split('T')[0]}.csv`,
         },
       });
     }

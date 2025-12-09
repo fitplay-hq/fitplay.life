@@ -23,8 +23,14 @@ interface Product {
   discount?: number;
   sku: string;
   availableStock: number;
-  category: string;
-  subCategory?: string;
+  category: {
+    id: string;
+    name: string;
+  } | null;
+  subCategory?: {
+    id: string;
+    name: string;
+  } | null;
   specifications?: any;
   avgRating?: number;
   noOfReviews?: number;
@@ -96,16 +102,16 @@ export default function WellnessStore() {
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true);
-        const response = await fetch('/api/categories');
+        const response = await fetch("/api/categories");
         if (response.ok) {
           const data = await response.json();
           setCategories(data.categories || []);
         } else {
-          console.error('Failed to fetch categories');
+          console.error("Failed to fetch categories");
           // Keep empty array as fallback
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
         // Keep empty array as fallback
       } finally {
         setCategoriesLoading(false);
@@ -121,8 +127,6 @@ export default function WellnessStore() {
       setHasLoadedOnce(true);
     }
   }, [products.length, hasLoadedOnce]);
-
-
 
   // Show loading only on initial load, not on subsequent fetches
   const shouldShowLoading = productsLoading && !hasLoadedOnce;
@@ -200,33 +204,42 @@ export default function WellnessStore() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-  
+
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [ratingOpen, setRatingOpen] = useState(true);
 
   // Debug category changes and products
   useEffect(() => {
-    console.log('=== CATEGORY DEBUG ===');
-    console.log('Selected category:', selectedCategory);
-    console.log('Total products:', products.length);
-    console.log('First 3 products categories:', products.slice(0, 3).map(p => ({ name: p.name, category: p.category })));
-    console.log('Unique categories in products:', [...new Set(products.map(p => p.category))]);
+    console.log("=== CATEGORY DEBUG ===");
+    console.log("Selected category:", selectedCategory);
+    console.log("Total products:", products.length);
+    console.log(
+      "First 3 products categories:",
+      products.slice(0, 3).map((p) => ({ name: p.name, category: p.category?.name }))
+    );
+    console.log("Unique categories in products:", [
+      ...new Set(products.map((p) => p.category?.name)),
+    ]);
   }, [selectedCategory, products]);
 
   // Generate dynamic categories from products
+  console.log("Products for category generation:", products);
   const dynamicCategories = Array.from(
-    new Set(products.map((product) => product.category))
-  ).map((category) => ({
-    value: category,
-    label: category
-      .replace(/_/g, " ") // Replace underscores with spaces
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" "), // Capitalize each word
-    count: products.filter((p) => p.category === category).length,
-  }));
-
+  new Set(
+    products.map((product) => product.category?.name || "Uncategorized")
+  )
+).map((category) => ({
+  value: category,
+  label: category === "Uncategorized"
+    ? "Uncategorized"
+    : category
+        .replace(/_/g, " ")
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" "),
+  count: products.filter((p) => (p.category?.name || "Uncategorized") === category).length,
+}));
 
 
   // Generate dynamic brands from products (using vendor.name as brand)
@@ -287,11 +300,20 @@ export default function WellnessStore() {
           .toLowerCase()
           .includes(searchTerm.toLowerCase()));
     const matchesCategory =
-      selectedCategory === "all" || product.category === selectedCategory;
-    
+      selectedCategory === "all" || product.category?.name === selectedCategory;
+
     // Debug logging
     if (selectedCategory !== "all") {
-      console.log('Filtering product:', product.name, 'category:', product.category, 'selectedCategory:', selectedCategory, 'matches:', matchesCategory);
+      console.log(
+        "Filtering product:",
+        product.name,
+        "category:",
+        product.category?.name,
+        "selectedCategory:",
+        selectedCategory,
+        "matches:",
+        matchesCategory
+      );
     }
     const matchesBrand =
       selectedBrands.length === 0 ||
@@ -327,7 +349,12 @@ export default function WellnessStore() {
   });
 
   // Debug filtered results
-  console.log('Filtered products count:', filteredProducts.length, 'for category:', selectedCategory);
+  console.log(
+    "Filtered products count:",
+    filteredProducts.length,
+    "for category:",
+    selectedCategory
+  );
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
@@ -406,12 +433,14 @@ export default function WellnessStore() {
       {/* Hero Header */}
       <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
-        
+
         <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-16 lg:py-20">
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
               <Package className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-300">Premium Wellness Products</span>
+              <span className="text-sm font-medium text-emerald-300">
+                Premium Wellness Products
+              </span>
             </div>
 
             <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
@@ -421,16 +450,26 @@ export default function WellnessStore() {
             </h1>
 
             <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-              Discover curated wellness products, fitness equipment, and health supplements. 
-              Use your company wellness credits to invest in your health journey.
+              Discover curated wellness products, fitness equipment, and health
+              supplements. Use your company wellness credits to invest in your
+              health journey.
             </p>
           </div>
         </div>
 
         {/* Wave separator */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="rgb(248 250 252)" fillOpacity="1"/>
+          <svg
+            viewBox="0 0 1440 120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full"
+          >
+            <path
+              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
+              fill="rgb(248 250 252)"
+              fillOpacity="1"
+            />
           </svg>
         </div>
       </div>
@@ -438,7 +477,6 @@ export default function WellnessStore() {
       <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 pt-12 pb-16 space-y-8">
         {/* Search and Filters Bar */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-
           <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
             {/* Search - Takes most of the width */}
             <div className="relative flex-1">
@@ -482,215 +520,227 @@ export default function WellnessStore() {
             role="tablist"
             aria-label="Product categories"
           >
-          {categoriesLoading ? (
-            // Show skeleton loading for categories
-            Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 aspect-square animate-pulse">
-                  <div className="absolute inset-0 bg-gray-300"></div>
-                </div>
-                <div className="mt-2 h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="mt-1 h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
-              </div>
-            ))
-          ) : (
-            categories.map((category) => (
-            <button
-              key={category.value}
-              type="button"
-              role="tab"
-              aria-selected={selectedCategory === category.value}
-              aria-label={`Select ${category.label} category`}
-              className={`group cursor-pointer transition-all duration-300 ${
-                selectedCategory === category.value
-                  ? "transform scale-105"
-                  : "hover:transform hover:scale-105"
-              }`}
-              onClick={() => {
-                console.log('Clicking category:', category.value, 'label:', category.label);
-                setSelectedCategory(category.value);
-              }}
-            >
-              <div
-                className={`relative overflow-hidden rounded-2xl border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-2 ${
-                  selectedCategory === category.value
-                    ? "ring-emerald-500 shadow-xl shadow-emerald-500/20 scale-105"
-                    : "ring-transparent hover:ring-emerald-300 hover:shadow-lg"
-                }`}
-              >
-                {/* Image Container */}
-                <div className="aspect-square overflow-hidden bg-gray-100">
-                  <ImageWithFallback
-                    src={category.image}
-                    alt={category.label}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  {/* Overlay for selected state */}
-                  {selectedCategory === category.value && (
-                    <div className="absolute inset-0 bg-emerald-500/20" />
-                  )}
-                </div>
-
-                {/* Category Label */}
-                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
-                  <h3
-                    className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
-                      selectedCategory === category.value
-                        ? "text-emerald-200"
-                        : "group-hover:text-emerald-200"
-                    }`}
-                  >
-                    {category.label}
-                  </h3>
-                </div>
-
-                {/* Selection Indicator */}
-                {selectedCategory === category.value && (
-                  <div className="absolute top-3 right-3 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+            {categoriesLoading
+              ? // Show skeleton loading for categories
+                Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 aspect-square animate-pulse">
+                      <div className="absolute inset-0 bg-gray-300"></div>
+                    </div>
+                    <div className="mt-2 h-4 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="mt-1 h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
                   </div>
-                )}
-              </div>
-            </button>
-          ))
-          )}
+                ))
+              : categories.map((category) => (
+                  <button
+                    key={category.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedCategory === category.value}
+                    aria-label={`Select ${category.label} category`}
+                    className={`group cursor-pointer transition-all duration-300 ${
+                      selectedCategory === category.value
+                        ? "transform scale-105"
+                        : "hover:transform hover:scale-105"
+                    }`}
+                    onClick={() => {
+                      console.log(
+                        "Clicking category:",
+                        category.value,
+                        "label:",
+                        category.label
+                      );
+                      setSelectedCategory(category.value);
+                    }}
+                  >
+                    <div
+                      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-2 ${
+                        selectedCategory === category.value
+                          ? "ring-emerald-500 shadow-xl shadow-emerald-500/20 scale-105"
+                          : "ring-transparent hover:ring-emerald-300 hover:shadow-lg"
+                      }`}
+                    >
+                      {/* Image Container */}
+                      <div className="aspect-square overflow-hidden bg-gray-100">
+                        <ImageWithFallback
+                          src={category.image}
+                          alt={category.label}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        {/* Overlay for selected state */}
+                        {selectedCategory === category.value && (
+                          <div className="absolute inset-0 bg-emerald-500/20" />
+                        )}
+                      </div>
+
+                      {/* Category Label */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
+                        <h3
+                          className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
+                            selectedCategory === category.value
+                              ? "text-emerald-200"
+                              : "group-hover:text-emerald-200"
+                          }`}
+                        >
+                          {category.label}
+                        </h3>
+                      </div>
+
+                      {/* Selection Indicator */}
+                      {selectedCategory === category.value && (
+                        <div className="absolute top-3 right-3 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
           </div>
         </div>
 
-      <div className="flex gap-8">
-        {/* Left Sidebar - Filters */}
-        <div className="w-72 shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
-            {/* Filter Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-semibold text-gray-900 text-base">Refine Your Search</h3>
+        <div className="flex gap-8">
+          {/* Left Sidebar - Filters */}
+          <div className="w-72 shrink-0">
+            <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
+              {/* Filter Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-5 h-5 text-emerald-600" />
+                  <h3 className="font-semibold text-gray-900 text-base">
+                    Refine Your Search
+                  </h3>
+                </div>
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {selectedBrands.length +
+                    selectedPriceRanges.length +
+                    selectedRatings.length +
+                    (selectedCategory !== "all" ? 1 : 0)}{" "}
+                  active
+                </span>
               </div>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                {(selectedBrands.length + selectedPriceRanges.length + selectedRatings.length + (selectedCategory !== 'all' ? 1 : 0))} active
-              </span>
-            </div>
 
-            {/* Price Range Filter */}
-            <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
-                <h3 className="font-medium text-gray-900 text-sm">
-                  Price Range
-                </h3>
-                {priceOpen ? (
-                  <ChevronUp className="w-3 h-3 text-emerald-600" />
-                ) : (
-                  <ChevronDown className="w-3 h-3 text-emerald-600" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mb-5">
-                {priceRanges.map((range) => (
-                  <div
-                    key={range.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={range.value}
-                      checked={selectedPriceRanges.includes(range.value)}
-                      onCheckedChange={(checked) =>
-                        handlePriceRangeChange(range.value, checked === true)
-                      }
-                      className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
-                    />
-                    <label
-                      htmlFor={range.value}
-                      className="text-xs text-gray-700 cursor-pointer flex-1"
+              {/* Price Range Filter */}
+              <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Price Range
+                  </h3>
+                  {priceOpen ? (
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 mb-5">
+                  {priceRanges.map((range) => (
+                    <div
+                      key={range.value}
+                      className="flex items-center space-x-2"
                     >
-                      {range.label}
-                    </label>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+                      <Checkbox
+                        id={range.value}
+                        checked={selectedPriceRanges.includes(range.value)}
+                        onCheckedChange={(checked) =>
+                          handlePriceRangeChange(range.value, checked === true)
+                        }
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
+                      />
+                      <label
+                        htmlFor={range.value}
+                        className="text-xs text-gray-700 cursor-pointer flex-1"
+                      >
+                        {range.label}
+                      </label>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
 
-            {/* Rating Filter */}
-            <Collapsible open={ratingOpen} onOpenChange={setRatingOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
-                <h3 className="font-medium text-gray-900 text-sm">
-                  Customer Rating
-                </h3>
-                {ratingOpen ? (
-                  <ChevronUp className="w-3 h-3 text-emerald-600" />
-                ) : (
-                  <ChevronDown className="w-3 h-3 text-emerald-600" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mb-5">
-                {ratingOptions.map((rating) => (
-                  <div
-                    key={rating.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={rating.value}
-                      checked={selectedRatings.includes(rating.value)}
-                      onCheckedChange={(checked) =>
-                        handleRatingChange(rating.value, checked === true)
-                      }
-                      className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
-                    />
-                    <label
-                      htmlFor={rating.value}
-                      className="text-xs text-gray-700 cursor-pointer flex-1 flex items-center gap-1"
+              {/* Rating Filter */}
+              <Collapsible open={ratingOpen} onOpenChange={setRatingOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Customer Rating
+                  </h3>
+                  {ratingOpen ? (
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 mb-5">
+                  {ratingOptions.map((rating) => (
+                    <div
+                      key={rating.value}
+                      className="flex items-center space-x-2"
                     >
-                      {rating.label}
-                      <div className="flex">
-                        {[...Array(Math.floor(rating.min))].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-2.5 h-2.5 text-yellow-400 fill-current"
-                          />
-                        ))}
-                        {rating.min % 1 !== 0 && (
-                          <Star className="w-2.5 h-2.5 text-yellow-400 fill-current opacity-50" />
-                        )}
-                      </div>
-                    </label>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+                      <Checkbox
+                        id={rating.value}
+                        checked={selectedRatings.includes(rating.value)}
+                        onCheckedChange={(checked) =>
+                          handleRatingChange(rating.value, checked === true)
+                        }
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
+                      />
+                      <label
+                        htmlFor={rating.value}
+                        className="text-xs text-gray-700 cursor-pointer flex-1 flex items-center gap-1"
+                      >
+                        {rating.label}
+                        <div className="flex">
+                          {[...Array(Math.floor(rating.min))].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-2.5 h-2.5 text-yellow-400 fill-current"
+                            />
+                          ))}
+                          {rating.min % 1 !== 0 && (
+                            <Star className="w-2.5 h-2.5 text-yellow-400 fill-current opacity-50" />
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
 
-            {/* Brands */}
-            <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
-                <h3 className="font-medium text-gray-900 text-sm">Brands</h3>
-                {brandsOpen ? (
-                  <ChevronUp className="w-3 h-3 text-emerald-600" />
-                ) : (
-                  <ChevronDown className="w-3 h-3 text-emerald-600" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2">
-                {brands.map((brand) => (
-                  <div key={brand.name} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={brand.name}
-                      checked={selectedBrands.includes(brand.name)}
-                      onCheckedChange={(checked) =>
-                        handleBrandChange(brand.name, checked === true)
-                      }
-                      className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
-                    />
-                    <label
-                      htmlFor={brand.name}
-                      className="text-xs text-gray-700 cursor-pointer flex-1"
+              {/* Brands */}
+              <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
+                  <h3 className="font-medium text-gray-900 text-sm">Brands</h3>
+                  {brandsOpen ? (
+                    <ChevronUp className="w-3 h-3 text-emerald-600" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-emerald-600" />
+                  )}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2">
+                  {brands.map((brand) => (
+                    <div
+                      key={brand.name}
+                      className="flex items-center space-x-2"
                     >
-                      {brand.name}
-                    </label>
-                    <span className="text-xs text-gray-500">
-                      ({brand.count})
-                    </span>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+                      <Checkbox
+                        id={brand.name}
+                        checked={selectedBrands.includes(brand.name)}
+                        onCheckedChange={(checked) =>
+                          handleBrandChange(brand.name, checked === true)
+                        }
+                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
+                      />
+                      <label
+                        htmlFor={brand.name}
+                        className="text-xs text-gray-700 cursor-pointer flex-1"
+                      >
+                        {brand.name}
+                      </label>
+                      <span className="text-xs text-gray-500">
+                        ({brand.count})
+                      </span>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Clear Filters */}
               {(selectedBrands.length > 0 ||
@@ -713,8 +763,8 @@ export default function WellnessStore() {
                   Clear All Filters
                 </Button>
               )}
+            </div>
           </div>
-        </div>
 
           {/* Main Content */}
           <div className="flex-1">
@@ -726,8 +776,11 @@ export default function WellnessStore() {
                     "Loading products..."
                   ) : (
                     <>
-                      Showing {sortedProducts.length} of {products.length} products
-                      {searchTerm && <span> for &ldquo;{searchTerm}&rdquo;</span>}
+                      Showing {sortedProducts.length} of {products.length}{" "}
+                      products
+                      {searchTerm && (
+                        <span> for &ldquo;{searchTerm}&rdquo;</span>
+                      )}
                       {selectedCategory !== "all" && (
                         <span> in {selectedCategory.replace(/_/g, " ")}</span>
                       )}
@@ -737,201 +790,214 @@ export default function WellnessStore() {
               </div>
             </div>
 
-          {/* Loading State */}
-          {shouldShowLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="relative group animate-pulse"
-                >
-                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25"></div>
-                  <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 overflow-hidden">
-                    <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                    <div className="p-6 space-y-4">
-                      <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-3/4"></div>
-                      <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-1/2"></div>
-                      <div className="h-6 bg-gradient-to-r from-emerald-200 to-emerald-300 rounded-lg w-1/3"></div>
-                      <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
+            {/* Loading State */}
+            {shouldShowLoading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="relative group animate-pulse">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25"></div>
+                    <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                      <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
+                      <div className="p-6 space-y-4">
+                        <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-3/4"></div>
+                        <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-1/2"></div>
+                        <div className="h-6 bg-gradient-to-r from-emerald-200 to-emerald-300 rounded-lg w-1/3"></div>
+                        <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
-          {/* Error State */}
-          {error && (
-            <div className="text-center py-20">
-              <div className="relative inline-block">
-                <div className="absolute -inset-4 bg-gradient-to-r from-red-400 via-pink-500 to-red-500 rounded-2xl blur opacity-20"></div>
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
-                  <p className="text-red-600 mb-6 text-lg font-medium">
-                    Error loading products: {error.message}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-red-500 text-red-600 hover:bg-red-50 px-8 py-3"
-                    onClick={() => window.location.reload()}
-                  >
-                    Try Again
-                  </Button>
+            {/* Error State */}
+            {error && (
+              <div className="text-center py-20">
+                <div className="relative inline-block">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-red-400 via-pink-500 to-red-500 rounded-2xl blur opacity-20"></div>
+                  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+                    <p className="text-red-600 mb-6 text-lg font-medium">
+                      Error loading products: {error.message}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-red-500 text-red-600 hover:bg-red-50 px-8 py-3"
+                      onClick={() => window.location.reload()}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
             {/* Product Grid */}
             {!shouldShowLoading && !error && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-16">
-              {sortedProducts.map((product, index) => (
+                {sortedProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="group">
                     <Link href={`/product/${product.id}`} className="block">
                       <div className="relative">
                         <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
-                        <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30" style={{ height: '480px' }}>
-                      {/* Image Container */}
-                      <div className="relative overflow-hidden bg-gray-50" style={{ height: '220px' }}>
-                        <ImageWithFallback
-                          src={product.images[0] || "/placeholder.png"}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        {/* Stock Status */}
-                        {product.availableStock === 0 && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              Out of Stock
-                            </span>
+                        <div
+                          className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30"
+                          style={{ height: "480px" }}
+                        >
+                          {/* Image Container */}
+                          <div
+                            className="relative overflow-hidden bg-gray-50"
+                            style={{ height: "220px" }}
+                          >
+                            <ImageWithFallback
+                              src={product.images[0] || "/placeholder.png"}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {/* Stock Status */}
+                            {product.availableStock === 0 && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                  Out of Stock
+                                </span>
+                              </div>
+                            )}
+                            {/* Rating Badge */}
+                            {product.avgRating && product.avgRating > 0 ? (
+                              <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-xl px-3 py-1.5 flex items-center space-x-1.5 shadow-lg">
+                                <Star className="w-4 h-4 fill-current" />
+                                <span className="text-sm font-bold">
+                                  {product.avgRating.toFixed(1)}
+                                </span>
+                                <span className="text-xs opacity-90">
+                                  ({product.noOfReviews || 0})
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="absolute top-3 right-3 bg-gray-100 text-gray-600 rounded-xl px-3 py-1.5 flex items-center space-x-1">
+                                <Star className="w-4 h-4" />
+                                <span className="text-xs font-medium">New</span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {/* Rating Badge */}
-                        {product.avgRating && product.avgRating > 0 ? (
-                          <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-xl px-3 py-1.5 flex items-center space-x-1.5 shadow-lg">
-                            <Star className="w-4 h-4 fill-current" />
-                            <span className="text-sm font-bold">
-                              {product.avgRating.toFixed(1)}
-                            </span>
-                            <span className="text-xs opacity-90">
-                              ({product.noOfReviews || 0})
-                            </span>
+
+                          {/* Content Container with proper spacing */}
+                          <div className="p-6 flex flex-col flex-grow space-y-4">
+                            {/* Vendor Name */}
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
+                                {(product as any).vendor?.name || "FitPlay"}
+                              </p>
+                              {product.availableStock <= 5 &&
+                                product.availableStock > 0 && (
+                                  <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
+                                    Only {product.availableStock} left
+                                  </span>
+                                )}
+                            </div>
+
+                            {/* Product Name - Flexible height container */}
+                            <div
+                              className="flex-grow"
+                              style={{ minHeight: "48px" }}
+                            >
+                              <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
+                                {product.name}
+                              </h3>
+                            </div>
+
+                            {/* Price Section */}
+                            <div className="mt-auto mb-3">
+                              <div className="flex items-baseline gap-1 mb-1">
+                                <span className="text-lg font-bold text-emerald-600">
+                                  {getLowestCredits(product as any)}
+                                </span>
+                                <span className="text-xs font-medium text-emerald-600">
+                                  credits
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-gray-500 line-through">
+                                  ₹{getLowestMRP(product as ProductWithVariant)}
+                                </span>
+                                <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
+                                  {Math.round(
+                                    ((getLowestMRP(
+                                      product as ProductWithVariant
+                                    ) -
+                                      getLowestCredits(
+                                        product as ProductWithVariant
+                                      ) /
+                                        2) /
+                                      getLowestMRP(
+                                        product as ProductWithVariant
+                                      )) *
+                                      100
+                                  )}
+                                  % off
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <div className="mt-2">
+                              <div onClick={(e) => e.preventDefault()}>
+                                <QuantitySelector product={product} />
+                              </div>
+                            </div>
                           </div>
-                        ) : (
-                          <div className="absolute top-3 right-3 bg-gray-100 text-gray-600 rounded-xl px-3 py-1.5 flex items-center space-x-1">
-                            <Star className="w-4 h-4" />
-                            <span className="text-xs font-medium">New</span>
-                          </div>
-                        )}
+                        </div>
                       </div>
-
-                      {/* Content Container with proper spacing */}
-                      <div className="p-6 flex flex-col flex-grow space-y-4">
-                        {/* Vendor Name */}
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
-                            {(product as any).vendor?.name || 'FitPlay'}
-                          </p>
-                          {product.availableStock <= 5 && product.availableStock > 0 && (
-                            <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
-                              Only {product.availableStock} left
-                            </span>
-                          )}
-                        </div>
-                        
-                        {/* Product Name - Flexible height container */}
-                        <div className="flex-grow" style={{ minHeight: '48px' }}>
-                          <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
-                            {product.name}
-                          </h3>
-                        </div>
-
-                        {/* Price Section */}
-                        <div className="mt-auto mb-3">
-                          <div className="flex items-baseline gap-1 mb-1">
-                            <span className="text-lg font-bold text-emerald-600">
-                              {getLowestCredits(product as any)}
-                            </span>
-                            <span className="text-xs font-medium text-emerald-600">
-                              credits
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500 line-through">
-                              ₹{getLowestMRP(product as ProductWithVariant)}
-                            </span>
-                            <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
-                              {Math.round(
-                                ((getLowestMRP(product as ProductWithVariant) -
-                                  getLowestCredits(
-                                    product as ProductWithVariant
-                                  ) /
-                                    2) /
-                                  getLowestMRP(product as ProductWithVariant)) *
-                                  100
-                              )}% off
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Action Button */}
-                        <div className="mt-2">
-                          <div onClick={(e) => e.preventDefault()}>
-                            <QuantitySelector product={product} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* No Results */}
-          {!shouldShowLoading && !error && sortedProducts.length === 0 && (
-            <div className="text-center py-20 mb-16">
-              <div className="relative inline-block">
-                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Package className="w-8 h-8 text-gray-400" />
+                    </Link>
                   </div>
-                  <h3 className="text-gray-900 font-bold text-xl mb-2">
-                    No Products Found
-                  </h3>
-                  <p className="text-gray-600 mb-6 text-base">
-                    We couldn't find any products matching your search criteria.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedBrands([]);
-                        setSelectedPriceRanges([]);
-                        setSelectedRatings([]);
-                        setSelectedCategory("all");
-                        setSearchTerm("");
-                      }}
-                      className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-6 py-2 font-medium"
-                    >
-                      Clear All Filters
-                    </Button>
-                    <Button
-                      onClick={() => setSearchTerm("")}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 font-medium"
-                    >
-                      Browse All Products
-                    </Button>
+                ))}
+              </div>
+            )}
+
+            {/* No Results */}
+            {!shouldShowLoading && !error && sortedProducts.length === 0 && (
+              <div className="text-center py-20 mb-16">
+                <div className="relative inline-block">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 rounded-2xl blur opacity-20"></div>
+                  <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-gray-900 font-bold text-xl mb-2">
+                      No Products Found
+                    </h3>
+                    <p className="text-gray-600 mb-6 text-base">
+                      We couldn't find any products matching your search
+                      criteria.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedBrands([]);
+                          setSelectedPriceRanges([]);
+                          setSelectedRatings([]);
+                          setSelectedCategory("all");
+                          setSearchTerm("");
+                        }}
+                        className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-6 py-2 font-medium"
+                      >
+                        Clear All Filters
+                      </Button>
+                      <Button
+                        onClick={() => setSearchTerm("")}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 font-medium"
+                      >
+                        Browse All Products
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
         </div>
-        
+
         {/* Bottom Spacing before footer */}
         <div className="h-20"></div>
       </div>

@@ -273,7 +273,7 @@ export default function ProductPage({
               Back to Store
             </Link>
             <span>/</span>
-            <span>{formatCategoryName(product?.category || '')}</span>
+            <span>{formatCategoryName(product.category?.name || '')}</span>
             <span>/</span>
             <span className="text-white font-medium">{product?.name || 'Product'}</span>
           </div>

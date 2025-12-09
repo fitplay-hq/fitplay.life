@@ -62,13 +62,13 @@ interface OrderDetailData {
         discount?: number | null;
         sku: string;
         availableStock: number;
-        category: string;
+        category: { name: string } | null;
         avgRating?: number | null;
         noOfReviews?: number | null;
         createdAt: string;
         updatedAt: string;
         specifications?: any;
-        subCategory?: string | null;
+        subCategory?: { name: string } | null;
         vendorId?: string | null;
         vendor?: {
           id: string;
@@ -89,13 +89,13 @@ interface OrderDetailData {
       discount?: number | null;
       sku: string;
       availableStock: number;
-      category: string;
+      category: { name: string } | null;
       avgRating?: number | null;
       noOfReviews?: number | null;
       createdAt: string;
       updatedAt: string;
       specifications?: any;
-      subCategory?: string | null;
+      subCategory?: { name: string } | null;
       vendorId?: string | null;
       vendor?: {
         id: string;

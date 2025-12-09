@@ -12,7 +12,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model Admin { 
+
+model Admin {
   id        String   @id @default(uuid())
   name      String   @default("admin")
   email     String   @unique
@@ -76,28 +77,48 @@ model Company {
 }
 
 model Product {
-  id             String       @id @default(uuid())
-  name           String       @db.VarChar(50)
+  id             String           @id @default(uuid())
+  name           String           @db.VarChar(50)
   images         String[]
   description    String
   discount       Int?
-  sku            String       @unique @db.VarChar(100)
+  sku            String           @unique @db.VarChar(100)
   availableStock Int
-  category       Category
+  categoryOld    CategoryEnum?
   avgRating      Float?
   noOfReviews    Int?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @default(now()) @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
   specifications Json?
   vendorName     String?
-  subCategory    SubCategory?
+  subCategoryOld SubCategoryEnum?
   /// @zod.ignore()
   orderItems     OrderItem[]
   variants       Variant[]
   /// @zod.ignore()
-  companies      Company[] @relation("CompanyToProduct")
-  vendor         Vendor?      @relation(fields: [vendorId], references: [id])
+  companies      Company[]        @relation("CompanyToProduct")
+  vendor         Vendor?          @relation(fields: [vendorId], references: [id])
   vendorId       String?
+  categoryId     String?
+  subCategoryId  String?
+
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  subCategory SubCategory? @relation(fields: [subCategoryId], references: [id])
+}
+
+model Category {
+  id            String        @id @default(uuid())
+  name          String        @unique
+  subCategories SubCategory[]
+  products      Product[]
+}
+
+model SubCategory {
+  id         String    @id @default(uuid())
+  name       String
+  categoryId String
+  category   Category  @relation(fields: [categoryId], references: [id])
+  products   Product[]
 }
 
 model Variant {
@@ -105,6 +126,7 @@ model Variant {
   variantCategory String      @db.VarChar(50)
   variantValue    String      @db.VarChar(100)
   mrp             Int
+  sku             String?     @unique @db.VarChar(100)
   credits         String?
   availableStock  Int?
   productId       String
@@ -143,17 +165,16 @@ model TransactionLedger {
 }
 
 model Voucher {
-  id          String   @id @default(uuid())
-  code        String   @unique @db.VarChar(20)
+  id          String              @id @default(uuid())
+  code        String              @unique @db.VarChar(20)
   description String?
   credits     Int
-  companies   Company[] @relation("CompanyToVoucher")
+  companies   Company[]           @relation("CompanyToVoucher")
   expiryDate  DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @default(now()) @updatedAt
   redemptions VoucherRedemption[]
 }
-
 
 model VoucherRedemption {
   id         String   @id @default(uuid())
@@ -161,8 +182,8 @@ model VoucherRedemption {
   voucherId  String
   redeemedAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
-  voucher    Voucher  @relation(fields: [voucherId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  voucher Voucher @relation(fields: [voucherId], references: [id])
 
   @@unique([userId, voucherId]) // Ensure one voucher can be redeemed only once per user
 }
@@ -174,6 +195,10 @@ model Order {
   status               Status
   phNumber             String?            @db.VarChar(15)
   address              String?            @db.VarChar(150)
+  address2             String?            @db.VarChar(150) //migrate this before running website
+  city                 String?            @db.VarChar(50)
+  state                String?            @db.VarChar(50)
+  pinCode              String?            @db.VarChar(10)
   deliveryInstructions String?            @db.VarChar(250)
   remarks              String?
   transactionId        String?            @unique
@@ -218,7 +243,7 @@ enum TransactionType {
   REFUND
 }
 
-enum Category {
+enum CategoryEnum {
   Fitness_And_Gym_Equipment
   Nutrition_And_Health
   Diagnostics_And_Prevention
@@ -226,7 +251,7 @@ enum Category {
   Health_And_Wellness_Services
 }
 
-enum SubCategory {
+enum SubCategoryEnum {
   Cardio_Equipment
   Probiotics_And_Supplements
   Wearable_Health_Technology

@@ -66,13 +66,19 @@ interface Order {
         discount?: number | null;
         sku: string;
         availableStock: number;
-        category: string;
+        category: {
+          id: string;
+          name: string;
+        } | null;
+        subCategory?: {
+          id: string;
+          name: string;
+        } | null;
         avgRating?: number | null;
         noOfReviews?: number | null;
         createdAt: string;
         updatedAt: string;
         specifications?: any;
-        subCategory?: string | null;
         vendorId?: string | null;
       };
     } | null;
@@ -86,6 +92,7 @@ interface Order {
     };
   };
 }
+
 
 // Define the transformed order type for History component
 interface TransformedOrder {

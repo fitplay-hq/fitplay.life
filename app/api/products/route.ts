@@ -68,6 +68,8 @@ export async function GET(req: NextRequest) {
                             name: true,
                         },
                     },
+                    category: true,
+                    subCategory: true,
                 },
             });
         } else if (session.user.role === "EMPLOYEE") {
@@ -93,6 +95,8 @@ export async function GET(req: NextRequest) {
                             name: true,
                         },
                     },
+                    category: true,
+                    subCategory: true,
                 },
             });
         } else if (session.user.role === "HR") {
@@ -108,6 +112,8 @@ export async function GET(req: NextRequest) {
                             name: true,
                         },
                     },
+                    category: true,
+                    subCategory: true,
                     companies: {
                         select: {
                             id: true,

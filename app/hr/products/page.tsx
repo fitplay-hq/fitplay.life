@@ -27,7 +27,7 @@ interface Product {
   id: string;
   name: string;
   images: string[];
-  category: string;
+  category: { name: string } | null;
   availableStock: number;
   companies: { id: string; name: string }[];
   vendor?: { name: string };
@@ -116,12 +116,11 @@ export default function HRProducts() {
   const filteredProducts = products.filter(product => {
     const matchesSearch = product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product?.vendor?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || product?.category === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || product?.category?.name === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = Array.from(new Set(products.map(p => p?.category).filter(Boolean)));
-
+  const categories = Array.from(new Set(products.map(p => p?.category?.name).filter(Boolean)));
   if (loading) {
     return (
       <div className="space-y-6">
@@ -217,7 +216,7 @@ export default function HRProducts() {
                 <CardDescription className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">
-                      {(product?.category || "").replace(/_/g, " ")}
+                      {(product?.category?.name || "").replace(/_/g, " ")}
                     </span>
                     <span className="text-sm font-medium">
                       Stock: {product?.availableStock || 0}

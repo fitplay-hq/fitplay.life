@@ -129,7 +129,7 @@ async function exportInventory(request: NextRequest) {
 
   const products = await prisma.product.findMany({
     where: filters,
-    include: { companies: true, variants: true },
+    include: { companies: true, variants: true, category: true, subCategory: true },
     orderBy: { name: 'asc' },
     take: 150
   });
@@ -158,7 +158,7 @@ async function exportInventory(request: NextRequest) {
 
     page.drawText(`${p.name}`, { x: m, y, size: 12, font: bold });
     y -= lh;
-    page.drawText(`SKU: ${p.sku || 'N/A'} | Category: ${Array.isArray(p.category) ? p.category.join(', ') : p.category || 'N/A'}`, { x: m, y, size: 10, font });
+    page.drawText(`SKU: ${p.sku || 'N/A'} | Category: ${p.category?.name || 'N/A'}`, { x: m, y, size: 10, font });
     y -= lh;
     page.drawText(`Stock: ${stock} | Price: Rs.${variantPrice} | Value: Rs.${stockValue}`, { x: m, y, size: 10, font });
     y -= lh;
@@ -328,7 +328,9 @@ async function exportProducts(request: NextRequest) {
     const products = await prisma.product.findMany({
       include: {
         vendor: true,
-        variants: true
+        variants: true,
+        category: true,
+        subCategory: true
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -370,7 +372,7 @@ async function exportProducts(request: NextRequest) {
 
       const name = product.name.length > 25 ? product.name.substring(0, 25) + '...' : product.name;
       const sku = product.sku || 'N/A';
-      const category = product.category.replace(/_/g, ' ');
+      const category = product.category?.name.replace(/_/g, ' ') || 'N/A';
       const stock = product.availableStock.toString();
       const vendor = product.vendor?.name || 'N/A';
 

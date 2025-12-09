@@ -31,34 +31,71 @@ interface ProductFormProps {
   editingProduct: any;
 }
 
-const categories = Object.values(Category);
+// Static allowed values (UI-design master list)
+const categories = [
+  "Fitness & Gym Equipment",
+  "Nutrition & Health Foods",
+  "Diagnostics & Preventive Health",
+  "Ergonomic & Workspace Comfort Products",
+  "Health & Wellness Services",
+];
 
-const subcategories: Record<string, SubCategory[]> = {
+const categorySlugMap: Record<string, string> = {
+  "Fitness & Gym Equipment": "Fitness_And_Gym_Equipment",
+  "Nutrition & Health Foods": "Nutrition_And_Health_Foods",
+  "Diagnostics & Preventive Health": "Diagnostics_And_Preventive_Health",
+  "Ergonomic & Workspace Comfort Products": "Ergonomic_And_Workspace_Comfort_Products",
+  "Health & Wellness Services": "Health_And_Wellness_Services",
+};
+
+// Subcategories by category
+const subcategories: Record<string, string[]> = {
   Fitness_And_Gym_Equipment: [
-    SubCategory.Cardio_Equipment,
-    SubCategory.Probiotics_And_Supplements,
+    "Weights & Adjustable Dumbbells",
+    "Yoga & Fitness Mats",
+    "Crossfit Gear (Resistance bands, ropes)",
+    "Gym Essentials (Shakers, Bag, Wristbands)",
   ],
-  Nutrition_And_Health: [SubCategory.Probiotics_And_Supplements],
-  Diagnostics_And_Prevention: [SubCategory.Wearable_Health_Technology],
-  Ergonomics_And_Workspace_Comfort: [
-    SubCategory.Standing_Desks_And_Accessories,
+
+  Nutrition_And_Health_Foods: [
+    "Protein Powder",
+    "Creatine / Preworkout",
+    "Daily Vitamins",
+    "Protein Bars",
+    "Muscle & Performance Supplements",
+    "General Health & Digestive Care",
   ],
+
+  Diagnostics_And_Preventive_Health: [
+    "Diagnostics Monitoring Devices",
+    "Fitness Wearables",
+    "Pharmacy Vouchers / Discount Coupons",
+  ],
+
+  Ergonomic_And_Workspace_Comfort_Products: [
+    "Office Chairs",
+    "Work Desks",
+    "Massage & Recovery Tools",
+    "Sleep Essentials",
+    "Accessories",
+  ],
+
   Health_And_Wellness_Services: [
-    SubCategory.Onsite_Fitness_Classes_And_Workshops,
+    "Nutrition / Diet Consultation",
+    "Mental Health & Emotional Wellness",
+    "Yoga, Meditation, Mindfulness",
+    "Gym & Fitness Subscriptions",
+    "Career & Growth Counselling",
   ],
 };
 
 // Friendly category name mapping
-const getFriendlyCategoryName = (category: string) => {
-  const friendlyNames: Record<string, string> = {
-    Fitness_And_Gym_Equipment: "Fitness & Gym Equipment",
-    Nutrition_And_Health: "Nutrition & Health",
-    Diagnostics_And_Prevention: "Diagnostics & Prevention",
-    Ergonomics_And_Workspace_Comfort: "Ergonomics & Workspace Comfort",
-    Health_And_Wellness_Services: "Health & Wellness Services",
-  };
-  return friendlyNames[category] || category;
-};
+const getFriendlyCategoryName = (category: string) =>
+  category
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 
 export function ProductForm({
   isOpen,
@@ -91,16 +128,16 @@ export function ProductForm({
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await fetch('/api/admin/vendors');
+        const response = await fetch("/api/admin/vendors");
         if (response.ok) {
           const data = await response.json();
           setVendors(data.vendors || []);
         }
       } catch (error) {
-        console.error('Failed to fetch vendors:', error);
+        console.error("Failed to fetch vendors:", error);
       }
     };
-    
+
     fetchVendors();
   }, []);
 
@@ -118,7 +155,14 @@ export function ProductForm({
         images: editingProduct.images || [],
         variants: editingProduct.variants || [],
       });
-      setSelectedCategory(editingProduct.category || "");
+      const prettyCategory =
+        Object.keys(categorySlugMap).find(
+          (pretty) => categorySlugMap[pretty] === editingProduct.category
+        ) || editingProduct.category;
+
+      setSelectedCategory(prettyCategory);
+      setSelectedSubcategory(editingProduct.subCategory || "");
+
       setSelectedSubcategory(editingProduct.subCategory || "");
       setSelectedVendor(editingProduct.vendorId || "");
       setVariants(editingProduct.variants || []);
@@ -145,30 +189,33 @@ export function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!selectedCategory || !formData.name.trim()) {
       toast.error("Please fill in product name and category");
       return;
     }
-    
+
     if (!selectedVendor && !formData.vendorName?.trim()) {
       toast.error("Please select a vendor or enter vendor name");
       return;
     }
-    
+
     try {
       // Upload images first
       const imageUrls = await uploadImages();
-      
+
       const productData = {
         name: formData.name.trim(),
         sku: formData.sku.trim(),
-        description: formData.description?.trim() || '',
+        description: formData.description?.trim() || "",
         category: selectedCategory,
-        subCategory: selectedSubcategory || null,
+        subCategory: selectedSubcategory || null, // stays human-friendly
         vendorId: selectedVendor || null,
-        vendorName: (!selectedVendor && formData.vendorName?.trim()) ? formData.vendorName.trim() : null,
+        vendorName:
+          !selectedVendor && formData.vendorName?.trim()
+            ? formData.vendorName.trim()
+            : null,
         availableStock: parseInt(formData.availableStock) || 0,
         images: [...(formData.images || []), ...imageUrls],
         variants: variants
@@ -179,20 +226,17 @@ export function ProductForm({
           }))
           .filter(
             (variant) =>
-              variant.variantCategory &&
-              variant.variantValue &&
-              variant.mrp > 0
+              variant.variantCategory && variant.variantValue && variant.mrp > 0
           ),
       };
-      
-      console.log('Submitting product data:', productData);
+
+      console.log("Submitting product data:", productData);
       await onSubmit(productData);
-      
+
       // Reset form after successful submission
       resetForm();
-      
     } catch (error) {
-      console.error('ProductForm submit error:', error);
+      console.error("ProductForm submit error:", error);
       toast.error("Failed to save product");
     }
   };
@@ -216,11 +260,13 @@ export function ProductForm({
     setImageFiles([]);
     setImagePreviews([]);
     setUploadingImages(false);
-    
+
     // Clear any file inputs
-    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    const fileInput = document.getElementById(
+      "image-upload"
+    ) as HTMLInputElement;
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
@@ -238,55 +284,55 @@ export function ProductForm({
       toast.error("Maximum 5 images allowed");
       return;
     }
-    
-    setImageFiles(prev => [...prev, ...files]);
-    
+
+    setImageFiles((prev) => [...prev, ...files]);
+
     // Create previews
-    files.forEach(file => {
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreviews(prev => [...prev, e.target?.result as string]);
+        setImagePreviews((prev) => [...prev, e.target?.result as string]);
       };
       reader.readAsDataURL(file);
     });
   };
-  
+
   // Remove image
   const removeImage = (index: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     URL.revokeObjectURL(imagePreviews[index]);
   };
-  
+
   // Upload images to server
   const uploadImages = async (): Promise<string[]> => {
     if (imageFiles.length === 0) return [];
-    
+
     setUploadingImages(true);
     const uploadedUrls: string[] = [];
-    
+
     try {
       for (const file of imageFiles) {
         const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await fetch('/api/upload', {
-          method: 'POST',
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
           body: formData,
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           uploadedUrls.push(data.url);
         }
       }
     } catch (error) {
-      console.error('Image upload failed:', error);
-      toast.error('Failed to upload some images');
+      console.error("Image upload failed:", error);
+      toast.error("Failed to upload some images");
     } finally {
       setUploadingImages(false);
     }
-    
+
     return uploadedUrls;
   };
 
@@ -345,7 +391,10 @@ export function ProductForm({
             {editingProduct ? "Edit Product" : "Add New Product"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 py-4 bg-white">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-2 gap-4 py-4 bg-white"
+        >
           <div className="space-y-2">
             <Label htmlFor="product-name">Product Name</Label>
             <Input
@@ -373,10 +422,7 @@ export function ProductForm({
           <div className="space-y-2">
             <Label htmlFor="product-vendor">Vendor</Label>
             <div className="space-y-2">
-              <Select
-                value={selectedVendor}
-                onValueChange={setSelectedVendor}
-              >
+              <Select value={selectedVendor} onValueChange={setSelectedVendor}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a vendor" />
                 </SelectTrigger>
@@ -388,7 +434,9 @@ export function ProductForm({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mb-2">Or enter vendor name manually:</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Or enter vendor name manually:
+              </p>
               <Input
                 id="product-vendor"
                 placeholder="Enter vendor name (if not in list)"
@@ -429,11 +477,13 @@ export function ProductForm({
               </SelectTrigger>
               <SelectContent>
                 {selectedCategory &&
-                  subcategories[selectedCategory]?.map((subcategory) => (
-                    <SelectItem key={subcategory} value={subcategory}>
-                      {subcategory.replace(/_/g, " ")}
-                    </SelectItem>
-                  ))}
+                  subcategories[categorySlugMap[selectedCategory]]?.map(
+                    (subcategory) => (
+                      <SelectItem key={subcategory} value={subcategory}>
+                        {subcategory}
+                      </SelectItem>
+                    )
+                  )}
               </SelectContent>
             </Select>
           </div>
@@ -463,7 +513,7 @@ export function ProductForm({
               required
             />
           </div>
-          
+
           <div className="col-span-2 space-y-2">
             <Label htmlFor="product-images">Product Images</Label>
             <div className="space-y-4">
@@ -490,7 +540,7 @@ export function ProductForm({
                   </div>
                 </label>
               </div>
-              
+
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -512,11 +562,13 @@ export function ProductForm({
                   ))}
                 </div>
               )}
-              
+
               {/* Existing Images from formData */}
               {formData.images && formData.images.length > 0 && (
                 <div>
-                  <Label className="text-sm text-gray-600">Existing Images</Label>
+                  <Label className="text-sm text-gray-600">
+                    Existing Images
+                  </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
                     {formData.images.map((image: string, index: number) => (
                       <div key={index} className="relative group">
@@ -528,7 +580,9 @@ export function ProductForm({
                         <button
                           type="button"
                           onClick={() => {
-                            const newImages = formData.images.filter((_: any, i: number) => i !== index);
+                            const newImages = formData.images.filter(
+                              (_: any, i: number) => i !== index
+                            );
                             setFormData({ ...formData, images: newImages });
                           }}
                           className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -540,28 +594,35 @@ export function ProductForm({
                   </div>
                 </div>
               )}
-              
+
               {/* URL Input as fallback */}
               <div className="space-y-2">
-                <Label className="text-sm text-gray-600">Or add image by URL</Label>
+                <Label className="text-sm text-gray-600">
+                  Or add image by URL
+                </Label>
                 <Input
                   type="url"
                   placeholder="Enter image URL"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       const input = e.target as HTMLInputElement;
                       if (input.value.trim()) {
                         setFormData({
                           ...formData,
-                          images: [...(formData.images || []), input.value.trim()]
+                          images: [
+                            ...(formData.images || []),
+                            input.value.trim(),
+                          ],
                         });
-                        input.value = '';
+                        input.value = "";
                       }
                     }
                   }}
                 />
-                <p className="text-xs text-gray-500">Press Enter to add image URL</p>
+                <p className="text-xs text-gray-500">
+                  Press Enter to add image URL
+                </p>
               </div>
             </div>
           </div>
@@ -587,7 +648,10 @@ export function ProductForm({
             {variants.length > 0 && (
               <div className="space-y-3">
                 {variants.map((variant, index) => (
-                  <Card key={variant.id || index} className="p-4 bg-gray-50 border border-gray-200">
+                  <Card
+                    key={variant.id || index}
+                    className="p-4 bg-gray-50 border border-gray-200"
+                  >
                     <div className="flex items-end gap-4">
                       <div className="flex-1 grid grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -666,9 +730,9 @@ export function ProductForm({
 
           {/* Form Actions */}
           <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button 
+            <Button
               type="button"
-              variant="outline" 
+              variant="outline"
               onClick={() => handleOpenChange(false)}
               className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
             >
@@ -684,8 +748,10 @@ export function ProductForm({
                   <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
                   Uploading Images...
                 </>
+              ) : editingProduct ? (
+                "Update Product"
               ) : (
-                editingProduct ? "Update Product" : "Add Product"
+                "Add Product"
               )}
             </Button>
           </div>

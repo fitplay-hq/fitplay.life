@@ -24,6 +24,8 @@ export async function GET(request: NextRequest) {
             email: true,
           },
         },
+        category: true,
+        subCategory: true,
         variants: true,
       },
       orderBy: {
@@ -138,7 +140,7 @@ export async function GET(request: NextRequest) {
       y -= lineHeight;
 
       // Category info
-      page.drawText(`Category: ${product.category.replace(/_/g, ' ')} | Sub: ${product.subCategory?.replace(/_/g, ' ') || 'N/A'}`, { 
+      page.drawText(`Category: ${product.category?.name || 'N/A'} | Sub: ${product.subCategory?.name?.replace(/_/g, ' ') || 'N/A'}`, { 
         x: margin + 10, 
         y, 
         size: 10, 
@@ -197,8 +199,9 @@ export async function GET(request: NextRequest) {
 
     // Generate PDF buffer
     const pdfBytes = await pdfDoc.save();
+    const pdfBuffer = Buffer.from(pdfBytes);
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

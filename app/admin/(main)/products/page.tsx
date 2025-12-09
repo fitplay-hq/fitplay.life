@@ -45,7 +45,7 @@ export default function AdminProductsPage() {
         (product.description || '').toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesCategory =
-        categoryFilter === "all" || product.category === categoryFilter;
+        categoryFilter === "all" || product.category?.name === categoryFilter;
       
       const matchesStatus = 
         statusFilter === "all" || 

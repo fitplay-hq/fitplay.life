@@ -37,16 +37,10 @@ interface ProductTableProps {
 }
 
 // Friendly category name mapping
-const getFriendlyCategoryName = (category: string) => {
-  const friendlyNames: Record<string, string> = {
-    Fitness_And_Gym_Equipment: "Fitness & Gym Equipment",
-    Nutrition_And_Health: "Nutrition & Health",
-    Diagnostics_And_Prevention: "Diagnostics & Prevention",
-    Ergonomics_And_Workspace_Comfort: "Ergonomics & Workspace Comfort",
-    Health_And_Wellness_Services: "Health & Wellness Services",
-  };
-  return friendlyNames[category] || category;
+const getFriendlyCategoryName = (name?: string) => {
+  return name || "Unassigned";
 };
+
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -149,7 +143,7 @@ export function ProductTable({
               </TableCell>
               <TableCell>
                 <Badge variant="outline">
-                  {getFriendlyCategoryName(product.category)}
+                  {getFriendlyCategoryName(product.category?.name)}
                 </Badge>
               </TableCell>
               <TableCell className="text-right font-medium">

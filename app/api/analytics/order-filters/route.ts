@@ -104,6 +104,8 @@ export async function GET(req: NextRequest) {
         const inventory = await prisma.product.findMany({
             include: {
                 companies: { select: { id: true, name: true } },
+                category: true,
+                subCategory: true,
             },
         });
 
@@ -117,7 +119,8 @@ export async function GET(req: NextRequest) {
                 return {
                     id: product.id,
                     name: product.name,
-                    category: product.category,
+                    category: product.category?.name || "UNCATEGORIZED",
+                    subCategory: product.subCategory?.name || "UNCATEGORIZED",
                     stockQuantity: product.availableStock,
                     unitPrice: variant?.mrp || 0,
                     companyNames: product.companies.map((c) => c.name).join(", "),
@@ -152,8 +155,8 @@ export async function GET(req: NextRequest) {
                 outOfStock: inventory.filter((p) => p.availableStock === 0).length,
             },
             categoryDistribution: inventory.reduce((acc: any, p: any) => {
-                const category = p.category || "UNCATEGORIZED";
-                acc[category] = (acc[category] || 0) + 1;
+                const category = p.category?.name || "UNCATEGORIZED";
+                acc[category] = (acc[category.name] || 0) + 1;
                 return acc;
             }, {}),
             rawData: {

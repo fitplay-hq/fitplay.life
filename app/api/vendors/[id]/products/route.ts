@@ -49,7 +49,9 @@ export async function GET(
                   }
                 }
               }
-            }
+            },
+            category: true,
+            subCategory: true,
           }
         }
       }
@@ -79,7 +81,7 @@ export async function GET(
         description: product.description,
         price: product.variants?.[0]?.mrp || 0, // Use variant price or 0
         originalPrice: product.variants?.[0]?.mrp || 0,
-        category: product.category || 'Uncategorized', // Category is enum in schema
+        category: product.category?.name || 'Uncategorized', // Category is enum in schema
         imageUrl: imageUrl,
         status: 'ACTIVE', // Default status since not in schema
         stock: product.availableStock || 0,

@@ -54,8 +54,8 @@ export async function GET(req: NextRequest) {
       }))
     ];
 
-    console.log('All available categories:', allCategories);
-    console.log('Returning categories:', categories);
+    // console.log('All available categories:', allCategories);
+    // console.log('Returning categories:', categories);
 
     return new NextResponse(JSON.stringify({ categories }), {
       status: 200,

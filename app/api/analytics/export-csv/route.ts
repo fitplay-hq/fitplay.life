@@ -130,7 +130,9 @@ async function exportOrdersAnalytics(dateFrom: string | null, dateTo: string | n
                         select: { 
                             name: true, 
                             sku: true,
-                            category: true
+                            category: {
+                                select: { name: true }
+                            }
                         }
                     }
                 }
@@ -156,9 +158,9 @@ async function exportOrdersAnalytics(dateFrom: string | null, dateTo: string | n
                 "Shipping Address": index === 0 ? order.user?.address || "" : "",
                 "Product Name": item.product?.name || "N/A",
                 "Product SKU": item.product?.sku || "",
-                "Product Category": item.product?.category || "",
+                "Product Category": item.product?.category?.name || "",
                 "Quantity": item.quantity,
-                "Unit Price (Rs.)": Math.round(item.credits || 0)
+                "Unit Price (Rs.)": Math.round(item.price || 0)
             });
         });
         
@@ -177,7 +179,9 @@ async function exportInventoryAnalytics(companyId?: string | null) {
         include: { 
             companies: true, 
             variants: true,
-            vendor: { select: { name: true } }
+            vendor: { select: { name: true } },
+            category: true,
+            subCategory: true
         }
     });
 
@@ -185,8 +189,8 @@ async function exportInventoryAnalytics(companyId?: string | null) {
         "Product ID": p.id,
         "Product Name": p.name,
         "SKU": p.sku,
-        "Category": p.category,
-        "Sub Category": p.subCategory || "",
+        "Category": p.category?.name || "",
+        "Sub Category": p.subCategory?.name || "",
         "Vendor": p.vendor?.name || "No Vendor",
         "Current Stock": p.availableStock,
         "Stock Status": p.availableStock <= 10 ? "Low Stock" : p.availableStock <= 5 ? "Critical" : "In Stock",
@@ -289,7 +293,7 @@ async function exportTopProducts(dateFrom: string | null, dateTo: string | null,
             if (!item.product) return;
             
             const productId = item.product.id;
-            const revenue = item.quantity * (item.credits || 0);
+            const revenue = item.quantity * (item.price || 0);
             totalRevenue += revenue;
             
             if (!products[productId]) {
@@ -319,8 +323,8 @@ async function exportTopProducts(dateFrom: string | null, dateTo: string | null,
             "Rank": index + 1,
             "Product Name": p.product.name,
             "SKU": p.product.sku,
-            "Category": p.product.category,
-            "Sub Category": p.product.subCategory || "",
+            "Category": p.product.category.name || "",
+            "Sub Category": p.product.subCategory?.name || "",
             "Vendor": p.product.vendor?.name || "No Vendor",
             "Total Sold": p.quantity,
             "Total Revenue (Rs.)": p.revenue,

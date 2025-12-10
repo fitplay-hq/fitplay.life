@@ -55,10 +55,11 @@ export async function POST(req: NextRequest) {
       vendorId,
       vendorName,
       variants,
+      images,
       ...rest
     } = body;
 
-    console.log("Extracted fields:", { name, sku, availableStock, category, subCategory, vendorId, vendorName });
+    console.log("Extracted fields:", { name, sku, availableStock, category, subCategory, vendorId, vendorName, images });
 
     if (!name || !sku || availableStock === undefined) {
       return NextResponse.json(
@@ -139,6 +140,7 @@ export async function POST(req: NextRequest) {
       categoryId: categoryId,
       subCategoryId: subCategoryId,
       vendorId: finalVendorId || null,
+      images: images || [],
       variants: variants?.length ? { create: variants } : undefined,
       ...rest,
     };

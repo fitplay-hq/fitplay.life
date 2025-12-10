@@ -12,8 +12,8 @@ export const fetchAdminProducts = async (): Promise<ProductModelType[]> => {
 
 // Fetch single product for admin
 export const fetchAdminProduct = async (id: string): Promise<ProductModelType | null> => {
-  const response = await fetch(`/api/products/product?id=${id}`).then(res => res.json());
-  return response.data || null;
+  const response = await fetch(`/api/admin/products/${id}`).then(res => res.json());
+  return response.product || null;
 };
 
 // Prefetch products for better performance

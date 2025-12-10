@@ -30,6 +30,8 @@ export async function GET(
           },
         },
         variants: true,
+        category: true,
+        subCategory: true,
       },
     });
 

@@ -7,6 +7,35 @@ function normalize(value: any) {
   return typeof value === "string" ? value : value?.name;
 }
 
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const products = await prisma.product.findMany({
+      include: {
+        vendor: true,
+        variants: true,
+        category: true,
+        subCategory: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json({ products }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch products", details: String(error) },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,6 +44,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    console.log("Received body:", JSON.stringify(body, null, 2));
+    
     const {
       name,
       sku,
@@ -27,13 +58,23 @@ export async function POST(req: NextRequest) {
       ...rest
     } = body;
 
-    // Normalize category/subcategory in case UI sends object
-    const normalizedCategory = normalize(category);
-    const normalizedSubCategory = normalize(subCategory);
+    console.log("Extracted fields:", { name, sku, availableStock, category, subCategory, vendorId, vendorName });
 
-    if (!name || !sku || !availableStock || !normalizedCategory) {
+    if (!name || !sku || availableStock === undefined) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: name, sku, availableStock" },
+        { status: 400 }
+      );
+    }
+
+    // Check if SKU already exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { sku },
+    });
+
+    if (existingProduct) {
+      return NextResponse.json(
+        { error: `Product with SKU "${sku}" already exists. Please use a different SKU.` },
         { status: 400 }
       );
     }
@@ -44,69 +85,94 @@ export async function POST(req: NextRequest) {
       const vendor = await prisma.vendor.findFirst({
         where: { name: vendorName.trim() },
       });
-      if (!vendor)
+      if (!vendor) {
         return NextResponse.json(
           { error: `Vendor '${vendorName}' not found` },
           { status: 400 }
         );
-
+      }
       finalVendorId = vendor.id;
     }
 
-    // Resolve category
-    const foundCategory = await prisma.category.findUnique({
-      where: { name: normalizedCategory },
-    });
+    // Resolve category and subcategory
+    let categoryId = null;
+    let subCategoryId = null;
 
-    if (!foundCategory)
-      return NextResponse.json(
-        { error: `Category '${normalizedCategory}' not found` },
-        { status: 400 }
-      );
-
-    // Resolve subcategory
-    let foundSub = null;
-    if (normalizedSubCategory) {
-      foundSub = await prisma.subCategory.findFirst({
-        where: {
-          name: normalizedSubCategory,
-          categoryId: foundCategory.id,
-        },
+    if (category) {
+      // Find or create category
+      let categoryRecord = await prisma.category.findFirst({
+        where: { name: category },
       });
+      
+      if (!categoryRecord) {
+        categoryRecord = await prisma.category.create({
+          data: { name: category },
+        });
+      }
+      categoryId = categoryRecord.id;
 
-      if (!foundSub)
-        return NextResponse.json(
-          {
-            error: `Subcategory '${normalizedSubCategory}' doesn't belong to '${normalizedCategory}'`,
+      // Find or create subcategory if provided
+      if (subCategory) {
+        let subCategoryRecord = await prisma.subCategory.findFirst({
+          where: { 
+            name: subCategory,
+            categoryId: categoryId,
           },
-          { status: 400 }
-        );
+        });
+        
+        if (!subCategoryRecord) {
+          subCategoryRecord = await prisma.subCategory.create({
+            data: { 
+              name: subCategory,
+              categoryId: categoryId,
+            },
+          });
+        }
+        subCategoryId = subCategoryRecord.id;
+      }
     }
 
+    const createData = {
+      name,
+      sku,
+      availableStock: parseInt(availableStock),
+      categoryId: categoryId,
+      subCategoryId: subCategoryId,
+      vendorId: finalVendorId || null,
+      variants: variants?.length ? { create: variants } : undefined,
+      ...rest,
+    };
+    
+    console.log("Creating product with data:", JSON.stringify(createData, null, 2));
+
     const created = await prisma.product.create({
-      data: {
-        ...rest,
-        vendor: finalVendorId ? { connect: { id: finalVendorId } } : undefined,
-        category: { connect: { id: foundCategory.id } },
-        ...(foundSub && { subCategory: { connect: { id: foundSub.id } } }),
-        variants: variants?.length ? { create: variants } : undefined,
-      },
+      data: createData,
       include: {
         vendor: true,
+        variants: true,
         category: true,
         subCategory: true,
-        variants: true,
       },
     });
 
     return NextResponse.json(
-      { message: "Product created", data: created },
+      { message: "Product created successfully", product: created },
       { status: 201 }
     );
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error("Error creating product:", err);
+    
+    // Handle Prisma unique constraint errors
+    if (err.code === 'P2002') {
+      const field = err.meta?.target?.[0] || 'field';
+      return NextResponse.json(
+        { error: `Product with this ${field} already exists. Please use a different ${field}.` },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "Internal error", details: String(err) },
+      { error: "Failed to create product", details: String(err) },
       { status: 500 }
     );
   }
@@ -129,15 +195,6 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
     }
 
-    // Normalize category/subcategory
-    const normalizedCategory = normalize(category);
-    const normalizedSubCategory = normalize(subCategory);
-
-    delete rest.vendorId;
-    delete rest.vendorName;
-    delete rest.category;
-    delete rest.subCategory;
-
     const updateData: any = { ...rest };
 
     // Vendor handling
@@ -149,36 +206,47 @@ export async function PATCH(req: NextRequest) {
       if (vendor) finalVendorId = vendor.id;
     }
 
-    updateData.vendor = finalVendorId
-      ? { connect: { id: finalVendorId } }
-      : { disconnect: true };
+    if (finalVendorId) {
+      updateData.vendorId = finalVendorId;
+    }
 
-    // Category + Subcategory handling
-    if (normalizedCategory) {
-      const foundCategory = await prisma.category.findUnique({
-        where: { name: normalizedCategory },
+    // Category handling (relational fields)
+    if (category !== undefined) {
+      let categoryRecord = await prisma.category.findFirst({
+        where: { name: category },
       });
-
-      if (!foundCategory)
-        return NextResponse.json(
-          { error: `Category '${normalizedCategory}' not found` },
-          { status: 400 }
-        );
-
-      updateData.category = { connect: { id: foundCategory.id } };
-
-      if (normalizedSubCategory) {
-        const foundSub = await prisma.subCategory.findFirst({
-          where: { name: normalizedSubCategory, categoryId: foundCategory.id },
+      
+      if (!categoryRecord) {
+        categoryRecord = await prisma.category.create({
+          data: { name: category },
         });
+      }
+      updateData.categoryId = categoryRecord.id;
+    }
 
-        if (!foundSub)
-          return NextResponse.json(
-            { error: `Invalid Subcategory '${normalizedSubCategory}'` },
-            { status: 400 }
-          );
-
-        updateData.subCategory = { connect: { id: foundSub.id } };
+    if (subCategory !== undefined && category) {
+      // Get the category ID first
+      const categoryRecord = await prisma.category.findFirst({
+        where: { name: category },
+      });
+      
+      if (categoryRecord) {
+        let subCategoryRecord = await prisma.subCategory.findFirst({
+          where: { 
+            name: subCategory,
+            categoryId: categoryRecord.id,
+          },
+        });
+        
+        if (!subCategoryRecord) {
+          subCategoryRecord = await prisma.subCategory.create({
+            data: { 
+              name: subCategory,
+              categoryId: categoryRecord.id,
+            },
+          });
+        }
+        updateData.subCategoryId = subCategoryRecord.id;
       }
     }
 
@@ -187,13 +255,16 @@ export async function PATCH(req: NextRequest) {
       data: updateData,
       include: {
         vendor: true,
+        variants: true,
         category: true,
         subCategory: true,
-        variants: true,
       },
     });
 
-    return NextResponse.json({ message: "Updated successfully", data: updated });
+    return NextResponse.json({ 
+      message: "Product updated successfully", 
+      product: updated 
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json(

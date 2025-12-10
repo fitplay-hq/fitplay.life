@@ -4,8 +4,10 @@ import { Prisma } from '@/lib/generated/prisma';
 
 // Fetch all products for admin
 export const fetchAdminProducts = async (): Promise<ProductModelType[]> => {
-  const response = await fetch('/api/products/product').then(res => res.json());
-  return response.data || [];
+  const response = await fetch('/api/admin/products', {
+    credentials: 'include'
+  }).then(res => res.json());
+  return response.products || [];
 };
 
 // Fetch single product for admin
@@ -65,7 +67,9 @@ export const useAdminProduct = (id: string | null) => {
 };
 
 // Create product
-export const createAdminProduct = async (productData: Prisma.ProductCreateInput) => {
+export const createAdminProduct = async (productData: any) => {
+  console.log('Sending product data to API:', productData);
+
   const response = await fetch('/api/admin/products', {
     method: 'POST',
     headers: {
@@ -81,11 +85,11 @@ export const createAdminProduct = async (productData: Prisma.ProductCreateInput)
 
   const result = await response.json();
   mutate('admin-products'); // Invalidate products list
-  return result.data;
+  return result.product;
 };
 
 // Update product
-export const updateAdminProduct = async (id: string, productData: Prisma.ProductUpdateInput) => {
+export const updateAdminProduct = async (id: string, productData: any) => {
   const response = await fetch('/api/admin/products', {
     method: 'PATCH',
     headers: {
@@ -102,7 +106,7 @@ export const updateAdminProduct = async (id: string, productData: Prisma.Product
   const result = await response.json();
   mutate('admin-products'); // Invalidate products list
   mutate(`admin-product-${id}`); // Invalidate specific product
-  return result.data;
+  return result.product;
 };
 
 // Delete product

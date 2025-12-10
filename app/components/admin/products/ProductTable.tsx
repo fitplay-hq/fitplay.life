@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -88,28 +89,38 @@ export function ProductTable({
   onEdit,
   onDelete,
 }: ProductTableProps) {
+  const router = useRouter();
+
+  const handleViewDetails = (product: any) => {
+    router.push(`/admin/products/${product.id}`);
+  };
+
   return (
     <div className="overflow-x-auto">
-      <Table>
+      <Table className="min-w-full">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12">Image</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Brand/Vendor</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead className="text-right">Credits</TableHead>
-            <TableHead className="text-right">₹ Price</TableHead>
-            <TableHead className="text-center">Stock</TableHead>
-            <TableHead className="text-center">Rating</TableHead>
-            <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">Actions</TableHead>
+            <TableHead className="w-12 px-1">Image</TableHead>
+            <TableHead className="min-w-[180px] px-2">Product</TableHead>
+            <TableHead className="min-w-[120px] px-2">Brand/Vendor</TableHead>
+            <TableHead className="min-w-[140px] px-2">Category</TableHead>
+            <TableHead className="text-right w-16 px-1">Credits</TableHead>
+            <TableHead className="text-right w-16 px-1">₹ Price</TableHead>
+            <TableHead className="text-center w-12 px-1">Stock</TableHead>
+            <TableHead className="text-center w-16 px-1">Rating</TableHead>
+            <TableHead className="text-center w-14 px-1">Status</TableHead>
+            <TableHead className="text-center w-12 px-1">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.map((product: any) => (
-            <TableRow key={product.id}>
-              <TableCell>
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+            <TableRow 
+              key={product.id} 
+              className="cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => handleViewDetails(product)}
+            >
+              <TableCell className="w-12 px-1">
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100">
                   {product.images && product.images.length > 0 ? (
                     <img
                       src={product.images[0]}
@@ -123,56 +134,58 @@ export function ProductTable({
                   )}
                 </div>
               </TableCell>
-              <TableCell>
-                <div>
-                  <div className="font-medium text-gray-900">
+              <TableCell className="min-w-[180px] px-2">
+                <div className="space-y-1">
+                  <div className="font-medium text-sm text-gray-900 truncate" title={product.name}>
                     {product.name}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-xs text-gray-500 truncate" title={`SKU: ${product.sku}`}>
                     SKU: {product.sku}
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="min-w-[120px] px-2">
                 <div>
-                  <div className="font-medium">{product.vendor?.name || 'No Vendor'}</div>
-                  <div className="text-sm text-gray-500">
-                    {product.vendor?.name ? 'Verified Vendor' : 'Unassigned'}
+                  <div className="font-medium text-sm truncate" title={product.vendor?.name || 'No Vendor'}>{product.vendor?.name || 'No Vendor'}</div>
+                  <div className="text-xs text-gray-400">
+                    {product.vendor?.name ? 'Verified' : 'Unassigned'}
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
-                <Badge variant="outline">
-                  {getFriendlyCategoryName(product.category?.name)}
+              <TableCell className="min-w-[140px] px-2">
+                <Badge variant="outline" className="text-xs max-w-full truncate" title={getFriendlyCategoryName(product.category?.name) || product.categoryOld || 'Nutrition & Health Foods'}>
+                  {getFriendlyCategoryName(product.category?.name) || product.categoryOld || 'Nutrition & Health Foods'}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right font-medium">
-                {getLowestCredits(product as ProductWithVariant)} credits
+              <TableCell className="text-right w-16 px-1">
+                <span className="text-xs font-medium">{getLowestCredits(product as ProductWithVariant)}</span>
               </TableCell>
-              <TableCell className="text-right">
-                ₹{getLowestMRP(product as ProductWithVariant)}
+              <TableCell className="text-right w-16 px-1">
+                <span className="text-xs font-medium">₹{getLowestMRP(product as ProductWithVariant)}</span>
               </TableCell>
-              <TableCell className="text-center">
+              <TableCell className="text-center w-16 px-2">
                 <div className="flex flex-col items-center gap-1">
-                  <span className="font-medium">{product.availableStock}</span>
+                  <span className="text-sm font-medium">{product.availableStock}</span>
                   {getStockBadge(product.availableStock)}
                 </div>
               </TableCell>
-              <TableCell className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span className="font-medium">
-                    {product.avgRating ? product.avgRating.toFixed(1) : '0.0'}
-                  </span>
+              <TableCell className="text-center w-20">
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium">
+                      {product.avgRating ? product.avgRating.toFixed(1) : '0.0'}
+                    </span>
+                  </div>
                   <span className="text-xs text-gray-500">
                     ({product.noOfReviews || 0})
                   </span>
                 </div>
               </TableCell>
-              <TableCell className="text-center">
+              <TableCell className="text-center w-20">
                 {getStatusBadge(product.status || "active")}
               </TableCell>
-              <TableCell className="text-center">
+              <TableCell className="text-center w-16 px-2" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -184,8 +197,8 @@ export function ProductTable({
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Product
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <ImageIcon className="h-4 w-4 mr-2" />
+                    <DropdownMenuItem onClick={() => handleViewDetails(product)}>
+                      <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

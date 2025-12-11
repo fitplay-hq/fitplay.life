@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { createSaleOrder } from "../unicommerce";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 if (!resendApiKey) throw new Error("RESEND_API_KEY is not defined");
@@ -21,6 +22,10 @@ export async function POST(req: NextRequest) {
       userId: requestedUserId,
       phNumber: providedPhNumber,
       address: providedAddress,
+      address2: providedAddress2,
+      city: providedCity,
+      state: providedState,
+      pincode: providedPincode,
       deliveryInstructions,
       remarks,
     } = body;
@@ -159,7 +164,11 @@ export async function POST(req: NextRequest) {
             status: "PENDING",
             transactionId: transaction.id,
             phNumber: finalPhNumber,
-            address: finalAddress,
+            address: providedAddress,
+            address2: providedAddress2,
+            city: providedCity,
+            state: providedState,
+            pinCode: providedPincode,
             deliveryInstructions: finalDeliveryInstructions,
             remarks: session.user.role === "ADMIN" ? remarks || null : null,
             items: { create: orderItemsData },
@@ -191,6 +200,27 @@ export async function POST(req: NextRequest) {
         return { enrichedOrder, updatedWallet };
       });
 
+    const unicommerceItems = result.enrichedOrder.items.map((item:any) => ({
+  variantSku: item.variant.sku,   // you must include SKU when pushing into orderItemsData OR fetch before mapping
+  quantity: item.quantity,
+  price: item.price,
+}));
+// test this function
+  const resUnicommerce = await createSaleOrder(
+  user.name,
+  orderId,
+  providedAddress,
+  providedAddress2,
+  providedCity,
+  providedState,
+  providedPincode,
+  providedPhNumber,
+  user.email,
+  unicommerceItems
+);
+
+console.log("Unicommerce response:", resUnicommerce); 
+
     if (!result) throw new Error("Order creation failed");
 
     const orderSummaryTable = `
@@ -206,8 +236,8 @@ export async function POST(req: NextRequest) {
         </thead>
         <tbody>
           ${result.enrichedOrder.items
-            .map(
-              (item: any) => `
+        .map(
+          (item: any) => `
               <tr>
                 <td>${item.product.name}</td>
                 <td>${item.variant.variantValue}</td>
@@ -216,8 +246,8 @@ export async function POST(req: NextRequest) {
                 <td align="right">${item.price * item.quantity}</td>
               </tr>
             `
-            )
-            .join("")}
+        )
+        .join("")}
         </tbody>
         <tfoot>
           <tr>
@@ -228,10 +258,9 @@ export async function POST(req: NextRequest) {
       </table>
       <p><strong>Delivery Address:</strong> ${finalAddress ?? "Not Provided"}</p>
       <p><strong>Contact Number:</strong> ${finalPhNumber ?? "Not Provided"}</p>
-      ${
-        finalDeliveryInstructions
-          ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>`
-          : ""
+      ${finalDeliveryInstructions
+        ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>`
+        : ""
       }
     `;
 

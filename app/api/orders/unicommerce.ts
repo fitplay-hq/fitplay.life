@@ -1,61 +1,81 @@
 import crypto from "crypto";
 
-export const createSaleOrder = async (name: string, address : string, address2: string, city: string, state: string, pincode: string, phone: string, email: string) => {
+export const createSaleOrder = async (
+    name: string,
+    orderCode: string,
+    address: string,
+    address2: string,
+    city: string,
+    state: string,
+    pincode: string,
+    phone: string,
+    email: string,
+    items: {
+        variantSku: string;
+        quantity: number;
+        price: number;
+    }[]
+) => {
+
     try {
         const facilityCode = "wednesdayhealthindiaprivatelimited"
         const addressId = crypto.randomUUID();
 
+        const responseToken = await fetch("https://wednesdayhealthindiaprivatelimited.unicommerce.com/oauth/token?grant_type=password&client_id=my-trusted-client&username=aditya@fitplaysolutions.com&password=Aditya@1")
+
+        const tokenJson = await responseToken.json(); // <-- important
+
+        console.log("Token JSON:", tokenJson);
+
+        const accessToken = tokenJson.access_token;
+        console.log("Access Token:", accessToken);
         const orderRes = await fetch('https://wednesdayhealthindiaprivatelimited.unicommerce.com/services/rest/v1/oms/saleOrder/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': process.env.UNICOMMERCE_ACCESS_TOKEN as string,
+                'Authorization': `bearer ${accessToken}`,
                 'Facility': facilityCode,
             },
             body: JSON.stringify({
-                "order": {
-                    "saleOrder": {
-                        "cashOnDelivery": false,
-                        "addresses": [
-                            {
-                                "id": addressId,
-                                "name": name || "Test User",
-                                "addressLine1": address || "string",
-                                "addressLine2": address2 || "string",
-                                "city": city || "string",
-                                "state": state || "string",
-                                "pincode": pincode || "string",
-                                "phone": phone || "string",
-                                "email": email || "string"
-                            }
-                        ],
-                        // Deal with the following before creating an order
-                        "saleOrderItems": [
-                            {
-                                "itemSku": "TESTUAT4",
-                                "shippingMethodCode": "STD",
-                                "code": "SO1231100023-1",
-                                "packetNumber": 1,
-                                "giftWrap": true,
-                                "giftMessage": "TEST",
-                                "facilityCode": "",
-                                "totalPrice": "0",
-                                "sellingPrice": "950",
-                                "prepaidAmount": "0",
-                                "discount": "100",
-                                "shippingCharges": "50",
-                                "storeCredit": "0",
-                                "giftWrapCharges": "20"
-                            }],
-                        "totalCashOnDeliveryCharges": 0,
-                        "useVerifiedListings": true
-                    }
+                "saleOrder": {
+                    "cashOnDelivery": false,
+                    "code": orderCode,  // look into this before comitting
+                    "channel": "FITPLAY_LIFE",
+                    "addresses": [
+                        {
+                            "id": addressId,
+                            "name": name || "Test User",
+                            "addressLine1": address || "string",
+                            "addressLine2": address2 || "string",
+                            "city": city || "Ghaziabad",
+                            "state": state || "Uttar Pradesh",
+                            "pincode": pincode || "201206",
+                            "phone": phone || "string",
+                            "email": email || "string"
+                        }
+                    ],
+                    "shippingAddress": {
+                        "referenceId": addressId,
+                    },
+                    saleOrderItems: items.map((item: any, index: number) => ({
+                        itemSku: item.variantSku,
+                        shippingMethodCode: "STD",
+                        code: `${orderCode}-${index + 1}`,
+                        packetNumber: item.quantity,
+                        giftWrap: false,
+                        totalPrice: item.price * item.quantity,
+                        sellingPrice: item.price,
+                        prepaidAmount: item.price * item.quantity,
+                        discount: 0,
+                        shippingCharges: "50",
+                    })),
                 }
-            })
+            }
+            )
         });
 
         const orderData = await orderRes.json();
-        console.log('Unicommerce Create Order Response:', orderData);
+        // console.log('Unicommerce Create Order Response:', orderData);
         return orderData;
     } catch (error) {
         console.error('Error creating Unicommerce order:', error);

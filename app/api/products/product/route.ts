@@ -17,9 +17,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const requiredFields = ["name", "sku", "availableStock", "category", "description"];
-    const missing = requiredFields.filter(f => !body[f]);
+    const missing = requiredFields.filter((f) => !body[f]);
     if (missing.length) {
-      return NextResponse.json({ message: `Missing: ${missing.join(", ")}` }, { status: 400 });
+      return NextResponse.json(
+        { message: `Missing: ${missing.join(", ")}` },
+        { status: 400 }
+      );
     }
 
     const {
@@ -37,18 +40,30 @@ export async function POST(req: NextRequest) {
       resolvedVendorId = vendorId;
     } else if (vendorName) {
       const vendor = await prisma.vendor.findFirst({ where: { name: vendorName } });
-      if (!vendor) return NextResponse.json({ message: `Vendor '${vendorName}' not found` }, { status: 400 });
+      if (!vendor) {
+        return NextResponse.json(
+          { message: `Vendor '${vendorName}' not found` },
+          { status: 400 }
+        );
+      }
       resolvedVendorId = vendor.id;
     }
 
-    const categoryRecord = await prisma.category.findFirst({ where: { name: category } });
-    if (!categoryRecord) return NextResponse.json({ message: `Category '${category}' not found` }, { status: 400 });
+    const categoryRecord = await prisma.category.findFirst({
+      where: { name: category },
+    });
+    if (!categoryRecord) {
+      return NextResponse.json(
+        { message: `Category '${category}' not found` },
+        { status: 400 }
+      );
+    }
 
     let resolvedSubCategoryId: string | null = null;
 
     if (subCategory) {
       const subRecord = await prisma.subCategory.findFirst({
-        where: { name: subCategory, categoryId: categoryRecord.id }
+        where: { name: subCategory, categoryId: categoryRecord.id },
       });
 
       if (!subRecord) {
@@ -67,12 +82,13 @@ export async function POST(req: NextRequest) {
         vendorId: resolvedVendorId,
         categoryId: categoryRecord.id,
         subCategoryId: resolvedSubCategoryId,
-        variants: variants?.length
+        variants: Array.isArray(variants) && variants.length
           ? {
               create: variants.map((v: any) => ({
                 variantCategory: v.variantCategory,
                 variantValue: v.variantValue,
                 mrp: v.mrp,
+                sku: v.sku ?? null,
                 credits: v.credits ?? null,
                 availableStock: v.availableStock ?? null,
               })),
@@ -83,10 +99,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "Product created", data: created }, { status: 201 });
-
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ message: "Internal Error", error: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Error", error: String(err) },
+      { status: 500 }
+    );
   }
 }
 
@@ -121,7 +139,6 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "Fetched", data: products });
-
   } catch (err) {
     return NextResponse.json({ message: "Fetch error", error: String(err) }, { status: 500 });
   }
@@ -139,7 +156,6 @@ export async function DELETE(req: NextRequest) {
     const deleted = await prisma.product.delete({ where: { id } });
 
     return NextResponse.json({ message: "Deleted", data: deleted });
-
   } catch (err) {
     return NextResponse.json({ message: "Delete error", error: String(err) }, { status: 500 });
   }
@@ -151,30 +167,55 @@ export async function PATCH(req: NextRequest) {
     if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
+    if (!body.id) {
+      return NextResponse.json({ message: "Product ID required" }, { status: 400 });
+    }
 
-    if (!body.id) return NextResponse.json({ message: "Product ID required" }, { status: 400 });
+    const {
+      vendorName,
+      vendorId,
+      category,
+      subCategory,
+      variants,
+      ...updateData
+    } = body;
 
-    const { vendorName, vendorId, category, subCategory, ...updateData } = body;
-
-    let resolvedVendorId = vendorId || null;
+    let resolvedVendorId: string | null = vendorId || null;
 
     if (!resolvedVendorId && vendorName) {
       const vendor = await prisma.vendor.findFirst({ where: { name: vendorName } });
-      if (!vendor) return NextResponse.json({ message: `Vendor '${vendorName}' not found` }, { status: 400 });
+      if (!vendor) {
+        return NextResponse.json(
+          { message: `Vendor '${vendorName}' not found` },
+          { status: 400 }
+        );
+      }
       resolvedVendorId = vendor.id;
     }
 
-    let resolvedCategoryId = null;
+    let resolvedCategoryId: string | null = null;
     if (category) {
       const cat = await prisma.category.findFirst({ where: { name: category } });
-      if (!cat) return NextResponse.json({ message: `Category '${category}' not found` }, { status: 400 });
+      if (!cat) {
+        return NextResponse.json(
+          { message: `Category '${category}' not found` },
+          { status: 400 }
+        );
+      }
       resolvedCategoryId = cat.id;
     }
 
-    let resolvedSubCategoryId = null;
+    let resolvedSubCategoryId: string | null = null;
     if (subCategory && resolvedCategoryId) {
-      const sub = await prisma.subCategory.findFirst({ where: { name: subCategory, categoryId: resolvedCategoryId } });
-      if (!sub) return NextResponse.json({ message: `Invalid subcategory` }, { status: 400 });
+      const sub = await prisma.subCategory.findFirst({
+        where: { name: subCategory, categoryId: resolvedCategoryId },
+      });
+      if (!sub) {
+        return NextResponse.json(
+          { message: "Invalid subcategory" },
+          { status: 400 }
+        );
+      }
       resolvedSubCategoryId = sub.id;
     }
 
@@ -185,12 +226,35 @@ export async function PATCH(req: NextRequest) {
         vendorId: resolvedVendorId,
         categoryId: resolvedCategoryId ?? undefined,
         subCategoryId: resolvedSubCategoryId ?? undefined,
+        ...(Array.isArray(variants)
+          ? {
+              variants: {
+                deleteMany: { productId: body.id },
+                create: variants.map((v: any) => ({
+                  variantCategory: v.variantCategory,
+                  variantValue: v.variantValue,
+                  mrp: v.mrp,
+                  sku: v.sku ?? null,
+                  credits: v.credits ?? null,
+                  availableStock: v.availableStock ?? null,
+                })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        vendor: true,
+        category: true,
+        subCategory: true,
+        variants: true,
       },
     });
 
     return NextResponse.json({ message: "Updated", data: updated });
-
   } catch (err) {
-    return NextResponse.json({ message: "Update error", error: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { message: "Update error", error: String(err) },
+      { status: 500 }
+    );
   }
 }

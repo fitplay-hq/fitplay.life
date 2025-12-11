@@ -137,153 +137,160 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result: { enrichedOrder: any; updatedWallet: any } =
-      await prisma.$transaction(async (tx) => {
-        const updatedWallet = await tx.wallet.update({
-          where: { id: user.wallet!.id },
-          data: { balance: { decrement: totalAmount } },
-        });
-
-        const transaction = await tx.transactionLedger.create({
-          data: {
-            userId: user.id,
-            amount: totalAmount,
-            modeOfPayment: "Credits",
-            balanceAfterTxn: updatedWallet.balance,
-            isCredit: false,
-            transactionType: "PURCHASE",
-            walletId: updatedWallet.id,
-          },
-        });
-
-        const order = await tx.order.create({
-          data: {
-            id: orderId,
-            userId: user.id,
-            amount: totalAmount,
-            status: "PENDING",
-            transactionId: transaction.id,
-            phNumber: finalPhNumber,
-            address: providedAddress,
-            address2: providedAddress2,
-            city: providedCity,
-            state: providedState,
-            pinCode: providedPincode,
-            deliveryInstructions: finalDeliveryInstructions,
-            remarks: session.user.role === "ADMIN" ? remarks || null : null,
-            items: { create: orderItemsData },
-          },
-          include: { items: true },
-        });
-
-        for (const item of orderItemsData) {
-          await tx.variant.update({
-            where: { id: item.variantId },
-            data: { availableStock: { decrement: item.quantity } },
-          });
-        }
-
-        const enrichedOrder = await tx.order.findUnique({
-          where: { id: order.id },
-          include: {
-            items: {
-              include: {
-                product: { select: { name: true } },
-                variant: true,
-              },
-            },
-          },
-        });
-
-        if (!enrichedOrder) throw new Error("Order not found after creation");
-
-        return { enrichedOrder, updatedWallet };
+    // --- Minimal transaction: create wallet update, txn, order, decrement stock ---
+    const txResult = await prisma.$transaction(async (tx) => {
+      const updatedWallet = await tx.wallet.update({
+        where: { id: user.wallet!.id },
+        data: { balance: { decrement: totalAmount } },
       });
 
-    const unicommerceItems = result.enrichedOrder.items.map((item: any) => ({
-      variantSku: item.variant.sku,   // you must include SKU when pushing into orderItemsData OR fetch before mapping
+      const transaction = await tx.transactionLedger.create({
+        data: {
+          userId: user.id,
+          amount: totalAmount,
+          modeOfPayment: "Credits",
+          balanceAfterTxn: updatedWallet.balance,
+          isCredit: false,
+          transactionType: "PURCHASE",
+          walletId: updatedWallet.id,
+        },
+      });
+
+      const order = await tx.order.create({
+        data: {
+          id: orderId,
+          userId: user.id,
+          amount: totalAmount,
+          status: "PENDING",
+          transactionId: transaction.id,
+          phNumber: finalPhNumber,
+          address: providedAddress,
+          address2: providedAddress2,
+          city: providedCity,
+          state: providedState,
+          pinCode: providedPincode,
+          deliveryInstructions: finalDeliveryInstructions,
+          remarks: session.user.role === "ADMIN" ? remarks || null : null,
+          items: { create: orderItemsData },
+        },
+      });
+
+      // decrement stock inside transaction
+      for (const item of orderItemsData) {
+        await tx.variant.update({
+          where: { id: item.variantId },
+          data: { availableStock: { decrement: item.quantity } },
+        });
+      }
+
+      return { orderId: order.id, updatedWallet };
+    });
+
+    // --- Re-fetch enriched order OUTSIDE transaction ---
+    const enrichedOrder = await prisma.order.findUnique({
+      where: { id: txResult.orderId },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true } },
+            variant: true,
+          },
+        },
+      },
+    });
+
+    if (!enrichedOrder) {
+      // this should not happen, but guard anyway
+      throw new Error("Order not found after creation");
+    }
+
+    // --- Build Unicommerce items payload ---
+    const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
+      variantSku: item.variant.sku,
       quantity: item.quantity,
       price: item.price,
     }));
-    // test this function
+
+    // --- Call Unicommerce OUTSIDE the transaction ---
     const resUnicommerce = await createSaleOrder(
       user.name,
-      orderId,
-      providedAddress,
-      providedAddress2,
-      providedCity,
-      providedState,
-      providedPincode,
-      providedPhNumber,
+      enrichedOrder.id,
+      enrichedOrder.address ?? providedAddress ?? "",
+      enrichedOrder.address2 ?? providedAddress2 ?? "",
+      enrichedOrder.city ?? providedCity ?? "",
+      enrichedOrder.state ?? providedState ?? "",
+      enrichedOrder.pinCode ?? providedPincode ?? "",
+      enrichedOrder.phNumber ?? finalPhNumber ?? "",
       user.email,
       unicommerceItems
     );
 
-    if (resUnicommerce.successful === false) {
+    console.log('Unicommerce Response in Order Creation:', resUnicommerce);
+
+    if (resUnicommerce && resUnicommerce.successful === false) {
       console.error("Unicommerce order creation failed:", resUnicommerce);
       throw new Error("Unicommerce order creation failed");
     }
 
-    if (!result) throw new Error("Order creation failed");
-
+    // --- Prepare email using enrichedOrder (fresh) ---
     const orderSummaryTable = `
-      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
-        <thead style="background-color: #f2f2f2;">
-          <tr>
-            <th align="left">Item</th>
-            <th align="left">Variant</th>
-            <th align="center">Qty</th>
-            <th align="right">Price (Credits)</th>
-            <th align="right">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${result.enrichedOrder.items
+  <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+    <thead style="background-color: #f2f2f2;">
+      <tr>
+        <th align="left">Item</th>
+        <th align="left">Variant</th>
+        <th align="center">Qty</th>
+        <th align="right">Price (Credits)</th>
+        <th align="right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${enrichedOrder.items
         .map(
           (item: any) => `
-              <tr>
-                <td>${item.product.name}</td>
-                <td>${item.variant.variantValue}</td>
-                <td align="center">${item.quantity}</td>
-                <td align="right">${item.price}</td>
-                <td align="right">${item.price * item.quantity}</td>
-              </tr>
-            `
+            <tr>
+              <td>${item.product.name}</td>
+              <td>${item.variant.variantValue}</td>
+              <td align="center">${item.quantity}</td>
+              <td align="right">${item.price}</td>
+              <td align="right">${item.price * item.quantity}</td>
+            </tr>
+          `
         )
         .join("")}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4" align="right" style="font-weight: bold;">Grand Total</td>
-            <td align="right" style="font-weight: bold;">${totalAmount}</td>
-          </tr>
-        </tfoot>
-      </table>
-      <p><strong>Delivery Address:</strong> ${finalAddress ?? "Not Provided"}</p>
-      <p><strong>Contact Number:</strong> ${finalPhNumber ?? "Not Provided"}</p>
-      ${finalDeliveryInstructions
-        ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>`
-        : ""
-      }
-    `;
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4" align="right" style="font-weight: bold;">Grand Total</td>
+        <td align="right" style="font-weight: bold;">${totalAmount}</td>
+      </tr>
+    </tfoot>
+  </table>
+  <p><strong>Delivery Address:</strong> ${enrichedOrder.address ?? "Not Provided"}</p>
+  <p><strong>Contact Number:</strong> ${enrichedOrder.phNumber ?? "Not Provided"}</p>
+  ${finalDeliveryInstructions ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>` : ""}
+`;
 
+    // --- Send email ---
     await resend.emails.send({
       from: "admin@fitplaysolutions.com",
       to: user.email,
       subject: "Order Summary - FitPlay Solutions",
       html: `
-        <h2>Your Order Has Been Created Successfully!</h2>
-        <p>Order ID: <strong>${result.enrichedOrder.id}</strong></p>
-        ${orderSummaryTable}
-        <p style="margin-top: 20px;">Thank you for your purchase! You can check your wallet and order history anytime in your account.</p>
-      `,
+    <h2>Your Order Has Been Created Successfully!</h2>
+    <p>Order ID: <strong>${enrichedOrder.id}</strong></p>
+    ${orderSummaryTable}
+    <p style="margin-top: 20px;">Thank you for your purchase! You can check your wallet and order history anytime in your account.</p>
+  `,
     });
 
+    // --- Return success response using enrichedOrder and updated wallet ---
     return NextResponse.json({
       message: "Order created successfully",
-      order: result.enrichedOrder,
-      wallet: result.updatedWallet,
+      order: enrichedOrder,
+      wallet: txResult.updatedWallet,
     });
+
   } catch (error) {
     return NextResponse.json(
       { error: "Can't create order", details: (error as Error).message },

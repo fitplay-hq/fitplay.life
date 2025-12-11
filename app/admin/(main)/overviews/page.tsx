@@ -44,6 +44,59 @@ export default function AdminDashboard() {
   const products = productsData?.products || [];
   const users = usersData?.users || [];
 
+  // Helper function to generate real recent activities
+  const generateRecentActivities = (orders: any[], products: any[], users: any[]) => {
+    // Helper function to calculate time ago
+    const getTimeAgo = (dateString: string) => {
+      const now = new Date();
+      const date = new Date(dateString);
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 1) return 'Just now';
+      if (diffInHours < 24) return `${diffInHours} hours ago`;
+      const diffInDays = Math.floor(diffInHours / 24);
+      if (diffInDays === 1) return '1 day ago';
+      return `${diffInDays} days ago`;
+    };
+
+    const activities = [];
+    
+    // Recent orders (last 3)
+    const recentOrders = orders.slice(0, 3);
+    recentOrders.forEach((order: any) => {
+      const timeAgo = getTimeAgo(order.createdAt);
+      activities.push({
+        type: "order",
+        message: `Order ₹${order.amount} from ${order.user?.name || 'Customer'}`,
+        time: timeAgo
+      });
+    });
+
+    // Recent product additions (last 2)
+    const recentProducts = products.slice(0, 2);
+    recentProducts.forEach((product: any) => {
+      const timeAgo = getTimeAgo(product.createdAt);
+      activities.push({
+        type: "product",
+        message: `New product "${product.name}" added`,
+        time: timeAgo
+      });
+    });
+
+    // Recent user registrations (last 2)
+    const recentUsers = users.slice(0, 2);
+    recentUsers.forEach((user: any) => {
+      const timeAgo = getTimeAgo(user.createdAt);
+      activities.push({
+        type: "user",
+        message: `User "${user.name}" registered`,
+        time: timeAgo
+      });
+    });
+
+    return activities.slice(0, 5); // Return top 5 activities
+  };
+
   const stats = {
     totalUsers: users.length,
     totalProducts: products.length,
@@ -52,30 +105,7 @@ export default function AdminDashboard() {
       (sum: number, order: any) => sum + (order.amount || 0),
       0
     ),
-    recentActivity: [
-      {
-        type: "order",
-        message:
-          orders.length > 0
-            ? `New order from ${orders[0]?.user?.name || "User"}`
-            : "No recent orders",
-        time: orders.length > 0 ? "Recent" : "N/A",
-      },
-      {
-        type: "product",
-        message:
-          products.length > 0
-            ? `Product "${products[0]?.name || "Product"}" available`
-            : "No products available",
-        time: products.length > 0 ? "Recent" : "N/A",
-      },
-      {
-        type: "user",
-        message:
-          users.length > 0 ? "New user registration" : "No users registered",
-        time: users.length > 0 ? "Recent" : "N/A",
-      },
-    ],
+    recentActivity: generateRecentActivities(orders, products, users),
   };
 
   if (isLoading) {

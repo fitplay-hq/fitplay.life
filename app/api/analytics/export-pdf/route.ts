@@ -350,11 +350,12 @@ async function exportProducts(request: NextRequest) {
     page.drawText(`Generated on: ${new Date().toLocaleString()}`, { x: m, y, size: 10, font });
     y -= 30;
 
+    // Column headers with better spacing
     page.drawText('Name', { x: m, y, size: 12, font: bold });
-    page.drawText('SKU', { x: m + 200, y, size: 12, font: bold });
-    page.drawText('Category', { x: m + 300, y, size: 12, font: bold });
-    page.drawText('Stock', { x: m + 400, y, size: 12, font: bold });
-    page.drawText('Vendor', { x: m + 460, y, size: 12, font: bold });
+    page.drawText('SKU', { x: m + 120, y, size: 12, font: bold });
+    page.drawText('Category', { x: m + 250, y, size: 12, font: bold });
+    page.drawText('Stock', { x: m + 380, y, size: 12, font: bold });
+    page.drawText('Vendor', { x: m + 430, y, size: 12, font: bold });
     
     page.drawLine({
       start: { x: m, y: y - 5 },
@@ -370,17 +371,22 @@ async function exportProducts(request: NextRequest) {
         y = 750;
       }
 
-      const name = product.name.length > 25 ? product.name.substring(0, 25) + '...' : product.name;
-      const sku = product.sku || 'N/A';
-      const category = product.category?.name.replace(/_/g, ' ') || 'N/A';
+      // Truncate text to prevent overlapping
+      const name = product.name.length > 18 ? product.name.substring(0, 18) + '...' : product.name;
+      const sku = (product.sku || 'N/A').length > 15 ? (product.sku || 'N/A').substring(0, 15) + '...' : (product.sku || 'N/A');
+      const category = (product.category?.name.replace(/_/g, ' ') || 'N/A').length > 18 ? 
+        (product.category?.name.replace(/_/g, ' ') || 'N/A').substring(0, 18) + '...' : 
+        (product.category?.name.replace(/_/g, ' ') || 'N/A');
       const stock = product.availableStock.toString();
-      const vendor = product.vendor?.name || 'N/A';
+      const vendor = (product.vendor?.name || 'N/A').length > 12 ? 
+        (product.vendor?.name || 'N/A').substring(0, 12) + '...' : 
+        (product.vendor?.name || 'N/A');
 
       page.drawText(name, { x: m, y, size: 9, font });
-      page.drawText(sku, { x: m + 200, y, size: 9, font });
-      page.drawText(category, { x: m + 300, y, size: 9, font });
-      page.drawText(stock, { x: m + 400, y, size: 9, font });
-      page.drawText(vendor, { x: m + 460, y, size: 9, font });
+      page.drawText(sku, { x: m + 120, y, size: 9, font });
+      page.drawText(category, { x: m + 250, y, size: 9, font });
+      page.drawText(stock, { x: m + 380, y, size: 9, font });
+      page.drawText(vendor, { x: m + 430, y, size: 9, font });
 
       y -= lh;
     });

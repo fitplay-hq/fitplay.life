@@ -23,12 +23,9 @@ export const createSaleOrder = async (
 
         const responseToken = await fetch("https://wednesdayhealthindiaprivatelimited.unicommerce.com/oauth/token?grant_type=password&client_id=my-trusted-client&username=aditya@fitplaysolutions.com&password=Aditya@1")
 
-        const tokenJson = await responseToken.json(); // <-- important
-
-        console.log("Token JSON:", tokenJson);
+        const tokenJson = await responseToken.json();
 
         const accessToken = tokenJson.access_token;
-        console.log("Access Token:", accessToken);
         const orderRes = await fetch('https://wednesdayhealthindiaprivatelimited.unicommerce.com/services/rest/v1/oms/saleOrder/create', {
             method: 'POST',
             headers: {
@@ -39,7 +36,7 @@ export const createSaleOrder = async (
             body: JSON.stringify({
                 "saleOrder": {
                     "cashOnDelivery": false,
-                    "code": orderCode,  // look into this before comitting
+                    "code": orderCode,
                     "channel": "FITPLAY_LIFE",
                     "addresses": [
                         {

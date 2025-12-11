@@ -200,26 +200,29 @@ export async function POST(req: NextRequest) {
         return { enrichedOrder, updatedWallet };
       });
 
-    const unicommerceItems = result.enrichedOrder.items.map((item:any) => ({
-  variantSku: item.variant.sku,   // you must include SKU when pushing into orderItemsData OR fetch before mapping
-  quantity: item.quantity,
-  price: item.price,
-}));
-// test this function
-  const resUnicommerce = await createSaleOrder(
-  user.name,
-  orderId,
-  providedAddress,
-  providedAddress2,
-  providedCity,
-  providedState,
-  providedPincode,
-  providedPhNumber,
-  user.email,
-  unicommerceItems
-);
+    const unicommerceItems = result.enrichedOrder.items.map((item: any) => ({
+      variantSku: item.variant.sku,   // you must include SKU when pushing into orderItemsData OR fetch before mapping
+      quantity: item.quantity,
+      price: item.price,
+    }));
+    // test this function
+    const resUnicommerce = await createSaleOrder(
+      user.name,
+      orderId,
+      providedAddress,
+      providedAddress2,
+      providedCity,
+      providedState,
+      providedPincode,
+      providedPhNumber,
+      user.email,
+      unicommerceItems
+    );
 
-console.log("Unicommerce response:", resUnicommerce); 
+    if (resUnicommerce.successful === false) {
+      console.error("Unicommerce order creation failed:", resUnicommerce);
+      throw new Error("Unicommerce order creation failed");
+    }
 
     if (!result) throw new Error("Order creation failed");
 

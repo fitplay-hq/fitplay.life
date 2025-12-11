@@ -8,6 +8,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { cartItemsAtom, clearCartAtom, clearWishlistAtom } from '@/lib/store';
 import useSWR from 'swr';
 import { useUser } from '@/app/hooks/useUser';
+import { usePathname } from 'next/navigation';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
@@ -20,6 +21,7 @@ export default function Navbar() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const clearCart = useSetAtom(clearCartAtom);
   const clearWishlist = useSetAtom(clearWishlistAtom);
+  const pathname = usePathname();
   
   const { isAuthenticated } = useUser();
   const {
@@ -33,17 +35,26 @@ export default function Navbar() {
   
   const walletBalance = walletData?.wallet?.balance || 0;
 
+  // Check if we're on pages that should have solid navbar
+  const isPageWithSolidNavbar = pathname?.includes('/profile') || pathname?.includes('/cart');
+
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 200);
+      if (isPageWithSolidNavbar) {
+        // On profile/cart pages, become solid immediately on any scroll
+        setIsScrolled(window.scrollY > 0);
+      } else {
+        // On other pages, use normal scroll threshold
+        setIsScrolled(window.scrollY > 200);
+      }
     };
 
-    // Ensure initial state is correct
+    // Set initial state - start transparent on all pages
     setIsScrolled(false);
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isPageWithSolidNavbar]);
 
   // Clear cart and wishlist when user logs out
   useEffect(() => {

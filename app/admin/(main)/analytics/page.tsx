@@ -84,13 +84,28 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30d");
   const [activeTab, setActiveTab] = useState("overview");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const fetchAnalytics = useCallback(async () => {
+  const fetchAnalytics = useCallback(async (customStartDate?: string, customEndDate?: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/analytics/order-filters?period=${period}`);
+      let url = `/api/analytics/order-filters?period=${period}`;
+      
+      // Use custom dates if provided, otherwise use state dates
+      const useStartDate = customStartDate || startDate;
+      const useEndDate = customEndDate || endDate;
+      
+      // If both start and end dates are provided, use custom date range
+      if (useStartDate && useEndDate) {
+        url = `/api/analytics/order-filters?dateFrom=${useStartDate}&dateTo=${useEndDate}`;
+      }
+      
+      console.log('Fetching analytics from:', url); // Debug log to confirm real data
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
+        console.log('Analytics data received:', data); // Debug log to confirm real data
         setAnalytics(data);
       }
     } catch (error) {
@@ -100,9 +115,21 @@ export default function AnalyticsPage() {
     }
   }, [period]);
 
+  // Initial load and when period changes
   useEffect(() => {
     fetchAnalytics();
-  }, [fetchAnalytics]);
+  }, [period]);
+
+  // Only fetch when BOTH dates are selected (not when individual dates change)
+  useEffect(() => {
+    if (startDate && endDate) {
+      const timeoutId = setTimeout(() => {
+        fetchAnalytics(startDate, endDate);
+      }, 500); // 500ms delay after both dates are selected
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [startDate, endDate, fetchAnalytics]);
 
   const handleExport = async (format: 'csv' | 'pdf', exportType?: string) => {
     try {
@@ -119,18 +146,24 @@ export default function AnalyticsPage() {
       toast.loading(`Preparing ${typeLabel} ${formatLabel} export...`, { id: 'export-loading' });
       
       const params = new URLSearchParams({
-        period: period,
         type: type
       });
       
-      // Add additional parameters based on export type
-      if (type === 'orders') {
-        // Add date range for orders if needed
-        const now = new Date();
-        const daysAgo = parseInt(period.replace('d', ''));
-        const dateFrom = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-        params.append('dateFrom', dateFrom.toISOString().split('T')[0]);
-        params.append('dateTo', now.toISOString().split('T')[0]);
+      // Use custom date range if both dates are provided, otherwise use period
+      if (startDate && endDate) {
+        params.append('dateFrom', startDate);
+        params.append('dateTo', endDate);
+      } else {
+        params.append('period', period);
+        
+        // Add date range for orders if using period
+        if (type === 'orders') {
+          const now = new Date();
+          const daysAgo = parseInt(period.replace('d', ''));
+          const dateFrom = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+          params.set('dateFrom', dateFrom.toISOString().split('T')[0]);
+          params.set('dateTo', now.toISOString().split('T')[0]);
+        }
       }
       
       const response = await fetch(`/api/analytics/export-${format}?${params}`);
@@ -143,7 +176,14 @@ export default function AnalyticsPage() {
         
         // Fix file extension - CSV API returns Excel files
         const fileExtension = format === 'csv' ? 'xlsx' : format;
-        a.download = `analytics-${type}-${period}.${fileExtension}`;
+        
+        // Generate filename with date range info
+        let dateInfo = period;
+        if (startDate && endDate) {
+          dateInfo = `${startDate}_to_${endDate}`;
+        }
+        
+        a.download = `analytics-${type}-${dateInfo}.${fileExtension}`;
         
         document.body.appendChild(a);
         a.click();
@@ -336,7 +376,7 @@ export default function AnalyticsPage() {
           <p className="text-gray-600 mt-1">Comprehensive business insights and performance metrics</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-32">
               <Calendar className="w-4 h-4 mr-2" />
@@ -348,6 +388,39 @@ export default function AnalyticsPage() {
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              placeholder="Start Date"
+            />
+            <span className="text-gray-500">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              placeholder="End Date"
+            />
+            {(startDate || endDate) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  // Fetch data with period-based filtering after clearing dates
+                  fetchAnalytics();
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
           
           <Button variant="outline" size="sm" onClick={fetchAnalytics}>
             <RefreshCw className="w-4 h-4" />

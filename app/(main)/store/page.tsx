@@ -128,8 +128,8 @@ export default function WellnessStore() {
     }
   }, [products.length, hasLoadedOnce]);
 
-  // Show loading only on initial load, not on subsequent fetches
-  const shouldShowLoading = productsLoading && !hasLoadedOnce;
+  // Show loading when products are loading OR when no products are available yet
+  const shouldShowLoading = productsLoading || (!hasLoadedOnce && products.length === 0);
 
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(
@@ -791,9 +791,9 @@ export default function WellnessStore() {
             </div>
 
             {/* Loading State */}
-            {shouldShowLoading && (
+            {(shouldShowLoading || categoriesLoading) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-                {Array.from({ length: 8 }).map((_, index) => (
+                {Array.from({ length: 12 }).map((_, index) => (
                   <div key={index} className="relative group animate-pulse">
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 rounded-3xl blur opacity-25"></div>
                     <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 overflow-hidden">
@@ -833,7 +833,7 @@ export default function WellnessStore() {
             )}
 
             {/* Product Grid */}
-            {!shouldShowLoading && !error && (
+            {!shouldShowLoading && !categoriesLoading && !error && sortedProducts.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-16">
                 {sortedProducts.map((product, index) => (
                   <div key={`${product.id}-${index}`} className="group">

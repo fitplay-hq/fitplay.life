@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
         const ledger = await tx.transactionLedger.create({
             data: {
                 userId: session.user.id,
-                amount: topup.amount,
+                amount: Math.round(topup.amount / 50),
                 modeOfPayment: "Cash",
                 isCredit: true,
                 cashAmount: topup.amount,

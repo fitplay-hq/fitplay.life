@@ -36,7 +36,7 @@ export default function Navbar() {
   const walletBalance = walletData?.wallet?.balance || 0;
 
   // Check if we're on pages that should have solid navbar
-  const isPageWithSolidNavbar = pathname?.includes('/profile') || pathname?.includes('/cart');
+  const isPageWithSolidNavbar = pathname?.includes('/profile') || pathname?.includes('/cart') || pathname?.includes('/product');
 
   useEffect(() => {
     const handleScroll = () => {

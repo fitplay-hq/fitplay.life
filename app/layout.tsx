@@ -9,6 +9,7 @@ import { SessionProvider } from "next-auth/react";
 import { preload } from "swr";
 import { fetchProducts } from "./hooks/useProducts";
 import ScrollReveal from "@/components/ScrollReveal";
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <ScrollReveal />
         </SessionProvider>
         <Toaster />
+        {/* <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive"></Script> */}
       </body>
     </html>
   );

@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
             include: {
                 products: {
                     include: {
+                        category: true,
                         orderItems: {
                             include: {
                                 order: true
@@ -27,18 +28,26 @@ export async function GET(req: NextRequest) {
             }
         });
         
-        // Transform data to include product count, orders, and revenue
+        // Transform data to include product count, orders, revenue, and categories
         const vendorsWithCount = vendors.map(vendor => {
             const orderItems = vendor.products.flatMap(product => product.orderItems);
             const uniqueOrders = new Set(orderItems.map(item => item.order.id));
             const totalOrders = uniqueOrders.size;
             const totalRevenue = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
+            // Get unique categories from vendor's products
+            const categories = [...new Set(vendor.products
+                .filter(product => product.category)
+                .map(product => product.category!.name)
+            )];
+            
             return {
                 ...vendor,
                 productCount: vendor.products.length,
                 totalOrders,
                 totalRevenue,
+                categories: categories,
+                primaryCategory: categories[0] || "General",
                 products: vendor.products.length // Don't send full product data for performance
             };
         });

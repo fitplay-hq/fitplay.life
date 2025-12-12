@@ -128,6 +128,7 @@ export default function AdminVendorsPage() {
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
   const [vendorProducts, setVendorProducts] = useState<any[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   
   // Clear form when dialog opens
   const handleOpenAddVendor = () => {
@@ -184,7 +185,9 @@ export default function AdminVendorsPage() {
           const transformedVendors = vendorData.map((vendor: any, index: number) => ({
             id: vendor.id,
             name: vendor.name,
-            category: vendor.category || "General",
+            category: vendor.categories && vendor.categories.length > 1 
+              ? `${vendor.categories.length} Categories` 
+              : vendor.primaryCategory || "General",
             status: vendor.status || "active",
             integration: vendor.integrationType || "Manual",
             products: vendor.productCount || 0,
@@ -194,6 +197,7 @@ export default function AdminVendorsPage() {
             phone: vendor.phone || "N/A",
             joinedDate: new Date(vendor.createdAt).toISOString().split('T')[0],
             website: vendor.website || "",
+            categories: vendor.categories || [],
           }));
           
           setVendors(transformedVendors);
@@ -212,6 +216,23 @@ export default function AdminVendorsPage() {
     };
 
     fetchVendors();
+  }, []);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        if (data.categories) {
+          setCategories(data.categories.map((cat: any) => ({ id: cat.id, name: cat.name })));
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // Handle form input changes
@@ -533,10 +554,11 @@ export default function AdminVendorsPage() {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Fitness Equipment">Fitness Equipment</SelectItem>
-                    <SelectItem value="Nutrition">Nutrition</SelectItem>
-                    <SelectItem value="Mental Health">Mental Health</SelectItem>
-                    <SelectItem value="Wellness Programs">Wellness Programs</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -557,7 +579,12 @@ export default function AdminVendorsPage() {
                   id="vendor-phone" 
                   placeholder="+91 00000 00000" 
                   value={vendorForm.phone}
-                  onChange={(e) => handleFormChange('phone', e.target.value)}
+                  onChange={(e) => {
+                    // Allow only digits and limit to 10 characters
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    handleFormChange('phone', value);
+                  }}
+                  maxLength={10}
                   required
                 />
               </div>

@@ -43,8 +43,8 @@ function AuthErrorContent() {
             <Image
               src="/logo.png"
               alt="FitPlay Logo"
-              width={80}
-              height={80}
+              width={120}
+              height={120}
               className="rounded-lg object-contain"
               priority
             />

@@ -86,8 +86,8 @@ export default function Navbar() {
           <Image
             src="/logo.png"
             alt="FitPlay Logo"
-            width={isScrolled ? 100 : 108}
-            height={isScrolled ? 100 : 108}
+            width={120}
+            height={120}
             className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg rounded-lg object-contain"
             priority
           />

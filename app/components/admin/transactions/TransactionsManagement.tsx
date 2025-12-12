@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Filter,
@@ -51,12 +52,18 @@ const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
 const TransactionsManagement = () => {
+  const router = useRouter();
   const { data, error, isLoading } = useSWR(
     "/api/admin/wallet-transactions",
     fetcher
   );
   const transactions = data?.transactions || [];
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleViewDetails = (transaction: any) => {
+    // Navigate to transaction detail page in the same tab
+    router.push(`/admin/transactions/${transaction.id}`);
+  };
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
@@ -472,7 +479,11 @@ const TransactionsManagement = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredTransactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
+                    <TableRow 
+                      key={transaction.id}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => handleViewDetails(transaction)}
+                    >
                       <TableCell>
                         <div className="font-medium text-emerald-600">
                           {transaction.id}

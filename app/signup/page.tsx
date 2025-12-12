@@ -146,8 +146,8 @@ function SignupForm() {
             <Image
               src="/logo.png"
               alt="FitPlay Logo"
-              width={60}
-              height={60}
+              width={120}
+              height={120}
               className="rounded-lg object-contain"
               priority
             />
@@ -188,8 +188,8 @@ function SignupForm() {
             <Image
               src="/logo.png"
               alt="FitPlay Logo"
-              width={70}
-              height={70}
+              width={120}
+              height={120}
               className="rounded-lg object-contain"
               priority
             />

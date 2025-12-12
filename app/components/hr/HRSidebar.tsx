@@ -78,22 +78,22 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
       <SidebarProvider>
         <Sidebar className="border-r border-gray-200 bg-white">
           <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col items-start">
-                <Link href="/" className="block hover:opacity-80 transition-opacity">
+            <div className="flex items-center justify-center">
+              <div className="flex flex-col items-center w-full">
+                <Link href="/" className="block hover:opacity-80 transition-opacity mb-3">
                   <Image
                     src="/logo.png"
                     alt="FitPlay Logo"
-                    width={100}
-                    height={100}
+                    width={120}
+                    height={120}
                     className="rounded-lg object-contain max-w-none"
                     priority
                   />
                 </Link>
-                <div className="mt-1">
+                <div>
                   <Badge
                     variant="destructive"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 px-4 py-1 text-sm font-semibold"
                   >
                     HR
                   </Badge>
@@ -135,37 +135,28 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-gray-200 bg-white p-0">
+      <Sidebar className="border-r border-gray-200 bg-white p-0 w-64">
         <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col items-start">
-              <Link href="/" className="block hover:opacity-80 transition-opacity">
+          <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center w-full">
+              <Link href="/" className="block hover:opacity-80 transition-opacity mb-3">
                 <Image
                   src="/logo.png"
                   alt="FitPlay Logo"
-                  width={100}
-                  height={100}
-                  className="rounded-lg object-contain max-w-none"
+                  width={120}
+                  height={120}
+                  className="rounded-lg object-contain"
                   priority
                 />
               </Link>
-              <div className="mt-1">
+              <div>
                 <Badge
                   variant="destructive"
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-1 text-sm font-semibold"
                 >
                   HR Portal
                 </Badge>
               </div>
-            </div>
-            <div className="relative">
-              <Bell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-emerald-600 transition-colors" />
-              <Badge
-                variant="destructive"
-                className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs"
-              >
-                2
-              </Badge>
             </div>
           </div>
         </SidebarHeader>

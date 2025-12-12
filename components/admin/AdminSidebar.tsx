@@ -131,27 +131,20 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
     return (
       <SidebarProvider>
         <Sidebar className="border-r border-gray-200 bg-white">
-          <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col items-start">
-                <Link href="/" className="block hover:opacity-80 transition-opacity">
-                  <Image
-                    src="/logo.png"
-                    alt="FitPlay Logo"
-                    width={100}
-                    height={100}
-                    className="rounded-lg object-contain max-w-none"
-                    priority
-                  />
-                </Link>
-                <div className="mt-1">
-                  <Badge
-                    variant="destructive"
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                  >
-                    Admin
-                  </Badge>
-                </div>
+          <SidebarHeader className="border-b border-gray-200 py-4 px-4">
+            <div className="flex flex-col items-center gap-2">
+              <Link href="/" className="block hover:opacity-90 transition-opacity">
+                <Image
+                  src="/logo.png"
+                  alt="FitPlay Logo"
+                  width={120}
+                  height={120}
+                  className="object-contain"
+                  priority
+                />
+              </Link>
+              <div className="inline-flex items-center px-3 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-lg">
+                Admin Panel
               </div>
             </div>
           </SidebarHeader>
@@ -189,30 +182,22 @@ export function AdminSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-gray-200 bg-white p-0 w-56">
-        <SidebarHeader className="border-b border-gray-200 bg-emerald-50 p-4">
-          <div className="flex items-center justify-center">
-            <div className="flex flex-col items-center">
-              <Link href="/" className="block hover:opacity-80 transition-opacity">
-                <Image
-                  src="/logo.png"
-                  alt="FitPlay Logo"
-                  width={80}
-                  height={80}
-                  className="rounded-lg object-contain"
-                  priority
-                />
-              </Link>
-              <div className="mt-1">
-                <Badge
-                  variant="destructive"
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                >
-                  Admin
-                </Badge>
-              </div>
+      <Sidebar className="border-r border-gray-200 bg-white p-0 w-64">
+        <SidebarHeader className="border-b border-gray-200 py-4 px-4">
+          <div className="flex flex-col items-center gap-2">
+            <Link href="/" className="block hover:opacity-90 transition-opacity">
+              <Image
+                src="/logo.png"
+                alt="FitPlay Logo"
+                width={120}
+                height={120}
+                className="object-contain"
+                priority
+              />
+            </Link>
+            <div className="inline-flex items-center px-3 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-lg">
+              Admin Panel
             </div>
-
           </div>
         </SidebarHeader>
 

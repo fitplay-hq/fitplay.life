@@ -1,6 +1,18 @@
+
+'use client';
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet, History, Settings, Plus } from "lucide-react";
 import { CreditPurchase } from "@/components/CreditPurchase";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Script from "next/script";
+
 
 interface DashboardStats {
   creditsRemaining: number;
@@ -18,15 +30,80 @@ export interface WalletTransaction {
 interface WalletProps {
   dashboardStats: DashboardStats;
   walletHistory: WalletTransaction[];
+  
 }
 
 export default function WalletComponent({
   dashboardStats,
   walletHistory,
 }: WalletProps) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="space-y-6">
+      <Script  src="https://checkout.razorpay.com/v1/checkout.js"></Script>
+      <div className="flex justify-end">
+       {/* <Dialog>
+    <DialogTrigger asChild>
+      <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <Plus className="w-4 h-4 mr-2" />
+        Add Credits
+      </button>
+    </DialogTrigger>
+
+    <DialogContent className="max-w-lg">
+      <DialogHeader>
+        <DialogTitle className="flex items-center space-x-2">
+          <Plus className="w-5 h-5" />
+          <span>Top Up Wallet</span>
+        </DialogTitle>
+      </DialogHeader>
+
+      <CreditPurchase
+        currentCredits={dashboardStats.creditsRemaining}
+        requiredCredits={0}
+        onPurchaseComplete={() => window.location.reload()}
+     
+
+        
+      />
+    </DialogContent>
+  </Dialog> */}
+  
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogTrigger asChild>
+    <button
+      onClick={() => setOpen(true)}
+      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+    >
+      <Plus className="w-4 h-4 mr-2" />
+      Add Credits
+    </button>
+  </DialogTrigger>
+
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle className="flex items-center space-x-2">
+        <Plus className="w-5 h-5" />
+        <span>Top Up Wallet</span>
+      </DialogTitle>
+    </DialogHeader>
+
+    <CreditPurchase
+      currentCredits={dashboardStats.creditsRemaining}
+      requiredCredits={0}
+      onPurchaseComplete={() => window.location.reload()}
+      onClose={() => setOpen(false)}       // ✅ CLOSE DIALOG
+    />
+  </DialogContent>
+</Dialog>
+
+  </div>
+
       <div className="grid md:grid-cols-3 gap-6 mb-6">
+      
+ 
+
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-6 text-center">
             <Wallet className="w-8 h-8 mx-auto mb-3 text-blue-600" />
@@ -106,21 +183,7 @@ export default function WalletComponent({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <Plus className="w-5 h-5" />
-            <span>Top Up Wallet</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CreditPurchase
-            currentCredits={dashboardStats.creditsRemaining}
-            requiredCredits={0}
-            onPurchaseComplete={() => window.location.reload()}
-          />
-        </CardContent>
-      </Card>
+     
     </div>
   );
 }

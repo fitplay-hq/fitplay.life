@@ -67,9 +67,13 @@ export default function CartPage() {
       duration: 5000,
     });
   };
+  
+
 
   const handleClearCart = () => {
     clearCart();
+    
+    
     toast.success("Cart cleared successfully!");
   };
 

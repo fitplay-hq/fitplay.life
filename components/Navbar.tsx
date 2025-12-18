@@ -81,25 +81,25 @@ export default function Navbar() {
       }`}
     >
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="group cursor-pointer">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-2.5 flex items-center justify-between">
+        <Link href="/" className="group cursor-pointer flex items-center">
           <Image
             src="/logo.png"
             alt="FitPlay Logo"
-            width={120}
-            height={120}
-            className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg rounded-lg object-contain"
+            width={140}
+            height={60}
+            className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg object-contain"
             priority
           />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className={`font-medium text-sm transition-all duration-300 relative group ${
-                isScrolled ? 'text-gray-200 hover:text-white' : 'text-white/80 hover:text-white'
+              className={`font-semibold text-base py-2 transition-all duration-300 relative group ${
+                isScrolled ? 'text-white hover:text-emerald-300' : 'text-white/90 hover:text-white'
               }`}
             >
               <span className="relative">
@@ -110,13 +110,13 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-3">
           {isAuthenticated && (
             <Link href="/profile?tab=wallet">
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-500 cursor-pointer group ${
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-500 cursor-pointer group ${
                 isScrolled
-                  ? 'bg-emerald-400/30 border border-emerald-400/60 hover:bg-emerald-400/40 hover:border-emerald-400/70'
-                  : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/30 hover:border-emerald-400/50'
+                  ? 'bg-emerald-400/25 border border-emerald-400/50 hover:bg-emerald-400/35 hover:border-emerald-400/60'
+                  : 'bg-emerald-400/15 border border-emerald-400/30 hover:bg-emerald-400/25 hover:border-emerald-400/40'
               }`}>
                 <Wallet className={`w-4 h-4 transition-colors duration-500 ${
                   isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
@@ -131,10 +131,10 @@ export default function Navbar() {
           )}
           
           <Link href="/cart">
-            <button className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+            <button className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
               isScrolled
-                ? 'bg-emerald-400/30 border border-emerald-400/60'
-                : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/25 hover:border-emerald-400/50'
+                ? 'bg-emerald-400/25 border border-emerald-400/50 hover:bg-emerald-400/35'
+                : 'bg-emerald-400/15 border border-emerald-400/30 hover:bg-emerald-400/25 hover:border-emerald-400/40'
             } group`}>
               <ShoppingCart className={`w-5 h-5 transition-colors duration-500 ${
                 isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
@@ -148,28 +148,23 @@ export default function Navbar() {
           </Link>
 
           <Link href="/partner">
-            <button className={`relative group px-6 py-2.5 overflow-hidden transition-all duration-500 rounded-full ${
-              isScrolled ? 'shadow-lg shadow-emerald-500/20' : 'shadow-lg shadow-emerald-500/10'
+            <button className={`relative group px-5 py-2 overflow-hidden transition-all duration-500 rounded-lg ${
+              isScrolled ? 'shadow-md shadow-emerald-500/20' : 'shadow-md shadow-emerald-500/10'
             }`}>
-              <div className={`absolute inset-0 bg-gradient-to-r transition-all duration-500 rounded-full ${
+              <div className={`absolute inset-0 bg-gradient-to-r transition-all duration-500 rounded-lg ${
                 isScrolled
                   ? 'from-emerald-600 to-teal-600'
-                  : 'from-emerald-600/60 to-teal-600/60 group-hover:from-emerald-500/70 group-hover:to-teal-500/70'
+                  : 'from-emerald-600/70 to-teal-600/70 group-hover:from-emerald-500/80 group-hover:to-teal-500/80'
               }`}></div>
-              <div className={`absolute inset-0.5 rounded-full transition-colors duration-500 ${
-                isScrolled ? 'bg-slate-900/80' : 'bg-slate-900/60'
-              }`}></div>
-              <span className={`relative font-semibold text-sm transition-colors duration-500 ${
-                isScrolled ? 'text-white' : 'text-white/90'
-              }`}>Partner with Us</span>
+              <span className={`relative font-semibold text-sm transition-colors duration-500 text-white`}>Partner with Us</span>
             </button>
           </Link>
 
           <Link href="/profile">
-            <button className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+            <button className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
               isScrolled
-                ? 'bg-emerald-400/30 border border-emerald-400/60'
-                : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/25 hover:border-emerald-400/50'
+                ? 'bg-emerald-400/25 border border-emerald-400/50 hover:bg-emerald-400/35'
+                : 'bg-emerald-400/15 border border-emerald-400/30 hover:bg-emerald-400/25 hover:border-emerald-400/40'
             } group`}>
               <User className={`w-5 h-5 transition-colors duration-500 ${
                 isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'

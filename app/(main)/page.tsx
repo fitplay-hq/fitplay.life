@@ -380,7 +380,7 @@ export default function HomePage() {
                 )}
                 
                 <motion.div 
-                  className="relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                  className="relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group h-full flex flex-col"
                   whileHover={{ y: -10, scale: 1.02 }}
                 >
                   <div className="relative inline-block mb-6">
@@ -393,7 +393,7 @@ export default function HomePage() {
                   </div>
 
                   <h3 className="text-2xl font-bold text-primary mb-4">{step.title}</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed">{step.description}</p>
+                  <p className="text-gray-600 text-lg leading-relaxed flex-grow">{step.description}</p>
                 </motion.div>
               </motion.div>
             ))}

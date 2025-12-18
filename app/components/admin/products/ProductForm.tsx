@@ -222,6 +222,7 @@ export function ProductForm({
           .map((variant) => ({
             variantCategory: variant.variantCategory.trim(),
             variantValue: variant.variantValue.trim(),
+            sku: variant.sku?.trim() || "",
             mrp: parseInt(variant.mrp) || 0,
           }))
           .filter(
@@ -355,6 +356,7 @@ export function ProductForm({
       id: Date.now().toString(),
       variantCategory: "",
       variantValue: "",
+      sku: "",
       mrp: "",
     };
     setVariants([...variants, newVariant]);
@@ -653,7 +655,7 @@ export function ProductForm({
                     className="p-4 bg-gray-50 border border-gray-200"
                   >
                     <div className="flex items-end gap-4">
-                      <div className="flex-1 grid grid-cols-3 gap-4">
+                      <div className="flex-1 grid grid-cols-4 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor={`variant-category-${index}`}>
                             Category
@@ -685,6 +687,19 @@ export function ProductForm({
                                 "variantValue",
                                 e.target.value
                               )
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`variant-sku-${index}`}>
+                            Variant SKU
+                          </Label>
+                          <Input
+                            id={`variant-sku-${index}`}
+                            placeholder="Variant SKU"
+                            value={variant.sku || ""}
+                            onChange={(e) =>
+                              updateVariant(index, "sku", e.target.value)
                             }
                           />
                         </div>

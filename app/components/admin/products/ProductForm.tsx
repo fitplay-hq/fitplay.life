@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, X, Upload, Image as ImageIcon } from "lucide-react";
 import { Category, SubCategory } from "@/lib/generated/prisma";
 import { toast } from "sonner";
+import { UploadDropzone } from "@/lib/uploadthing";
 
 interface ProductFormProps {
   isOpen: boolean;
@@ -120,9 +121,7 @@ export function ProductForm({
   const [variants, setVariants] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [selectedVendor, setSelectedVendor] = useState("");
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [uploadingImages, setUploadingImages] = useState(false);
+
 
   // Fetch vendors on component mount
   useEffect(() => {
@@ -166,8 +165,6 @@ export function ProductForm({
       setSelectedSubcategory(editingProduct.subCategory || "");
       setSelectedVendor(editingProduct.vendorId || "");
       setVariants(editingProduct.variants || []);
-      setImageFiles([]);
-      setImagePreviews([]);
     } else {
       // Reset form for new product
       setFormData({
@@ -202,8 +199,6 @@ export function ProductForm({
     }
 
     try {
-      // Upload images first
-      const imageUrls = await uploadImages();
 
       const productData = {
         name: formData.name.trim(),
@@ -217,7 +212,7 @@ export function ProductForm({
             ? formData.vendorName.trim()
             : null,
         availableStock: parseInt(formData.availableStock) || 0,
-        images: [...(formData.images || []), ...imageUrls],
+        images: formData.images,
         variants: variants
           .map((variant) => ({
             variantCategory: variant.variantCategory.trim(),
@@ -258,17 +253,6 @@ export function ProductForm({
     setSelectedSubcategory("");
     setSelectedVendor("");
     setVariants([]);
-    setImageFiles([]);
-    setImagePreviews([]);
-    setUploadingImages(false);
-
-    // Clear any file inputs
-    const fileInput = document.getElementById(
-      "image-upload"
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = "";
-    }
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -276,65 +260,6 @@ export function ProductForm({
       resetForm();
     }
     onOpenChange(open);
-  };
-
-  // Handle image upload
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length + imageFiles.length > 5) {
-      toast.error("Maximum 5 images allowed");
-      return;
-    }
-
-    setImageFiles((prev) => [...prev, ...files]);
-
-    // Create previews
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  // Remove image
-  const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-    URL.revokeObjectURL(imagePreviews[index]);
-  };
-
-  // Upload images to server
-  const uploadImages = async (): Promise<string[]> => {
-    if (imageFiles.length === 0) return [];
-
-    setUploadingImages(true);
-    const uploadedUrls: string[] = [];
-
-    try {
-      for (const file of imageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          uploadedUrls.push(data.url);
-        }
-      }
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      toast.error("Failed to upload some images");
-    } finally {
-      setUploadingImages(false);
-    }
-
-    return uploadedUrls;
   };
 
   // Update formData when selectedCategory changes
@@ -386,7 +311,7 @@ export function ProductForm({
   }, [editingProduct]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border border-gray-200 shadow-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">
@@ -521,49 +446,23 @@ export function ProductForm({
             <div className="space-y-4">
               {/* File Upload */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-emerald-400 transition-colors">
-                <input
-                  id="image-upload"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer flex flex-col items-center space-y-2"
-                >
-                  <div className="text-4xl text-gray-400">📷</div>
-                  <div className="text-sm font-medium text-gray-700">
-                    Click to upload images or drag and drop
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    PNG, JPG, GIF up to 10MB each (max 5 images)
-                  </div>
-                </label>
-              </div>
-
-              {/* Image Previews */}
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+  <UploadDropzone
+    endpoint="imageUploader"
+    onClientUploadComplete={(res) => {
+      setFormData({
+        ...formData,
+        images: [
+          ...(formData.images || []),
+          ...res.map((f) => f.ufsUrl),
+        ],
+      });
+      toast.success("Images uploaded");
+    }}
+    onUploadError={(error) => {
+      toast.error(error.message);
+    }}
+  />
+</div>
 
               {/* Existing Images from formData */}
               {formData.images && formData.images.length > 0 && (
@@ -748,7 +647,7 @@ export function ProductForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => onOpenChange(false)}
               className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -756,18 +655,9 @@ export function ProductForm({
             <Button
               type="submit"
               className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
-              disabled={uploadingImages}
+              disabled={false}
             >
-              {uploadingImages ? (
-                <>
-                  <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
-                  Uploading Images...
-                </>
-              ) : editingProduct ? (
-                "Update Product"
-              ) : (
-                "Add Product"
-              )}
+              {editingProduct ? "Update Product" : "Add Product"}
             </Button>
           </div>
         </form>

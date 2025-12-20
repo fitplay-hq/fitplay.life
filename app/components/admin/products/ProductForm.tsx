@@ -68,7 +68,8 @@ const subcategories: Record<string, string[]> = {
   ],
 
   Diagnostics_And_Preventive_Health: [
-    "Diagnostics Monitoring Devices",
+    "Diagnostics",
+    "Monitoring Devices",
     "Fitness Wearables",
     "Pharmacy Vouchers / Discount Coupons",
   ],

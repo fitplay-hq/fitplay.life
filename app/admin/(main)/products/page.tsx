@@ -189,6 +189,7 @@ export default function AdminProductsPage() {
       const variants = (formData.variants || []).map((variant: any) => ({
         variantCategory: variant.variantCategory,
         variantValue: variant.variantValue,
+        sku: variant.sku || '',
         mrp: parseInt(variant.mrp) || 0,
         id: variant.id,
       })).filter((v: any) => v.variantCategory && v.variantValue && v.mrp > 0);
@@ -203,6 +204,7 @@ export default function AdminProductsPage() {
         images: formData.images || [],
         vendorId: formData.vendorId || null,
         vendorName: formData.vendorName?.trim() || null,
+        variants: variants,
       };
 
       let result;
@@ -212,16 +214,12 @@ export default function AdminProductsPage() {
           variants: variants.length > 0 ? {
             deleteMany: {},
             create: variants.map(({ id, ...variant }) => variant),
-          } : undefined,
+          } : { deleteMany: {} },
         });
         toast.success("Product updated successfully!");
       } else {
-        result = await createAdminProduct({
-          ...productData,
-          variants: variants.length > 0 ? {
-            create: variants.map(({ id, ...variant }) => variant),
-          } : undefined,
-        });
+        // For creating new products, send variants directly in the main data
+        result = await createAdminProduct(productData);
         toast.success("Product created successfully!");
       }
 

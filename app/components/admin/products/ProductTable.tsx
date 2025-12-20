@@ -139,8 +139,8 @@ export function ProductTable({
                   <div className="font-medium text-sm text-gray-900 truncate" title={product.name}>
                     {product.name}
                   </div>
-                  <div className="text-xs text-gray-500 truncate" title={`SKU: ${product.sku}`}>
-                    SKU: {product.sku}
+                  <div className="text-xs text-gray-500 truncate" title={product.sku}>
+                    {product.sku}
                   </div>
                 </div>
               </TableCell>

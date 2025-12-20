@@ -308,21 +308,27 @@ export default function ProductDetail() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {product.variants.map((variant: any, index: number) => (
                 <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50 space-y-3">
-                  <div className="font-semibold text-gray-900">{variant.name || `Variant ${index + 1}`}</div>
+                  <div className="font-semibold text-gray-900">
+                    {variant.variantCategory}: {variant.variantValue}
+                  </div>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Credits:</span>
-                      <span className="font-medium">{variant.mrp} credits</span>
-                    </div>
-                    {variant.discountedPrice && (
+                    {variant.sku && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Discounted:</span>
-                        <span className="font-medium text-green-600">{variant.discountedPrice} credits</span>
+                        <span className="text-gray-600">SKU:</span>
+                        <span className="font-medium">{variant.sku}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
+                      <span className="text-gray-600">Credits:</span>
+                      <span className="font-medium">{variant.mrp * 2} credits</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Price:</span>
+                      <span className="font-medium">₹{variant.mrp}</span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Stock:</span>
-                      <span className="font-medium">{variant.stock || 0}</span>
+                      <span className="font-medium">{variant.availableStock || 0}</span>
                     </div>
                   </div>
                 </div>

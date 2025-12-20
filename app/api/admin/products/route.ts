@@ -191,7 +191,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { id, category, subCategory, vendorId, vendorName, ...rest } = body;
+    const { id, category, subCategory, vendorId, vendorName, variants, ...rest } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
@@ -252,6 +252,13 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    // Handle variants properly
+    if (variants !== undefined) {
+      updateData.variants = variants;
+    }
+
+    console.log("Update data:", JSON.stringify(updateData, null, 2));
+
     const updated = await prisma.product.update({
       where: { id },
       data: updateData,
@@ -267,10 +274,10 @@ export async function PATCH(req: NextRequest) {
       message: "Product updated successfully", 
       product: updated 
     });
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error("Error updating product:", err);
     return NextResponse.json(
-      { error: "Internal error", details: String(err) },
+      { error: "Failed to update product", details: String(err) },
       { status: 500 }
     );
   }

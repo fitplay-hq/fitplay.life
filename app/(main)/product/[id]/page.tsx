@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Star, ShoppingCart, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -352,24 +352,7 @@ export default function ProductPage({
             </h1>
           </div>
 
-          {/* Rating */}
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-4 h-4 ${
-                    i < Math.floor(product.avgRating || 0)
-                      ? "text-yellow-400 fill-current"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-sm text-gray-600">
-              {product.avgRating || 0} ({product.noOfReviews || 0})
-            </span>
-          </div>
+
 
           {/* Price */}
           <div className="py-2">
@@ -566,13 +549,6 @@ export default function ProductPage({
                 health goals.
               </p>
               <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span>
-                    {product.avgRating ? product.avgRating.toFixed(1) : "4.8"}{" "}
-                    Partner Rating
-                  </span>
-                </div>
                 <div>{product.noOfReviews || "500+"} Products</div>
               </div>
             </div>

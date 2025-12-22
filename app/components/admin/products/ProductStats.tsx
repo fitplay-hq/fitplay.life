@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Eye, AlertTriangle, Tags, Star } from "lucide-react";
+import { Package, Eye, AlertTriangle, Tags } from "lucide-react";
 
 interface ProductStatsProps {
   products: any[];
@@ -78,26 +78,7 @@ export function ProductStats({ products }: ProductStatsProps) {
         </CardContent>
       </Card>
 
-      <Card className="py-0">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Star className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Avg. Rating</p>
-              <p className="text-xl font-semibold">
-                {(
-                  products.reduce(
-                    (sum: any, p: any) => sum + (p.rating || 0),
-                    0
-                  ) / products.length
-                ).toFixed(1)}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }

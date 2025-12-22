@@ -25,7 +25,6 @@ import {
   Eye,
   EyeOff,
   Trash2,
-  Star,
   Package,
 } from "lucide-react";
 import { getLowestCredits, getLowestMRP } from "@/lib/utils";
@@ -104,11 +103,10 @@ export function ProductTable({
             <TableHead className="min-w-[180px] px-2">Product</TableHead>
             <TableHead className="min-w-[120px] px-2">Brand/Vendor</TableHead>
             <TableHead className="min-w-[140px] px-2">Category</TableHead>
-            <TableHead className="text-right w-16 px-1">Credits</TableHead>
-            <TableHead className="text-right w-16 px-1">₹ Price</TableHead>
-            <TableHead className="text-center w-12 px-1">Stock</TableHead>
-            <TableHead className="text-center w-16 px-1">Rating</TableHead>
-            <TableHead className="text-center w-14 px-1">Status</TableHead>
+            <TableHead className="text-center w-16 px-1">Credits</TableHead>
+            <TableHead className="text-center w-16 px-1">₹ Price</TableHead>
+            <TableHead className="text-center w-16 px-1">Stock</TableHead>
+            <TableHead className="text-center w-20 px-1">Status</TableHead>
             <TableHead className="text-center w-12 px-1">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -167,19 +165,6 @@ export function ProductTable({
                 <div className="flex flex-col items-center gap-1">
                   <span className="text-sm font-medium">{product.availableStock}</span>
                   {getStockBadge(product.availableStock)}
-                </div>
-              </TableCell>
-              <TableCell className="text-center w-20">
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium">
-                      {product.avgRating ? product.avgRating.toFixed(1) : '0.0'}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    ({product.noOfReviews || 0})
-                  </span>
                 </div>
               </TableCell>
               <TableCell className="text-center w-20">

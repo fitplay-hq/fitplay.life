@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Star, Package, Calendar, User, Tag, Banknote } from "lucide-react";
+import { Package, Calendar, User, Tag, Banknote } from "lucide-react";
 import { getLowestCredits, getLowestMRP } from "@/lib/utils";
 
 interface ProductDetailDialogProps {
@@ -110,14 +110,7 @@ export function ProductDetailDialog({
                     {getStockBadge(product.availableStock)}
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Rating:</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span>{product.avgRating ? product.avgRating.toFixed(1) : '0.0'}</span>
-                    <span className="text-sm text-gray-500">({product.noOfReviews || 0} reviews)</span>
-                  </div>
-                </div>
+
               </CardContent>
             </Card>
 

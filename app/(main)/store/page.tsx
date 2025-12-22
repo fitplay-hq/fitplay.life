@@ -45,7 +45,6 @@ interface Product {
 
 import {
   Search,
-  Star,
   Plus,
   Minus,
   ChevronDown,
@@ -203,11 +202,9 @@ export default function WellnessStore() {
   const [sortBy, setSortBy] = useState("featured");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
-  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
 
   const [brandsOpen, setBrandsOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
-  const [ratingOpen, setRatingOpen] = useState(true);
 
   // Debug category changes and products
   useEffect(() => {
@@ -259,13 +256,6 @@ export default function WellnessStore() {
     { value: "above-500", label: "Above 500 credits", min: 500, max: Infinity },
   ];
 
-  const ratingOptions = [
-    { value: "4.5+", label: "4.5+ Stars", min: 4.5 },
-    { value: "4.0+", label: "4.0+ Stars", min: 4.0 },
-    { value: "3.5+", label: "3.5+ Stars", min: 3.5 },
-    { value: "3.0+", label: "3.0+ Stars", min: 3.0 },
-  ];
-
   // Categories are now fetched from API and stored in state
 
   const handleBrandChange = (brand: string, checked: boolean) => {
@@ -284,13 +274,7 @@ export default function WellnessStore() {
     }
   };
 
-  const handleRatingChange = (rating: string, checked: boolean) => {
-    if (checked) {
-      setSelectedRatings([...selectedRatings, rating]);
-    } else {
-      setSelectedRatings(selectedRatings.filter((r) => r !== rating));
-    }
-  };
+
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -330,21 +314,11 @@ export default function WellnessStore() {
         return productCredits >= range.min && productCredits <= range.max;
       });
 
-    // Rating filter
-    const matchesRating =
-      selectedRatings.length === 0 ||
-      selectedRatings.some((ratingValue) => {
-        const ratingOption = ratingOptions.find((r) => r.value === ratingValue);
-        if (!ratingOption) return false;
-        return (product.avgRating || 0) >= ratingOption.min;
-      });
-
     return (
       matchesSearch &&
       matchesCategory &&
       matchesBrand &&
-      matchesPriceRange &&
-      matchesRating
+      matchesPriceRange
     );
   });
 
@@ -613,7 +587,6 @@ export default function WellnessStore() {
                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                   {selectedBrands.length +
                     selectedPriceRanges.length +
-                    selectedRatings.length +
                     (selectedCategory !== "all" ? 1 : 0)}{" "}
                   active
                 </span>
@@ -656,53 +629,7 @@ export default function WellnessStore() {
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* Rating Filter */}
-              <Collapsible open={ratingOpen} onOpenChange={setRatingOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full mb-3 hover:text-emerald-600 transition-colors text-gray-700">
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Customer Rating
-                  </h3>
-                  {ratingOpen ? (
-                    <ChevronUp className="w-3 h-3 text-emerald-600" />
-                  ) : (
-                    <ChevronDown className="w-3 h-3 text-emerald-600" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2 mb-5">
-                  {ratingOptions.map((rating) => (
-                    <div
-                      key={rating.value}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={rating.value}
-                        checked={selectedRatings.includes(rating.value)}
-                        onCheckedChange={(checked) =>
-                          handleRatingChange(rating.value, checked === true)
-                        }
-                        className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 border-gray-300 bg-gray-50"
-                      />
-                      <label
-                        htmlFor={rating.value}
-                        className="text-xs text-gray-700 cursor-pointer flex-1 flex items-center gap-1"
-                      >
-                        {rating.label}
-                        <div className="flex">
-                          {[...Array(Math.floor(rating.min))].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-2.5 h-2.5 text-yellow-400 fill-current"
-                            />
-                          ))}
-                          {rating.min % 1 !== 0 && (
-                            <Star className="w-2.5 h-2.5 text-yellow-400 fill-current opacity-50" />
-                          )}
-                        </div>
-                      </label>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
+
 
               {/* Brands */}
               <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
@@ -745,7 +672,6 @@ export default function WellnessStore() {
               {/* Clear Filters */}
               {(selectedBrands.length > 0 ||
                 selectedPriceRanges.length > 0 ||
-                selectedRatings.length > 0 ||
                 selectedCategory !== "all" ||
                 searchTerm) && (
                 <Button
@@ -754,7 +680,6 @@ export default function WellnessStore() {
                   onClick={() => {
                     setSelectedBrands([]);
                     setSelectedPriceRanges([]);
-                    setSelectedRatings([]);
                     setSelectedCategory("all");
                     setSearchTerm("");
                   }}
@@ -862,23 +787,7 @@ export default function WellnessStore() {
                                 </span>
                               </div>
                             )}
-                            {/* Rating Badge */}
-                            {product.avgRating && product.avgRating > 0 ? (
-                              <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-xl px-3 py-1.5 flex items-center space-x-1.5 shadow-lg">
-                                <Star className="w-4 h-4 fill-current" />
-                                <span className="text-sm font-bold">
-                                  {product.avgRating.toFixed(1)}
-                                </span>
-                                <span className="text-xs opacity-90">
-                                  ({product.noOfReviews || 0})
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="absolute top-3 right-3 bg-gray-100 text-gray-600 rounded-xl px-3 py-1.5 flex items-center space-x-1">
-                                <Star className="w-4 h-4" />
-                                <span className="text-xs font-medium">New</span>
-                              </div>
-                            )}
+
                           </div>
 
                           {/* Content Container with proper spacing */}
@@ -976,7 +885,6 @@ export default function WellnessStore() {
                         onClick={() => {
                           setSelectedBrands([]);
                           setSelectedPriceRanges([]);
-                          setSelectedRatings([]);
                           setSelectedCategory("all");
                           setSearchTerm("");
                         }}

@@ -621,19 +621,29 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
-        {/* Video Background */}
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0"
+        {/* Custom Gradient Background */}
+        <div 
+          className="absolute inset-0 w-full h-full z-0"
+          style={{
+            background: `
+              linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 25%, rgba(4, 120, 87, 0.9) 50%, rgba(6, 95, 70, 0.9) 75%, rgba(8, 84, 60, 0.9) 100%),
+              radial-gradient(circle at 20% 50%, rgba(52, 211, 153, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 80%, rgba(20, 184, 166, 0.2) 0%, transparent 50%),
+              linear-gradient(45deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%)
+            `
+          }}
         >
-          <source src="/cta.mp4" type="video/mp4" />
-        </video>
+          {/* Animated floating elements */}
+          <div className="absolute top-20 left-10 w-4 h-4 bg-white/20 rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-6 h-6 bg-emerald-300/30 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-20 w-5 h-5 bg-white/15 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-20 right-40 w-3 h-3 bg-emerald-200/40 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-60 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        </div>
         
-        {/* Dark Overlay for Better Text Readability */}
-        <div className="absolute inset-0 bg-black/50 z-5"></div>
+        {/* Subtle overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/30 z-5"></div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div

@@ -111,7 +111,6 @@ export function ProductFilters({
           <SelectItem value="name">Name</SelectItem>
           <SelectItem value="credits">Credits</SelectItem>
           <SelectItem value="stock">Stock</SelectItem>
-          <SelectItem value="rating">Rating</SelectItem>
           <SelectItem value="created">Date Created</SelectItem>
         </SelectContent>
       </Select>

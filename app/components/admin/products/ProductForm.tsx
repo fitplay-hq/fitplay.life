@@ -150,20 +150,19 @@ export function ProductForm({
         vendorName: editingProduct.vendorName || "",
         sku: editingProduct.sku || "",
         availableStock: editingProduct.availableStock?.toString() || "",
-        category: editingProduct.category || "",
-        subCategory: editingProduct.subCategory || "",
+        category: editingProduct.category?.name || "",
+        subCategory: editingProduct.subCategory?.name || "",
         images: editingProduct.images || [],
         variants: editingProduct.variants || [],
       });
       const prettyCategory =
         Object.keys(categorySlugMap).find(
-          (pretty) => categorySlugMap[pretty] === editingProduct.category
-        ) || editingProduct.category;
+          (pretty) => categorySlugMap[pretty] === editingProduct.category?.name
+        ) || editingProduct.category?.name;
 
-      setSelectedCategory(prettyCategory);
-      setSelectedSubcategory(editingProduct.subCategory || "");
+      setSelectedCategory(prettyCategory || "");
+      setSelectedSubcategory(editingProduct.subCategory?.name || "");
 
-      setSelectedSubcategory(editingProduct.subCategory || "");
       setSelectedVendor(editingProduct.vendorId || "");
       setVariants(editingProduct.variants || []);
     } else {

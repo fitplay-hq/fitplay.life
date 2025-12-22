@@ -193,14 +193,7 @@ export default function ProductDetail() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-600">Rating:</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="font-medium">{product.avgRating ? product.avgRating.toFixed(1) : '0.0'}</span>
-                      <span className="text-sm text-gray-500">({product.noOfReviews || 0} reviews)</span>
-                    </div>
-                  </div>
+
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-600">Credits:</span>
                     <span className="font-semibold text-lg">{getLowestCredits(product)} credits</span>

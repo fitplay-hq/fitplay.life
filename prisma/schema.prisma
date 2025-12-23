@@ -134,7 +134,7 @@ model Variant {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @default(now()) @updatedAt
   orderItems      OrderItem[]
-  product         Product     @relation(fields: [productId], references: [id])
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Wallet {
@@ -220,8 +220,8 @@ model OrderItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-  variant   Variant? @relation(fields: [variantId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant   Variant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 }
 
 model WalletTopUp {

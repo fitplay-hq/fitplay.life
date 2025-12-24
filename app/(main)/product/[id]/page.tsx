@@ -580,28 +580,7 @@ export default function ProductPage({
         </div>
       </div>
 
-      {/* FAQ Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Frequently Asked Questions
-        </h3>
-        <Accordion type="single" collapsible className="space-y-2">
-          {faqs.map((faq, index) => (
-            <AccordionItem
-              key={index}
-              value={`faq-${index}`}
-              className="border-b border-gray-100"
-            >
-              <AccordionTrigger className="text-left text-sm py-3">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-sm text-gray-600 pb-3">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
+      
 
       {/* Support */}
       <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">

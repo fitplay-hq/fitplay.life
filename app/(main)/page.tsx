@@ -31,6 +31,8 @@ import FloatingElements from "@/components/FloatingElements";
 import HeroIllustration from "@/components/HeroIllustration";
 import Link from "next/link";
 import Hero from '@/components/Hero';
+import Marquee from "react-fast-marquee";
+import { StickyScroll } from '@/components/ui/sticky-scroll-reveal';
 
 export default function HomePage() {
   // Animation Variants
@@ -73,7 +75,7 @@ export default function HomePage() {
   ];
 
   // Categories We Offer
-  const categories = [
+const categories = [
     {
       icon: Dumbbell,
       title: 'Fitness & Gym Equipment',
@@ -110,6 +112,8 @@ export default function HomePage() {
       bgColor: 'bg-blue-50'
     }
   ];
+
+
 
   // Why FitPlay
   const whyFitplay = [
@@ -280,55 +284,54 @@ export default function HomePage() {
 
 
       {/* Network of Companies */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-              Trusted by Leading Organizations
-            </h2>
-            <p className="text-xl text-gray-600">
-              Join the network of companies transforming employee wellness
-            </p>
-          </motion.div>
+<section className="py-20 bg-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {partnerCompanies.map((company, index) => (
-              <motion.div
-                key={index}
-                variants={scaleVariants}
-                whileHover={{ y: -5, scale: 1.05 }}
-                className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-3 p-3 shadow-sm">
-                    <img 
-                      src={company.logo}
-                      alt={company.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center text-white text-xl font-bold">${company.name.charAt(0)}</div>`;
-                      }}
-                    />
-                  </div>
-                  <div className="text-sm font-medium text-gray-700">{company.name}</div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+    <div className="text-center mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-primary mb-2">
+        Trusted by Leading Organizations
+      </h2>
+      <p className="text-lg text-gray-600">
+       Join the network of companies transforming employee wellness
+      </p>
+    </div>
+
+    <Marquee
+      speed={50}
+      pauseOnHover={true}
+      gradient={false}
+      className="flex gap-8 items-center"
+    >
+      {partnerCompanies.map((company, index) => (
+        <div
+          key={index}
+          className="w-32 p-4 bg-white rounded-xl shadow-md flex-shrink-0"
+        >
+          <div className="w-full h-16 flex items-center justify-center mb-2">
+            <img
+              src={company.logo}
+              alt={company.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.parentElement!.innerHTML = `
+                  <div class="w-full h-full bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold">
+                    ${company.name.charAt(0)}
+                  </div>`;
+              }}
+            />
+          </div>
+
+          <div className="text-center text-sm font-medium text-gray-700">
+            {company.name}
+          </div>
         </div>
-      </section>
+      ))}
+    </Marquee>
+
+  </div>
+</section>
+
       
       {/* How It Works */}
       <section className="py-24 bg-gradient-to-br from-emerald-50 via-green-50/50 to-teal-50 relative overflow-hidden">
@@ -508,54 +511,57 @@ export default function HomePage() {
       </section>
 
       {/* Trusted Wellness Partners */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-              Trusted Wellness Partners
-            </h2>
-            <p className="text-xl text-gray-600">
-              We partner with leading brands to bring you the best in wellness
-            </p>
-          </motion.div>
+     
 
-          <motion.div 
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {wellnessPartners.map((partner, index) => (
-              <motion.div
-                key={index}
-                variants={scaleVariants}
-                whileHover={{ scale: 1.05 }}
-                className="bg-gradient-to-br from-gray-50 to-emerald-50 rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-4 shadow-sm">
-                  <img 
-                    src={partner.logo}
-                    alt={partner.name}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center"><svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>`;
-                    }}
-                  />
-                </div>
-                <div className="font-bold text-gray-900 mb-1">{partner.name}</div>
-                <div className="text-sm text-emerald-600">{partner.category}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+<section className="py-24 bg-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div className="text-center mb-12">
+      <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+        Trusted Wellness Partners
+      </h2>
+      <p className="text-xl text-gray-600">
+        We partner with leading brands to bring you the best in wellness
+      </p>
+    </div>
+
+    <Marquee
+      speed={40}
+      pauseOnHover={true}
+      gradient={false}
+      className="flex gap-12"
+    >
+      {wellnessPartners.map((partner, index) => (
+        <div
+          key={index}
+          className="w-40 p-6 bg-gradient-to-br from-gray-50 to-emerald-50 rounded-2xl text-center shadow-lg hover:shadow-xl flex-shrink-0 "
+        >
+          <div className="w-20 h-20  bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-4 shadow-sm gap-4">
+            <img
+              src={partner.logo}
+              alt={partner.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.parentElement!.innerHTML = `
+                  <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>`;
+              }}
+            />
+          </div>
+
+          <div className="font-bold text-gray-900 mb-1">{partner.name}</div>
+          <div className="text-sm text-emerald-600">{partner.category}</div>
         </div>
-      </section>     
+      ))}
+    </Marquee>
+
+  </div>
+</section>
+
 
       {/* Testimonials */}
       <section className="py-24 bg-gradient-to-br from-emerald-50 to-green-50">

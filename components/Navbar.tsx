@@ -45,7 +45,7 @@ export default function Navbar() {
         setIsScrolled(window.scrollY > 0);
       } else {
         // On other pages, use normal scroll threshold
-        setIsScrolled(window.scrollY > 200);
+        setIsScrolled(window.scrollY > 0);
       }
     };
 
@@ -81,7 +81,7 @@ export default function Navbar() {
       }`}
     >
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-2 flex items-center justify-between">
         <Link href="/" className="group cursor-pointer">
           <Image
             src="/logo.png"

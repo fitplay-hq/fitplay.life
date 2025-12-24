@@ -15,6 +15,7 @@ import Link from 'next/link';
 
 export function AboutUs() {
   // Company Stats
+
   const stats = [
     { icon: Users, number: '50,000+', label: 'Employees Empowered', color: 'from-emerald-500 to-green-500' },
     { icon: Building2, number: '200+', label: 'Corporate Partners', color: 'from-green-500 to-teal-500' },
@@ -131,21 +132,19 @@ export function AboutUs() {
   ];
 
   const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.2, // each card reveals 0.2s after the previous
+    },
+  },
+};
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
 
   return (
     <div className="min-h-screen" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -401,11 +400,15 @@ export function AboutUs() {
           >
             {coreValues.map((value, index) => (
               <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
+  key={index}
+  variants={itemVariants}
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true, amount: 0.2 }} // triggers when 20% of card is visible
+  whileHover={{ y: -10, scale: 1.02 }}
+  transition={{ type: "spring", stiffness: 300 }}
+>
+
                 <Card className="bg-gradient-to-br from-gray-50 to-emerald-50/30 hover:shadow-2xl transition-all duration-300 border-0 h-full">
                   <CardContent className="p-8">
                     <div className={`w-16 h-16 bg-gradient-to-br ${value.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}>

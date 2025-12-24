@@ -4,7 +4,8 @@ import HeroIllustration from './HeroIllustration';
 
 export default function Hero() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950">
+    <div className="relative min-h-[70vh] lg:min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950">
+
       <FloatingElements />
 
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
@@ -72,10 +73,11 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="relative lg:pl-12">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 blur-3xl rounded-full"></div>
-            <HeroIllustration />
-          </div>
+          <div className="relative lg:pl-12 hidden lg:block">
+  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 blur-3xl rounded-full"></div>
+  <HeroIllustration />
+</div>
+
         </div>
       </div>
 

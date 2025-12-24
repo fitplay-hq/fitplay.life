@@ -862,7 +862,7 @@ export default function WellnessStore() {
                         className="relative bg-white rounded-3xl shadow-lg 
 hover:shadow-2xl transition-all duration-300 
 overflow-hidden border border-gray-100 flex flex-col
-h-auto lg:h-[480px]"
+h-auto lg:h-[440px]"
 
                         >
                           {/* Image Container */}
@@ -903,7 +903,7 @@ h-auto lg:h-[480px]"
                           </div>
 
                           {/* Content Container with proper spacing */}
-                          <div className="p-6 flex flex-col flex-grow space-y-4">
+                          <div className="p-5 flex flex-col flex-grow space-y-3">
                             {/* Vendor Name */}
                             <div className="flex items-center justify-between">
                               <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
@@ -919,8 +919,8 @@ h-auto lg:h-[480px]"
 
                             {/* Product Name - Flexible height container */}
                             <div
-                              className="flex-grow"
-                              style={{ minHeight: "48px" }}
+                              className="flex-grow min-h-[40px]"
+                             
                             >
                               <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
                                 {product.name}

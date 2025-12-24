@@ -243,37 +243,58 @@ const categories = [
   ];
 
   const testimonials = [
-    {
-      quote:
-        "FitPlay made it so easy for our team to access wellness benefits. The credit system is straightforward, and our employees actually use it regularly.",
-      name: "Priya Sharma",
-      role: "Software Engineer",
-      company: "TechCorp",
-      image:
-        "https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981&color=fff",
-      rating: 5,
-    },
-    {
-      quote:
-        "Finally, a wellness platform that our employees love. The product selection is great and the ordering process is seamless.",
-      name: "Arjun Patel",
-      role: "Marketing Manager", 
-      company: "StartupX",
-      image:
-        "https://ui-avatars.com/api/?name=Arjun+Patel&background=059669&color=fff",
-      rating: 5,
-    },
-    {
-      quote:
-        "We've seen a 40% increase in wellness benefit utilization since switching to FitPlay. Our employees appreciate the flexibility.",
-      name: "Meera Singh",
-      role: "HR Director",
-      company: "InnovateLab",
-      image:
-        "https://ui-avatars.com/api/?name=Meera+Singh&background=047857&color=fff",
-      rating: 5,
-    },
-  ];
+  {
+    quote:
+      "FitPlay made it so easy for our team to access wellness benefits. The credit system is straightforward, and our employees actually use it regularly.",
+    name: "Priya Sharma",
+    role: "Software Engineer",
+    company: "TechCorp",
+    image:
+      "https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981&color=fff",
+    rating: 5,
+  },
+  {
+    quote:
+      "Finally, a wellness platform that our employees love. The product selection is great and the ordering process is seamless.",
+    name: "Arjun Patel",
+    role: "Marketing Manager", 
+    company: "StartupX",
+    image:
+      "https://ui-avatars.com/api/?name=Arjun+Patel&background=059669&color=fff",
+    rating: 5,
+  },
+  {
+    quote:
+      "We've seen a 40% increase in wellness benefit utilization since switching to FitPlay. Our employees appreciate the flexibility.",
+    name: "Meera Singh",
+    role: "HR Director",
+    company: "InnovateLab",
+    image:
+      "https://ui-avatars.com/api/?name=Meera+Singh&background=047857&color=fff",
+    rating: 5,
+  },
+  {
+    quote:
+      "The customer support is excellent, and our team enjoys the variety of wellness products available. Highly recommend FitPlay!",
+    name: "Rohit Verma",
+    role: "Operations Lead",
+    company: "HealthWave",
+    image:
+      "https://ui-avatars.com/api/?name=Rohit+Verma&background=065f46&color=fff",
+    rating: 5,
+  },
+  {
+    quote:
+      "FitPlay has transformed the way we engage with employee wellness. The platform is intuitive and the feedback from our team has been overwhelmingly positive.",
+    name: "Anjali Mehta",
+    role: "People Manager",
+    company: "BrightTech",
+    image:
+      "https://ui-avatars.com/api/?name=Anjali+Mehta&background=047857&color=fff",
+    rating: 5,
+  },
+];
+
 
   return (
     <div className="space-y-8 md:space-y-12">
@@ -284,7 +305,7 @@ const categories = [
 
 
       {/* Network of Companies */}
-<section className="py-20 bg-white">
+<section className="py-20 bg-white overflow-hidden">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div className="text-center mb-8">
@@ -292,45 +313,57 @@ const categories = [
         Trusted by Leading Organizations
       </h2>
       <p className="text-lg text-gray-600">
-       Join the network of companies transforming employee wellness
+        Join the network of companies transforming employee wellness
       </p>
     </div>
 
-    <Marquee
-      speed={50}
-      pauseOnHover={true}
-      gradient={false}
-      className="flex gap-8 items-center"
-    >
-      {partnerCompanies.map((company, index) => (
-        <div
-          key={index}
-          className="w-32 p-4 bg-white rounded-xl shadow-md flex-shrink-0"
-        >
-          <div className="w-full h-16 flex items-center justify-center mb-2">
-            <img
-              src={company.logo}
-              alt={company.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.parentElement!.innerHTML = `
-                  <div class="w-full h-full bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold">
-                    ${company.name.charAt(0)}
-                  </div>`;
-              }}
-            />
-          </div>
+    {/* Marquee wrapper */}
+    <div className="relative">
 
-          <div className="text-center text-sm font-medium text-gray-700">
-            {company.name}
-          </div>
-        </div>
-      ))}
-    </Marquee>
+      {/* LEFT FADE */}
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-white to-transparent z-10" />
 
+      {/* RIGHT FADE */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white to-transparent z-10" />
+
+      <Marquee
+        speed={50}
+        pauseOnHover={true}
+        gradient={false}
+        className=""
+      >
+        {partnerCompanies.map((company, index) => (
+          <div
+            key={`${company.name}-${index}`}
+            className="flex-shrink-0 mx-4"
+          >
+            <div className="w-32 h-24 flex items-center justify-center">
+              <img
+                src={company.logo}
+                alt={company.name}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="w-32 h-24 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-4xl shadow-md">
+                        ${company.name.charAt(0).toUpperCase()}
+                      </div>`;
+                  }
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </Marquee>
+
+    </div>
   </div>
 </section>
+
+
+
 
       
       {/* How It Works */}
@@ -512,8 +545,7 @@ const categories = [
 
       {/* Trusted Wellness Partners */}
      
-
-<section className="py-24 bg-white">
+<section className="py-24 bg-white overflow-hidden">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div className="text-center mb-12">
@@ -525,106 +557,198 @@ const categories = [
       </p>
     </div>
 
-    <Marquee
-      speed={40}
-      pauseOnHover={true}
-      gradient={false}
-      className="flex gap-12"
-    >
-      {wellnessPartners.map((partner, index) => (
-        <div
-          key={index}
-          className="w-40 p-6 bg-gradient-to-br from-gray-50 to-emerald-50 rounded-2xl text-center shadow-lg hover:shadow-xl flex-shrink-0 "
-        >
-          <div className="w-20 h-20  bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-4 shadow-sm gap-4">
-            <img
-              src={partner.logo}
-              alt={partner.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.parentElement!.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </div>`;
-              }}
-            />
+    {/* Marquee wrapper */}
+    <div className="relative">
+
+      {/* LEFT FADE */}
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-white to-transparent z-10" />
+
+      {/* RIGHT FADE */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-white to-transparent z-10" />
+
+      <Marquee
+        speed={40}
+        pauseOnHover={true}
+        gradient={false}
+        className=""
+      >
+        {wellnessPartners.map((partner, index) => (
+          <div
+            key={`${partner.name}-${index}`}
+            className="w-40 p-6 bg-gradient-to-br from-gray-50 to-emerald-50 rounded-2xl text-center shadow-lg hover:shadow-xl flex-shrink-0 mx-6"
+          >
+            <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 p-4 shadow-sm">
+              <img
+                src={partner.logo}
+                alt={partner.name}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  e.currentTarget.parentElement!.innerHTML = `
+                    <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                      <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    </div>`;
+                }}
+              />
+            </div>
           </div>
+        ))}
+      </Marquee>
 
-          <div className="font-bold text-gray-900 mb-1">{partner.name}</div>
-          <div className="text-sm text-emerald-600">{partner.category}</div>
-        </div>
-      ))}
-    </Marquee>
-
+    </div>
   </div>
 </section>
 
 
-      {/* Testimonials */}
-      <section className="py-24 bg-gradient-to-br from-emerald-50 to-green-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-              Voices of Transformation
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover how we are revolutionizing wellness experiences for employees across leading organizations
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            className="grid md:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-          >
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Card className="bg-white hover:shadow-2xl transition-all duration-300 border-0 h-full">
-                  <CardContent className="p-8">
-                    <div className="space-y-6">
-                      <div className="flex items-center space-x-1 mb-4">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 + i * 0.05 }}
-                          >
-                            <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                          </motion.div>
-                        ))}
-                      </div>
-                      <p className="text-gray-700 leading-relaxed text-lg">&ldquo;{testimonial.quote}&rdquo;</p>
-                      <div className="pt-4 border-t border-gray-100">
-                        <div className="font-bold text-primary text-lg">{testimonial.name}</div>
-                        <div className="text-sm text-gray-600">{testimonial.role}</div>
-                        <div className="text-sm text-emerald-600 font-medium">{testimonial.company}</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
+
+      {/* Testimonials */}
+     <section className="py-24 bg-gradient-to-br from-emerald-50 to-green-50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <motion.div 
+      className="text-center mb-16"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+        Voices of Transformation
+      </h2>
+      <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        Discover how we are revolutionizing wellness experiences for employees across leading organizations
+      </p>
+    </motion.div>
+    
+    <div className="relative">
+      {/* Navigation Buttons */}
+      <button
+        onClick={() => {
+          const container = document.getElementById('testimonials-container');
+          if (container) {
+            const isMobile = window.innerWidth < 768;
+            const scrollAmount = isMobile ? container.offsetWidth + 32 : 400; // +32 for gap on mobile
+            const newScrollLeft = container.scrollLeft - scrollAmount;
+            
+            // If we're at the beginning, jump to the end of the first set
+            if (newScrollLeft <= 0) {
+              const itemWidth = container.scrollWidth / 3; // divided by 3 because we have 3 copies
+              container.scrollLeft = itemWidth + newScrollLeft;
+            } else {
+              container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            }
+          }
+        }}
+        className="absolute left-0 md:left-0 md:-translate-x-4 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 z-10 bg-white hover:bg-emerald-50 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
+        aria-label="Scroll left"
+      >
+        <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button
+        onClick={() => {
+          const container = document.getElementById('testimonials-container');
+          if (container) {
+            const isMobile = window.innerWidth < 768;
+            const scrollAmount = isMobile ? container.offsetWidth + 32 : 400; // +32 for gap on mobile
+            const itemWidth = container.scrollWidth / 3; // divided by 3 because we have 3 copies
+            const newScrollLeft = container.scrollLeft + scrollAmount;
+            
+            // If we're at the end of the second set, jump back to the beginning of the second set
+            if (newScrollLeft >= itemWidth * 2) {
+              container.scrollLeft = itemWidth + (newScrollLeft - itemWidth * 2);
+            } else {
+              container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+          }
+        }}
+        className="absolute right-0 md:right-0 md:translate-x-4 top-1/2 -translate-y-1/2 -translate-x-2 md:translate-x-0 z-10 bg-white hover:bg-emerald-50 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
+        aria-label="Scroll right"
+      >
+        <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      {/* LEFT FADE */}
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-12 md:w-24 bg-gradient-to-r from-emerald-50 to-transparent z-10" />
+
+      {/* RIGHT FADE */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-12 md:w-24 bg-gradient-to-l from-emerald-50 to-transparent z-10" />
+
+      {/* Scrollable Container */}
+      <motion.div 
+        id="testimonials-container"
+        className="flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory md:snap-none"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={containerVariants}
+        onScroll={(e) => {
+          const container = e.currentTarget;
+          const itemWidth = container.scrollWidth / 3;
+          
+          // If scrolled to the end, jump back to the middle set
+          if (container.scrollLeft >= itemWidth * 2 - 10) {
+            container.scrollLeft = itemWidth;
+          }
+          // If scrolled to the beginning, jump to the middle set
+          else if (container.scrollLeft <= 10) {
+            container.scrollLeft = itemWidth;
+          }
+        }}
+      >
+        {/* Render testimonials 3 times for infinite scroll effect */}
+        {[...testimonials, ...testimonials, ...testimonials].map((testimonial, index) => (
+          <motion.div
+            key={index}
+            variants={itemVariants}
+            whileHover={{ y: -10 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="flex-shrink-0 w-full md:w-[calc(33.333%-1.5rem)] snap-center md:snap-align-none"
+          >
+            <Card className="bg-white hover:shadow-2xl transition-all duration-300 border-0 h-full">
+              <CardContent className="p-8">
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: (index % testimonials.length) * 0.1 + i * 0.05 }}
+                      >
+                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                      </motion.div>
+                    ))}
+                  </div>
+                  <p className="text-gray-700 leading-relaxed text-lg">&ldquo;{testimonial.quote}&rdquo;</p>
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="font-bold text-primary text-lg">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.role}</div>
+                    <div className="text-sm text-emerald-600 font-medium">{testimonial.company}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+
+    {/* Custom CSS to hide scrollbar */}
+    <style jsx>{`
+      #testimonials-container::-webkit-scrollbar {
+        display: none;
+      }
+    `}</style>
+  </div>
+</section>
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
         {/* Video Background */}

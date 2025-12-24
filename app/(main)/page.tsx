@@ -640,7 +640,7 @@ const categories = [
             }
           }
         }}
-        className="absolute left-0 md:left-0 md:-translate-x-4 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 z-10 bg-white hover:bg-emerald-50 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
+        className="absolute left-0 md:left-0 md:-translate-x-4 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 z-10 bg-emerald-300 hover:bg-emerald-500 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Scroll left"
       >
         <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

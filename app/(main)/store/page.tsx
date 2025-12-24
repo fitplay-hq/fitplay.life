@@ -90,6 +90,7 @@ export default function WellnessStore() {
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Prefetch products on component mount for better performance
   useEffect(() => {
@@ -572,10 +573,26 @@ export default function WellnessStore() {
           </div>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar - Filters */}
-          <div className="w-72 shrink-0">
-            <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-24 shadow-sm">
+          <div className="w-full lg:w-72 shrink-0">
+
+
+             <div className="block lg:hidden mb-4">
+    <Button
+      onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+      className="w-full bg-emerald-500 text-white"
+    >
+      <Filter className="w-4 h-4 mr-2" />
+      Filters
+    </Button>
+  </div>
+            <div
+  className={`${
+    mobileFiltersOpen ? "block" : "hidden"
+  } lg:block bg-white rounded-xl border border-gray-200 p-5 lg:sticky top-24 shadow-sm`}
+>
+
               {/* Filter Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
@@ -694,7 +711,7 @@ export default function WellnessStore() {
           {/* Main Content */}
           <div className="flex-1">
             {/* Results Header */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
+            <div className="bg-white rounded-2xl shadow-lg border p-4 sm:p-6 mb-4 sm:mb-6">
               <div className="flex items-center justify-between">
                 <p className="text-gray-600 font-medium">
                   {productsLoading ? (
@@ -766,13 +783,17 @@ export default function WellnessStore() {
                       <div className="relative">
                         <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
                         <div
-                          className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30"
-                          style={{ height: "480px" }}
+                          // className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30"
+                        className="relative bg-white rounded-3xl shadow-lg 
+hover:shadow-2xl transition-all duration-300 
+overflow-hidden border border-gray-100 flex flex-col
+h-auto lg:h-[440px]"
+
                         >
                           {/* Image Container */}
                           <div
-                            className="relative overflow-hidden bg-gray-50"
-                            style={{ height: "220px" }}
+                            className="relative overflow-hidden bg-gray-50 h-44 sm:h-52 lg:h-[220px]"
+
                           >
                             <ImageWithFallback
                               src={product.images[0] || "/placeholder.png"}
@@ -791,7 +812,7 @@ export default function WellnessStore() {
                           </div>
 
                           {/* Content Container with proper spacing */}
-                          <div className="p-6 flex flex-col flex-grow space-y-4">
+                          <div className="p-5 flex flex-col flex-grow space-y-3">
                             {/* Vendor Name */}
                             <div className="flex items-center justify-between">
                               <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
@@ -807,8 +828,8 @@ export default function WellnessStore() {
 
                             {/* Product Name - Flexible height container */}
                             <div
-                              className="flex-grow"
-                              style={{ minHeight: "48px" }}
+                              className="flex-grow min-h-[40px]"
+                             
                             >
                               <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
                                 {product.name}

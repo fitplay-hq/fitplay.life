@@ -86,8 +86,8 @@ export default function Navbar() {
           <Image
             src="/logo.png"
             alt="FitPlay Logo"
-            width={120}
-            height={120}
+            width={130}
+            height={100}
             className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg rounded-lg object-contain"
             priority
           />
@@ -98,7 +98,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className={`font-medium text-sm transition-all duration-300 relative group ${
+              className={`font-medium text-base transition-all duration-300 relative group ${
                 isScrolled ? 'text-gray-200 hover:text-white' : 'text-white/80 hover:text-white'
               }`}
             >

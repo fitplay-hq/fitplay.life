@@ -39,6 +39,7 @@ import {
   userCreditsAtom,
 } from "@/lib/store";
 import { useAtomValue, useSetAtom } from "jotai";
+import { tr } from "date-fns/locale";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
@@ -51,6 +52,9 @@ export default function CartPage() {
   } = useSWR("/api/wallets?personal=true", fetcher);
 
   const walletBalance = walletData?.wallet?.balance || 0;
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const[recharge, setRecharge]= useState(false);
+  const[isProcessing, setIsProcessing]= useState(false);
 
   const userCredits = walletBalance;
   const purchaseCredits = useSetAtom(purchaseCreditsAtom);
@@ -86,7 +90,7 @@ export default function CartPage() {
   };
 
   const [currentStep, setCurrentStep] = useState<
-    "cart" | "address" | "confirmation"
+    "cart" | "address" | "confirmation"|"payment"
   >("cart");
 
   // Address form state
@@ -109,6 +113,10 @@ export default function CartPage() {
     order: any;
     wallet: any;
   } | null>(null);
+  const [cashorderdetails, setCashOrderDetails] = useState<{
+    order: any;
+    
+  } | null>(null);
 
   // Calculate totals
   const totalCredits = cartItems.reduce(
@@ -129,14 +137,157 @@ export default function CartPage() {
     );
   };
 
+
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePurchase = async () => {
+    setIsProcessing(true);
+
+    const loaded: any = await loadRazorpay();
+    if (!loaded) {
+      console.log("not loaded");
+      alert("Failed to load Razorpay.");
+      setIsProcessing(false);
+      return;
+    }
+
+    const createOrderRes = await fetch("/api/payments/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        
+        amount: totalCredits * 0.5, 
+        isCash: true,
+      }),
+    });
+
+    const order = await createOrderRes.json();
+     console.log("Order created:", order);
+
+    if (!order?.key) {
+      alert("Failed to create order.");
+      setIsProcessing(false);
+      return;
+    }
+    
+
+    const options = {
+    key: order.key,
+    amount: order.amount,
+    currency: order.currency,
+    name: "FitPlay Life",
+    description: "Credit Purchase",
+    order_id: order.razorpayOrderId,
+    handler: async function (response: any) {
+
+      try {
+
+        const items = cartItems
+          .filter((item) => item.variantId && item.variantId.trim() !== "")
+          .map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          }));
+
+        if (items.length === 0) {
+          toast.error("No valid items to order", {
+            description: "Please ensure all cart items have valid variants.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Prepare address string
+        // const fullAddress = `${address.addressLine1}${
+        //   address.addressLine2 ? ", " + address.addressLine2 : ""
+        // }, ${address.city}, ${address.state} ${address.pincode}`;
+      // Call verify API
+      const verifyRes = await fetch("/api/payments/verify-order", {
+
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,
+          razorpay_payment_id: response.razorpay_payment_id,
+  razorpay_order_id: response.razorpay_order_id,
+  razorpay_signature: response.razorpay_signature,
+          phNumber: address.phone,
+          address:address.addressLine1,
+          address2: address.addressLine2,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          deliveryInstructions: address.instructions || null,
+
+
+  
+
+  
+        }),
+      });
+
+      const verifyData = await verifyRes.json();
+      if (verifyData.order) {
+        
+        
+        toast.success("Order created successfully!", {
+          description: "Your order has been placed and will be processed soon.",
+          duration: 3000,
+        });
+
+        // Store complete order details for confirmation page
+
+        setCashOrderDetails({
+
+          order: verifyData.order,
+        
+        });
+
+        setCurrentStep("confirmation");
+        // Clear cart after successful order
+        setTimeout(() => {
+          clearCart();
+        }, 3000);
+
+
+      } else {
+        toast.error("Payment verification failed. Please contact support.");
+      }
+    }
+    catch (error) {
+      toast.error("An error occurred during payment verification.");
+    }
+    },
+    theme: { color: "#10B981" },
+  };
+
+  
+
+  const razorpay = new (window as any).Razorpay(options);
+  razorpay.open();
+  setIsProcessing(false);
+};
+
+
   const handleCheckout = async () => {
     if (currentStep === "cart") {
-      if (!hasEnoughCredits) {
-        return; // Don't proceed if not enough credits
-      }
+     
       setCurrentStep("address");
     } else if (currentStep === "address" && validateAddress()) {
-      try {
+      
+      setCurrentStep("payment");
+    }
+    else if(currentStep === "payment" ){
+      if(paymentMethod === "credits" && hasEnoughCredits){
+        try {
         // Prepare order items - filter out items with null variantId
         const items = cartItems
           .filter((item) => item.variantId && item.variantId.trim() !== "")
@@ -201,13 +352,30 @@ export default function CartPage() {
         });
       }
     }
+    else if (paymentMethod === "cash") {
+    await handlePurchase(); //  Razorpay triggered here
+  }
+    else if(paymentMethod === "credits" && !hasEnoughCredits){
+      toast.error("Insufficient credits for this payment method.", {
+        description: "Please purchase more credits or select another method.",
+        duration: 5000,
+      });
+      setRecharge(true);
+    }
   };
+}
 
+  
   const steps = [
     { id: "cart", label: "Cart", completed: true },
     {
       id: "address",
       label: "Address",
+      completed: currentStep === "payment",
+    },
+     {
+      id: "payment",
+      label: "Payment",
       completed: currentStep === "confirmation",
     },
     { id: "confirmation", label: "Confirmation", completed: false },
@@ -748,6 +916,112 @@ export default function CartPage() {
         </div>
       )}
 
+     {currentStep === "payment" && (
+  <div className="grid lg:grid-cols-3 gap-8">
+    {/* Payment Method */}
+    <div className="lg:col-span-2">
+      <Card>
+        <CardHeader>
+          <CardTitle>Select Payment Method</CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* Payment Options */}
+          <div className="space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="payment"
+                value="credits"
+                checked={paymentMethod === "credits"}
+                onChange={() => setPaymentMethod("credits")}
+                className="accent-emerald-500"
+              />
+              <span className="text-sm font-medium">
+                Pay with Credits ( {totalCredits} credits)
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="payment"
+                value="cash"
+                checked={paymentMethod === "cash"}
+                onChange={() => setPaymentMethod("cash")}
+                className="accent-emerald-500"
+              />
+              <span className="text-sm font-medium">
+                Pay with Cash
+              </span>
+            </label>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep("cart")}
+              className="flex-1"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Cart
+            </Button>
+
+            <Button
+              onClick={handleCheckout}
+              disabled={!paymentMethod}
+              className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+            >
+              Place Order
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      {recharge && (
+        <div className="mt-6">
+          <CreditPurchase
+            currentCredits={userCredits}
+            requiredCredits={totalCredits}
+            onPurchaseComplete={handleCreditPurchase}
+          />
+        </div>
+      )}
+    </div>
+
+    {/* Order Summary */}
+    <div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex justify-between">
+            <span>Total Items:</span>
+            <span>{totalItems}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Total Credits:</span>
+            <span className="font-bold text-emerald-600">
+              {totalCredits}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Payment Method:</span>
+            <span className="font-medium capitalize">
+              {paymentMethod || "Not selected"}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+)}
+
+
+
+      
+
       {/* Confirmation Step */}
       {currentStep === "confirmation" && orderDetails && (
         <div className="space-y-8 max-w-4xl mx-auto">
@@ -933,6 +1207,184 @@ export default function CartPage() {
                   <span className="text-lg font-medium">Order Total:</span>
                   <span className="text-2xl font-bold text-emerald-600">
                     {orderDetails.order.amount} credits
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Next Steps */}
+          <div className="text-center space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-medium text-blue-800 mb-2">What's Next?</h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>
+                  • Your order is being processed and will be approved by HR
+                </li>
+                <li>• You'll receive email updates on order status</li>
+                <li>• Products will be delivered once order is approved</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/profile">
+                <Button className="bg-emerald-500 hover:bg-emerald-600">
+                  View Order History
+                </Button>
+              </Link>
+              <Link href="/benefits">
+                <Button variant="outline">View My Benefits</Button>
+              </Link>
+              <Link href="/store">
+                <Button variant="outline">Continue Shopping</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {currentStep === "confirmation" && cashorderdetails && (
+        <div className="space-y-8 max-w-4xl mx-auto">
+          {/* Success Header */}
+          <div className="text-center space-y-6">
+            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-12 h-12 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
+              <p className="text-gray-600">
+                Your wellness products have been ordered successfully using your
+                company wellness credits.
+              </p>
+            </div>
+          </div>
+
+          {/* Order Details Grid */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Order Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Package className="w-5 h-5" />
+                  <span>Order Details</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Order ID:</span>
+                    <div className="font-mono text-primary flex items-center space-x-1">
+                      <Hash className="w-3 h-3" />
+                      <span>{cashorderdetails.order.id}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Status:</span>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="capitalize">
+                        {cashorderdetails.order.status.toLowerCase()}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Order Date:</span>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        {new Date(
+                          cashorderdetails.order.createdAt
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Amount:</span>
+                    <div className="font-bold text-emerald-600">
+                      {cashorderdetails.order.amount} Rupees
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transaction ID */}
+                <div className="pt-2 border-t">
+                  <span className="text-gray-600 text-sm">Transaction ID:</span>
+                  <div className="font-mono text-sm text-gray-800">
+                    {cashorderdetails.order.transactionId}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+           
+           
+          </div>
+
+          {/* Order Items */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <ShoppingBag className="w-5 h-5" />
+                <span>Order Items ({cashorderdetails.order.items.length})</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {cashorderdetails.order.items.map((item: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <ImageWithFallback
+                          src={item.product?.images?.[0] || "/placeholder.png"}
+                          alt={item.product?.name || "Product"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-primary">
+                          {item.product?.name || "Product"}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Variant: {item.variant?.variantValue || "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Product ID: {item.productId}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center space-x-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Quantity</p>
+                          <p className="font-bold">{item.quantity}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Unit Price</p>
+                          <p className="font-bold text-emerald-600">
+                            {item.price} credits
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Total</p>
+                          <p className="font-bold text-primary">
+                            {item.price * item.quantity} credits
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Order Total */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-medium">Order Total:</span>
+                  <span className="text-2xl font-bold text-emerald-600">
+                    {cashorderdetails.order.amount} Rupees
                   </span>
                 </div>
               </div>

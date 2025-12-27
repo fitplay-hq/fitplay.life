@@ -164,9 +164,9 @@ export default function ProductPage({
         <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+              {/* <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
                 Loading <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Product</span>
-              </h1>
+              </h1> */}
             </div>
           </div>
         </section>
@@ -175,7 +175,7 @@ export default function ProductPage({
             <div className="flex justify-center items-center py-16">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-                <p className="text-emerald-600">Loading product...</p>
+                <h1 className="text-emerald-600 text-lg ">Loading product...</h1>
               </div>
             </div>
           </div>
@@ -341,11 +341,7 @@ export default function ProductPage({
                   <p className="text-xs text-gray-500">Trusted Wellness Partner</p>
                 </div>
               </div>
-              {product.availableStock > 0 && (
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
-                  In Stock
-                </Badge>
-              )}
+             
             </div>
             <h1 className="text-2xl md:text-3xl text-gray-900 font-bold leading-tight mb-2">
               {product.name}

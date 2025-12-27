@@ -409,78 +409,71 @@ export default function WellnessStore() {
       <div className="relative bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
 
-        <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-16 lg:py-20">
-          <div className="text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/20 backdrop-blur-sm">
-              <Package className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-medium text-emerald-300">
-                Premium Wellness Products
-              </span>
-            </div>
-
-            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-200 bg-clip-text text-transparent">
-                Wellness Store
-              </span>
-            </h1>
-
-            <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-              Discover curated wellness products, fitness equipment, and health
-              supplements. Use your company wellness credits to invest in your
-              health journey.
-            </p>
-          </div>
+        <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-3">
+          
         </div>
 
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg
-            viewBox="0 0 1440 120"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full"
-          >
-            <path
-              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-              fill="rgb(248 250 252)"
-              fillOpacity="1"
-            />
-          </svg>
-        </div>
+       
       </div>
 
       <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 pt-12 pb-16 space-y-8">
         {/* Search and Filters Bar */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
-            {/* Search - Takes most of the width */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-400 w-5 h-5" />
-              <Input
-                placeholder="Search products, brands, categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 py-4 text-base bg-gradient-to-r from-gray-50 to-emerald-50/30 border-gray-200 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500/20 focus:text-gray-900 rounded-xl transition-all duration-300"
-              />
-            </div>
+       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(16,185,129,0.12)] border border-emerald-100/60 p-6 transition-all duration-300">
+  <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
 
-            {/* Sort Filter */}
-            <div className="flex gap-4 items-center lg:w-auto">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full lg:w-56 py-4 bg-gradient-to-r from-gray-50 to-emerald-50/30 border-gray-200 text-gray-700 focus:bg-white focus:border-emerald-500 rounded-xl transition-all duration-300">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+    {/* 🔍 Search */}
+    <div className="relative flex-1 group">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 group-focus-within:text-emerald-600 transition-colors" />
+
+      <Input
+        placeholder="Search products, brands, categories..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="
+          pl-12 py-4 text-base rounded-xl
+          bg-gradient-to-r from-gray-50 to-emerald-50/40
+          border border-gray-200
+          text-gray-700 placeholder-gray-400
+          focus:bg-white focus:border-emerald-500
+          focus:ring-2 focus:ring-emerald-500/20
+          focus:text-gray-900
+          transition-all duration-300
+          hover:border-emerald-300
+        "
+      />
+    </div>
+
+    {/* 🔽 Sort */}
+    <div className="flex items-center gap-4 lg:w-auto">
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger
+          className="
+            w-full lg:w-56 py-4 rounded-xl
+            bg-gradient-to-r from-gray-50 to-emerald-50/40
+            border border-gray-200
+            text-gray-700
+            hover:border-emerald-300
+            focus:bg-white focus:border-emerald-500
+            focus:ring-2 focus:ring-emerald-500/20
+            transition-all duration-300
+          "
+        >
+          <SelectValue placeholder="Sort by" />
+        </SelectTrigger>
+
+        <SelectContent className="rounded-xl border border-gray-200 shadow-lg">
+          <SelectItem value="featured">Featured</SelectItem>
+          <SelectItem value="price-low">Price: Low to High</SelectItem>
+          <SelectItem value="price-high">Price: High to Low</SelectItem>
+          <SelectItem value="rating">Highest Rated</SelectItem>
+          <SelectItem value="newest">Newest</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
+  </div>
+</div>
+
 
         {/* Category Banners */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -801,13 +794,13 @@ h-auto lg:h-[440px]"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                             {/* Stock Status */}
-                            {product.availableStock === 0 && (
+                            {/* {product.availableStock === 0 && (
                               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                 <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                                   Out of Stock
                                 </span>
                               </div>
-                            )}
+                            )} */}
 
                           </div>
 
@@ -818,12 +811,12 @@ h-auto lg:h-[440px]"
                               <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
                                 {(product as any).vendor?.name || "FitPlay"}
                               </p>
-                              {product.availableStock <= 5 &&
+                              {/* {product.availableStock <= 5 &&
                                 product.availableStock > 0 && (
                                   <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
                                     Only {product.availableStock} left
                                   </span>
-                                )}
+                                )} */}
                             </div>
 
                             {/* Product Name - Flexible height container */}
@@ -850,7 +843,7 @@ h-auto lg:h-[440px]"
                                 <span className="text-xs text-gray-500 line-through">
                                   ₹{getLowestMRP(product as ProductWithVariant)}
                                 </span>
-                                <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
+                                {/* <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
                                   {Math.round(
                                     ((getLowestMRP(
                                       product as ProductWithVariant
@@ -865,7 +858,7 @@ h-auto lg:h-[440px]"
                                       100
                                   )}
                                   % off
-                                </span>
+                                </span> */}
                               </div>
                             </div>
 

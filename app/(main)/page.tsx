@@ -640,7 +640,7 @@ const categories = [
             }
           }
         }}
-        className="absolute left-0 md:left-0 md:-translate-x-4 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 z-10 bg-emerald-300 hover:bg-emerald-500 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
+        className="absolute -left-3  md:-left-5 md:-translate-x-4 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 z-20 bg-emerald-900 hover:bg-emerald-500 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Scroll left"
       >
         <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -665,7 +665,7 @@ const categories = [
             }
           }
         }}
-        className="absolute right-0 md:mr-5 md:right-0 md:translate-x-4 top-1/2 -translate-y-1/2 -translate-x-2 md:translate-x-0 z-10 bg-emerald-300 hover:bg-emerald-500 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
+        className="absolute right-0 md:mr-5 md:-right-5 md:translate-x-4 top-1/2 -translate-y-1/2 -translate-x-2 md:translate-x-0 z-20 bg-emerald-900 hover:bg-emerald-500 text-emerald-600 rounded-full p-2 md:p-3 shadow-lg hover:shadow-xl transition-all duration-300"
         aria-label="Scroll right"
       >
         <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -48,7 +48,7 @@ export function CreditPurchase({
 }, []);
 
 
-  // Load Razorpay Script
+  
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -59,7 +59,7 @@ export function CreditPurchase({
     });
   };
 
-  // TEST PAYMENT FUNCTION (NO BACKEND)
+ 
   const handlePurchase = async () => {
     setIsProcessing(true);
 

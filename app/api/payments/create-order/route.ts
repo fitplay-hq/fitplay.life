@@ -4,10 +4,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
+    try {
+        const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { amount } = await req.json();
+    const { amount, isCash } = await req.json();
     const amountPaise = Math.max(Math.floor(amount * 100), 0);
     if (!amountPaise) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
 
@@ -35,19 +36,35 @@ export async function POST(req: NextRequest) {
     }
 
     const razorpayOrder = await res.json();
+    let order;
 
-    const order = await prisma.walletTopUp.create({
-        data: {
-            userId: session.user.id,
-            razorpayOrderId: razorpayOrder.id,
-            amount: amountPaise,
-            currency: razorpayOrder.currency,
-            receipt: razorpayOrder.receipt,
-            status: razorpayOrder.status,
-            attempts: razorpayOrder.attempts,
-            createdAtRazorpay: new Date(razorpayOrder.created_at * 1000),
-        },
-    });
+    if (isCash) {
+        order = await prisma.cashPayment.create({
+            data: {
+                amount: amountPaise,
+                paymentStatus: razorpayOrder.status,
+                razorpayOrderId: razorpayOrder.id,
+                currency: razorpayOrder.currency,
+                receipt: razorpayOrder.receipt,
+                attempts: razorpayOrder.attempts,
+                createdAtRazorpay: new Date(razorpayOrder.created_at * 1000),
+            }
+        })
+    }
+    else {
+        order = await prisma.walletTopUp.create({
+            data: {
+                userId: session.user.id,
+                razorpayOrderId: razorpayOrder.id,
+                amount: amountPaise,
+                currency: razorpayOrder.currency,
+                receipt: razorpayOrder.receipt,
+                status: razorpayOrder.status,
+                attempts: razorpayOrder.attempts,
+                createdAtRazorpay: new Date(razorpayOrder.created_at * 1000),
+            },
+        });
+    }
 
     return NextResponse.json({
         order: order.id,
@@ -56,4 +73,7 @@ export async function POST(req: NextRequest) {
         currency: razorpayOrder.currency,
         key: keyId,
     });
+    } catch (error) {
+        return NextResponse.json({ error: "Internal Server Error", details: (error as Error).message }, { status: 500 });
+    }
 }

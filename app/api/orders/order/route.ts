@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
       pincode: providedPincode,
       deliveryInstructions,
       remarks,
+      isCashPayment,
     } = body;
 
     if (!items || items.length === 0) {
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (user.wallet.balance < totalAmount) {
+    if (user.wallet.balance < 2*totalAmount) {
       return NextResponse.json(
         { error: "Insufficient wallet balance" },
         { status: 400 }
@@ -141,13 +142,13 @@ export async function POST(req: NextRequest) {
     const txResult = await prisma.$transaction(async (tx) => {
       const updatedWallet = await tx.wallet.update({
         where: { id: user.wallet!.id },
-        data: { balance: { decrement: totalAmount } },
+        data: { balance: { decrement: 2 * totalAmount } },
       });
 
       const transaction = await tx.transactionLedger.create({
         data: {
           userId: user.id,
-          amount: totalAmount,
+          amount: 2 * totalAmount,
           modeOfPayment: "Credits",
           balanceAfterTxn: updatedWallet.balance,
           isCredit: false,
@@ -160,7 +161,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: orderId,
           userId: user.id,
-          amount: totalAmount,
+          amount: 2 * totalAmount,
           status: "PENDING",
           transactionId: transaction.id,
           phNumber: finalPhNumber,
@@ -262,7 +263,7 @@ export async function POST(req: NextRequest) {
     <tfoot>
       <tr>
         <td colspan="4" align="right" style="font-weight: bold;">Grand Total</td>
-        <td align="right" style="font-weight: bold;">${totalAmount}</td>
+        <td align="right" style="font-weight: bold;">${totalAmount} MRP</td>
       </tr>
     </tfoot>
   </table>

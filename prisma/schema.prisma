@@ -43,7 +43,7 @@ model User {
   company      Company             @relation(fields: [companyId], references: [id])
   wallet       Wallet?
   redemptions  VoucherRedemption[]
-  walletTopups  WalletTopUp[]
+  walletTopups WalletTopUp[]
 }
 
 model Vendor {
@@ -203,6 +203,7 @@ model Order {
   deliveryInstructions String?            @db.VarChar(250)
   remarks              String?
   transactionId        String?            @unique
+  isCashPayment        Boolean?            @default(false)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @default(now()) @updatedAt
   transactionLedger    TransactionLedger? @relation(fields: [transactionId], references: [id])
@@ -225,19 +226,33 @@ model OrderItem {
 }
 
 model WalletTopUp {
-id                String   @id @default(uuid())
+  id                String    @id @default(uuid())
   userId            String
-  razorpayOrderId   String   @unique
+  razorpayOrderId   String    @unique
   razorpayPaymentId String?
   amount            Int
-  currency          String   @default("INR")
+  currency          String    @default("INR")
   receipt           String?
-  status            String   // created, paid, failed
+  status            String // created, paid, failed
   attempts          Int?
   createdAtRazorpay DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @default(now()) @updatedAt
-  user User @relation(fields: [userId], references: [id])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+  user              User      @relation(fields: [userId], references: [id])
+}
+
+model CashPayment {
+  id                String    @id @default(uuid())
+  amount            Int
+  paymentStatus     String // pending, completed, failed
+  razorpayPaymentId String?   @unique
+  razorpayOrderId   String?   @unique
+  currency          String    @default("INR")
+  receipt           String?
+  attempts          Int?
+  createdAtRazorpay DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
 }
 
 enum Status {

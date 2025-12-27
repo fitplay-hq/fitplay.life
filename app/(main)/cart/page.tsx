@@ -1022,404 +1022,227 @@ export default function CartPage() {
 
       
 
-      {/* Confirmation Step */}
-      {currentStep === "confirmation" && orderDetails && (
-        <div className="space-y-8 max-w-4xl mx-auto">
-          {/* Success Header */}
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-              <Check className="w-12 h-12 text-emerald-600" />
+{currentStep === "confirmation" && (orderDetails || cashorderdetails) && (
+  <div className="space-y-8 max-w-4xl mx-auto">
+    {/* Success Header */}
+    <div className="text-center space-y-6">
+      <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+        <Check className="w-12 h-12 text-emerald-600" />
+      </div>
+      <div>
+        <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
+        <p className="text-gray-600">
+          Your wellness products have been ordered successfully using your
+          company wellness credits.
+        </p>
+      </div>
+    </div>
+
+    {/* Order Details Grid */}
+    <div className="grid lg:grid-cols-2 gap-6">
+      {/* Order Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Package className="w-5 h-5" />
+            <span>Order Details</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Order ID:</span>
+              <div className="font-mono text-primary flex items-center space-x-1">
+                <Hash className="w-3 h-3" />
+                <span>{(orderDetails || cashorderdetails)?.order?.id}</span>
+              </div>
             </div>
             <div>
-              <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
-              <p className="text-gray-600">
-                Your wellness products have been ordered successfully using your
-                company wellness credits.
-              </p>
-            </div>
-          </div>
-
-          {/* Order Details Grid */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Order Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Package className="w-5 h-5" />
-                  <span>Order Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Order ID:</span>
-                    <div className="font-mono text-primary flex items-center space-x-1">
-                      <Hash className="w-3 h-3" />
-                      <span>{orderDetails.order.id}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Status:</span>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <span className="capitalize">
-                        {orderDetails.order.status.toLowerCase()}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Order Date:</span>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>
-                        {new Date(
-                          orderDetails.order.createdAt
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Total Amount:</span>
-                    <div className="font-bold text-emerald-600">
-                      {orderDetails.order.amount} credits
-                    </div>
-                  </div>
-                </div>
-
-                {/* Transaction ID */}
-                <div className="pt-2 border-t">
-                  <span className="text-gray-600 text-sm">Transaction ID:</span>
-                  <div className="font-mono text-sm text-gray-800">
-                    {orderDetails.order.transactionId}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Wallet Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Wallet className="w-5 h-5" />
-                  <span>Wallet Update</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Previous Balance:</span>
-                    <div className="font-bold">
-                      {orderDetails.wallet.balance + orderDetails.order.amount}{" "}
-                      credits
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Amount Deducted:</span>
-                    <div className="font-bold text-red-600">
-                      -{orderDetails.order.amount} credits
-                    </div>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-gray-600">New Balance:</span>
-                    <div className="font-bold text-emerald-600 text-lg">
-                      {orderDetails.wallet.balance} credits
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t">
-                  <span className="text-gray-600 text-sm">Wallet Expiry:</span>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-3 h-3" />
-                    <span className="text-sm">
-                      {new Date(
-                        orderDetails.wallet.expiryDate
-                      ).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Order Items */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <ShoppingBag className="w-5 h-5" />
-                <span>Order Items ({orderDetails.order.items.length})</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {orderDetails.order.items.map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                        <ImageWithFallback
-                          src={item.product?.images?.[0] || "/placeholder.png"}
-                          alt={item.product?.name || "Product"}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-primary">
-                          {item.product?.name || "Product"}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          Variant: {item.variant?.variantValue || "N/A"}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Product ID: {item.productId}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Quantity</p>
-                          <p className="font-bold">{item.quantity}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Unit Price</p>
-                          <p className="font-bold text-emerald-600">
-                            {item.price} credits
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Total</p>
-                          <p className="font-bold text-primary">
-                            {item.price * item.quantity} credits
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <span className="text-gray-600">Status:</span>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="capitalize">
+                  {(orderDetails || cashorderdetails)?.order?.status?.toLowerCase()}
+                </span>
               </div>
-
-              {/* Order Total */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium">Order Total:</span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    {orderDetails.order.amount} credits
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Next Steps */}
-          <div className="text-center space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-blue-800 mb-2">What's Next?</h3>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>
-                  • Your order is being processed and will be approved by HR
-                </li>
-                <li>• You'll receive email updates on order status</li>
-                <li>• Products will be delivered once order is approved</li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/profile">
-                <Button className="bg-emerald-500 hover:bg-emerald-600">
-                  View Order History
-                </Button>
-              </Link>
-              <Link href="/benefits">
-                <Button variant="outline">View My Benefits</Button>
-              </Link>
-              <Link href="/store">
-                <Button variant="outline">Continue Shopping</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {currentStep === "confirmation" && cashorderdetails && (
-        <div className="space-y-8 max-w-4xl mx-auto">
-          {/* Success Header */}
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-              <Check className="w-12 h-12 text-emerald-600" />
             </div>
             <div>
-              <h2 className="text-3xl text-primary mb-4">Order Confirmed!</h2>
-              <p className="text-gray-600">
-                Your wellness products have been ordered successfully using your
-                company wellness credits.
-              </p>
+              <span className="text-gray-600">Order Date:</span>
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-3 h-3" />
+                <span>
+                  {new Date(
+                    (orderDetails || cashorderdetails)?.order?.createdAt
+                  ).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-600">Total Amount:</span>
+              <div className="font-bold text-emerald-600">
+                {(orderDetails || cashorderdetails)?.order?.amount} {cashorderdetails ? "Rupees" : "credits"}
+              </div>
             </div>
           </div>
 
-          {/* Order Details Grid */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Order Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Package className="w-5 h-5" />
-                  <span>Order Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Order ID:</span>
-                    <div className="font-mono text-primary flex items-center space-x-1">
-                      <Hash className="w-3 h-3" />
-                      <span>{cashorderdetails.order.id}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Status:</span>
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <span className="capitalize">
-                        {cashorderdetails.order.status.toLowerCase()}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Order Date:</span>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>
-                        {new Date(
-                          cashorderdetails.order.createdAt
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Total Amount:</span>
-                    <div className="font-bold text-emerald-600">
-                      {cashorderdetails.order.amount} Rupees
-                    </div>
-                  </div>
-                </div>
-
-                {/* Transaction ID */}
-                <div className="pt-2 border-t">
-                  <span className="text-gray-600 text-sm">Transaction ID:</span>
-                  <div className="font-mono text-sm text-gray-800">
-                    {cashorderdetails.order.transactionId}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-           
-           
+          {/* Transaction ID */}
+          <div className="pt-2 border-t">
+            <span className="text-gray-600 text-sm">Transaction ID:</span>
+            <div className="font-mono text-sm text-gray-800">
+              {(orderDetails || cashorderdetails)?.order?.transactionId}
+            </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Order Items */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <ShoppingBag className="w-5 h-5" />
-                <span>Order Items ({cashorderdetails.order.items.length})</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {cashorderdetails.order.items.map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                        <ImageWithFallback
-                          src={item.product?.images?.[0] || "/placeholder.png"}
-                          alt={item.product?.name || "Product"}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-primary">
-                          {item.product?.name || "Product"}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          Variant: {item.variant?.variantValue || "N/A"}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Product ID: {item.productId}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Quantity</p>
-                          <p className="font-bold">{item.quantity}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Unit Price</p>
-                          <p className="font-bold text-emerald-600">
-                            {item.price} credits
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Total</p>
-                          <p className="font-bold text-primary">
-                            {item.price * item.quantity} credits
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Order Total */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium">Order Total:</span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    {cashorderdetails.order.amount} Rupees
-                  </span>
+      {/* Wallet Information */}
+      {orderDetails && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Wallet className="w-5 h-5" />
+              <span>Wallet Update</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Previous Balance:</span>
+                <div className="font-bold">
+                  {(orderDetails?.wallet?.balance || 0) + (orderDetails?.order?.amount || 0)}{" "}
+                  credits
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Next Steps */}
-          <div className="text-center space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-blue-800 mb-2">What's Next?</h3>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>
-                  • Your order is being processed and will be approved by HR
-                </li>
-                <li>• You'll receive email updates on order status</li>
-                <li>• Products will be delivered once order is approved</li>
-              </ul>
+              <div>
+                <span className="text-gray-600">Amount Deducted:</span>
+                <div className="font-bold text-red-600">
+                  -{orderDetails?.order?.amount} credits
+                </div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-gray-600">New Balance:</span>
+                <div className="font-bold text-emerald-600 text-lg">
+                  {orderDetails?.wallet?.balance} credits
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/profile">
-                <Button className="bg-emerald-500 hover:bg-emerald-600">
-                  View Order History
-                </Button>
-              </Link>
-              <Link href="/benefits">
-                <Button variant="outline">View My Benefits</Button>
-              </Link>
-              <Link href="/store">
-                <Button variant="outline">Continue Shopping</Button>
-              </Link>
+            <div className="pt-2 border-t">
+              <span className="text-gray-600 text-sm">Wallet Expiry:</span>
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-3 h-3" />
+                <span className="text-sm">
+                  {new Date(
+                    orderDetails?.wallet?.expiryDate
+                  ).toLocaleDateString()}
+                </span>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+
+    {/* Order Items */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <ShoppingBag className="w-5 h-5" />
+          <span>Order Items ({(orderDetails || cashorderdetails)?.order?.items?.length})</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {(orderDetails || cashorderdetails)?.order?.items?.map((item: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <ImageWithFallback
+                    src={item?.product?.images?.[0] || "/placeholder.png"}
+                    alt={item?.product?.name || "Product"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-medium text-primary">
+                    {item?.product?.name || "Product"}
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Variant: {item?.variant?.variantValue || "N/A"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Product ID: {item?.productId}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center space-x-4">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">Quantity</p>
+                    <p className="font-bold">{item?.quantity}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">Unit Price</p>
+                    <p className="font-bold text-emerald-600">
+                      {item?.price} credits
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">Total</p>
+                    <p className="font-bold text-primary">
+                      {(item?.price || 0) * (item?.quantity || 0)} credits
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Order Total */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">Order Total:</span>
+            <span className="text-2xl font-bold text-emerald-600">
+              {(orderDetails || cashorderdetails)?.order?.amount} {cashorderdetails ? "Rupees" : "credits"}
+            </span>
           </div>
         </div>
-      )}
+      </CardContent>
+    </Card>
+
+    {/* Next Steps */}
+    <div className="text-center space-y-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-medium text-blue-800 mb-2">What's Next?</h3>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>
+            • Your order is being processed and will be approved by HR
+          </li>
+          <li>• You'll receive email updates on order status</li>
+          <li>• Products will be delivered once order is approved</li>
+        </ul>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Link href="/profile">
+          <Button className="bg-emerald-500 hover:bg-emerald-600">
+            View Order History
+          </Button>
+        </Link>
+        <Link href="/benefits">
+          <Button variant="outline">View My Benefits</Button>
+        </Link>
+        <Link href="/store">
+          <Button variant="outline">Continue Shopping</Button>
+        </Link>
+      </div>
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>

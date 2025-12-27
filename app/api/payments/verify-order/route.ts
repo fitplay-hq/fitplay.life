@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
             pincode: providedPincode,
             deliveryInstructions,
             remarks,
-            isCashPayment,
         } = body;
 
         const razorpay_payment_id = body.razorpay_payment_id;

@@ -219,12 +219,12 @@
 // }
 
 
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -286,11 +286,12 @@ export async function GET(request: NextRequest) {
       outOfStockCount,
     });
 
-    // Launch Puppeteer and generate PDF
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+  args: chromium.args,
+  executablePath: await chromium.executablePath(),
+  headless: true,
+});
+
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -309,7 +310,7 @@ export async function GET(request: NextRequest) {
 
     await browser.close();
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

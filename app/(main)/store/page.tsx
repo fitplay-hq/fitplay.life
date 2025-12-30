@@ -251,10 +251,10 @@ export default function WellnessStore() {
   }));
 
   const priceRanges = [
-    { value: "under-100", label: "Under 100 credits", min: 0, max: 99 },
-    { value: "100-300", label: "100 - 300 credits", min: 100, max: 300 },
-    { value: "300-500", label: "300 - 500 credits", min: 300, max: 500 },
-    { value: "above-500", label: "Above 500 credits", min: 500, max: Infinity },
+    { value: "under-1000", label: "Under 1000 credits", min: 0, max: 1000 },
+    { value: "1000-3000", label: "1000 - 3000 credits", min: 1000, max: 3000 },
+    { value: "3000-5000", label: "3000 - 5000 credits", min: 3000, max: 5000 },
+    { value: "above-5000", label: "Above 5000 credits", min: 5000, max: Infinity },
   ];
 
   // Categories are now fetched from API and stored in state
@@ -926,3 +926,6 @@ h-auto lg:h-[440px]"
     </div>
   );
 }
+
+
+

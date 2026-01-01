@@ -101,7 +101,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-          <p>&copy; 2025 FitPlay.life. All rights reserved. Empowering wellness, one employee at a time.</p>
+          <p>&copy; 2026 FitPlay.life. All rights reserved. Empowering wellness, one employee at a time.</p>
         </div>
       </div>
     </footer>

@@ -96,7 +96,7 @@ export function AboutUs() {
       icon: Trophy
     },
     {
-      year: '2025',
+      year: '2026',
       title: 'Future Forward',
       description: 'Continuing to innovate with AI-powered wellness recommendations and personalized health journeys.',
       icon: Sparkles

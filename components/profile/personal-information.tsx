@@ -10,15 +10,20 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "next-auth";
+import { useRouter } from "next/navigation";
+
 
 interface ProfileData {
   id: string;
+  address: string | null;
+  company: any;
   name: string | null;
   email: string | null;
   phone: string | null;
   role: string;
   wallet?: any;
   orders?: any[];
+  password:string | null;
 }
 
 const fetcher = (url: string) =>
@@ -28,6 +33,8 @@ export default function PersonalInformation() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
+  const router = useRouter();
+  
 
   const {
     data: profileData,
@@ -37,6 +44,9 @@ export default function PersonalInformation() {
   } = useSWR("/api/profile", fetcher);
 
   const profile = profileData?.data;
+  console.log("profile", profile);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+const [address, setAddress] = useState(profile?.address || "");
 
   // Initialize edited profile when data loads
   useEffect(() => {
@@ -44,6 +54,10 @@ export default function PersonalInformation() {
       setEditedProfile(profile);
     }
   }, [profile, editedProfile]);
+
+    const goToResetPassword = () => {
+    router.push("/reset-password"); // Redirect to /profile
+  };
 
   const handleSaveProfile = async () => {
     if (!editedProfile) return;
@@ -128,6 +142,7 @@ export default function PersonalInformation() {
   }
 
   return (
+    <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Personal Information</CardTitle>
@@ -193,6 +208,67 @@ export default function PersonalInformation() {
           />
           <p className="text-xs text-gray-500">Role is assigned by your organization</p>
         </div>
+        {/* ADDRESS SECTION */}
+<div className="border-t pt-4 space-y-2">
+  <Label className="text-gray-700 font-medium">Address</Label>
+
+  {!isEditingAddress ? (
+    <div className="flex items-center justify-between">
+      <p className="text-gray-600 text-sm">
+        {editedProfile.address ? editedProfile.address : "Address not added yet"}
+      </p>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsEditingAddress(true)}
+        className="border-emerald-300 text-emerald-600"
+      >
+        {editedProfile.address ? "Edit" : "Add"}
+      </Button>
+    </div>
+  ) : (
+    <>
+      <Input
+        value={editedProfile.address || ""}
+        placeholder="Enter your address"
+        onChange={(e) =>
+          setEditedProfile({ ...editedProfile, address: e.target.value })
+        }
+        className="border-emerald-300"
+      />
+      <div className="flex gap-2">
+        <Button
+          onClick={async () => {
+            try {
+              await fetch("/api/profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ address: editedProfile.address }),
+              });
+              toast.success("Address updated");
+              setIsEditingAddress(false);
+              mutate(); // refresh SWR data
+            } catch {
+              toast.error("Failed to update address");
+            }
+          }}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          Save Address
+        </Button>
+
+        <Button
+          variant="ghost"
+          onClick={() => setIsEditingAddress(false)}
+        >
+          Cancel
+        </Button>
+      </div>
+    </>
+  )}
+</div>
+
+
         {isEditing && (
           <Button
             onClick={handleSaveProfile}
@@ -204,5 +280,24 @@ export default function PersonalInformation() {
         )}
       </CardContent>
     </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Password Reset</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-gray-600">
+          If you wish to reset your password, please click the button below to receive a password reset link via email.
+        </p>
+        <Button
+          onClick={goToResetPassword}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          Send Reset Link
+        </Button>
+      </CardContent>
+    </Card>
+
+    </>
   );
 }

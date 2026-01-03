@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
             include: {
                 wallet: true,
                 orders: true,
+                company: true,
             }
         });
 

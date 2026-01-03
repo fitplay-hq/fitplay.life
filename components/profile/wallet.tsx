@@ -74,7 +74,7 @@ export default function WalletComponent({
   <DialogTrigger asChild>
     <button
       onClick={() => setOpen(true)}
-      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 mt-4"
     >
       <Plus className="w-4 h-4 mr-2" />
       Add Credits

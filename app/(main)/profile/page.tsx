@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import {
+  LayoutDashboard,
+  History,
+  Wallet,
+  Settings,
+  
+} from "lucide-react";
+
 import { useSearchParams, useRouter } from "next/navigation";
 import { User, LogOut, Shield, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +20,7 @@ import WalletComponent from "@/components/profile/wallet";
 import { WalletTransaction } from "@/components/profile/wallet";
 import HistoryComponent from "@/components/profile/history";
 import Wishlist from "@/components/profile/wishlist";
+import SupportModule from "@/components/profile/support";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 import PersonalInformation from "@/components/profile/personal-information";
@@ -32,6 +41,7 @@ interface Order {
   id: string;
   userId: string;
   amount: number;
+  isCashPayment?: boolean | null;
   status: string;
   phNumber?: string | null;
   address?: string | null;
@@ -100,6 +110,7 @@ interface TransformedOrder {
   date: string;
   item: string;
   amount: number;
+  isCashPayment?: boolean | null;
   credits: number;
   status: string;
   phNumber?: string | null;
@@ -137,6 +148,7 @@ function ProfileContent() {
   const { orders, isLoading: ordersLoading } = useOrders();
   const searchParams = useSearchParams();
   const router = useRouter();
+  console.log("user", user);
   
   // Get the tab from URL parameters, default to "dashboard"
   const activeTab = searchParams.get('tab') || 'dashboard';
@@ -231,6 +243,7 @@ function ProfileContent() {
     return {
       id: order.id,
       date: new Date(order.createdAt).toISOString().split("T")[0],
+      isCashPayment: order.isCashPayment,
       item: itemName,
       amount: order.amount,
       credits: order.amount, // Since credits are used as currency
@@ -388,47 +401,71 @@ function ProfileContent() {
 
       {/* Content Section */}
       <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        
+     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
 
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
-            <TabsList
-              className={`grid w-full bg-white/70 backdrop-blur-sm border border-emerald-200 shadow-xl rounded-2xl p-2 ${
-                user.role === $Enums.Role.EMPLOYEE ? "grid-cols-5" : "grid-cols-4"
-              }`}
-            >
-              <TabsTrigger 
-                value="dashboard" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
-              >
-                📊 Dashboard
-              </TabsTrigger>
-              <TabsTrigger 
-                value="settings" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
-              >
-                ⚙️ Settings
-              </TabsTrigger>
-              <TabsTrigger 
-                value="wallet" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
-              >
-                💳 Wallet
-              </TabsTrigger>
-              <TabsTrigger 
-                value="history" 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
-              >
-                📈 History
-              </TabsTrigger>
-              {user.role === $Enums.Role.EMPLOYEE && (
-                <TabsTrigger 
-                  value="wishlist"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white font-medium transition-all duration-200 rounded-xl"
-                >
-                  <Heart className="w-4 h-4 mr-1 inline" /> Wishlist
-                </TabsTrigger>
-              )}
-            </TabsList>
+  <Tabs value={activeTab} onValueChange={handleTabChange}>
+
+    <div className="w-full flex justify-center">
+
+      <TabsList
+        className={`
+          w-full
+          max-w-7xl
+          min-h-[64px]
+
+          grid
+          gap-2
+          px-2 sm:px-4
+
+          bg-gradient-to-r from-emerald-50 via-white to-teal-50
+          border border-emerald-200
+          rounded-2xl
+
+          shadow-[0_15px_40px_rgba(16,185,129,0.18)]
+
+          ${
+            user.role === $Enums.Role.EMPLOYEE
+              ? "grid-cols-5"
+              : "grid-cols-4"
+          }
+        `}
+      >
+
+        <TabsTrigger value="dashboard" className="tab-trigger">
+          <LayoutDashboard className="w-4 h-4" />
+  <span>Overview</span>
+        </TabsTrigger>
+
+        
+        <TabsTrigger value="history" className="tab-trigger">
+          <History className="w-4 h-4" />
+  <span>My Orders</span>
+        </TabsTrigger>
+
+       
+
+        <TabsTrigger value="wallet" className="tab-trigger">
+          <Wallet className="w-4 h-4" />
+  <span>Wallet</span>
+        </TabsTrigger>
+        <TabsTrigger value="settings" className="tab-trigger">
+           <Settings className="w-4 h-4" />
+  <span>Settings</span>
+        </TabsTrigger>
+
+
+        {user.role === $Enums.Role.EMPLOYEE && (
+          <TabsTrigger value="wishlist" className="tab-trigger">
+            <Heart className="w-3.5 h-3.5" />
+            Support
+          </TabsTrigger>
+        )}
+
+      </TabsList>
+
+    </div>
+
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6">
@@ -474,7 +511,32 @@ function ProfileContent() {
             <Dashboard
               dashboardStats={dashboardStats}
               orderHistory={orderHistory}
+              user={user}
             />
+          )}
+        </TabsContent>
+
+
+         <TabsContent value="history" className="space-y-6">
+          {ordersLoading ? (
+            <div className="space-y-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-64 animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                      </div>
+                      <div className="h-7 bg-gray-200 rounded w-20 animate-pulse"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <HistoryComponent orderHistory={orderHistory} />
           )}
         </TabsContent>
 
@@ -510,33 +572,12 @@ function ProfileContent() {
         </TabsContent>
 
         {/* History Tab */}
-        <TabsContent value="history" className="space-y-6">
-          {ordersLoading ? (
-            <div className="space-y-6">
-              {[...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-3">
-                        <div className="h-5 bg-gray-200 rounded w-64 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
-                      </div>
-                      <div className="h-7 bg-gray-200 rounded w-20 animate-pulse"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <HistoryComponent orderHistory={orderHistory} />
-          )}
-        </TabsContent>
+       
 
         {/* Wishlist Tab - Only for user role */}
         {user.role === $Enums.Role.EMPLOYEE && (
           <TabsContent value="wishlist" className="space-y-6">
-            <Wishlist
+            {/* <Wishlist
               wishlistItems={wishlistItems}
               onAddToCart={(product, selectedVariant) =>
                 addToCart({ product, selectedVariant })
@@ -571,7 +612,8 @@ function ProfileContent() {
               }}
               onRemoveFromWishlist={removeFromWishlist}
               onSetCartAnimation={setCartAnimation}
-            />
+            /> */}
+            <SupportModule />
           </TabsContent>
         )}
           </Tabs>

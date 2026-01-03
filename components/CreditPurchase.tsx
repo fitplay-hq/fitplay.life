@@ -164,24 +164,24 @@ export function CreditPurchase({
         </div>
 
         {/* Required */}
-        <div className="flex items-center justify-between text-sm">
+        {/* <div className="flex items-center justify-between text-sm">
           <span>Required Credits:</span>
           <Badge variant="destructive">{requiredCredits} credits</Badge>
-        </div>
+        </div> */}
 
         {/* Needed */}
-        <div className="flex items-center justify-between text-sm font-medium">
+        {/* <div className="flex items-center justify-between text-sm font-medium">
           <span>Credits Needed:</span>
           <Badge className="bg-orange-500 text-white">
             {creditsNeeded} credits
           </Badge>
-        </div>
+        </div> */}
 
         {/* Select Credits */}
         <div className="border-t pt-4 space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Credits to Purchase (minimum {creditsNeeded})
+              Credits to Purchase 
             </label>
 
             <div className="flex items-center space-x-3">

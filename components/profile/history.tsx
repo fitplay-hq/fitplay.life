@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { MapPin, Phone, Package, Calendar, Hash, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { is } from "date-fns/locale";
 
 interface Order {
   id: string;
   date: string;
   item: string;
   amount: number;
+  isCashPayment?: boolean | null;
   credits: number;
   status: string;
   phNumber?: string | null;
@@ -40,6 +42,8 @@ interface HistoryProps {
 
 export default function History({ orderHistory }: HistoryProps) {
   const router = useRouter();
+
+  console.log("Order History:", orderHistory);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -91,12 +95,15 @@ export default function History({ orderHistory }: HistoryProps) {
                           minute: "2-digit",
                         })}
                       </span>
+                      <Badge className="bg-blue-100 text-gray-800 border-0 font-bold text-sm">
+                        {order.isCashPayment ? 'Cash' : 'Credits'}
+                      </Badge>
                     </div>
                   </div>
                   <div className="flex flex-col items-end space-y-2">
                     <div className="text-right">
                       <p className="text-lg font-bold text-emerald-600">
-                        {order.credits} credits
+                        {order.credits } {order.isCashPayment ? 'INR' : 'Credits'} 
                       </p>
                       <p className="text-sm text-gray-600">
                         {order.items?.length || 1} items

@@ -4,6 +4,8 @@ interface Order {
   id: string;
   userId: string;
   amount: number;
+   isCashPayment?: boolean | null;
+
   status: string;
   phNumber?: string | null;
   address?: string | null;

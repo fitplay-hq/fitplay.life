@@ -329,46 +329,52 @@ const OrderDetail = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pt-18">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                {showBackButton && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleBack}
-                    className="self-start"
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                )}
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    Order #{order.id}
-                  </h1>
-                  <p className="text-gray-600 mt-1">
-                    {isAdmin ? "Admin Order Details" : "Your Order Details"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge
-                  className={`${getStatusColor(
-                    order.status
-                  )} text-sm px-4 py-2 font-medium`}
+<div className="relative min-h-screen bg-gray-50/50">
+
+  {/* ONLY NAVBAR GREEN BACKGROUND */}
+  <div className="absolute top-0 left-0 w-full h-20 bg-emerald-700" />
+
+  {/* PAGE CONTENT (UNCHANGED) */}
+  <div className="relative pt-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-8">
+
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {showBackButton && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBack}
+                  className="self-start"
                 >
-                  {order.status}
-                </Badge>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              )}
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Order #{order.id}
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  {isAdmin ? "Admin Order Details" : "Your Order Details"}
+                </p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <Badge
+                className={`${getStatusColor(
+                  order.status
+                )} text-sm px-4 py-2 font-medium`}
+              >
+                {order.status}
+              </Badge>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        </div>
+<div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="xl:col-span-2 space-y-8">
               {/* Order Items */}
@@ -764,10 +770,18 @@ const OrderDetail = ({
               )}
             </div>
           </div>
-        </div>
+
+        
       </div>
     </div>
+  </div>
+</div>
   );
 };
+
+
+    
+  
+  
 
 export default OrderDetail;

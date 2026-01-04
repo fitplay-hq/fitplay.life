@@ -46,7 +46,7 @@ export default function PersonalInformation() {
   const profile = profileData?.data;
   console.log("profile", profile);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
-const [address, setAddress] = useState(profile?.address || "");
+
 
   // Initialize edited profile when data loads
   useEffect(() => {
@@ -146,21 +146,7 @@ const [address, setAddress] = useState(profile?.address || "");
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Personal Information</CardTitle>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setIsEditing(!isEditing);
-            if (!isEditing) {
-              setEditedProfile(profile); // Reset to current data when starting edit
-            }
-          }}
-          disabled={saving}
-          className="border-emerald-300 text-emerald-600 hover:bg-emerald-50"
-        >
-          <Edit2 className="w-4 h-4 mr-2" />
-          {isEditing ? "Cancel" : "Edit Phone"}
-        </Button>
+       
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -183,21 +169,56 @@ const [address, setAddress] = useState(profile?.address || "");
             }
           />
         </div>
-        <div className="space-y-2">
-          <Label className={isEditing ? "text-emerald-600 font-medium" : ""}>Phone {isEditing && <span className="text-emerald-600"></span>}</Label>
-          <Input
-            value={editedProfile.phone || ""}
-            disabled={!isEditing || saving}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-              setEditedProfile({ ...editedProfile, phone: value });
-            }}
-            pattern="[0-9]{10}"
-            title="Phone number must be exactly 10 digits"
-            maxLength={10}
-            className={isEditing ? "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500" : ""}
-          />
-        </div>
+         
+       <div className="space-y-2">
+  {/* Title + Button Row */}
+  <div className="flex items-center justify-between">
+    <Label
+      className={true ? "text-emerald-600 font-medium" : ""}
+    >
+      Phone
+    </Label>
+
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        setIsEditing(!isEditing);
+        if (!isEditing) {
+          setEditedProfile(profile);
+        }
+      }}
+      disabled={saving}
+      className="border-emerald-300 text-emerald-600 hover:bg-emerald-50"
+    >
+      <Edit2 className="w-4 h-4 mr-1" />
+      {isEditing ? "Cancel" : "Edit"}
+    </Button>
+  </div>
+
+  {/* Input */}
+  <Input
+  value={editedProfile.phone || ""}
+  disabled={!isEditing}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setEditedProfile({ ...editedProfile, phone: value });
+  }}
+  pattern="[0-9]{10}"
+  title="Phone number must be exactly 10 digits"
+  maxLength={10}
+  className={`
+    disabled:text-black
+    disabled:opacity-100
+    disabled:cursor-default
+    ${isEditing
+      ? "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500"
+      : ""}
+  `}
+/>
+
+</div>
+
         <div className="space-y-2">
           <Label className="text-gray-500">Role</Label>
           <Input 
@@ -208,65 +229,8 @@ const [address, setAddress] = useState(profile?.address || "");
           />
           <p className="text-xs text-gray-500">Role is assigned by your organization</p>
         </div>
-        {/* ADDRESS SECTION */}
-<div className="border-t pt-4 space-y-2">
-  <Label className="text-gray-700 font-medium">Address</Label>
+       
 
-  {!isEditingAddress ? (
-    <div className="flex items-center justify-between">
-      <p className="text-gray-600 text-sm">
-        {editedProfile.address ? editedProfile.address : "Address not added yet"}
-      </p>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsEditingAddress(true)}
-        className="border-emerald-300 text-emerald-600"
-      >
-        {editedProfile.address ? "Edit" : "Add"}
-      </Button>
-    </div>
-  ) : (
-    <>
-      <Input
-        value={editedProfile.address || ""}
-        placeholder="Enter your address"
-        onChange={(e) =>
-          setEditedProfile({ ...editedProfile, address: e.target.value })
-        }
-        className="border-emerald-300"
-      />
-      <div className="flex gap-2">
-        <Button
-          onClick={async () => {
-            try {
-              await fetch("/api/profile", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: editedProfile.address }),
-              });
-              toast.success("Address updated");
-              setIsEditingAddress(false);
-              mutate(); // refresh SWR data
-            } catch {
-              toast.error("Failed to update address");
-            }
-          }}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          Save Address
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={() => setIsEditingAddress(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </>
-  )}
-</div>
 
 
         {isEditing && (

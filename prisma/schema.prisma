@@ -46,13 +46,6 @@ model User {
   walletTopups WalletTopUp[]
 }
 
-
-
-
-
-
-
-
 model Vendor {
   id        String    @id @default(uuid())
   name      String    @db.VarChar(50)

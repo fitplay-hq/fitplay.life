@@ -207,7 +207,8 @@ function ProfileContent() {
     creditsRemaining: 0,
   });
 
-  const walletHistory = walletData?.walletHistory || [];
+  const walletHistory = walletData?.creditTransactionsRecent || [];
+  console.log("walletData", walletData);
 
   useEffect(() => {
     if (walletData?.dashboardStats) {
@@ -567,6 +568,7 @@ function ProfileContent() {
             <WalletComponent
               dashboardStats={dashboardStats}
               walletHistory={walletHistory}
+
             />
           )}
         </TabsContent>

@@ -1,5 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { is } from "date-fns/locale";
+import { m } from "framer-motion";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -285,6 +287,7 @@ export async function GET(req: NextRequest) {
       });
 
       const recentTransactions = allTransactions.slice(0, 10);
+      const creditTransactions = allTransactions.filter(tx  => ((tx.modeOfPayment === "Credits")||(tx.modeOfPayment === "Cash" && tx.transactionType === "CREDIT"))).slice(0, 10);
 
       const transactions = recentTransactions.map((tx) => ({
         id: tx.id,
@@ -293,7 +296,37 @@ export async function GET(req: NextRequest) {
         amount: tx.isCredit ? tx.amount : -tx.amount,
         balance: tx.balanceAfterTxn || wallet!.balance, 
         description: tx.isCredit ? "Credits added by admin" : "Purchase made",
+        modeOfPayment: tx.modeOfPayment,
+        isCredit: tx.isCredit,
       }));
+
+      
+      const recentcreditTransactions = creditTransactions.map((tx) => ({
+  id: tx.id,
+  date: tx.createdAt.toISOString().split("T")[0],
+  type: tx.transactionType,
+
+  amount:
+    (tx.modeOfPayment === "Credits" && tx.transactionType === "PURCHASE")
+      ? -tx.amount
+      : (tx.modeOfPayment === "Cash" && tx.transactionType === "CREDIT")
+        ? tx.amount
+        : tx.amount,
+
+  balance: tx.balanceAfterTxn || wallet!.balance,
+
+  description:
+    (tx.modeOfPayment === "Credits" && tx.transactionType === "PURCHASE")
+      ? "Purchase Made"
+      : (tx.modeOfPayment === "Cash" && tx.transactionType === "CREDIT")
+        ? "Credit Added"
+        : "Credits added by admin",
+
+  modeOfPayment: tx.modeOfPayment,
+  isCredit: tx.isCredit,
+}));
+
+
 
       // Compute creditsUsed as sum of debits
       const creditsUsed = allTransactions
@@ -310,6 +343,7 @@ export async function GET(req: NextRequest) {
           creditsUsed,
         },
         walletHistory: transactions,
+        creditTransactionsRecent: recentcreditTransactions,
       });
     }
 

@@ -73,6 +73,11 @@ const OrdersManagement = () => {
   const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR("/api/orders", fetcher);
 
+  const CATEGORY_NAME_TO_FILTER: Record<string, string> = {
+  "INR": "inr",
+  "Credits": "credits",
+};
+
   // Transform API data to match component expectations
   const orders = (data?.orders || []).map((order: any) => ({
     id: order.id,
@@ -89,7 +94,7 @@ const OrdersManagement = () => {
     })),
     totalCredits: order.amount,
     inrAmount: Math.floor(order.amount / 2),
-    paymentMode: "credits", // Assuming all are credits for now
+    paymentMode: order.isCashPayment?"INR":"Credits",
     status: order.status.toLowerCase(),
     orderDate: order.createdAt,
     approvedDate: null, // TODO: Add these fields to API
@@ -190,7 +195,7 @@ const OrdersManagement = () => {
 
   const getPaymentBadge = (paymentMode: string) => {
     switch (paymentMode) {
-      case "credits":
+      case "Credits":
         return (
           <Badge
             variant="outline"
@@ -199,7 +204,7 @@ const OrdersManagement = () => {
             Credits Only
           </Badge>
         );
-      case "inr":
+      case "INR":
         return (
           <Badge variant="outline" className="border-blue-500 text-blue-600">
             INR Only
@@ -219,6 +224,7 @@ const OrdersManagement = () => {
     }
   };
 
+
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -227,7 +233,9 @@ const OrdersManagement = () => {
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
     const matchesPayment =
-      paymentFilter === "all" || order.paymentMode === paymentFilter;
+      paymentFilter === "all" || CATEGORY_NAME_TO_FILTER[order.paymentMode] === paymentFilter;
+      console.log("paymentFilter state:", paymentFilter);
+      
 
     let matchesDate = true;
     if (dateFilter !== "all") {

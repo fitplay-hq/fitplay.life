@@ -36,6 +36,15 @@ export default function AdminProductsPage() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
 
+  const CATEGORY_NAME_TO_FILTER: Record<string, string> = {
+  "Fitness & Gym Equipment": "Fitness_And_Gym_Equipment",
+  "Nutrition & Health Foods": "Nutrition_And_Health",
+  "Diagnostics & Preventive Health": "Diagnostics_And_Prevention",
+  "Ergonomics & Workspace Comfort": "Ergonomics_And_Workspace_Comfort",
+  "Health & Wellness Services": "Health_And_Wellness_Services",
+};
+
+
   const filteredProducts = products
     .filter((product: any) => {
       const matchesSearch =
@@ -44,8 +53,10 @@ export default function AdminProductsPage() {
         product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (product.description || '').toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesCategory =
-        categoryFilter === "all" || product.category?.name === categoryFilter;
+     const matchesCategory =
+  categoryFilter === "all" ||
+  CATEGORY_NAME_TO_FILTER[product.category?.name] === categoryFilter;
+
       
       const matchesStatus = 
         statusFilter === "all" || 
@@ -81,6 +92,9 @@ export default function AdminProductsPage() {
           return 0;
       }
     });
+console.log("categoryFilter state:", categoryFilter);
+
+
 
   const handleEdit = (product: any) => {
     setEditingProduct(product);

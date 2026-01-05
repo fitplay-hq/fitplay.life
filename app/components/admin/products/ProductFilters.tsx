@@ -29,7 +29,7 @@ interface ProductFiltersProps {
 const getFriendlyCategoryName = (category: string) => {
   const friendlyNames: Record<string, string> = {
     Fitness_And_Gym_Equipment: "Fitness & Gym Equipment",
-    Nutrition_And_Health: "Nutrition & Health",
+    Nutrition_And_Health: "Nutrition & Health Foods",
     Diagnostics_And_Prevention: "Diagnostics & Prevention",
     Ergonomics_And_Workspace_Comfort: "Ergonomics & Workspace Comfort",
     Health_And_Wellness_Services: "Health & Wellness Services",

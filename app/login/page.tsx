@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import Link from "next/link";
@@ -12,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Heart, Shield, Users } from "lucide-react";
+import { Heart, Shield, Users, ArrowRight, Activity, Lock } from "lucide-react";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
@@ -50,7 +52,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ Fetch updated session after successful signIn
       const session = await getSession();
       const role = session?.user?.role;
 
@@ -94,136 +95,221 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-500 rounded-full blur-xl"></div>
-        <div className="absolute top-40 right-20 w-32 h-32 bg-green-500 rounded-full blur-xl"></div>
-        <div className="absolute bottom-20 left-1/3 w-24 h-24 bg-teal-500 rounded-full blur-xl"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-emerald-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Smooth animated background */}
+      <div className="absolute inset-0 overflow-hidden opacity-40">
+        {/* Large slow-moving gradients */}
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-600/30 rounded-full blur-3xl animate-float-slow"></div>
+        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-green-600/25 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '6s' }}></div>
+        
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.02)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Image
-              src="/logo.png"
-              alt="FitPlay Logo"
-              width={120}
-              height={120}
-              className="rounded-lg object-contain"
-              priority
-            />
+      <style jsx>{`
+        @keyframes float-slow {
+          0%, 100% { transform: translate(0, 0); }
+          33% { transform: translate(30px, -30px); }
+          66% { transform: translate(-20px, 20px); }
+        }
+        .animate-float-slow {
+          animation: float-slow 20s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="w-full max-w-6xl relative z-10 grid lg:grid-cols-2 gap-16 items-center">
+        {/* Left side - Branding */}
+        <div className="hidden lg:flex flex-col justify-center space-y-12 text-white">
+          <div className="space-y-6">
+            <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2">
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-300">Trusted by 25,000+ users</span>
+            </div>
+            
+            <h1 className="text-6xl font-bold leading-tight">
+              <span className="block text-white">Welcome to</span>
+              <span className="block text-emerald-400 mt-2">FitPlay Wellness</span>
+            </h1>
+            
+            <p className="text-lg text-gray-400 leading-relaxed max-w-md">
+              Your comprehensive platform for workplace wellness, fitness tracking, and employee health management.
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your wellness account</p>
+
+          <div className="space-y-5">
+            {[
+              { icon: Shield, title: "Platform", desc: "Provide Platform for Vendors To Let Consumer Buy Through Credit", color: "emerald" },
+              { icon: Activity, title: "Track Progress", desc: "Buy Health Realated Items That Change Life Forever", color: "green" },
+              { icon: Lock, title: "Privacy First", desc: "Your data is encrypted and fully protected", color: "teal" }
+            ].map((feature, idx) => (
+              <div 
+                key={idx}
+                className="flex items-start space-x-4 bg-white/5 border border-emerald-500/20 rounded-xl p-5 hover:bg-white/10 transition-all duration-300"
+              >
+                <div className={`w-12 h-12 bg-${feature.color}-500/20 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <feature.icon className={`w-6 h-6 text-${feature.color}-400`} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-base mb-1 text-white">{feature.title}</h3>
+                  <p className="text-gray-400 text-sm">{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-emerald-100 shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-gray-900">
-              Sign In
-            </CardTitle>
-            <CardDescription className="text-center text-gray-600">
-              Enter your credentials to access your wellness dashboard
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
-                  required
-                  disabled={isLoading}
+        {/* Right side - Login Card */}
+        <div className="w-full">
+          <div className="text-center mb-8 lg:hidden">
+            <div className="inline-flex items-center justify-center mb-6">
+              <Image
+                src="/logo.png"
+                alt="FitPlay Logo"
+                width={100}
+                height={100}
+                className="rounded-xl object-contain"
+                priority
+              />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+            <p className="text-gray-400">Sign in to your wellness account</p>
+          </div>
+
+          <Card className="bg-slate-900/70 backdrop-blur-xl border border-emerald-500/20 shadow-2xl">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+            
+            <CardHeader className="space-y-2 pt-8 pb-6">
+              <div className="hidden lg:flex items-center justify-center mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="FitPlay Logo"
+                  width={80}
+                  height={80}
+                  className="rounded-xl object-contain"
+                  priority
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">
-                  Password
-                </Label>
-                <PasswordInput
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 pr-10"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) =>
-                      setRememberMe(checked === true)
-                    }
+              <CardTitle className="text-3xl text-center font-bold text-white">
+                Sign In
+              </CardTitle>
+              <CardDescription className="text-center text-gray-400">
+                Enter your credentials to continue
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="px-8 pb-8">
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-gray-300 font-medium text-sm">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+                    className="h-12 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
+                    required
                     disabled={isLoading}
                   />
-                  <Label htmlFor="remember" className="text-sm text-gray-600">
-                    Remember me
-                  </Label>
                 </div>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-gray-300 font-medium text-sm">
+                    Password
+                  </Label>
+                  <PasswordInput
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+                    className="h-12 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 pr-12 transition-all"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) =>
+                        setRememberMe(checked === true)
+                      }
+                      disabled={isLoading}
+                      className="border-emerald-500/50 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                    />
+                    <Label htmlFor="remember" className="text-sm text-gray-300 font-medium cursor-pointer">
+                      Remember me
+                    </Label>
+                  </div>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isLoading}
+                  className="w-full h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Forgot password?
-                </Link>
+                  {isLoading ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Signing In...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center">
+                      Sign In
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </span>
+                  )}
+                </Button>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/signup"
+                    className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                  >
+                    Create account
+                  </Link>
+                </p>
+              </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-emerald-600 hover:text-emerald-700 font-medium"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Shield className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">Secure Login</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Users className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">25,000+ Users</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center border border-emerald-100">
-              <Heart className="w-5 h-5 text-emerald-600" />
-            </div>
-            <p className="text-xs text-gray-600">Wellness First</p>
-          </div>
+              {/* Mobile features */}
+              <div className="lg:hidden mt-6 pt-6 border-t border-emerald-500/20">
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { icon: Shield, label: "Secure" },
+                    { icon: Users, label: "25K+ Users" },
+                    { icon: Heart, label: "Wellness" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center space-y-2 p-3 bg-slate-800/30 border border-emerald-500/20 rounded-lg">
+                      <item.icon className="w-5 h-5 text-emerald-400" />
+                      <p className="text-xs text-gray-300 font-medium text-center">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   );
 }
+
+
+

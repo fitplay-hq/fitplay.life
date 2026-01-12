@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Heart, Shield, Users, ArrowRight, Activity, Lock } from "lucide-react";
+import { Heart, Shield, Users, ArrowRight, Activity, Lock ,ShoppingBag} from "lucide-react";
 import PasswordInput from "@/components/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
@@ -129,19 +129,19 @@ export default function LoginPage() {
             
             <h1 className="text-6xl font-bold leading-tight">
               <span className="block text-white">Welcome to</span>
-              <span className="block text-emerald-400 mt-2">FitPlay Wellness</span>
+              <span className="block text-emerald-400 mt-2">Fitplay.life</span>
             </h1>
             
             <p className="text-lg text-gray-400 leading-relaxed max-w-md">
-              Your comprehensive platform for workplace wellness, fitness tracking, and employee health management.
+              Your comprehensive platform for workplace wellness, fitness tracking, and health management.
             </p>
           </div>
 
           <div className="space-y-5">
             {[
-              { icon: Shield, title: "Platform", desc: "Provide Platform for Vendors To Let Consumer Buy Through Credit", color: "emerald" },
-              { icon: Activity, title: "Track Progress", desc: "Buy Health Realated Items That Change Life Forever", color: "green" },
-              { icon: Lock, title: "Privacy First", desc: "Your data is encrypted and fully protected", color: "teal" }
+              { icon: Shield, title: "Platform", desc: "Let consumers buy through corporate credits & vouchers", color: "emerald" },
+              { icon: ShoppingBag, title: "Explore & Shop", desc: "Buy curated wellness products that boost your productivity", color: "emerald" },
+              { icon: Lock, title: "Privacy First", desc: "Your data is encrypted and fully protected", color: "emerald" }
             ].map((feature, idx) => (
               <div 
                 key={idx}

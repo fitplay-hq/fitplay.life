@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
+import { Briefcase } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -60,6 +61,12 @@ const adminNavItems = [
     title: "Products",
     url: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Clients",
+    url: "/admin/client",
+    icon: Briefcase,
+
   },
   {
     title: "Orders",

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Select,
   SelectContent,
@@ -71,7 +72,7 @@ interface CreditTransaction {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function UserManagementPage() {
+export default function ClientManagementPage() {
   const { mutate: globalMutate } = useSWRConfig();
   const {
     data: userData,
@@ -95,7 +96,7 @@ export default function UserManagementPage() {
     email: '',
     phone: '',
     password: '',
-    role: 'EMPLOYEE',
+    role: 'HR',
     companyId: '',
     gender: '',
     address: ''
@@ -121,7 +122,7 @@ export default function UserManagementPage() {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.company.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+        const matchesRole = roleFilter === "HR" || user.role === "HR";
       const matchesVerification = verificationFilter === "all" || 
                                   (verificationFilter === "verified" && user.verified) ||
                                   (verificationFilter === "unverified" && !user.verified);
@@ -182,13 +183,16 @@ export default function UserManagementPage() {
   };
 
   const handleAddUser = async () => {
+     
     if (!userForm.name || !userForm.email || !userForm.phone || !userForm.password || !userForm.companyId) {
       toast.error("Please fill all required fields");
       return;
     }
 
+      console.log("Add User form data:", userForm);
+
     setUpdating(true);
-    
+  
     try {
       const response = await fetch('/api/admin/users', {
         method: 'POST',
@@ -209,7 +213,7 @@ export default function UserManagementPage() {
         email: '',
         phone: '',
         password: '',
-        role: 'EMPLOYEE',
+        role: 'HR',
         companyId: '',
         gender: '',
         address: ''
@@ -339,22 +343,22 @@ export default function UserManagementPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">Manage user accounts, credits, and permissions</p>
+          <h1 className="text-3xl font-bold text-gray-900">HR Management</h1>
+          <p className="text-gray-600 mt-2">Manage HR accounts, credits, and permissions</p>
         </div>
         <div className="flex gap-2">
           <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700">
                 <UserPlus className="h-4 w-4" />
-                Add User
+                Add HR
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md bg-white">
               <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
+                <DialogTitle>Add New HR</DialogTitle>
                 <DialogDescription>
-                  Create a new user account with wallet
+                  Create a new HR account with wallet
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -396,18 +400,7 @@ export default function UserManagementPage() {
                     placeholder="Enter password"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="role">Role *</Label>
-                  <Select value={userForm.role} onValueChange={(value) => setUserForm({ ...userForm, role: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                      <SelectItem value="HR">HR Manager</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+               
                 <div>
                   <Label htmlFor="company">Company *</Label>
                   <Select value={userForm.companyId} onValueChange={(value) => setUserForm({ ...userForm, companyId: value })}>
@@ -429,7 +422,7 @@ export default function UserManagementPage() {
                     disabled={updating}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                   >
-                    {updating ? 'Creating...' : 'Create User'}
+                    {updating ? 'Creating...' : 'Create HR'}
                   </Button>
                   <Button 
                     type="button" 
@@ -450,7 +443,7 @@ export default function UserManagementPage() {
             className="flex items-center gap-2"
           >
             <Download className="h-4 w-4" />
-            Export Users
+            Export HR
           </Button>
         </div>
       </div>
@@ -522,19 +515,7 @@ export default function UserManagementPage() {
               </div>
             </div>
             
-            <div className="w-48">
-              <Label>Role</Label>
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="HR">HR Managers</SelectItem>
-                  <SelectItem value="EMPLOYEE">Employees</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            
 
             <div className="w-48">
               <Label>Verification Status</Label>
@@ -647,9 +628,9 @@ export default function UserManagementPage() {
                           </DialogTrigger>
                           <DialogContent className="bg-white">
                             <DialogHeader>
-                              <DialogTitle>Edit User</DialogTitle>
+                              <DialogTitle>Edit HR</DialogTitle>
                               <DialogDescription>
-                                Update user information. Changes will be logged for audit purposes.
+                                Update HR information. Changes will be logged for audit purposes.
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
@@ -679,7 +660,7 @@ export default function UserManagementPage() {
                                 disabled={updating}
                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                               >
-                                {updating ? "Updating..." : "Update User"}
+                                {updating ? "Updating..." : "Update HR"}
                               </Button>
                               <Button 
                                 variant="outline" 
@@ -799,9 +780,9 @@ export default function UserManagementPage() {
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Delete HR</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete user &quot;{userToDelete?.name}&quot;? This action cannot be undone.
+              Are you sure you want to delete HR &quot;{userToDelete?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 pt-4">
@@ -811,7 +792,7 @@ export default function UserManagementPage() {
               variant="destructive"
               className="flex-1"
             >
-              {updating ? "Deleting..." : "Delete User"}
+              {updating ? "Deleting..." : "Delete HR"}
             </Button>
             <Button 
               variant="outline" 

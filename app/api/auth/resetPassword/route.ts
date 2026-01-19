@@ -65,17 +65,18 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
+        const baseUrl = process.env.ENVIRONMENT !== "development" ? `https://fitplay.life` : 'http://localhost:3000';
+
         const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
         // Use Resend's verified domain for better delivery
         const verificationMail = "no-reply@fitplaysolutions.com";
-        
+
         console.log(`🔧 Password Reset Email configuration:`);
         console.log(`📧 From: ${verificationMail}`);
         console.log(`📧 To: ${email}`);
         console.log(`🔗 Reset Link: ${resetUrl}`);
         console.log(`🔑 Resend API Key exists: ${!!process.env.RESEND_API_KEY}`);
-        
+
         try {
             const emailResponse = await resend.emails.send({
                 from: verificationMail,

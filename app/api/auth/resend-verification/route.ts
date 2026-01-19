@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
+        const baseUrl = process.env.ENVIRONMENT !== "development" ? `https://fitplay.life` : 'http://localhost:3000';
         const verifyLink = `${baseUrl}/verify?token=${verifyToken}`;
         const verificationMail = process.env.VERIFICATION_MAIL || "no-reply@fitplaysolutions.com";
 

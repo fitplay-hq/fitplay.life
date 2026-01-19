@@ -120,18 +120,19 @@ export async function PATCH(req: NextRequest) {
             },
         });
 
-        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3001';
+        const baseUrl = process.env.ENVIRONMENT !== "development" ? `https://fitplay.life` : 'http://localhost:3000';
+
         const verifyLink = `${baseUrl}/verify?token=${verifyToken}`;
         // Use Resend's verified domain for better delivery
         const verificationMail = "no-reply@fitplaysolutions.com";
 
-            try {
+        try {
             console.log(`🔧 Email configuration:`)
             console.log(`📧 From: ${verificationMail}`);
             console.log(`📧 To: ${email}`);
             console.log(`🔗 Verify Link: ${verifyLink}`);
             console.log(`🔑 Resend API Key exists: ${!!resendApiKey}`);
-            
+
             const emailResult = await resend.emails.send({
                 from: verificationMail,
                 to: email,
@@ -218,12 +219,12 @@ export async function PATCH(req: NextRequest) {
             console.error(`❌ Failed to send verification email to ${email}:`, emailError);
             console.error(`📧 Attempted from: ${verificationMail}`);
             // Don't fail the signup if email fails
-        }        return NextResponse.json({
+        } return NextResponse.json({
             message: "Signup completed. Please verify your email in 1 hour.",
         });
     } catch (err: any) {
         console.error("Signup error:", err);
-        
+
         // Handle Prisma unique constraint violations
         if (err.code === 'P2002') {
             const target = err.meta?.target;
@@ -244,7 +245,7 @@ export async function PATCH(req: NextRequest) {
                 { status: 400 }
             );
         }
-        
+
         // Handle other Prisma errors
         if (err.code?.startsWith('P')) {
             return NextResponse.json(
@@ -252,7 +253,7 @@ export async function PATCH(req: NextRequest) {
                 { status: 500 }
             );
         }
-        
+
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

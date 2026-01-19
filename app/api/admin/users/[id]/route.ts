@@ -106,6 +106,10 @@ export async function DELETE(
       await tx.wallet.deleteMany({
         where: { userId },
       });
+
+      await tx.walletTopUp.deleteMany({
+        where: { userId },
+      });
       
       // Finally delete the user
       await tx.user.delete({

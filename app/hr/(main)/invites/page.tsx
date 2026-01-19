@@ -52,7 +52,7 @@ export default function HRInvitePage() {
         },
         body: JSON.stringify({
           role: "EMPLOYEE",
-          companyName: "", // HR's company will be used automatically
+          // companyName: "", // HR's company will be used automatically
           employeeCount: parseInt(employeeCount)
         }),
       });

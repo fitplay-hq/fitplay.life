@@ -5,6 +5,7 @@ import crypto from 'crypto';
 const SHOPIFY_API_KEY = process.env.SHOPIFY_CLIENT_ID!;
 const SHOPIFY_SCOPES = process.env.SHOPIFY_SCOPES!; // e.g. "read_products,write_orders"
 const SHOPIFY_CALLBACK_URL = process.env.CALLBACK_URL!; // e.g. "https://fitplay.life/api/shopify/callback"
+//env
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

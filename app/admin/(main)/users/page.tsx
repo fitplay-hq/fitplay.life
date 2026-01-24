@@ -55,7 +55,7 @@ interface User {
     name: string;
   };
   wallet: {
-    balance: number;
+    balance: number| null;
     expiryDate: string | null;
   };
   verified: boolean;
@@ -135,8 +135,12 @@ export default function UserManagementPage() {
           return a.email.localeCompare(b.email);
         case "company":
           return a.company.name.localeCompare(b.company.name);
-        case "credits":
-          return b.wallet.balance - a.wallet.balance;
+        case "credits": {
+  const aBalance = a.wallet?.balance ?? 0;
+  const bBalance = b.wallet?.balance ?? 0;
+  return bBalance - aBalance;
+}
+
         case "created":
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         default:
@@ -602,7 +606,7 @@ export default function UserManagementPage() {
                     </TableCell>
                     <TableCell>{user.company.name}</TableCell>
                     <TableCell className="font-semibold">
-                      {user.wallet.balance} credits
+                      {user.wallet?.balance ?? 0} credits
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
@@ -707,7 +711,7 @@ export default function UserManagementPage() {
                             <DialogHeader>
                               <DialogTitle>Manage Credits</DialogTitle>
                               <DialogDescription>
-                                Add or remove credits for {selectedUser?.name}. Current balance: {selectedUser?.wallet.balance} credits
+                                Add or remove credits for {selectedUser?.name}. Current balance: {selectedUser?.wallet?.balance ?? 0} credits
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">

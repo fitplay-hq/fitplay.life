@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 // from your .env
-const SHOPIFY_API_KEY = "60691e82e20d3b3550109ed5047c77dd"
-const SHOPIFY_SCOPES = "read_assigned_fulfillment_orders,write_assigned_fulfillment_orders,write_draft_orders,read_draft_orders,read_orders,write_orders,read_product_feeds,write_product_feeds,read_product_listings,write_product_listings,read_products,write_products"
-const SHOPIFY_CALLBACK_URL = "https://fitplay.life/api/shopify/callback"
+const SHOPIFY_API_KEY = process.env.SHOPIFY_CLIENT_ID!;
+const SHOPIFY_SCOPES = process.env.SHOPIFY_SCOPES!;
+const SHOPIFY_CALLBACK_URL = process.env.CALLBACK_URL!;
 //env
 
 export async function GET(req: NextRequest) {

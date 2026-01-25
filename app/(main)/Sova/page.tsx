@@ -9,7 +9,7 @@ export default function SovaHealthPage() {
   const quizzes = [
     {
       title: 'Gut Health Assessment',
-      description: 'Discover your digestive health score and get personalized recommendations',
+      description: 'Discover your digestive health score',
       duration: '5 min',
       questions: 15,
       icon: Activity,
@@ -221,7 +221,7 @@ export default function SovaHealthPage() {
                     {quizzes.map((quiz, index) => {
                       const Icon = quiz.icon;
                       return (
-                        <div key={index} className="bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div key={index} className=" bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
                           <div className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4`}>
                             <Icon className="w-7 h-7 text-white" />
                           </div>
@@ -237,7 +237,7 @@ export default function SovaHealthPage() {
                               {quiz.questions} questions
                             </div>
                           </div>
-                          <button className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                          <button className="   w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                             Start Quiz
                           </button>
                         </div>

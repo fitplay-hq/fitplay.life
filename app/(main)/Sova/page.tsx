@@ -3,8 +3,13 @@ import React, { useState } from 'react';
 import { Heart, BookOpen, Video, ShoppingBag, ArrowRight, Check, Clock, Users, Star, Stethoscope, Brain, Activity } from 'lucide-react';
 
 import { MorphingText } from "@/components/ui/morphing-text"
+import { useProducts } from "@/app/hooks/useProducts";
 export default function SovaHealthPage() {
   const [activeTab, setActiveTab] = useState('quiz');
+  const { products, isLoading, error } = useProducts();
+
+  
+
 
   const quizzes = [
     {
@@ -99,44 +104,44 @@ export default function SovaHealthPage() {
     }
   ];
 
-  const products = [
-    {
-      name: 'Premium Probiotic Complex',
-      description: '30 Billion CFU - Advanced Gut Support',
-      price: '₹1,499',
-      rating: 4.8,
-      reviews: 1250,
-      badge: 'Bestseller',
-      image: '💊'
-    },
-    {
-      name: 'Digestive Enzyme Blend',
-      description: 'Natural digestive support formula',
-      price: '₹899',
-      rating: 4.7,
-      reviews: 890,
-      badge: 'New',
-      image: '🌱'
-    },
-    {
-      name: 'Gut Health Kit',
-      description: 'Complete testing & supplement bundle',
-      price: '₹3,999',
-      rating: 4.9,
-      reviews: 560,
-      badge: 'Popular',
-      image: '📦'
-    },
-    {
-      name: 'Prebiotic Fiber Powder',
-      description: 'Pure plant-based fiber supplement',
-      price: '₹699',
-      rating: 4.6,
-      reviews: 720,
-      badge: null,
-      image: '🥤'
-    }
-  ];
+ 
+
+  //     name: 'Premium Probiotic Complex',
+  //     description: '30 Billion CFU - Advanced Gut Support',
+  //     price: '₹1,499',
+  //     rating: 4.8,
+  //     reviews: 1250,
+  //     badge: 'Bestseller',
+  //     image: '💊'
+  //   },
+  //   {
+  //     name: 'Digestive Enzyme Blend',
+  //     description: 'Natural digestive support formula',
+  //     price: '₹899',
+  //     rating: 4.7,
+  //     reviews: 890,
+  //     badge: 'New',
+  //     image: '🌱'
+  //   },
+  //   {
+  //     name: 'Gut Health Kit',
+  //     description: 'Complete testing & supplement bundle',
+  //     price: '₹3,999',
+  //     rating: 4.9,
+  //     reviews: 560,
+  //     badge: 'Popular',
+  //     image: '📦'
+  //   },
+  //   {
+  //     name: 'Prebiotic Fiber Powder',
+  //     description: 'Pure plant-based fiber supplement',
+  //     price: '₹699',
+  //     rating: 4.6,
+  //     reviews: 720,
+  //     badge: null,
+  //     image: '🥤'
+  //   }
+  // ];
 
   return (
     <>
@@ -346,53 +351,86 @@ export default function SovaHealthPage() {
             </div>
           </div>
         </div>
+       
+      
 
-        {/* Recommended Products Section */}
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Recommended Products</h2>
-                <p className="text-gray-600">Premium supplements curated by health experts</p>
-              </div>
-              <ShoppingBag className="w-8 h-8 text-emerald-600" />
+  
+
+
+       {/* Recommended Products Section */}
+<div className="max-w-7xl mx-auto">
+  <div className="mb-8">
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          Recommended Products
+        </h2>
+        <p className="text-gray-600">
+          Premium supplements curated by health experts
+        </p>
+      </div>
+      <ShoppingBag className="w-8 h-8 text-emerald-600" />
+    </div>
+  </div>
+
+  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {products.slice(0, 4).map((product) => (
+      <div
+        key={product.id}
+        className="bg-white rounded-2xl overflow-hidden border border-gray-200
+                   hover:shadow-xl transition-all duration-300 hover:scale-105"
+      >
+        {/* Product Image */}
+        <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
+          <img
+            src={product.images?.[0] || "/placeholder.png"}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Product Info */}
+        <div className="p-5">
+          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+            {product.name}
+          </h3>
+
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+            {product.description}
+          </p>
+
+          {/* Rating (optional) */}
+          {product.avgRating && (
+            <div className="flex items-center gap-1 mb-4">
+              <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+              <span className="text-sm font-medium text-gray-700">
+                {product.avgRating}
+              </span>
+              {product.noOfReviews && (
+                <span className="text-xs text-gray-500">
+                  ({product.noOfReviews})
+                </span>
+              )}
             </div>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="relative">
-                  <div className="bg-gradient-to-br from-emerald-100 to-teal-100 h-48 flex items-center justify-center text-7xl">
-                    {product.image}
-                  </div>
-                  {product.badge && (
-                    <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      {product.badge}
-                    </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{product.description}</p>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                      <span className="text-sm font-semibold text-gray-900">{product.rating}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">({product.reviews})</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <span className="text-2xl font-bold text-emerald-600">{product.price}</span>
-                    <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-all flex items-center gap-2">
-                      Add
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          )}
+
+          {/* Action */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <button
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg
+                         font-semibold hover:bg-emerald-700 transition-all
+                         flex items-center gap-2"
+            >
+              Add
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      </div>
+    ))}
+  </div>
+</div>
+
       </div>
     </>
   );

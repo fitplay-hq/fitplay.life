@@ -5,7 +5,9 @@ export const fetchProducts = async (): Promise<ProductModelType[]> => {
   // Skip during build time
   if (typeof window === 'undefined') {        
     return [];
-  }  const response = await fetch('/api/products').then(res => res.json());
+  }  
+  
+  const response = await fetch('/api/products').then(res => res.json());
   return response.data;
 };
 
@@ -22,7 +24,7 @@ export const useProducts = () => {
       errorRetryCount: 5,
       errorRetryInterval: 2000,
       loadingTimeout: 15000,
-      fallbackData: [], // Prevent showing 0 products during initial load
+     
       keepPreviousData: true, // Keep previous data while loading new data
       refreshInterval: 0, // Disable automatic refresh to prevent flickering
     }

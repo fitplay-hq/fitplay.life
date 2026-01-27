@@ -88,6 +88,13 @@ export default function UserManagementPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{id: string, name: string} | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
+const [companyForm, setCompanyForm] = useState({
+  name: "",
+  address: "",
+});
+const [creatingCompany, setCreatingCompany] = useState(false);
+
   
   // Form data for adding/editing users
   const [userForm, setUserForm] = useState({
@@ -184,6 +191,36 @@ export default function UserManagementPage() {
       setUpdating(false);
     }
   };
+  const handleCreateCompany = async () => {
+  if (!companyForm.name || !companyForm.address) return;
+
+  try {
+    setCreatingCompany(true);
+
+    const res = await fetch("/api/companies/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(companyForm),
+    });
+
+    if (!res.ok) throw new Error("Failed to create company");
+
+    setCompanyForm({ name: "", address: "" });
+    await globalMutate('/api/companies');
+      toast.success('company created successfully');
+    setIsAddCompanyOpen(false);
+
+    // 🔄 refresh company list (important)
+      
+   
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setCreatingCompany(false);
+  }
+};
+
 
   const handleAddUser = async () => {
     if (!userForm.name || !userForm.email || !userForm.phone || !userForm.password || !userForm.companyId) {
@@ -447,6 +484,69 @@ export default function UserManagementPage() {
               </div>
             </DialogContent>
           </Dialog>
+          <Dialog open={isAddCompanyOpen} onOpenChange={setIsAddCompanyOpen}>
+  <DialogTrigger asChild>
+    <Button className="flex items-center gap-2">
+      <Building2 className="h-4 w-4" />
+      Create Company
+    </Button>
+  </DialogTrigger>
+
+  <DialogContent className="max-w-md bg-white">
+    <DialogHeader>
+      <DialogTitle>Create Company</DialogTitle>
+      <DialogDescription>
+        Add a new company to the system
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="company-name">Company Name *</Label>
+        <Input
+          id="company-name"
+          value={companyForm.name}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, name: e.target.value })
+          }
+          placeholder="Enter company name"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="company-address">Company Address *</Label>
+        <Input
+          id="company-address"
+          value={companyForm.address}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, address: e.target.value })
+          }
+          placeholder="Enter company address"
+        />
+      </div>
+
+      <div className="flex gap-2 pt-4">
+        <Button
+          onClick={handleCreateCompany}
+          disabled={creatingCompany}
+          className="flex-1"
+        >
+          {creatingCompany ? "Creating..." : "Create Company"}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setIsAddCompanyOpen(false)}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+
           
           <Button 
             onClick={handleExportUsers}

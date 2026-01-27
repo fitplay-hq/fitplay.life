@@ -383,7 +383,8 @@ const [creatingCompany, setCreatingCompany] = useState(false);
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600 mt-2">Manage user accounts, credits, and permissions</p>
         </div>
-        <div className="flex gap-2">
+       <div className="flex flex-col items-end gap-2 space-y-1 md:flex-row md:items-center md:space-y-0 md:space-x-2">
+
           <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700">

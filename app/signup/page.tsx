@@ -46,8 +46,6 @@ function SignupForm() {
     password: "",
     confirmPassword: "",
     phone: "",
-    gender: "",
-    birthDate: "",
     terms: false
   });
 
@@ -97,62 +95,82 @@ function SignupForm() {
       return;
     }
 
-    if (!formData.terms) {
-      setError("Please accept the terms and conditions");
-      return;
+  // Terms check
+  if (!formData.terms) {
+    setError("Please accept the terms and conditions");
+    return;
+  }
+
+  // Name check
+  if (!formData.name.trim()) {
+    setError("Name is required");
+    return;
+  }
+
+  // Email check (basic regex)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!formData.email || !emailRegex.test(formData.email)) {
+    setError("Please enter a valid email address");
+    return;
+  }
+
+  // Phone validation
+  const phone = formData.phone.trim();
+
+  const is10Digit = /^\d{10}$/.test(phone);
+  const is11DigitWithZero = /^0\d{10}$/.test(phone);
+
+  if (!is10Digit && !is11DigitWithZero) {
+    setError(
+      "Phone number must be 10 digits or 11 digits starting with 0"
+    );
+    return;
+  }
+
+  // Password check
+  if (!formData.password || !formData.confirmPassword) {
+    setError("Password is required");
+    return;
+  }
+
+  if (formData.password !== formData.confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const res = await fetch("/api/auth/signup/complete-signup", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: phone,
+        gender: null,
+        birthDate: null,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Something went wrong");
+    } else {
+      setUserEmail(formData.email);
+      setSuccess(true);
     }
+  } catch (err) {
+    setError("Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setLoading(true);
-    setError("");
-
-    if (!formData.password || !formData.confirmPassword) {
-  setError("Password is required");
-  setLoading(false);
-  return;
-}
-
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.gender || !formData.birthDate) {
-      setError("Gender and birth date are required");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/auth/signup/complete-signup", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-          gender: formData.gender,
-          birthDate: formData.birthDate,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Something went wrong");
-      } else {
-        setUserEmail(formData.email);
-        setSuccess(true);
-      }
-    } catch (err) {
-      setError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!token) {
     return (
@@ -232,7 +250,7 @@ function SignupForm() {
         }
       `}</style>
 
-      <div className="w-full max-w-lg relative z-10">
+      <div className="w-full max-w-4xl relative z-10">
         {/* Header with FitPlay Logo */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center mb-4">
@@ -269,6 +287,7 @@ function SignupForm() {
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto  px-6 pb-8 ">
                 <div className="space-y-4 pb-6">
+                  <div className="flex flex-row gap-8">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-gray-300 font-medium text-sm">
                       Full Name
@@ -279,7 +298,7 @@ function SignupForm() {
                       placeholder="Enter your full name"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
+                      className="h-11 md:w-[350px] bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
                       required
                       disabled={loading}
                     />
@@ -295,68 +314,48 @@ function SignupForm() {
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
+                      className="h-11 md:w-[350px] bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
                       required
                       disabled={loading}
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-300 font-medium text-sm">
-                      Phone Number
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="Enter your 10-digit phone number"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                        setFormData({...formData, phone: value});
-                      }}
-                      pattern="[0-9]{10}"
-                      title="Phone number must be exactly 10 digits"
-                      className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
-                      required
-                      disabled={loading}
-                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="gender" className="text-gray-300 font-medium text-sm">
-                      Gender
-                    </Label>
-                    <Select 
-                      value={formData.gender}
-                      onValueChange={(value) => setFormData({...formData, gender: value})}
-                      disabled={loading}
-                      required
-                    >
-                      <SelectTrigger className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white">
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-emerald-500/30 text-white">
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+  <Label
+    htmlFor="phone"
+    className="text-gray-300 font-medium text-sm"
+  >
+    Phone Number
+  </Label>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="birthDate" className="text-gray-300 font-medium text-sm">
-                      Birth Date
-                    </Label>
-                    <Input
-                      id="birthDate"
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
-                      className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-white placeholder:text-gray-500 transition-all"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+  <div className="flex">
+    {/* Prefix */}
+    <div className="flex items-center gap-2 px-3 bg-slate-800/70 border border-r-0 border-emerald-500/30 rounded-l-lg text-white text-sm select-none">
+      
+      <span className="text-gray-300">+91</span>
+    </div>
+
+    {/* Input */}
+    <Input
+      id="phone"
+      type="tel"
+      placeholder="Enter 10-digit number"
+      value={formData.phone}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+        setFormData({ ...formData, phone: value });
+      }}
+      pattern="[0-9]{10}"
+      title="Phone number must be exactly 10 digits"
+      className="h-11 bg-slate-800/50 border border-emerald-500/30 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-l-none rounded-r-lg text-white placeholder:text-gray-500 transition-all"
+      required
+      disabled={loading}
+    />
+  </div>
+</div>
+
+
 
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-gray-300 font-medium text-sm">
@@ -384,13 +383,13 @@ function SignupForm() {
                     />
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mt-6">
                     <Checkbox 
                       id="terms"
                       checked={formData.terms}
                       onCheckedChange={(checked) => setFormData({...formData, terms: checked === true})}
                       disabled={loading}
-                      className="border-emerald-500/50 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                      className=" border-emerald-500/50 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
                     />
                     <Label htmlFor="terms" className="text-sm text-gray-400">
                       I agree to the{" "}
@@ -419,7 +418,7 @@ function SignupForm() {
                   <Button
                     onClick={handleSignup}
                     disabled={loading}
-                    className="w-full h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-12 mt-8 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <span className="flex items-center">

@@ -105,6 +105,13 @@ function SignupForm() {
     setLoading(true);
     setError("");
 
+    if (!formData.password || !formData.confirmPassword) {
+  setError("Password is required");
+  setLoading(false);
+  return;
+}
+
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       setLoading(false);

@@ -21,10 +21,10 @@ export default function SovaHealthPage() {
   if (oldScript) oldScript.remove();
 
   const script = document.createElement("script");
-  script.src = "https://api.quizell.com/js/qzembed.js?v=39337";
+  script.src = "https://api.quizell.com/js/qzembed.js?v=24999";
   script.async = true;
   script.id = "quizell-script";
-  script.setAttribute("data-qz-key", "yO8hZ2");
+  script.setAttribute("data-qz-key", "oQ8cX8");
 
   document.body.appendChild(script);
 };
@@ -156,7 +156,7 @@ useEffect(() => {
             {/* Quiz Body */}
             <div className="h-full overflow-y-auto p-3 md:p-4">
               <div
-                id="yO8hZ2"
+                id="oQ8cX8"
                 data-quizlang="en"
                 className="min-h-[400px] rounded-xl border border-emerald-500/30"
               />

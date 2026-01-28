@@ -150,11 +150,18 @@ export default function HREmployees() {
     }
   };
 
-  const filteredEmployees = employees.filter(employee =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.phone.includes(searchTerm)
+  const filteredEmployees = employees.filter(employee => {
+  if (employee.role !== "EMPLOYEE") return false;
+
+  const term = searchTerm.toLowerCase();
+
+  return (
+    employee.name.toLowerCase().includes(term) ||
+    employee.email.toLowerCase().includes(term) ||
+    employee.phone.includes(term)
   );
+});
+
 
   const stats = {
     total: employees.length,

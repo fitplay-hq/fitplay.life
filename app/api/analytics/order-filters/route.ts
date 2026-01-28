@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
                     include: {
                         product: { select: { id: true, name: true, category: true } },
                         variant: { select: { id: true, variantCategory: true } },
+                        
                     },
                 },
             },
@@ -87,15 +88,36 @@ export async function GET(req: NextRequest) {
                 topClients: getTopUsers(orders as any),
                 topProducts: getTopProducts(orders as any),
                 rawData: {
-                    orders: (orders as any).map((o: any) => ({
-                        id: o.id,
-                        clientName: o.user?.name,
-                        status: o.status,
-                        amount: o.amount,
-                        createdAt: o.createdAt,
-                        itemCount: o.items?.length || 0,
-                    })),
-                },
+  orders: orders.map((o: any) => ({
+    id: o.id,
+    clientName: o.user?.name,
+    status: o.status,
+    amount: o.amount,
+    createdAt: o.createdAt,
+    itemCount: o.items?.length || 0,
+
+    // ✅ SEND ITEMS TO FRONTEND
+    items: o.items.map((item: any) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+
+      product: {
+        id: item.product?.id,
+        name: item.product?.name,
+        image: item.product?.image || null,
+      },
+
+      variant: item.variant
+        ? {
+            id: item.variant.id,
+            name: item.variant.variantCategory,
+          }
+        : null,
+    })),
+  })),
+},
+
             };
 
             return NextResponse.json(analytics);
@@ -159,17 +181,37 @@ export async function GET(req: NextRequest) {
                 acc[category] = (acc[category.name] || 0) + 1;
                 return acc;
             }, {}),
-            rawData: {
-                orders: (orders as any).map((o: any) => ({
-                    id: o.id,
-                    clientName: o.user?.name,
-                    status: o.status,
-                    amount: o.amount,
-                    createdAt: o.createdAt,
-                    itemCount: o.items?.length || 0,
-                })),
-                inventory: inventoryDetails,
-            },
+           rawData: {
+  orders: orders.map((o: any) => ({
+    id: o.id,
+    clientName: o.user?.name,
+    status: o.status,
+    amount: o.amount,
+    createdAt: o.createdAt,
+    itemCount: o.items?.length || 0,
+
+    // ✅ SEND ITEMS TO FRONTEND
+    items: o.items.map((item: any) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+
+      product: {
+        id: item.product?.id,
+        name: item.product?.name,
+        image: item.product?.image || null,
+      },
+
+      variant: item.variant
+        ? {
+            id: item.variant.id,
+            name: item.variant.variantCategory,
+          }
+        : null,
+    })),
+  })),
+},
+
         };
 
         return NextResponse.json(analytics);

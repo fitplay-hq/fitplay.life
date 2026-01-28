@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
       }
   
       const body = await req.json();
-      const { userId, creditAmount } = body;
+      const { userId, creditAmount ,remark} = body;
   
       if (!userId || typeof creditAmount !== "number") {
         return NextResponse.json(
@@ -214,6 +214,7 @@ export async function POST(req: NextRequest) {
           transactionType: "CREDIT",
           walletId: wallet.id,
           cashAmount: 0,
+          remark
         },
       });
 

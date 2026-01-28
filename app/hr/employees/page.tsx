@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -27,7 +27,6 @@ import {
   Wallet,
   Plus,
   Minus,
-  Edit,
   MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -47,6 +45,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface Employee {
@@ -68,34 +73,88 @@ interface Employee {
 export default function HREmployees() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+
   const [creditDialogOpen, setCreditDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [creditAmount, setCreditAmount] = useState("");
+  const[remark,setRemark] = useState("");
   const [creditLoading, setCreditLoading] = useState(false);
 
   useEffect(() => {
-    fetchEmployees();
+    fetch("/api/users")
+      .then((res) => res.json())
+      .then((data) => setEmployees(data.users || []))
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchEmployees = async () => {
-    try {
-      const response = await fetch("/api/users");
-      if (response.ok) {
-        const data = await response.json();
-        setEmployees(data.users || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch employees:", error);
-    } finally {
-      setLoading(false);
+ const filteredAndSortedEmployees = useMemo(() => {
+  let list = [...employees];
+
+  // 🚫 Hide HR by default
+  list = list.filter((e) => e.role !== "HR");
+
+  // 🔍 Search
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    list = list.filter(
+      (e) =>
+        e.name.toLowerCase().includes(term) ||
+        e.email.toLowerCase().includes(term) ||
+        e.phone.includes(term)
+    );
+  }
+
+  // ✅ Status filter
+  if (statusFilter === "verified") {
+    list = list.filter((e) => e.verified && e.claimed);
+  }
+  if (statusFilter === "unverified") {
+    list = list.filter((e) => !e.verified);
+  }
+  if (statusFilter === "unclaimed") {
+    list = list.filter((e) => !e.claimed);
+  }
+
+  // 🔃 Sorting
+  list.sort((a, b) => {
+    switch (sortBy) {
+      case "email":
+        return a.email.localeCompare(b.email);
+      case "credits":
+        return (b.wallet?.balance || 0) - (a.wallet?.balance || 0);
+      case "date":
+        return (
+          new Date(b.createdAt).getTime() -
+          new Date(a.createdAt).getTime()
+        );
+      default:
+        return a.name.localeCompare(b.name);
     }
+  });
+
+  return list;
+}, [employees, searchTerm, statusFilter, sortBy]);
+
+
+  const stats = {
+    total: employees.length,
+    active: employees.filter((e) => e.verified && e.claimed).length,
+    pending: employees.filter((e) => !e.verified || !e.claimed).length,
+    totalCredits: employees.reduce((s, e) => s + (e.wallet?.balance || 0), 0),
   };
 
   const handleCreditUpdate = async () => {
     if (!selectedEmployee || !creditAmount) {
       toast.error("Please enter a valid wallet amount");
       return;
+    }
+    if(!remark){
+       toast.error("Enter Remak");
+       return;
     }
 
     const amount = parseFloat(creditAmount);
@@ -114,6 +173,7 @@ export default function HREmployees() {
         body: JSON.stringify({
           userId: selectedEmployee.id,
           creditAmount: amount,
+          remark:remark
         }),
       });
 
@@ -150,27 +210,7 @@ export default function HREmployees() {
     }
   };
 
-  const filteredEmployees = employees.filter(employee => {
-  if (employee.role !== "EMPLOYEE") return false;
-
-  const term = searchTerm.toLowerCase();
-
-  return (
-    employee.name.toLowerCase().includes(term) ||
-    employee.email.toLowerCase().includes(term) ||
-    employee.phone.includes(term)
-  );
-});
-
-
-  const stats = {
-    total: employees.length,
-    active: employees.filter(e => e.verified && e.claimed).length,
-    pending: employees.filter(e => !e.verified || !e.claimed).length,
-    totalCredits: employees.reduce((sum, e) => sum + (e.wallet?.balance || 0), 0),
-  };
-
-  if (loading) {
+if (loading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -193,177 +233,143 @@ export default function HREmployees() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-          Employee Management
-        </h1>
-        <p className="text-gray-600">
-          View and manage all company employees
-        </p>
+        <h1 className="text-3xl font-bold">Employee Management</h1>
+        <p className="text-gray-600">View and manage all users</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Setup</CardTitle>
-            <Users className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Wallet Balance</CardTitle>
-            <Wallet className="h-4 w-4 text-emerald-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">
-              {stats.totalCredits.toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          ["Total Users", stats.total],
+          ["Active Users", stats.active],
+          ["Pending", stats.pending],
+          ["Total Credits", stats.totalCredits],
+        ].map(([label, value]) => (
+          <Card key={label}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{label}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{value}</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Employee Directory</CardTitle>
-          <CardDescription>
-            Search and view all company employees
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search by name, email, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Filters */}
+   <Card>
+  <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
 
-      {/* Employees Table */}
+    {/* Search */}
+    <div className="relative md:col-span-2 space-y-1">
+      <p className="text-sm font-bold text-gray-900">
+        Search
+      </p>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Input
+          className="pl-9"
+          placeholder="Search name, email, phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+    </div>
+
+    {/* Verification Filter */}
+    <div className="space-y-1">
+      <p className="text-sm font-bold text-gray-900">
+        Verification Status
+      </p>
+
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger>
+          <SelectValue placeholder="Filter Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Users</SelectItem>
+          <SelectItem value="verified">Verified & Claimed</SelectItem>
+          <SelectItem value="unverified">Unverified</SelectItem>
+          <SelectItem value="unclaimed">Unclaimed</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
+    {/* Sort */}
+    <div className="space-y-1">
+      <p className="text-sm font-bold text-gray-900">
+        Sort By
+      </p>
+
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger>
+          <SelectValue placeholder="Sort By" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="name">Name</SelectItem>
+          <SelectItem value="email">Email</SelectItem>
+          <SelectItem value="credits">Credits</SelectItem>
+          <SelectItem value="date">Date Created</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
+  </CardContent>
+</Card>
+
+
+      {/* Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Role</TableHead>
+                <TableHead>User</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Wallet</TableHead>
+                <TableHead>Credits</TableHead>
                 <TableHead>Joined</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {filteredEmployees.map((employee) => (
-                <TableRow key={employee.id}>
+              {filteredAndSortedEmployees.map((e) => (
+                <TableRow key={e.id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">{employee.name}</div>
-                      <div className="text-sm text-gray-600 flex items-center">
-                        <Mail className="w-3 h-3 mr-1" />
-                        {employee.email}
-                      </div>
-                    </div>
+                    <div className="font-medium">{e.name}</div>
+                    <div className="text-sm text-gray-500">{e.email}</div>
                   </TableCell>
-                  
-                  <TableCell>
-                    <div className="text-sm flex items-center">
-                      <Phone className="w-3 h-3 mr-1" />
-                      {employee.phone}
-                    </div>
-                    {employee.gender && (
-                      <div className="text-xs text-gray-500">
-                        {employee.gender}
-                      </div>
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge variant={employee.role === "HR" ? "default" : "secondary"}>
-                      {employee.role}
+
+                  <TableCell className="space-y-1">
+                    <Badge variant={e.verified ? "default" : "destructive"}>
+                      {e.verified ? "Verified" : "Unverified"}
+                    </Badge>
+                    <Badge variant={e.claimed ? "default" : "secondary"}>
+                      {e.claimed ? "Claimed" : "Pending"}
                     </Badge>
                   </TableCell>
-                  
+
+                  <TableCell>{e.wallet?.balance || 0}</TableCell>
+
                   <TableCell>
-                    <div className="space-y-1">
-                      <Badge 
-                        variant={employee.verified ? "default" : "destructive"}
-                        className="text-xs"
-                      >
-                        {employee.verified ? "Verified" : "Unverified"}
-                      </Badge>
-                      <Badge 
-                        variant={employee.claimed ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {employee.claimed ? "Active" : "Pending"}
-                      </Badge>
-                    </div>
+                    {new Date(e.createdAt).toLocaleDateString()}
                   </TableCell>
-                  
-                  <TableCell>
-                    <div className="font-medium">
-                      {employee.wallet?.balance?.toLocaleString() || 0}
-                    </div>
-                    {employee.wallet?.expiryDate && (
-                      <div className="text-xs text-gray-500">
-                        Expires: {new Date(employee.wallet.expiryDate).toLocaleDateString()}
-                      </div>
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="text-sm flex items-center">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      {new Date(employee.createdAt).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell className="text-center">
+
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent>
                         <DropdownMenuItem
                           onClick={() => {
-                            setSelectedEmployee(employee);
-                            setCreditAmount("");
+                            setSelectedEmployee(e);
                             setCreditDialogOpen(true);
                           }}
                         >
-                          <Wallet className="h-4 w-4 mr-2" />
                           Manage Wallet
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -373,23 +379,11 @@ export default function HREmployees() {
               ))}
             </TableBody>
           </Table>
-          
-          {filteredEmployees.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Users className="w-12 h-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No employees found
-              </h3>
-              <p className="text-gray-600">
-                {searchTerm ? "Try adjusting your search criteria" : "No employees in your company yet"}
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Credit Management Dialog */}
-      <Dialog open={creditDialogOpen} onOpenChange={setCreditDialogOpen}>
+    {/* Wallet Dialog (unchanged) */}
+<Dialog open={creditDialogOpen} onOpenChange={setCreditDialogOpen}>
         <DialogContent className="sm:max-w-md bg-white border border-gray-200 shadow-xl">
           <DialogHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 -m-6 mb-4 p-6 rounded-t-lg border-b">
             <DialogTitle className="text-xl font-bold text-emerald-800">Manage Employee Wallet</DialogTitle>
@@ -452,6 +446,20 @@ export default function HREmployees() {
               </div>
             </div>
           </div>
+          <div className="space-y-3">
+  <Label htmlFor="remark" className="text-sm font-semibold text-gray-700">
+    Remark / Reason <span className="text-red-500">*</span>
+  </Label>
+  <Input
+    id="remark"
+    type="text"
+    placeholder="e.g. Monthly wellness credits"
+    value={remark}
+    onChange={(e) => setRemark(e.target.value)}
+    className="w-full border-2 border-gray-200 focus:border-emerald-500 bg-white shadow-sm"
+  />
+</div>
+
           <DialogFooter className="bg-white -mx-6 -mb-6 px-6 py-4 border-t border-gray-200 rounded-b-lg">
             <div className="flex justify-end gap-3 w-full">
               <Button
@@ -467,7 +475,7 @@ export default function HREmployees() {
               </Button>
               <Button
                 onClick={handleCreditUpdate}
-                disabled={creditLoading || !creditAmount}
+                disabled={creditLoading || !creditAmount || !remark.trim()}
                 className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg font-semibold px-6"
               >
                 {creditLoading ? (
@@ -486,6 +494,7 @@ export default function HREmployees() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+         </div>
   );
 }
+

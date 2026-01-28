@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Fragment } from "react";
+
 import {
   Card,
   CardContent,
@@ -32,6 +34,14 @@ import {
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from "sonner";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
+
 
 interface AnalyticsData {
   overview: {
@@ -70,11 +80,16 @@ interface AnalyticsData {
 const COLORS = ['#10b981', '#059669', '#047857', '#065f46', '#064e3b'];
 
 export default function HRAnalytics() {
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+const [drawerOpen, setDrawerOpen] = useState(false);
+
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [period, setPeriod] = useState("30d");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [exportLoading, setExportLoading] = useState(false);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
@@ -343,14 +358,97 @@ export default function HRAnalytics() {
           </CardContent>
         </Card>
       </div>
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+  <DrawerContent className="ml-auto w-full sm:max-w-lg bg-amber-100">
+    <DrawerHeader>
+      <DrawerTitle>Order Details</DrawerTitle>
+      <DrawerDescription>
+        Order ID: <span className="font-mono">{selectedOrder?.id}</span>
+      </DrawerDescription>
+    </DrawerHeader>
+
+    {selectedOrder && (
+      <div className="p-4 space-y-4">
+
+        {/* Order meta */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Employee</p>
+            <p>{selectedOrder.clientName || "N/A"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Amount</p>
+            <p>{formatCurrency(selectedOrder.amount)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Status</p>
+            <Badge>{selectedOrder.status}</Badge>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Date</p>
+            <p>{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Items */}
+        <div>
+          <h4 className="font-semibold mb-2">Order Items</h4>
+
+          <div className="space-y-2">
+            {selectedOrder.items?.map((item: any) => (
+              <div
+                key={item.id}
+                className="flex justify-between rounded-lg border p-3"
+              >
+                <div>
+                  <p className="font-medium">
+                    {item.product?.name || "Product"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Qty: {item.quantity}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="font-medium">
+                    {formatCurrency(item.price)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    )}
+  </DrawerContent>
+</Drawer>
+
 
       {/* Charts and Analytics */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-        </TabsList>
+     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+  <TabsList className="grid w-full grid-cols-3 bg-muted p-1 rounded-lg">
+    <TabsTrigger
+      value="overview"
+      className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+    >
+      Overview
+    </TabsTrigger>
+    <TabsTrigger
+      value="orders"
+      className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+    >
+      Orders
+    </TabsTrigger>
+    <TabsTrigger
+      value="products"
+      className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
+    >
+      Products
+    </TabsTrigger>
+  </TabsList>
+
+
 
         <TabsContent value="overview" className="space-y-6">
           {/* Export Actions */}
@@ -475,23 +573,89 @@ export default function HRAnalytics() {
                     </tr>
                   </thead>
                   <tbody>
-                    {analytics.rawData.orders.slice(0, 10).map((order) => (
-                      <tr key={order.id} className="border-b">
-                        <td className="py-3 px-4 font-mono text-sm">{order.id.slice(0, 8)}...</td>
-                        <td className="py-3 px-4">{order.clientName || 'N/A'}</td>
-                        <td className="py-3 px-4">
-                          <Badge className={statusColors[order.status] || 'bg-gray-100 text-gray-800'}>
-                            {order.status}
-                          </Badge>
+  {analytics.rawData.orders.map((order) => {
+    const isExpanded = expandedOrderId === order.id;
+
+    return (
+      <Fragment key={order.id}>
+        {/* MAIN ROW */}
+        <tr
+          className="border-b cursor-pointer hover:bg-muted/50"
+          onClick={() =>
+            setExpandedOrderId(isExpanded ? null : order.id)
+          }
+        >
+          <td className="py-3 px-4 font-mono text-sm">{order.id}</td>
+          <td className="py-3 px-4">{order.clientName || "N/A"}</td>
+          <td className="py-3 px-4">
+            <Badge className={statusColors[order.status] || "bg-gray-100 text-gray-800"}>
+  {order.status}
+</Badge>
+
+          </td>
+          <td className="py-3 px-4">{formatCurrency(order.amount)}</td>
+          <td className="py-3 px-4">{order.itemCount}</td>
+          <td className="py-3 px-4 text-sm text-gray-600">
+            {new Date(order.createdAt).toLocaleDateString()}
+          </td>
+        </tr>
+
+        {/* 👇 EXPANDED ROW (BELOW CLICKED ROW) */}
+        {isExpanded && (
+          <tr className="bg-muted/30">
+            <td colSpan={6} className="p-4">
+              <div className="rounded-lg border bg-background">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Product</th>
+                      <th className="px-3 py-2 text-left">Variant</th>
+                      <th className="px-3 py-2 text-right">Qty</th>
+                      <th className="px-3 py-2 text-right">Price</th>
+                      <th className="px-3 py-2 text-right">Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {order.items.map((item) => (
+                      <tr key={item.id} className="border-t">
+                        <td className="px-3 py-2 flex items-center gap-3">
+                          <img
+                            src={item.product.image || "/placeholder.png"}
+                            alt={item.product.name}
+                            className="h-10 w-10 rounded object-cover"
+                          />
+                          <span>{item.product.name}</span>
                         </td>
-                        <td className="py-3 px-4">{formatCurrency(order.amount)}</td>
-                        <td className="py-3 px-4">{order.itemCount}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">
-                          {new Date(order.createdAt).toLocaleDateString()}
+
+                        <td className="px-3 py-2">
+                          {item.variant?.name || "-"}
+                        </td>
+
+                        <td className="px-3 py-2 text-right">
+                          {item.quantity}
+                        </td>
+
+                        <td className="px-3 py-2 text-right">
+                          {formatCurrency(item.price)}
+                        </td>
+
+                        <td className="px-3 py-2 text-right font-medium">
+                          {formatCurrency(item.price * item.quantity)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+        )}
+      </Fragment>
+    );
+  })}
+</tbody>
+
                 </table>
               </div>
             </CardContent>

@@ -1,12 +1,48 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Heart, BookOpen, Video, ShoppingBag, ArrowRight, Check, Clock, Users, Star, Stethoscope, Brain, Activity } from 'lucide-react';
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 import { MorphingText } from "@/components/ui/morphing-text"
 import { useProducts } from "@/app/hooks/useProducts";
 export default function SovaHealthPage() {
   const [activeTab, setActiveTab] = useState('quiz');
   const { products, isLoading, error } = useProducts();
+  const router = useRouter();
+
+
+  const [open, setOpen] = useState(false);
+
+  const loadQuiz = () => {
+  // Remove old script if exists (important)
+  const oldScript = document.getElementById("quizell-script");
+  if (oldScript) oldScript.remove();
+
+  const script = document.createElement("script");
+  script.src = "https://api.quizell.com/js/qzembed.js?v=39337";
+  script.async = true;
+  script.id = "quizell-script";
+  script.setAttribute("data-qz-key", "yO8hZ2");
+
+  document.body.appendChild(script);
+};
+useEffect(() => {
+  if (!open) return;
+
+  // wait one tick so modal DOM is ready
+  const timer = setTimeout(() => {
+    loadQuiz();
+  }, 100);
+
+  return () => clearTimeout(timer);
+}, [open]);
+
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto";
+  }, [open]);
 
   
 
@@ -20,22 +56,7 @@ export default function SovaHealthPage() {
       icon: Activity,
       color: 'from-emerald-500 to-teal-500'
     },
-    {
-      title: 'Mental Wellness Check',
-      description: 'Evaluate your mental health and stress levels',
-      duration: '7 min',
-      questions: 20,
-      icon: Brain,
-      color: 'from-teal-500 to-cyan-500'
-    },
-    {
-      title: 'Nutrition Analysis',
-      description: 'Assess your dietary habits and nutritional intake',
-      duration: '10 min',
-      questions: 25,
-      icon: Heart,
-      color: 'from-emerald-600 to-green-500'
-    }
+   
   ];
 
   const courses = [
@@ -46,7 +67,7 @@ export default function SovaHealthPage() {
       lessons: 24,
       students: '2.5k',
       rating: 4.9,
-      price: '₹2,999',
+      price: '2999 Credits',
       image: '🌿'
     },
     {
@@ -56,7 +77,7 @@ export default function SovaHealthPage() {
       lessons: 16,
       students: '1.8k',
       rating: 4.8,
-      price: '₹1,999',
+      price: '1999 Credits',
       image: '🧬'
     },
     {
@@ -66,7 +87,7 @@ export default function SovaHealthPage() {
       lessons: 12,
       students: '3.2k',
       rating: 4.9,
-      price: '₹1,499',
+      price: '1499 Credits',
       image: '🥗'
     }
   ];
@@ -78,7 +99,7 @@ export default function SovaHealthPage() {
       experience: '15 years',
       rating: 4.9,
       reviews: 450,
-      price: '₹1,500',
+      price: '1500 Credits',
       available: 'Today',
       image: '👩‍⚕️'
     },
@@ -88,7 +109,7 @@ export default function SovaHealthPage() {
       experience: '12 years',
       rating: 4.8,
       reviews: 380,
-      price: '₹1,200',
+      price: '1200 Credits',
       available: 'Tomorrow',
       image: '👨‍⚕️'
     },
@@ -98,7 +119,7 @@ export default function SovaHealthPage() {
       experience: '10 years',
       rating: 4.9,
       reviews: 520,
-      price: '₹1,000',
+      price: '1000 Credits',
       available: 'Today',
       image: '👩‍⚕️'
     }
@@ -106,45 +127,48 @@ export default function SovaHealthPage() {
 
  
 
-  //     name: 'Premium Probiotic Complex',
-  //     description: '30 Billion CFU - Advanced Gut Support',
-  //     price: '₹1,499',
-  //     rating: 4.8,
-  //     reviews: 1250,
-  //     badge: 'Bestseller',
-  //     image: '💊'
-  //   },
-  //   {
-  //     name: 'Digestive Enzyme Blend',
-  //     description: 'Natural digestive support formula',
-  //     price: '₹899',
-  //     rating: 4.7,
-  //     reviews: 890,
-  //     badge: 'New',
-  //     image: '🌱'
-  //   },
-  //   {
-  //     name: 'Gut Health Kit',
-  //     description: 'Complete testing & supplement bundle',
-  //     price: '₹3,999',
-  //     rating: 4.9,
-  //     reviews: 560,
-  //     badge: 'Popular',
-  //     image: '📦'
-  //   },
-  //   {
-  //     name: 'Prebiotic Fiber Powder',
-  //     description: 'Pure plant-based fiber supplement',
-  //     price: '₹699',
-  //     rating: 4.6,
-  //     reviews: 720,
-  //     badge: null,
-  //     image: '🥤'
-  //   }
-  // ];
+ 
 
   return (
+    
+
     <>
+
+
+    {open && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm">
+          {/* Modal Card */}
+          <div className="relative w-full h-[92vh] md:h-auto md:max-w-3xl bg-slate-950 rounded-t-2xl md:rounded-2xl shadow-2xl animate-in slide-in-from-bottom md:zoom-in-95 overflow-hidden">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <h2 className="text-white font-semibold text-sm md:text-base">
+                Sova Health Quiz
+              </h2>
+              <button
+                onClick={() => setOpen(false)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+
+            {/* Quiz Body */}
+            <div className="h-full overflow-y-auto p-3 md:p-4">
+              <div
+                id="yO8hZ2"
+                data-quizlang="en"
+                className="min-h-[400px] rounded-xl border border-emerald-500/30"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    
+  
+
+
+
       {/* Background only behind navbar */}
       <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
 
@@ -242,9 +266,15 @@ export default function SovaHealthPage() {
                               {quiz.questions} questions
                             </div>
                           </div>
-                          <button className="   w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                            Start Quiz
-                          </button>
+                          <button
+        onClick={() => {
+          setOpen(true);
+          loadQuiz();
+        }}
+        className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+      >
+        Start Quiz
+      </button>
                         </div>
                       );
                     })}
@@ -416,14 +446,16 @@ export default function SovaHealthPage() {
 
           {/* Action */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-            <button
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg
-                         font-semibold hover:bg-emerald-700 transition-all
-                         flex items-center gap-2"
-            >
-              Add
-              <ArrowRight className="w-4 h-4" />
-            </button>
+           <button
+  onClick={() => router.push(`/product/${product.id}`)}
+  className="px-4 py-2 bg-emerald-600 text-white rounded-lg
+             font-semibold hover:bg-emerald-700 transition-all
+             flex items-center gap-2"
+>
+  Add
+  <ArrowRight className="w-4 h-4" />
+</button>
+
           </div>
         </div>
       </div>

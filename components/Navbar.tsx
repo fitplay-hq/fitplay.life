@@ -70,7 +70,7 @@ export default function Navbar() {
     { label: 'Home', href: '/' },
     { label: 'About us', href: '/about' },
     { label: 'Wellness Store', href: '/store' },
-    {label:'Sova Health', href:'/Sova'}
+    
   ];
 
   return (
@@ -109,6 +109,36 @@ export default function Navbar() {
               </span>
             </Link>
           ))}
+
+          <Link
+  href="/Sova"
+  className="relative group"
+>
+  <div
+    className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-500 ${
+      isScrolled
+        ? 'bg-emerald-400/25 border border-emerald-400/50 shadow-md shadow-emerald-500/20'
+        : 'bg-emerald-400/15 border border-emerald-400/30 backdrop-blur-md'
+    }`}
+  >
+    <Sparkles
+      className={`w-4 h-4 transition-colors duration-500 ${
+        isScrolled ? 'text-emerald-200' : 'text-emerald-300'
+      }`}
+    />
+    <span
+      className={`font-semibold text-sm tracking-wide transition-colors duration-500 ${
+        isScrolled ? 'text-white' : 'text-emerald-100'
+      }`}
+    >
+      Gut Health
+    </span>
+  </div>
+
+  {/* subtle glow ring */}
+  <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 opacity-0 blur-md group-hover:opacity-40 transition-all duration-500 pointer-events-none" />
+</Link>
+
         </div>
 
         <div className="hidden lg:flex items-center gap-4">

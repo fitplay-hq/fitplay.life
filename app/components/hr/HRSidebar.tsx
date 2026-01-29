@@ -84,8 +84,8 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
                   <Image
                     src="/logo.png"
                     alt="FitPlay Logo"
-                    width={120}
-                    height={120}
+                    width={140}
+                    height={140}
                     className="rounded-lg object-contain max-w-none"
                     priority
                   />
@@ -93,7 +93,7 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
                 <div>
                   <Badge
                     variant="destructive"
-                    className="bg-blue-600 hover:bg-blue-700 px-4 py-1 text-sm font-semibold"
+                    className="bg-green-600 hover:bg-green-700 px-4 py-1 text-sm font-semibold"
                   >
                     HR
                   </Badge>
@@ -113,7 +113,7 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
               <div className="h-4 w-px bg-gray-300" />
               <Badge
                 variant="destructive"
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-green-600 hover:bg-green-700"
               >
                 HR
               </Badge>
@@ -152,7 +152,7 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
               <div>
                 <Badge
                   variant="destructive"
-                  className="bg-blue-600 hover:bg-blue-700 px-4 py-1 text-sm font-semibold"
+                  className="bg-green-600 hover:bg-green-700 px-4 py-1 text-sm font-semibold"
                 >
                   HR Portal
                 </Badge>
@@ -225,7 +225,7 @@ export function HRSidebar({ children }: { children: React.ReactNode }) {
             <div className="h-4 w-px bg-gray-300" />
             <Badge
               variant="destructive"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               HR
             </Badge>

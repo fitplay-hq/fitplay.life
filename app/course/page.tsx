@@ -1,3 +1,6 @@
+
+
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight, X, Play, BookOpen, Menu } from "lucide-react";
+import Image from "next/image";
 
-// Course Data Structure
+// Course Data Structure with flexible content blocks
 const courseData = {
   title: "Gut Health & Stress Resilience for Professionals",
   sections: [
@@ -18,11 +22,80 @@ const courseData = {
         {
           id: "welcome",
           title: "Welcome",
-          type: "video",
-          content: {
-            text: "Welcome to this comprehensive course on Gut Health and Stress Resilience. In this course, you'll discover the profound connection between your gut and brain, and learn practical strategies to enhance your overall wellness.",
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          }
+          contentBlocks: [
+            {
+              type: "text",
+              content: "Welcome to Gut Health & Stress Resilience for Professionals! We're thrilled to have you join us in this vital exploration of gut health and stress management tailored specifically for corporate employees like you."
+            },
+            {
+              type: "video",
+              content: {
+                videoUrl: "https://www.youtube.com/embed/UcDr9pQNNEM",
+                title: "Introduction to Gut Health"
+              }
+            },
+            {
+              type: "heading",
+              content: "Welcome",
+              level: 1
+            },
+            {
+              type: "image",
+              content: {
+                src: "/api/placeholder/800/600",
+                alt: "Course pathway diagram showing transformation from stressed professional to resilient professional",
+                caption: "Your journey from stressed professional to resilient professional"
+              }
+            },
+            {
+              type: "heading",
+              content: "What You Will Learn:",
+              level: 2
+            },
+            {
+              type: "list",
+              content: {
+                items: [
+                  "<strong>Understanding Gut Health:</strong> You'll grasp what gut health is, its importance for daily performance, and the key components that support a functioning digestive system.",
+                  "<strong>The Gut-Brain Connection:</strong> Explore how the health of your gut directly influences your mental clarity, mood, and cognitive performance.",
+                  "<strong>Impact of Modern Lifestyles:</strong> Recognize how workplace habits and stress can affect digestion and overall gut health.",
+                  "<strong>Debunking Myths:</strong> Identify common myths surrounding gut health versus evidence-based facts.",
+                  "<strong>Microhabits for Wellness:</strong> Learn simple, realistic microhabits that can significantly improve your gut health and overall well-being.",
+                  "<strong>Stress Management Techniques:</strong> Integrate effective strategies to manage stress, which can further enhance your gut health."
+                ]
+              }
+            },
+            {
+              type: "heading",
+              content: "Course Navigation:",
+              level: 3
+            },
+            {
+              type: "text",
+              content: "To navigate through the course, you can click the left and right arrows in the top right corner of the screen or use the menu on the left side for easy access to different sections."
+            },
+            {
+              type: "heading",
+              content: "Assessments:",
+              level: 3
+            },
+            {
+              type: "text",
+              content: "This course includes quizzes and assignments designed to solidify your understanding:"
+            },
+            {
+              type: "list",
+              content: {
+                items: [
+                  "<strong>Quiz Pass Grade: 80%</strong>"
+                ]
+              }
+            },
+            {
+              type: "text",
+              content: "We encourage you to enjoy your learning experience, engage with the materials, and take practical steps towards improving your gut health and managing stress more effectively. Welcome aboard, and let's get started!"
+            }
+          ]
         }
       ]
     },
@@ -30,120 +103,935 @@ const courseData = {
       id: "gut-health",
       title: "Understanding Gut Health",
       modules: [
+       {
+  id: "intro-gut",
+  title: "Introduction to Gut Health",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/0ZFDZjhKn3w",
+        title: "What is Gut Health and Why It Matters?"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Understanding Gut Health",
+      level: 1
+    },
+
+    {
+      type: "text",
+      content:
+        "Gut health refers to the overall well-being of your digestive system, playing a crucial role in both physical and mental health. It encompasses the balance of beneficial microorganisms, known as the gut microbiota, that reside in your intestines. A healthy gut functions efficiently by digesting food, absorbing nutrients, and protecting against harmful bacteria."
+    },
+
+    {
+      type: "image",
+      content: {
+        src: "/api/placeholder/900/500",
+        alt: "Diagram showing gut ecosystem, gut-brain connection, and health impact",
+        caption: "The gut ecosystem, gut–brain connection, and its impact on overall health"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Key Components of Gut Health",
+      level: 2
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "<strong>Microbiota Diversity:</strong> A diverse gut microbiome is essential for optimal digestive function. It supports immune response, aids digestion, and protects against illnesses by breaking down complex foods and improving nutrient absorption.",
+          "<strong>Gut Barrier Function:</strong> The gut wall acts as a protective barrier, preventing harmful substances and pathogens from entering the bloodstream. When compromised (often called a 'leaky gut'), it can lead to inflammation and various health issues.",
+          "<strong>Digestive Enzymes:</strong> These enzymes help break down food into usable nutrients. A healthy gut produces enzymes efficiently, ensuring your body absorbs essential vitamins and minerals."
+        ]
+      }
+    },
+
+    {
+      type: "text",
+      content:
+        "Awareness of these elements emphasizes that gut health is not just about digestion. It plays a vital role in maintaining energy levels, emotional balance, immunity, and stress resilience. By understanding how these components interact, you can take proactive steps toward improving your gut health and overall well-being."
+    }
+  ]
+},
+
+{
+  id: "digestion-basics",
+  title: "Basics of digestion",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/xFsJu8SzoEs",
+        title: "Basics of digestion"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Basics of Digestion — What Every Corporate Professional Should Know",
+      level: 1
+    },
+
+    {
+      type: "text",
+      content:
+        "Digestion is not just a stomach-only event.<br/><br/>It begins the moment you see, smell, or even think about food. That anticipatory phase — called the cephalic phase — activates digestive enzymes, stomach acid, and gut motility in preparation for nutrients. For busy professionals, rushed lunches, eating at a screen, or skipping meals blunt this anticipatory response and reduce digestive efficiency."
+    },
+
+    {
+      type: "heading",
+      content: "Stress plays a central role in disrupting digestion",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "When you’re under chronic work pressure, the body shifts into a sympathetic “fight-or-flight” state. Blood flow to the gut is reduced, stomach acid and enzyme production can become irregular, motility may speed up (leading to diarrhea) or slow down (leading to constipation), and the tightly regulated barrier function of the gut lining can weaken."
+    },
+
+    {
+      type: "text",
+      content:
+        "Over time, a dysregulated autonomic nervous system — where the balance between sympathetic and parasympathetic activity is off — impairs nutrient breakdown, absorption, and immune signaling from the gut to the rest of the body."
+    },
+
+    {
+      type: "text",
+      content:
+        "One downstream consequence of these disruptions is <strong>dysbiosis</strong>: an imbalance in the gut microbial community."
+    },
+
+    {
+      type: "text",
+      content:
+        "Dysbiosis is now recognized as a driving force behind many modern lifestyle-related conditions, including obesity, metabolic syndrome, chronic fatigue, mood disorders, skin problems, and low-grade systemic inflammation. In other words, when the nervous system and digestion are out of sync, gut microbes also shift in composition and function, which can amplify symptoms and make recovery harder."
+    },
+
+    {
+      type: "text",
+      content:
+        "Modern work life magnifies these risks. Fast-paced schedules, frequent reliance on ultra-processed foods (UPFs), irregular eating windows, long periods of sedentary behavior, and low dietary fiber intake all combine to harm gut health. Ultra-processed foods are typically low in fermentable substrates that beneficial bacteria need and high in additives, sugar, and unhealthy fats that promote inflammation. This pattern has been linked with higher rates of chronic disease and increased mortality in large population studies."
+    },
+
+    {
+      type: "heading",
+      content: "Fiber is a surprisingly simple and powerful protective factor",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "Soluble and insoluble fibers feed beneficial bacteria, support regular bowel movements, and help maintain the integrity of the gut lining. For adults, aiming for about 25–30 grams of fiber per day from whole-food sources — fruits, vegetables, legumes, whole grains, nuts, and seeds — is a practical target."
+    },
+
+    {
+      type: "text",
+      content:
+        "Evidence suggests that adequate fiber intake is associated with substantial reductions in risk for gastrointestinal cancers. Multiple studies indicate that consuming recommended amounts of fiber can lower the risk of stomach and colon cancer by a large margin, with some analyses showing reductions on the order of 40% compared with low-fiber diets."
+    },
+
+    {
+      type: "heading",
+      content: "Practical steps for corporate professionals",
+      level: 2
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "Start meals mindfully: pause for 60–90 seconds before eating to engage the parasympathetic system.",
+          "Choose whole foods over ultra-processed foods (UPFs) whenever possible, even during busy workdays.",
+          "Aim for 25–30 g of fiber daily through varied plant foods to support microbiome diversity and long-term digestive health.",
+          "Build stress-resilience practices into the workday: short breathing breaks, movement, and regular meal timing help restore digestive function."
+        ]
+      }
+    },
+
+    {
+      type: "image",
+      content: {
+        src: "/api/placeholder/900/550",
+        alt: "Diagram showing digestion process from ingestion to elimination",
+        caption: "Overview of digestion: ingestion, mechanical breakdown, chemical digestion, absorption, water reabsorption, and elimination"
+      }
+    },
+
+    {
+      type: "text",
+      content:
+        "By recognizing how stress, nervous system balance, diet quality, and fiber intake intersect, professionals can take concrete actions to protect digestion, support a healthy microbiome, and lower their long-term health risks."
+    }
+  ]
+}
+
+,
         {
-          id: "intro-gut",
-          title: "Introduction to Gut Health",
-          type: "video",
-          content: {
-            text: "Your gut is often called your 'second brain' for good reason. Home to trillions of microorganisms, your gut microbiome plays a crucial role in digestion, immunity, mood regulation, and overall health. This module introduces you to the fascinating world of gut health and why it matters for professionals like you.",
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          }
-        },
+  id: "microbiome",
+  title: "Human Microbiome",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/QcHWNBT6Lw8",
+        title: "Human Microbiome"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "The Human Microbiome: The Body’s Invisible Workforce",
+      level: 1
+    },
+
+    {
+      type: "heading",
+      content: "What Is the Human Microbiome?",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "The human microbiome refers to the trillions of microorganisms—bacteria, viruses, fungi, and other microbes—that live in and on the body. The largest and most influential population resides in the gut, particularly the large intestine. These microbes are not harmful invaders; they function as an internal ecosystem that supports digestion, immunity, metabolism, and even brain health."
+    },
+
+    {
+      type: "heading",
+      content: "Why the Microbiome Matters for Everyday Health",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "More Than Digestion",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "While the microbiome plays a critical role in breaking down food and absorbing nutrients, its influence extends far beyond digestion. Gut microbes help regulate inflammation, support immune defenses, produce essential vitamins, and influence hormones related to mood, energy, and stress resilience. Nearly 70 percent of the immune system is closely linked to gut-associated lymphoid tissue, making the microbiome central to immune health."
+    },
+
+    {
+      type: "heading",
+      content: "The Microbiome and the Gut–Brain Connection",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "How Gut Bacteria Influence Mood and Focus",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "The gut and brain communicate constantly through the gut-brain axis, a network of nerves, hormones, and microbial signals. Gut bacteria produce neurotransmitters such as serotonin and gamma-aminobutyric acid (GABA), which influence mood, motivation, and emotional balance. When the microbiome is balanced, this communication supports mental clarity and stress regulation. When disrupted, it can contribute to anxiety, low mood, brain fog, and fatigue."
+    },
+
+    {
+      type: "heading",
+      content: "What Disrupts the Microbiome?",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Modern Lifestyle Pressures",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Several common lifestyle factors can negatively affect microbiome balance, especially in working professionals. Chronic stress, irregular meals, poor sleep, excess caffeine, ultra-processed foods, frequent antibiotic use, and prolonged sitting all alter the gut environment. Over time, these factors reduce beneficial microbes and increase inflammatory species, weakening gut barrier integrity and overall resilience."
+    },
+
+    {
+      type: "heading",
+      content: "Supporting a Healthy Microbiome",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Small Daily Habits Make a Difference",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "A healthy microbiome thrives on consistency rather than extremes. Regular meals, diverse plant-based foods, adequate protein, proper hydration, quality sleep, and stress management practices all help maintain microbial balance. Mindful eating, movement breaks during the workday, and simple relaxation practices support both the gut and nervous system."
+    },
+
+    {
+      type: "heading",
+      content: "Key Takeaway",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "The human microbiome functions like an invisible workforce—quietly influencing digestion, immunity, mood, and long-term health. When supported through balanced habits and stress regulation, it enhances energy, focus, and resilience. Caring for the microbiome is not just a health strategy; it is an investment in sustainable performance and wellbeing."
+    }
+  ]
+}
+,
         {
-          id: "digestion-basics",
-          title: "Basics of Digestion",
-          type: "video",
-          content: {
-            text: "Understanding how your digestive system works is fundamental to improving your gut health. From the moment food enters your mouth to nutrient absorption and waste elimination, each step of digestion is orchestrated by a complex interplay of organs, enzymes, and beneficial bacteria.",
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          }
-        },
+  id: "myths-facts",
+  title: "Myths vs. Facts",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/T7y75_bf-Po",
+        title: "Some common myths and facts around gut health"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Myths vs. Facts",
+      level: 1
+    },
+
+    {
+      type: "text",
+      content:
+        "Many misconceptions surround gut health, which can cloud our understanding and lead to ineffective health practices. Separating fact from fiction is essential to enable a clearer perspective on what it truly means to maintain a healthy gut."
+    },
+
+    {
+      type: "heading",
+      content: "Myth 1: All Bacteria Are Bad",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "A common myth is that all bacteria are harmful. In reality, your gut is home to trillions of bacteria, most of which are beneficial. These good bacteria aid digestion, support the immune system, and produce important nutrients. Instead of fearing bacteria, it’s important to focus on nurturing a balanced microbiome to promote gut health."
+    },
+
+    {
+      type: "heading",
+      content: "Myth 2: Probiotics Alone Fix Digestive Issues",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "While probiotics can be beneficial, relying solely on them to fix digestive problems is misleading. They complement a healthy diet and lifestyle but cannot replace the need for a well-rounded approach. Factors such as diet, exercise, and stress management play significant roles in maintaining a healthy gut. Nourishing your gut requires a holistic strategy."
+    },
+
+    {
+      type: "heading",
+      content: "Myth 3: Fiber Is Optional",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Another misconception is that fiber is merely an optional part of the diet. In fact, fiber plays a crucial role in digestive health by promoting regular bowel movements and feeding beneficial gut bacteria. A lack of fiber can lead to various digestive issues, including constipation. Prioritizing fiber intake is essential for keeping your gut functioning optimally."
+    },
+
+    {
+      type: "heading",
+      content: "Myth 4: It's Too Late to Improve Gut Health",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Many people believe that once gut issues arise, it’s too late to make changes. This simply isn’t true. Your gut health can improve at any age with the right strategies in place. Simple dietary adjustments, stress reduction techniques, and consistent healthy habits can lead to significant improvements over time."
+    },
+
+    {
+      type: "heading",
+      content: "Myth 5: You Only Need to Worry About Gut Health When You're Sick",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Lastly, some think that gut health is only a concern when symptoms appear. In fact, proactive management of gut health can prevent issues before they arise. Regular awareness and preventative measures can lead to sustained gut health and improve overall wellness, enhancing your quality of life in the workplace and beyond."
+    },
+
+    {
+      type: "text",
+      content:
+        "By understanding and debunking these myths, you equip yourself with the knowledge necessary to make informed choices about your health, empowering your gut and, ultimately, your performance."
+    }
+  ]
+}
+,
         {
-          id: "microbiome",
-          title: "Human Microbiome",
-          type: "video",
-          content: {
-            text: "The human microbiome consists of trillions of microorganisms living in and on your body, with the majority residing in your gut. These microscopic allies help digest food, produce vitamins, protect against pathogens, and even influence your mood and mental health through the gut-brain axis.",
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          }
-        },
-        {
-          id: "myths-facts",
-          title: "Myths vs Facts",
-          type: "text",
-          content: {
-            text: `Let's debunk common gut health myths and establish the facts:
+  id: "meditation-stress",
+  title: "Impact of Meditation on Stress",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/yz0m3-IRe44",
+        title: "Stress and meditation"
+      }
+    },
 
-**Myth 1: All bacteria are bad**
-Fact: Your gut contains trillions of beneficial bacteria essential for health. Only a small percentage of bacteria are harmful.
+    {
+      type: "heading",
+      content: "The Impact of Meditation on Stress, Gut Health, and Performance in Working Professionals",
+      level: 1
+    },
 
-**Myth 2: Probiotics cure everything**
-Fact: While probiotics can be beneficial, they're not a cure-all. Different strains serve different purposes, and whole foods often provide better results.
+    {
+      type: "heading",
+      content: "Why Stress Management Is a Workplace Health Priority",
+      level: 2
+    },
 
-**Myth 3: You should detox regularly**
-Fact: Your liver and kidneys naturally detoxify your body. Most commercial detox programs are unnecessary and can be harmful.
+    {
+      type: "text",
+      content:
+        "Modern corporate environments demand sustained attention, rapid decision-making, and long hours of cognitive engagement. While stress is often viewed as a mental or emotional concern, its effects extend far beyond the mind. Chronic workplace stress directly impacts digestion, immunity, metabolic health, and long-term productivity. Understanding and addressing this connection is critical for sustainable employee wellbeing."
+    },
 
-**Myth 4: Gluten is bad for everyone**
-Fact: Only people with celiac disease or gluten sensitivity need to avoid gluten. For others, whole grains containing gluten can be part of a healthy diet.
+    {
+      type: "heading",
+      content: "The Gut–Brain Axis: The Body’s Internal Communication System",
+      level: 2
+    },
 
-**Myth 5: Stress doesn't affect digestion**
-Fact: Stress significantly impacts gut health through the gut-brain axis, affecting digestion, inflammation, and microbiome composition.`
-          }
-        },
-        {
-          id: "meditation-stress",
-          title: "Impact of Meditation on Stress",
-          type: "video",
-          content: {
-            text: "Chronic stress wreaks havoc on your gut health, increasing inflammation, disrupting the microbiome balance, and impairing digestion. Meditation and mindfulness practices offer powerful tools to manage stress, reduce cortisol levels, and promote a healthier gut-brain connection.",
-            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          }
-        },
-        {
-          id: "microhabits",
-          title: "Microhabits for Improvement",
-          type: "text",
-          content: {
-            text: `Small, consistent actions create lasting change. Here are science-backed microhabits to improve your gut health:
+    {
+      type: "heading",
+      content: "How Stress Signals Affect Digestion and Focus",
+      level: 3
+    },
 
-**Daily Habits:**
-• Start your day with a glass of water
-• Include fermented foods (yogurt, kefir, sauerkraut) in one meal
-• Eat a rainbow of vegetables for diverse fiber
-• Chew food thoroughly (20-30 times per bite)
-• Take a 10-minute walk after meals
+    {
+      type: "text",
+      content:
+        "Most professionals have experienced a nervous stomach before a presentation or digestive discomfort after a stressful day. These reactions are physiological, not psychological. The gut and brain are in constant communication through a network known as the gut-brain axis. This bidirectional system involves nerves, hormones, and gut microbes working together to regulate digestion, mood, and inflammation."
+    },
 
-**Weekly Habits:**
-• Meal prep with gut-friendly ingredients
-• Try one new probiotic-rich food
-• Practice mindful eating at least 3 times
-• Schedule stress-relief activities
+    {
+      type: "text",
+      content:
+        "At the center of this system is the vagus nerve, the longest cranial nerve in the body. Extending from the brainstem to the digestive tract, it acts as a primary communication channel between the nervous system and the gut. When the brain perceives stress, the body shifts into a sympathetic “fight-or-flight” state, reducing vagal activity. As a result, digestion slows, enzyme secretion decreases, and gut motility is suppressed."
+    },
 
-**Monthly Habits:**
-• Evaluate your fiber intake and adjust
-• Reflect on stress levels and coping mechanisms
-• Experiment with new gut-healthy recipes
-• Review and adjust your sleep schedule
+    {
+      type: "text",
+      content:
+        "Over time, reduced vagal tone can impair gut barrier integrity and disrupt digestion, contributing to symptoms such as bloating, constipation, reflux, and fatigue. Nearly 90 percent of the body’s serotonin is produced in the gut, linking digestive health directly to mood, motivation, and emotional regulation."
+    },
 
-**Remember:** Consistency matters more than perfection. Start with one or two habits and build from there.`
-          }
-        },
+    {
+      type: "heading",
+      content: "How Workplace Stress Reshapes the Gut Microbiome",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Stress Hormones and Their Impact on Gut Balance",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Chronic stress does not affect the nervous system alone—it actively alters the gut microbiome. Elevated levels of cortisol and adrenaline reduce blood flow to the intestines, lower mucus secretion, and increase immune activation within the gut. This creates an environment that is less supportive of beneficial bacteria."
+    },
+
+    {
+      type: "text",
+      content:
+        "Scientific research shows that prolonged stress reduces populations of protective microbes such as Lactobacillus and Bifidobacterium, which play a key role in maintaining gut barrier integrity and reducing inflammation. At the same time, stress encourages the growth of inflammatory bacteria, increasing intestinal permeability. This allows bacterial toxins to enter the bloodstream, triggering immune responses and systemic inflammation."
+    },
+
+    {
+      type: "text",
+      content:
+        "These inflammatory signals travel back to the brain through the bloodstream and the vagus nerve, further impairing stress regulation and emotional balance—creating a cycle where stress and gut dysfunction reinforce each other."
+    },
+
+    {
+      type: "heading",
+      content: "The Stress–Gut Feedback Loop in Corporate Employees",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Why Symptoms Persist Without Intervention",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "For many working professionals, stress and gut issues develop together and persist for years. Digestive symptoms such as bloating and constipation often coexist with anxiety, irritability, low energy, and reduced concentration. This occurs because stress disrupts gut function, and an imbalanced gut amplifies stress signals to the brain."
+    },
+
+    {
+      type: "text",
+      content:
+        "Breaking this loop requires more than dietary changes alone. Interventions that actively calm the nervous system are essential to restoring gut balance and improving resilience."
+    },
+
+    {
+      type: "heading",
+      content: "Meditation: A Practical Tool for Nervous System and Gut Regulation",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Shifting from “Fight or Flight” to “Rest and Digest”",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Meditation and mindfulness practices help activate the vagus nerve and shift the body into a parasympathetic state—the mode in which digestion, repair, and recovery occur. This shift is measurable through improvements in heart rate variability (HRV), a key indicator of nervous system balance."
+    },
+
+    {
+      type: "text",
+      content:
+        "Studies have shown that regular meditation improves vagal tone, reduces gut hypersensitivity, and lowers markers of inflammation. Research published in Frontiers in Behavioral Neuroscience found that brief daily mindfulness practices led to improvements in digestive comfort and bowel regularity within weeks. By lowering cortisol levels, meditation also supports microbial diversity, allowing beneficial bacteria to recover and repopulate."
+    },
+
+    {
+      type: "heading",
+      content: "Evidence-Based Benefits of Meditation for Employees",
+      level: 3
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "Improved digestion and bowel regularity",
+          "Reduced bloating and abdominal discomfort",
+          "Lower inflammation and stress hormone levels",
+          "Improved focus, emotional regulation, and sleep quality"
+        ]
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Simple Stress-Reduction Practices for the Workplace",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Small Actions with Measurable Impact",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Effective stress management does not require long retreats or complex routines. Small, consistent practices integrated into the workday are most effective."
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "Diaphragmatic Breathing: Sitting upright and breathing deeply into the abdomen for a few minutes activates the vagus nerve and calms the gut.",
+          "Body Scan Meditation: Systematically releasing tension from head to toe reduces background stress signals that interfere with digestion.",
+          "Mindful Eating: Eating without distractions improves enzyme secretion, digestion, and nutrient absorption.",
+          "Guided Relaxation or Yoga Nidra: Practiced before sleep, these techniques lower cortisol and support overnight gut repair."
+        ]
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Reframing Stress in the Workplace",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "Stress as a Signal, Not a Failure",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Stress itself is not harmful. Short-term stress responses are necessary for alertness and performance. Problems arise when recovery is absent. Without pauses for regulation, the nervous system remains activated, digestion remains suppressed, and the body pays the cost over time."
+    },
+
+    {
+      type: "text",
+      content:
+        "Learning to pause, breathe, and reset throughout the day restores balance. Over time, this builds resilience—the ability to return to calm more efficiently after challenges."
+    },
+
+    {
+      type: "heading",
+      content: "Key Takeaway for Working Professionals",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "Your gut responds closely to your emotional and mental state. Every mindful breath and moment of pause sends signals of safety to your nervous system and microbiome. When the mind relaxes, the gut begins to heal. When the gut heals, clarity, energy, and emotional balance follow—supporting both wellbeing and workplace performance."
+    }
+  ]
+}
+,
+       {
+  id: "microhabits",
+  title: "Microhabits for Improvement",
+  contentBlocks: [
+    {
+      type: "video",
+      content: {
+        videoUrl: "https://www.youtube.com/embed/LS_zFcBYpn4",
+        title: "Microhabits for Gut Health"
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Microhabits for Improvement: Gut Health, Nervous System & Metabolic Resilience",
+      level: 1
+    },
+
+    {
+      type: "text",
+      content: "For High-Stress Corporate Work Lives"
+    },
+
+    {
+      type: "heading",
+      content: "The Real Problem",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "Most professionals today are not dealing with a single disease. They are dealing with a constantly overstimulated nervous system and a gradually imbalanced gut."
+    },
+
+    {
+      type: "text",
+      content:
+        "Long work hours, continuous screen exposure, excess caffeine, irregular meals, poor sleep, and endless scrolling keep the body locked in a persistent fight-or-flight state. When the nervous system remains overactivated, digestion slows. And when gut function suffers, it quietly impacts energy levels, focus, mood, immunity, metabolism, and long-term disease risk."
+    },
+
+    {
+      type: "text",
+      content:
+        "The challenge today is not a lack of information, but overload—pulling attention in every direction and keeping the body in a state of chronic alert."
+    },
+
+    {
+      type: "heading",
+      content: "Why This Matters",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "Most lifestyle-related conditions seen in working professionals—acidity, bloating, IBS, insulin resistance, fatigue, brain fog, and stubborn weight gain—do not appear overnight."
+    },
+
+    {
+      type: "text",
+      content:
+        "They develop gradually through habits that feel productive, normal, and socially acceptable:"
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "Multitasking while eating",
+          "Working through meals",
+          "Scrolling until sleep",
+          "Powering through fatigue with caffeine"
+        ]
+      }
+    },
+
+    {
+      type: "text",
+      content:
+        "This is not a conversation about extreme diets or rigid routines. It is about microhabits—small, repeatable daily actions that quietly reset the gut, regulate the nervous system, and strengthen metabolic resilience."
+    },
+
+    {
+      type: "text",
+      content:
+        "Below are six microhabits that can make a measurable difference without disrupting a demanding workday."
+    },
+
+    {
+      type: "heading",
+      content: "Top 6 Microhabits That Reset Gut Health & Metabolism",
+      level: 2
+    },
+
+    {
+      type: "heading",
+      content: "1. The Caffeine Cut-Off Rule",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Caffeine is one of the most underestimated disruptors of gut and nervous system health. Late caffeine intake keeps cortisol elevated, irritates the gut lining, fragments sleep quality, and worsens insulin sensitivity the following day."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Finish all caffeine earlier in the day. Past afternoon, switch to herbal teas, warm water, or a short walk to maintain alertness without overstimulation."
+    },
+
+    {
+      type: "heading",
+      content: "2. Protein as the First Bite",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "The sequence in which food is consumed matters more than most people realize. Starting meals with protein or fiber slows glucose spikes, improves satiety, and enhances gut-brain hormone signaling."
+    },
+
+    {
+      type: "text",
+      content:
+        "This small shift helps reduce post-meal fatigue, cravings, and long-term metabolic strain."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Begin meals with protein-rich foods such as dal, curd, paneer, eggs, chicken, tofu, or legumes before moving to carbohydrates."
+    },
+
+    {
+      type: "heading",
+      content: "3. Single-Task Eating (Unlearning the Scroll)",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Modern digital habits have trained the brain to eat, scroll, reply, and think simultaneously. Digestion, however, requires calm—not distraction."
+    },
+
+    {
+      type: "text",
+      content:
+        "Eating while scrolling keeps the nervous system activated, reduces digestive enzyme release, and often worsens bloating and acidity."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Commit to at least one screen-free meal per day. Even 10 minutes of focused eating signals safety to the gut and significantly improves digestion."
+    },
+
+    {
+      type: "heading",
+      content: "4. Capturing Wins from the Day",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "A constantly busy mind keeps the stress response switched on, even during rest. Writing down two or three wins from the day sends signals of completion to the brain, lowers cortisol levels, and improves sleep quality."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Spend three minutes before bed writing down what went well or listing your major wins from the day—personal or professional."
+    },
+
+    {
+      type: "heading",
+      content: "5. Somatic Shaking for Nervous System Reset",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Stress is not only mental—it is stored physically in the body. Somatic shaking, rooted in traditional practices and supported by modern neuroscience, helps release stored tension and improves vagal tone."
+    },
+
+    {
+      type: "text",
+      content:
+        "A regulated nervous system directly supports digestion and reduces gut sensitivity."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Practice one to two minutes of gentle shaking in the morning to release tension, reset the nervous system, and improve energy for the day ahead."
+    },
+
+    {
+      type: "heading",
+      content: "6. The Sitting Interruption Rule",
+      level: 3
+    },
+
+    {
+      type: "text",
+      content:
+        "Long uninterrupted sitting slows metabolism, reduces gut circulation, and increases systemic inflammation. Corporate employees who sit for extended hours have significantly higher risk of metabolic dysfunction and fatigue."
+    },
+
+    {
+      type: "heading",
+      content: "What to do instead:",
+      level: 4
+    },
+
+    {
+      type: "text",
+      content:
+        "Interrupt sitting every 30–45 minutes with light movement, stretching, or standing meetings to support gut circulation and metabolic activity."
+    },
+
+    {
+      type: "heading",
+      content: "The Bigger Picture",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "These habits may appear small, but they quietly recalibrate the gut-brain axis and strengthen metabolic resilience."
+    },
+
+    {
+      type: "text",
+      content:
+        "Health rarely declines because of one bad decision. It declines because of repeated, unnoticed microchoices made on autopilot."
+    },
+
+    {
+      type: "text",
+      content:
+        "In a world that constantly competes for attention, health requires intention. Calm the nervous system, fix the microhabits, and the body follows."
+    }
+  ]
+}
+,
         {
           id: "quiz",
           title: "Take Gut Health Quiz",
-          type: "text",
-          content: {
-            text: `Test your knowledge! Answer these questions to reinforce what you've learned:
-
-**Question 1:** What percentage of your immune system is located in your gut?
-a) 30%  b) 50%  c) 70%  d) 90%
-
-**Question 2:** Which of these is NOT a beneficial probiotic food?
-a) Kimchi  b) Processed cheese  c) Kefir  d) Miso
-
-**Question 3:** How does chronic stress affect gut health?
-a) No effect  b) Increases beneficial bacteria  c) Disrupts microbiome balance  d) Improves digestion
-
-**Question 4:** What is the gut-brain axis?
-a) A type of bacteria  b) Bidirectional communication between gut and brain  c) A digestive enzyme  d) A meditation technique
-
-**Question 5:** Which habit supports gut health?
-a) Eating quickly  b) High sugar diet  c) Diverse fiber intake  d) Skipping meals
-
-**Answers:** 1-c, 2-b, 3-c, 4-b, 5-c
-
-Congratulations on completing the quiz! Review any areas where you'd like to deepen your understanding.`
-          }
+          contentBlocks: [
+            {
+              type: "heading",
+              content: "Test your knowledge!",
+              level: 2
+            },
+            {
+              type: "text",
+              content: "Answer these questions to reinforce what you've learned:"
+            },
+            {
+              type: "text",
+              content: "<strong>Question 1:</strong> What percentage of your immune system is located in your gut?<br/>a) 30%  b) 50%  c) 70%  d) 90%"
+            },
+            {
+              type: "text",
+              content: "<strong>Question 2:</strong> Which of these is NOT a beneficial probiotic food?<br/>a) Kimchi  b) Processed cheese  c) Kefir  d) Miso"
+            },
+            {
+              type: "text",
+              content: "<strong>Question 3:</strong> How does chronic stress affect gut health?<br/>a) No effect  b) Increases beneficial bacteria  c) Disrupts microbiome balance  d) Improves digestion"
+            },
+            {
+              type: "text",
+              content: "<strong>Question 4:</strong> What is the gut-brain axis?<br/>a) A type of bacteria  b) Bidirectional communication between gut and brain  c) A digestive enzyme  d) A meditation technique"
+            },
+            {
+              type: "text",
+              content: "<strong>Question 5:</strong> Which habit supports gut health?<br/>a) Eating quickly  b) High sugar diet  c) Diverse fiber intake  d) Skipping meals"
+            },
+            {
+              type: "text",
+              content: "<strong>Answers:</strong> 1-c, 2-b, 3-c, 4-b, 5-c"
+            },
+            {
+              type: "text",
+              content: "Congratulations on completing the quiz! Review any areas where you'd like to deepen your understanding."
+            }
+          ]
         }
       ]
     },
@@ -151,34 +1039,99 @@ Congratulations on completing the quiz! Review any areas where you'd like to dee
       id: "summary",
       title: "Summary",
       modules: [
-        {
-          id: "course-summary",
-          title: "Summary",
-          type: "text",
-          content: {
-            text: `Congratulations on Completing the Course!
+       {
+  id: "course-summary",
+  title: "Summary",
+  contentBlocks: [
+    {
+      type: "heading",
+      content: "Congratulations on Completing the Course!",
+      level: 1
+    },
 
-You've successfully completed **Gut Health & Stress Resilience for Professionals**. This course helped you understand the gut–brain connection, lifestyle impacts, and practical microhabits to improve wellness.
+    {
+      type: "text",
+      content:
+        "We want to take a moment to congratulate you on successfully completing the course, Gut Health & Stress Resilience for Professionals. You have taken an important step toward enhancing your overall health and well-being in the workplace. This course was designed specifically for corporate employees seeking improved gut health and effective stress management strategies in their busy lives."
+    },
 
-**Key Course Objectives:**
-• Understand gut health fundamentals
-• Identify lifestyle and stress impacts
-• Debunk gut health myths
-• Apply simple wellness microhabits
-• Use stress management techniques
+    {
+      type: "heading",
+      content: "Course Overview",
+      level: 2
+    },
 
-**Next Steps:**
-Implement what you've learned consistently. Small daily improvements can lead to meaningful long-term health gains. Remember:
+    {
+      type: "text",
+      content:
+        "Throughout this course, you learned about the vital connection between gut health and everyday performance. You have explored how modern lifestyles impact digestion and discovered practical solutions to help you manage stress effectively. By engaging with various resources such as videos and informative articles, you have acquired valuable knowledge to support your wellness journey."
+    },
 
-1. Start small with 1-2 microhabits
-2. Track your progress weekly
-3. Be patient - gut health improvements take time
-4. Listen to your body and adjust accordingly
-5. Seek professional medical advice when needed
+    {
+      type: "heading",
+      content: "Key Course Objectives",
+      level: 2
+    },
 
-Thank you for investing in your health and wellbeing. Your gut will thank you!`
-          }
-        }
+    {
+      type: "text",
+      content: "By the end of this course, you should now be able to:"
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "<strong>Understand Gut Health:</strong> Recognize what gut health is and why it is essential for daily performance.",
+          "<strong>Impact of Lifestyle:</strong> Identify how modern lifestyles and workplace stress can negatively affect digestion.",
+          "<strong>Myths vs. Facts:</strong> Dispel common misconceptions about gut health using evidence-based information.",
+          "<strong>Microhabits for Improvement:</strong> Apply simple and realistic microhabits that can nurture better gut health and promote overall wellness.",
+          "<strong>Stress Management Techniques:</strong> Utilize effective stress management techniques to enhance your well-being in both personal and professional environments."
+        ]
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Next Steps",
+      level: 2
+    },
+
+    {
+      type: "text",
+      content:
+        "Now that you have gained insights into gut health and have developed practical strategies for managing stress, we encourage you to implement what you've learned. Remember, small, consistent changes can lead to significant improvements over time, empowering you to take charge of your health amidst the demands of the workplace."
+    },
+
+    {
+      type: "text",
+      content:
+        "Embrace your newfound knowledge, continue exploring, and strive for a balanced lifestyle that nurtures both your body and mind."
+    },
+
+    
+
+    {
+      type: "heading",
+      content: "Further Readings",
+      level: 2
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "Relationship between stress, diet, and gut microbiota: a cross ...",
+          "Stress and digestive distress: How it can make or break ...",
+          "Strategies for Employers and Employees",
+          "Gut Health and Mental Well-being at Work",
+          "Boost gut health to boost work performance"
+        ]
+      }
+    }
+  ]
+}
+
       ]
     }
   ]
@@ -265,13 +1218,99 @@ export default function CourseModulePage() {
   const currentModuleId = getModuleId(currentSection, currentModule);
   const isCurrentCompleted = completedModules.has(currentModuleId);
 
+  // Determine module type for sidebar icon
+  const getModuleType = (module) => {
+    if (!module.contentBlocks || module.contentBlocks.length === 0) return "text";
+    // Check if module contains video
+    const hasVideo = module.contentBlocks.some(block => block.type === "video");
+    return hasVideo ? "video" : "text";
+  };
+
+  // Render content block based on type
+  const renderContentBlock = (block, index) => {
+    switch (block.type) {
+      case "heading":
+        const HeadingTag = `h${block.level || 2}`;
+        const headingClasses = {
+          1: "text-2xl md:text-3xl font-bold text-[#0F3D2E] mb-4",
+          2: "text-xl md:text-2xl font-bold text-[#0F3D2E] mb-3 mt-6",
+          3: "text-lg md:text-xl font-semibold text-[#2E6F5B] mb-2 mt-4"
+        };
+        return (
+          <HeadingTag key={index} className={headingClasses[block.level || 2]}>
+            {block.content}
+          </HeadingTag>
+        );
+
+      case "text":
+        return (
+          <div
+            key={index}
+            className="text-sm md:text-base leading-relaxed text-[#0F3D2E] mb-4"
+            dangerouslySetInnerHTML={{ __html: block.content }}
+          />
+        );
+
+      case "video":
+        return (
+          <div key={index} className="mb-6">
+            <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg bg-black">
+              <iframe
+                width="100%"
+                height="100%"
+                src={block.content.videoUrl}
+                title={block.content.title || "Course Video"}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+          </div>
+        );
+
+      case "image":
+        return (
+          <div key={index} className="mb-6">
+            <div className="rounded-lg overflow-hidden shadow-lg">
+              <img
+                src={block.content.src}
+                alt={block.content.alt || "Course image"}
+                className="w-full h-auto"
+              />
+            </div>
+            {block.content.caption && (
+              <p className="text-sm text-[#2E6F5B] italic text-center mt-2">
+                {block.content.caption}
+              </p>
+            )}
+          </div>
+        );
+
+      case "list":
+        return (
+          <ul key={index} className="list-none space-y-2 mb-4 ml-4">
+            {block.content.items.map((item, itemIndex) => (
+              <li key={itemIndex} className="flex items-start gap-2 text-sm md:text-base text-[#0F3D2E]">
+                <span className="text-[#1FBF84] mt-1">•</span>
+                <span dangerouslySetInnerHTML={{ __html: item }} />
+              </li>
+            ))}
+          </ul>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8] text-[#0F3D2E]">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8]">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <aside
         className={`${
           sidebarOpen ? "w-80" : "w-0"
-        } transition-all duration-300 bg-gradient-to-b from-[#2E6F5B] to-[#1F5845] text-white flex flex-col shadow-2xl overflow-hidden fixed  top-0 z-30 h-screen`}
+        } transition-all duration-300 bg-gradient-to-b from-[#2E6F5B] to-[#1F5845] text-white flex flex-col shadow-2xl overflow-hidden fixed top-0 z-30 h-screen`}
       >
         <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/5">
           <button
@@ -302,6 +1341,7 @@ export default function CourseModulePage() {
                 const completed = isModuleCompleted(sectionIdx, moduleIdx);
                 const isCurrent =
                   sectionIdx === currentSection && moduleIdx === currentModule;
+                const moduleType = getModuleType(module);
 
                 return (
                   <div
@@ -314,7 +1354,7 @@ export default function CourseModulePage() {
                     }`}
                   >
                     <span className="flex items-center gap-2 flex-1">
-                      {module.type === "video" ? (
+                      {moduleType === "video" ? (
                         <Play size={12} className="flex-shrink-0" />
                       ) : (
                         <BookOpen size={12} className="flex-shrink-0" />
@@ -348,8 +1388,8 @@ export default function CourseModulePage() {
         />
       )}
 
-      {/* Main Content Area - With proper margin for sidebar on desktop */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-4 md:px-6 py-4 bg-white shadow-md border-b border-[#E1F0E8]">
           <div className="flex items-center gap-3">
@@ -391,40 +1431,14 @@ export default function CourseModulePage() {
         {/* Content */}
         <ScrollArea className="flex-1 px-4 md:px-8 py-6">
           <Card className="max-w-4xl mx-auto shadow-xl border-2 border-[#E1F0E8] bg-white">
-            <CardContent className="p-6 md:p-8 space-y-6">
-              {currentModuleData?.type === "video" ? (
-                <>
-                  <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg bg-black">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={currentModuleData.content.videoUrl}
-                      title={currentModuleData.title}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    ></iframe>
-                  </div>
-                  <div className="prose prose-sm md:prose-base max-w-none">
-                    <p className="text-sm md:text-base leading-relaxed text-[#0F3D2E]">
-                      {currentModuleData.content.text}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <div className="prose prose-sm md:prose-base max-w-none">
-                  <div 
-                    className="text-sm md:text-base leading-relaxed text-[#0F3D2E] whitespace-pre-line"
-                    dangerouslySetInnerHTML={{ 
-                      __html: currentModuleData?.content.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/•/g, '•')
-                    }}
-                  />
-                </div>
+            <CardContent className="p-6 md:p-8">
+              {/* Render content blocks in order */}
+              {currentModuleData?.contentBlocks?.map((block, index) => 
+                renderContentBlock(block, index)
               )}
 
               {!isCurrentCompleted && (
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-6 mt-6 border-t border-[#E1F0E8]">
                   <Button
                     onClick={completeAndNext}
                     className="bg-[#1FBF84] hover:bg-[#17a673] text-white shadow-lg px-8"
@@ -435,33 +1449,33 @@ export default function CourseModulePage() {
                 </div>
               )}
             </CardContent>
-            
           </Card>
-          
         </ScrollArea>
 
-        {/* Footer Nav - Only spans content area */}
-        <div className="flex justify-between max-w-4xl  px-4 md:px-8 py-4 bg-white border-t border-[#E1F0E8] shadow-lg">
-          <Button
-            variant="ghost"
-            onClick={goToPrevious}
-            disabled={isFirstModule}
-            className="disabled:opacity-50 hover:bg-[#E1F0E8] text-sm md:text-base"
-          >
-            <ChevronLeft size={18} /> <span className="hidden sm:inline">Previous</span>
-          </Button>
-          <div className="text-xs md:text-sm text-[#2E6F5B] font-medium">
-            Module {currentModule + 1} of {courseData.sections[currentSection].modules.length}
+        {/* Footer Nav */}
+        <div className="mx-auto w-full max-w-4xl px-4 md:px-8 py-4 bg-white border-t border-[#E1F0E8] shadow-lg">
+          <div className="flex justify-between gap-5 items-center">
+            <Button
+              variant="ghost"
+              onClick={goToPrevious}
+              disabled={isFirstModule}
+              className="disabled:opacity-50 hover:bg-[#E1F0E8] text-sm md:text-base"
+            >
+              <ChevronLeft size={18} /> <span className="hidden sm:inline">Previous</span>
+            </Button>
+            <div className="text-xs md:text-sm text-[#2E6F5B] font-medium">
+              Module {currentModule + 1} of {courseData.sections[currentSection].modules.length}
+            </div>
+            <Button
+              onClick={isCurrentCompleted ? goToNext : completeAndNext}
+              disabled={isLastModule && isCurrentCompleted}
+              className="bg-[#1FBF84] hover:bg-[#17a673] text-white disabled:opacity-50 text-sm md:text-base"
+            >
+              <span className="hidden sm:inline">{isCurrentCompleted ? "Next" : "Complete & Next"}</span>
+              <span className="sm:hidden">Next</span>
+              <ChevronRight size={18} />
+            </Button>
           </div>
-          <Button
-            onClick={isCurrentCompleted ? goToNext : completeAndNext}
-            disabled={isLastModule && isCurrentCompleted}
-            className="bg-[#1FBF84] hover:bg-[#17a673] text-white disabled:opacity-50 text-sm md:text-base"
-          >
-            <span className="hidden sm:inline">{isCurrentCompleted ? "Next" : "Complete & Next"}</span>
-            <span className="sm:hidden">Next</span>
-            <ChevronRight size={18} />
-          </Button>
         </div>
       </div>
     </div>

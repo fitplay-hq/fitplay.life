@@ -62,33 +62,13 @@ useEffect(() => {
   const courses = [
     {
       title: 'Complete Gut Health Masterclass',
-      instructor: 'Dr. Sarah Johnson',
+      instructor: 'Dr. Seema Yadav',
       duration: '6 weeks',
       lessons: 24,
       students: '2.5k',
       rating: 4.9,
       price: '2999 Credits',
       image: '🌿'
-    },
-    {
-      title: 'Microbiome & You',
-      instructor: 'Dr. Michael Chen',
-      duration: '4 weeks',
-      lessons: 16,
-      students: '1.8k',
-      rating: 4.8,
-      price: '1999 Credits',
-      image: '🧬'
-    },
-    {
-      title: 'Probiotic Foods & Recipes',
-      instructor: 'Chef Emma Williams',
-      duration: '3 weeks',
-      lessons: 12,
-      students: '3.2k',
-      rating: 4.9,
-      price: '1499 Credits',
-      image: '🥗'
     }
   ];
 
@@ -317,7 +297,9 @@ useEffect(() => {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
-                            <button className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-semibold hover:bg-emerald-200 transition-all">
+                            <button className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-semibold hover:bg-emerald-200 transition-all"
+                              onClick={() => router.push("/coursepage")}>
+                                
                               Enroll Now
                             </button>
                           </div>

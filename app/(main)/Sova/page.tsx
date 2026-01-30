@@ -67,7 +67,7 @@ useEffect(() => {
       lessons: 24,
       students: '2.5k',
       rating: 4.9,
-      price: '2999 Credits',
+      price: 'Free',
       image: '🌿'
     }
   ];
@@ -123,7 +123,7 @@ useEffect(() => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h2 className="text-white font-semibold text-sm md:text-base">
-                Sova Health Quiz
+                Gut Health Quiz Fitply x Sova
               </h2>
               <button
                 onClick={() => setOpen(false)}
@@ -160,13 +160,13 @@ useEffect(() => {
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="order-2 lg:order-1">
                 
-                <MorphingText texts={["Welcome to Sova Health!", "Learn About Gut Health", "Take Gut Test Today"]} />
+                <MorphingText texts={[ "Learn About Gut Health", "Take Gut Test Today"]} />
                 <p className="md:mt-8 mt-2 text-lg text-gray-600 leading-relaxed">
                   Your personalized journey to optimal digestive wellness starts here. Expert guidance, proven methods, lasting results.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <button className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                    Get Started Free
+                    Get Started 
                   </button>
                   <button className="px-8 py-4 bg-white text-emerald-700 rounded-xl font-semibold shadow-md hover:shadow-lg border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300">
                     Learn More

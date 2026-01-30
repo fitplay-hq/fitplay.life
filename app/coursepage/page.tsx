@@ -111,10 +111,7 @@ export default function GutHealthCourse() {
                 Gut Health & Stress Resilience: Professionals
               </h2>
               
-              <div className="space-y-2">
-                <Progress value={100} className="h-2 bg-green-100" />
-                <p className="text-sm text-green-700 font-medium">100%</p>
-              </div>
+             
 
               <p className="text-sm text-gray-600">by Simran Yadav</p>
 
@@ -134,7 +131,7 @@ export default function GutHealthCourse() {
 
               <Button className="w-full bg-emerald-900 hover:bg-emerald-800 text-white py-6"
               onClick={() => router.push("/course")}>
-                Resume
+                Start
               </Button>
             </CardContent>
           </Card>

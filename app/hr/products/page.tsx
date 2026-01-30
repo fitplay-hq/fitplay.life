@@ -359,7 +359,7 @@ const filteredProducts = products.filter(product => {
                   <TableHead>Category</TableHead>
                   <TableHead>Vendor</TableHead>
                   <TableHead>Credits Range</TableHead>
-                  <TableHead className="text-right">Stock</TableHead>
+                 
                   <TableHead>Status</TableHead>
                   <TableHead>Visibility</TableHead>
                   <TableHead className="text-right">Action</TableHead>
@@ -398,9 +398,7 @@ const filteredProducts = products.filter(product => {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        {product?.availableStock || 0}
-                      </TableCell>
+                      
                       <TableCell>
                         <Badge variant={(product?.availableStock || 0) > 0 ? "default" : "secondary"}>
                           {(product?.availableStock || 0) > 0 ? "In Stock" : "Out of Stock"}
@@ -485,9 +483,7 @@ const filteredProducts = products.filter(product => {
                       <span className="text-sm text-gray-600">
                         {(product?.category?.name || "").replace(/_/g, " ")}
                       </span>
-                      <span className="text-sm font-medium">
-                        Stock: {product?.availableStock || 0}
-                      </span>
+                     
                     </div>
                     {product?.vendor?.name && (
                       <div className="text-sm text-gray-600">

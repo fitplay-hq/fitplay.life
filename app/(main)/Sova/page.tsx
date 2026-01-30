@@ -13,6 +13,38 @@ export default function SovaHealthPage() {
   const router = useRouter();
 
 
+
+function SimpleAnimatedHeading() {
+  const texts = ["Learn About Gut Health", "Take Gut Test Today"]
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false)
+
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % texts.length)
+        setVisible(true)
+      }, 300)
+    }, 2500)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <h1
+      className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 transition-opacity duration-1200 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      {texts[index]}
+    </h1>
+  )
+}
+
+
+
   const [open, setOpen] = useState(false);
 
   const loadQuiz = () => {
@@ -52,7 +84,7 @@ useEffect(() => {
       title: 'Gut Health Assessment',
       description: 'Discover your digestive health score',
       duration: '5 min',
-      questions: 15,
+     
       icon: Activity,
       color: 'from-emerald-500 to-teal-500'
     },
@@ -62,10 +94,8 @@ useEffect(() => {
   const courses = [
     {
       title: 'Complete Gut Health Masterclass',
-      instructor: 'Dr. Seema Yadav',
-      duration: '6 weeks',
-      lessons: 24,
-      students: '2.5k',
+      
+      
       rating: 4.9,
       price: 'Free',
       image: '🌿'
@@ -123,7 +153,7 @@ useEffect(() => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h2 className="text-white font-semibold text-sm md:text-base">
-                Gut Health Quiz Fitply x Sova
+                Gut Health Quiz FITPLAY x SOVA
               </h2>
               <button
                 onClick={() => setOpen(false)}
@@ -160,7 +190,8 @@ useEffect(() => {
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="order-2 lg:order-1">
                 
-                <MorphingText texts={[ "Learn About Gut Health", "Take Gut Test Today"]} />
+               <SimpleAnimatedHeading />
+
                 <p className="md:mt-8 mt-2 text-lg text-gray-600 leading-relaxed">
                   Your personalized journey to optimal digestive wellness starts here. Expert guidance, proven methods, lasting results.
                 </p>
@@ -242,8 +273,7 @@ useEffect(() => {
                               {quiz.duration}
                             </div>
                             <div className="flex items-center gap-1">
-                              <Check className="w-4 h-4" />
-                              {quiz.questions} questions
+                              
                             </div>
                           </div>
                           <button
@@ -281,19 +311,13 @@ useEffect(() => {
                               <Star className="w-3 h-3 fill-current" />
                               {course.rating}
                             </div>
-                            <span className="text-sm text-gray-500">({course.students} students)</span>
+                          
                           </div>
                           <h3 className="text-lg font-bold text-gray-900 mb-2">{course.title}</h3>
-                          <p className="text-sm text-gray-600 mb-4">by {course.instructor}</p>
+                         
                           <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 pb-4 border-b border-gray-100">
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {course.duration}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <BookOpen className="w-4 h-4" />
-                              {course.lessons} lessons
-                            </div>
+                           
+                            
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-2xl font-bold text-emerald-600">{course.price}</span>

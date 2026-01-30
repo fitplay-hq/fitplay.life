@@ -11,9 +11,11 @@ import { useRouter } from "next/navigation";
 export default function GutHealthCourse() {
       const router = useRouter();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950">
+    <>
+    <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950 ">
       {/* Header Section */}
-      <div className="grid md:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto ">
         {/* Left Column - Course Info */}
         <div className="text-white space-y-6">
           <h1 className="text-4xl font-bold mb-4">
@@ -91,22 +93,23 @@ export default function GutHealthCourse() {
 
         {/* Right Column - Course Card */}
         <div className="flex items-center justify-center">
-          <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden">
-            {/* Course Image */}
-            <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px]">
-              <div className="text-center text-white">
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-emerald-500/30 flex items-center justify-center">
-                  <svg className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <p className="text-sm bg-emerald-800/50 px-3 py-1 rounded inline-block">
-                  Captured screenshot
-                </p>
-              </div>
-            </div>
+         <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-3xl">
+  {/* Course Image */}
+  <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px] ">
+    <div className="text-center text-white">
+      <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-emerald-500/30 flex items-center justify-center">
+        <svg className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <p className="text-sm bg-emerald-800/50 px-3 py-1 rounded inline-block">
+        Captured screenshot
+      </p>
+    </div>
+  </div>
 
-            <CardContent className="p-6 space-y-4">
+<CardContent className="p-6 space-y-4">
               <h2 className="font-bold text-lg text-gray-900">
                 Gut Health & Stress Resilience: Professionals
               </h2>
@@ -134,12 +137,15 @@ export default function GutHealthCourse() {
                 Start
               </Button>
             </CardContent>
-          </Card>
+</Card>
+
         </div>
       </div>
+    
 
-      {/* Course Objectives Section */}
+   
      
     </div>
+    </>
   );
 }

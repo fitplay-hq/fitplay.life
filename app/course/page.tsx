@@ -9,9 +9,22 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight, X, Play, BookOpen, Menu } from "lucide-react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-// Course Data Structure with flexible content blocks
+import Image from "next/image";
+import { useRef } from "react";
+
+const STORAGE_KEY = "gut-course-progress-v1";
+
+const loadProgress = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
 const courseData = {
   title: "Gut Health & Stress Resilience for Professionals",
   sections: [
@@ -42,7 +55,7 @@ const courseData = {
             {
               type: "image",
               content: {
-                src: "/api/placeholder/800/600",
+                src: "./course.png",
                 alt: "Course pathway diagram showing transformation from stressed professional to resilient professional",
                 caption: "Your journey from stressed professional to resilient professional"
               }
@@ -130,7 +143,7 @@ const courseData = {
     {
       type: "image",
       content: {
-        src: "/api/placeholder/900/500",
+        src: "./course2.png",
         alt: "Diagram showing gut ecosystem, gut-brain connection, and health impact",
         caption: "The gut ecosystem, gut–brain connection, and its impact on overall health"
       }
@@ -260,7 +273,7 @@ const courseData = {
     {
       type: "image",
       content: {
-        src: "/api/placeholder/900/550",
+        src: "./course3.png",
         alt: "Diagram showing digestion process from ingestion to elimination",
         caption: "Overview of digestion: ingestion, mechanical breakdown, chemical digestion, absorption, water reabsorption, and elimination"
       }
@@ -1023,10 +1036,7 @@ const courseData = {
               type: "text",
               content: "<strong>Question 5:</strong> Which habit supports gut health?<br/>a) Eating quickly  b) High sugar diet  c) Diverse fiber intake  d) Skipping meals"
             },
-            {
-              type: "text",
-              content: "<strong>Answers:</strong> 1-c, 2-b, 3-c, 4-b, 5-c"
-            },
+           
             {
               type: "text",
               content: "Congratulations on completing the quiz! Review any areas where you'd like to deepen your understanding."
@@ -1136,14 +1146,34 @@ const courseData = {
     }
   ]
 };
-
 export default function CourseModulePage() {
-  const [currentSection, setCurrentSection] = useState(0);
-  const [currentModule, setCurrentModule] = useState(0);
-  const [completedModules, setCompletedModules] = useState(new Set());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+const saved = loadProgress();
+ const router = useRouter();
 
-  // Calculate total progress
+  const [currentSection, setCurrentSection] = useState(
+    saved?.currentSection ?? 0
+  );
+
+  const [currentModule, setCurrentModule] = useState(
+    saved?.currentModule ?? 0
+  );
+
+  const [completedModules, setCompletedModules] = useState(
+    new Set(saved?.completedModules ?? [])
+  );
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+ useEffect(() => {
+    const data = {
+      currentSection,
+      currentModule,
+      completedModules: Array.from(completedModules),
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [currentSection, currentModule, completedModules]);
+
+
   const totalModules = courseData.sections.reduce(
     (acc, section) => acc + section.modules.length,
     0
@@ -1305,6 +1335,7 @@ export default function CourseModulePage() {
   };
 
   return (
+    
     <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8]">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <aside
@@ -1412,6 +1443,7 @@ export default function CourseModulePage() {
               <Progress value={progressPercentage} className="w-20 md:w-32 h-2" />
               <span className="whitespace-nowrap">{Math.round(progressPercentage)}%</span>
             </div>
+            <Button className="bg-emerald-600"   onClick={() => router.push("/coursepage")}>Go Back</Button>
             {isLastModule && completedModules.size === totalModules ? (
               <Button className="bg-[#1FBF84] hover:bg-[#17a673] text-white shadow-lg text-sm md:text-base">
                 Finish Course
@@ -1481,3 +1513,4 @@ export default function CourseModulePage() {
     </div>
   );
 }
+

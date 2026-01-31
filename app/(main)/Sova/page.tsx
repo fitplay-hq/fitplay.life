@@ -1,101 +1,155 @@
 "use client"
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, BookOpen, Video, ShoppingBag, ArrowRight, Check, Clock, Users, Star, Stethoscope, Brain, Activity } from 'lucide-react';
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import { Progress } from "@/components/ui/progress";
 
 import { MorphingText } from "@/components/ui/morphing-text"
 import { useProducts } from "@/app/hooks/useProducts";
+
+const STORAGE_KEY = "gut-course-progress-v1";
+const ENROLLMENT_KEY = "gut-course-enrollment";
+
 export default function SovaHealthPage() {
   const [activeTab, setActiveTab] = useState('quiz');
   const { products, isLoading, error } = useProducts();
   const router = useRouter();
+  const [courseProgress, setCourseProgress] = useState({
+    isEnrolled: false,
+    progressPercentage: 0,
+    completedModules: 0,
+    totalModules: 0
+  });
 
-
-
-function SimpleAnimatedHeading() {
-  const texts = ["Learn About Gut Health", "Take Gut Test Today"]
-  const [index, setIndex] = useState(0)
-  const [visible, setVisible] = useState(true)
-
+  // Load enrollment and progress on mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setVisible(false)
+    const loadCourseData = () => {
+      try {
+        // Check enrollment
+        const enrollmentData = localStorage.getItem(ENROLLMENT_KEY);
+        const isEnrolled = enrollmentData === "true";
 
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % texts.length)
-        setVisible(true)
-      }, 300)
-    }, 2500)
+        if (isEnrolled) {
+          // Load progress
+          const progressData = localStorage.getItem(STORAGE_KEY);
+          if (progressData) {
+            const parsed = JSON.parse(progressData);
+            const completedCount = parsed.completedModules?.length || 0;
+          
+            const totalModules = 9;
+            const progressPercentage = (completedCount / totalModules) * 100;
 
-    return () => clearInterval(interval)
-  }, [])
+            setCourseProgress({
+              isEnrolled: true,
+              progressPercentage: Math.round(progressPercentage),
+              completedModules: completedCount,
+              totalModules: totalModules
+            });
+          } else {
+            setCourseProgress({
+              isEnrolled: true,
+              progressPercentage: 0,
+              completedModules: 0,
+              totalModules: 10
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error loading course data:", error);
+      }
+    };
 
-  return (
-    <h1
-      className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 transition-opacity duration-1200 ${
-        visible ? "opacity-100" : "opacity-0"
-      }`}
-    >
-      {texts[index]}
-    </h1>
-  )
-}
+    loadCourseData();
 
+    // Set up interval to check for progress updates
+    const interval = setInterval(loadCourseData, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
+  const handleEnrollClick = () => {
+    localStorage.setItem(ENROLLMENT_KEY, "true");
+    setCourseProgress(prev => ({
+      ...prev,
+      isEnrolled: true,
+      totalModules: 10
+    }));
+    router.push("/coursepage");
+  };
+
+  const handleResumeClick = () => {
+    router.push("/coursepage");
+  };
+
+  function SimpleAnimatedHeading() {
+    const texts = ["Learn About Gut Health", "Take Gut Test Today"]
+    const [index, setIndex] = useState(0)
+    const [visible, setVisible] = useState(true)
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setVisible(false)
+
+        setTimeout(() => {
+          setIndex((prev) => (prev + 1) % texts.length)
+          setVisible(true)
+        }, 300)
+      }, 2500)
+
+      return () => clearInterval(interval)
+    }, [])
+
+    return (
+      <h1
+        className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 transition-opacity duration-1200 ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {texts[index]}
+      </h1>
+    )
+  }
 
   const [open, setOpen] = useState(false);
 
   const loadQuiz = () => {
-  // Remove old script if exists (important)
-  const oldScript = document.getElementById("quizell-script");
-  if (oldScript) oldScript.remove();
+    const oldScript = document.getElementById("quizell-script");
+    if (oldScript) oldScript.remove();
 
-  const script = document.createElement("script");
-  script.src = "https://api.quizell.com/js/qzembed.js?v=24999";
-  script.async = true;
-  script.id = "quizell-script";
-  script.setAttribute("data-qz-key", "oQ8cX8");
+    const script = document.createElement("script");
+    script.src = "https://api.quizell.com/js/qzembed.js?v=24999";
+    script.async = true;
+    script.id = "quizell-script";
+    script.setAttribute("data-qz-key", "oQ8cX8");
 
-  document.body.appendChild(script);
-};
-useEffect(() => {
-  if (!open) return;
+    document.body.appendChild(script);
+  };
 
-  // wait one tick so modal DOM is ready
-  const timer = setTimeout(() => {
-    loadQuiz();
-  }, 100);
-
-  return () => clearTimeout(timer);
-}, [open]);
-
+  useEffect(() => {
+    if (!open) return;
+    const timer = setTimeout(() => {
+      loadQuiz();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
   }, [open]);
-
-  
-
 
   const quizzes = [
     {
       title: 'Gut Health Assessment',
       description: 'Discover your digestive health score',
       duration: '5 min',
-     
       icon: Activity,
       color: 'from-emerald-500 to-teal-500'
     },
-   
   ];
 
   const courses = [
     {
       title: 'Complete Gut Health Masterclass',
-      
-      
       rating: 4.9,
       price: 'Free',
       image: '🌿'
@@ -135,22 +189,34 @@ useEffect(() => {
     }
   ];
 
- 
-
- 
+  const getButtonContent = () => {
+    if (!courseProgress.isEnrolled) {
+      return {
+        text: "Enroll Now",
+        onClick: handleEnrollClick,
+        className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+      };
+    } else if (courseProgress.progressPercentage === 100) {
+      return {
+        text: "Completed",
+        onClick: handleResumeClick,
+        className: "bg-green-100 text-green-700 cursor-default",
+        icon: <Check className="w-4 h-4" />
+      };
+    } else {
+      return {
+        text: "Resume",
+        onClick: handleResumeClick,
+        className: "bg-blue-100 text-blue-700 hover:bg-blue-200"
+      };
+    }
+  };
 
   return (
-    
-
     <>
-
-
-    {open && (
+      {open && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm">
-          {/* Modal Card */}
           <div className="relative w-full h-[92vh] md:h-auto md:max-w-3xl bg-slate-950 rounded-t-2xl md:rounded-2xl shadow-2xl animate-in slide-in-from-bottom md:zoom-in-95 overflow-hidden">
-            
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h2 className="text-white font-semibold text-sm md:text-base">
                 Gut Health Quiz FITPLAY x SOVA
@@ -162,8 +228,6 @@ useEffect(() => {
                 <X className="w-5 h-5 text-white" />
               </button>
             </div>
-
-            {/* Quiz Body */}
             <div className="h-full overflow-y-auto p-3 md:p-4">
               <div
                 id="oQ8cX8"
@@ -174,24 +238,15 @@ useEffect(() => {
           </div>
         </div>
       )}
-    
-  
 
-
-
-      {/* Background only behind navbar */}
       <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
 
-      {/* Page content */}
-      <div className="mx-auto  min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Welcome Section with Health Image */}
+      <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
         <div className="max-w-7xl w-full mx-auto mt-4 mb-12">
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 md:rounded-3xl rounded-xl p-8 sm:p-12 lg:p-16 shadow-xl border border-emerald-100">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="order-2 lg:order-1">
-                
-               <SimpleAnimatedHeading />
-
+                <SimpleAnimatedHeading />
                 <p className="md:mt-8 mt-2 text-lg text-gray-600 leading-relaxed">
                   Your personalized journey to optimal digestive wellness starts here. Expert guidance, proven methods, lasting results.
                 </p>
@@ -218,7 +273,6 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Tabs Section */}
         <div className="max-w-7xl mx-auto mb-16">
           <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
@@ -248,9 +302,7 @@ useEffect(() => {
               </button>
             </div>
 
-            {/* Tab Content */}
             <div className="px-2 sm:px-4 lg:px-6">
-              {/* Quiz Tab */}
               {activeTab === 'quiz' && (
                 <div className="space-y-6">
                   <div className="mb-8">
@@ -261,7 +313,7 @@ useEffect(() => {
                     {quizzes.map((quiz, index) => {
                       const Icon = quiz.icon;
                       return (
-                        <div key={index} className=" bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div key={index} className="bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
                           <div className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4`}>
                             <Icon className="w-7 h-7 text-white" />
                           </div>
@@ -272,19 +324,16 @@ useEffect(() => {
                               <Clock className="w-4 h-4" />
                               {quiz.duration}
                             </div>
-                            <div className="flex items-center gap-1">
-                              
-                            </div>
                           </div>
                           <button
-        onClick={() => {
-          setOpen(true);
-          loadQuiz();
-        }}
-        className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-      >
-        Start Quiz
-      </button>
+                            onClick={() => {
+                              setOpen(true);
+                              loadQuiz();
+                            }}
+                            className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                          >
+                            Start Quiz
+                          </button>
                         </div>
                       );
                     })}
@@ -292,7 +341,6 @@ useEffect(() => {
                 </div>
               )}
 
-              {/* Course Tab */}
               {activeTab === 'course' && (
                 <div className="space-y-6">
                   <div className="mb-8">
@@ -300,41 +348,59 @@ useEffect(() => {
                     <p className="text-gray-600">Learn from certified health professionals and transform your wellness</p>
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {courses.map((course, index) => (
-                      <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 h-40 flex items-center justify-center text-8xl">
-                          {course.image}
-                        </div>
-                        <div className="p-6">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="flex items-center gap-1 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                              <Star className="w-3 h-3 fill-current" />
-                              {course.rating}
+                    {courses.map((course, index) => {
+                      const buttonConfig = getButtonContent();
+                      return (
+                        <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 h-40 flex items-center justify-center text-8xl">
+                            {course.image}
+                          </div>
+                          <div className="p-6">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="flex items-center gap-1 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+                                <Star className="w-3 h-3 fill-current" />
+                                {course.rating}
+                              </div>
                             </div>
-                          
-                          </div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">{course.title}</h3>
-                         
-                          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 pb-4 border-b border-gray-100">
-                           
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">{course.title}</h3>
                             
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
-                            <button className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-semibold hover:bg-emerald-200 transition-all"
-                              onClick={() => router.push("/coursepage")}>
-                                
-                              Enroll Now
-                            </button>
+                            {/* Progress Section */}
+                            {courseProgress.isEnrolled && (
+                              <div className="mb-4 p-3 bg-emerald-50 rounded-lg">
+                                <div className="flex items-center justify-between text-xs text-emerald-700 mb-2">
+                                  <span className="font-semibold">Your Progress</span>
+                                  <span className="font-bold">{courseProgress.progressPercentage}%</span>
+                                </div>
+                                <Progress 
+                                  value={courseProgress.progressPercentage} 
+                                  className="h-2 bg-emerald-100"
+                                />
+                                <p className="text-xs text-emerald-600 mt-2">
+                                  {courseProgress.completedModules} of {courseProgress.totalModules} modules completed
+                                </p>
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 pb-4 border-b border-gray-100">
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
+                              <button 
+                                className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
+                                onClick={buttonConfig.onClick}
+                              >
+                                {buttonConfig.icon}
+                                {buttonConfig.text}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Consultation Tab */}
               {activeTab === 'consultation' && (
                 <div className="space-y-6">
                   <div className="mb-8">
@@ -387,90 +453,77 @@ useEffect(() => {
             </div>
           </div>
         </div>
-       
-      
 
-  
-
-
-       {/* Recommended Products Section */}
-<div className="max-w-7xl mx-auto">
-  <div className="mb-8">
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-          Recommended Products
-        </h2>
-        <p className="text-gray-600">
-          Premium supplements curated by health experts
-        </p>
-      </div>
-      <ShoppingBag className="w-8 h-8 text-emerald-600" />
-    </div>
-  </div>
-
-  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    {products.slice(0, 4).map((product) => (
-      <div
-        key={product.id}
-        className="bg-white rounded-2xl overflow-hidden border border-gray-200
-                   hover:shadow-xl transition-all duration-300 hover:scale-105"
-      >
-        {/* Product Image */}
-        <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
-          <img
-            src={product.images?.[0] || "/placeholder.png"}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Product Info */}
-        <div className="p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
-            {product.name}
-          </h3>
-
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {product.description}
-          </p>
-
-          {/* Rating (optional) */}
-          {product.avgRating && (
-            <div className="flex items-center gap-1 mb-4">
-              <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-              <span className="text-sm font-medium text-gray-700">
-                {product.avgRating}
-              </span>
-              {product.noOfReviews && (
-                <span className="text-xs text-gray-500">
-                  ({product.noOfReviews})
-                </span>
-              )}
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  Recommended Products
+                </h2>
+                <p className="text-gray-600">
+                  Premium supplements curated by health experts
+                </p>
+              </div>
+              <ShoppingBag className="w-8 h-8 text-emerald-600" />
             </div>
-          )}
+          </div>
 
-          {/* Action */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-           <button
-  onClick={() => router.push(`/product/${product.id}`)}
-  className="px-4 py-2 bg-emerald-600 text-white rounded-lg
-             font-semibold hover:bg-emerald-700 transition-all
-             flex items-center gap-2"
->
-  Add
-  <ArrowRight className="w-4 h-4" />
-</button>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.slice(0, 4).map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-2xl overflow-hidden border border-gray-200
+                           hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
+                  <img
+                    src={product.images?.[0] || "/placeholder.png"}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
 
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+                    {product.name}
+                  </h3>
+
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {product.description}
+                  </p>
+
+                  {product.avgRating && (
+                    <div className="flex items-center gap-1 mb-4">
+                      <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+                      <span className="text-sm font-medium text-gray-700">
+                        {product.avgRating}
+                      </span>
+                      {product.noOfReviews && (
+                        <span className="text-xs text-gray-500">
+                          ({product.noOfReviews})
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => router.push(`/product/${product.id}`)}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg
+                                 font-semibold hover:bg-emerald-700 transition-all
+                                 flex items-center gap-2"
+                    >
+                      Add
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-    ))}
-  </div>
-</div>
-
       </div>
     </>
   );
 }
-

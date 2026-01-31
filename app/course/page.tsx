@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useRef } from "react";
 
-const STORAGE_KEY = "gut-course-progress-v1";
+const STORAGE_KEY = "gut-course-progress-v";
 
 const loadProgress = () => {
   if (typeof window === "undefined") return null;
@@ -1177,17 +1177,16 @@ const saved = loadProgress();
   );
   const progressPercentage = (completedModules.size / totalModules) * 100;
 
-  // Get current module
+
   const getCurrentModule = () => {
     return courseData.sections[currentSection]?.modules[currentModule];
   };
 
-  // Get module ID for tracking
   const getModuleId = (sectionIdx, moduleIdx) => {
     return `${courseData.sections[sectionIdx].id}-${courseData.sections[sectionIdx].modules[moduleIdx].id}`;
   };
 
-  // Mark current module as complete and move to next
+  
   const completeAndNext = () => {
     const moduleId = getModuleId(currentSection, currentModule);
     const newCompleted = new Set(completedModules);

@@ -7,8 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Award, Check } from 'lucide-react';
 import { useRouter } from "next/navigation";
 
-const STORAGE_KEY = "gut-course-progress-v1";
-const ENROLLMENT_KEY = "gut-course-enrollment";
+const STORAGE_KEY = "gut-course-progress-v";
+const ENROLLMENT_KEY = "gut-course-enrollmen";
 
 export default function GutHealthCourse() {
   const router = useRouter();
@@ -181,7 +181,7 @@ export default function GutHealthCourse() {
           <div className="flex items-center justify-center">
             <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-3xl">
               {/* Course Image */}
-              <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px]">
+              <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px] -mt-6">
                 <div className="text-center text-white">
                   <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-emerald-500/30 flex items-center justify-center">
                     <svg className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">

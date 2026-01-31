@@ -8,8 +8,64 @@ import { Progress } from "@/components/ui/progress";
 import { MorphingText } from "@/components/ui/morphing-text"
 import { useProducts } from "@/app/hooks/useProducts";
 
-const STORAGE_KEY = "gut-course-progress-v1";
-const ENROLLMENT_KEY = "gut-course-enrollment";
+const STORAGE_KEY = "gut-course-progress-v";
+const ENROLLMENT_KEY = "gut-course-enrollmen";
+function SimpleAnimatedHeading() {
+  const texts = ["Learn About Gut Health", "Take Gut Test Today"]
+  const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false)
+
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % texts.length)
+        setVisible(true)
+      }, 300)
+    }, 2500)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <h1
+      className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800
+        transition-opacity duration-1000
+        ${visible ? "opacity-100" : "opacity-0"}
+      `}
+    >
+      {texts[index]}
+    </h1>
+  )
+}
+function ProductCardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 animate-pulse">
+      {/* Image skeleton */}
+      <div className="h-48 bg-gray-200" />
+
+      {/* Content */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <div className="h-5 w-3/4 bg-gray-200 rounded" />
+
+        {/* Description */}
+        <div className="h-4 w-full bg-gray-200 rounded" />
+        <div className="h-4 w-5/6 bg-gray-200 rounded" />
+
+        {/* Rating */}
+        <div className="h-4 w-24 bg-gray-200 rounded" />
+
+        {/* Button */}
+        <div className="pt-4 border-t border-gray-100">
+          <div className="h-10 w-24 bg-gray-300 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 export default function SovaHealthPage() {
   const [activeTab, setActiveTab] = useState('quiz');
@@ -81,34 +137,8 @@ export default function SovaHealthPage() {
     router.push("/coursepage");
   };
 
-  function SimpleAnimatedHeading() {
-    const texts = ["Learn About Gut Health", "Take Gut Test Today"]
-    const [index, setIndex] = useState(0)
-    const [visible, setVisible] = useState(true)
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setVisible(false)
 
-        setTimeout(() => {
-          setIndex((prev) => (prev + 1) % texts.length)
-          setVisible(true)
-        }, 300)
-      }, 2500)
-
-      return () => clearInterval(interval)
-    }, [])
-
-    return (
-      <h1
-        className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 transition-opacity duration-1200 ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        {texts[index]}
-      </h1>
-    )
-  }
 
   const [open, setOpen] = useState(false);
 
@@ -469,59 +499,66 @@ export default function SovaHealthPage() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.slice(0, 4).map((product) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-2xl overflow-hidden border border-gray-200
-                           hover:shadow-xl transition-all duration-300 hover:scale-105"
-              >
-                <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
-                  <img
-                    src={product.images?.[0] || "/placeholder.png"}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {product.description}
-                  </p>
-
-                  {product.avgRating && (
-                    <div className="flex items-center gap-1 mb-4">
-                      <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                      <span className="text-sm font-medium text-gray-700">
-                        {product.avgRating}
-                      </span>
-                      {product.noOfReviews && (
-                        <span className="text-xs text-gray-500">
-                          ({product.noOfReviews})
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <button
-                      onClick={() => router.push(`/product/${product.id}`)}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg
-                                 font-semibold hover:bg-emerald-700 transition-all
-                                 flex items-center gap-2"
-                    >
-                      Add
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  {isLoading
+    ? Array.from({ length: 4 }).map((_, i) => (
+        <ProductCardSkeleton key={i} />
+      ))
+    : products.slice(0, 4).map((product) => (
+        <div
+          key={product.id}
+          className="bg-white rounded-2xl overflow-hidden border border-gray-200
+                     hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          {/* Image */}
+          <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
+            <img
+              src={product.images?.[0] || "/placeholder.png"}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
           </div>
+
+          {/* Content */}
+          <div className="p-5">
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+              {product.name}
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+              {product.description}
+            </p>
+
+            {product.avgRating && (
+              <div className="flex items-center gap-1 mb-4">
+                <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
+                <span className="text-sm font-medium text-gray-700">
+                  {product.avgRating}
+                </span>
+                {product.noOfReviews && (
+                  <span className="text-xs text-gray-500">
+                    ({product.noOfReviews})
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <button
+                onClick={() => router.push(`/product/${product.id}`)}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg
+                           font-semibold hover:bg-emerald-700 transition-all
+                           flex items-center gap-2"
+              >
+                Add
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+</div>
+
         </div>
       </div>
     </>

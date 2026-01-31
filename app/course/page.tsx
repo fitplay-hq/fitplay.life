@@ -1510,7 +1510,7 @@ useEffect(() => {
               <Progress value={progressPercentage} className="w-20 md:w-32 h-2" />
               <span className="whitespace-nowrap">{Math.round(progressPercentage)}%</span>
             </div>
-            <Button className="bg-emerald-600"   onClick={() => router.push("/coursepage")}>Go Back</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700"   onClick={() => router.push("/coursepage")}>Go Back</Button>
             {isLastModule && completedModules.size === totalModules ? (
               <Button className="bg-[#1FBF84] hover:bg-[#17a673] text-white shadow-lg text-sm md:text-base">
                 Finish Course
@@ -1605,11 +1605,11 @@ useEffect(() => {
               Module {currentModule + 1} of {courseData.sections[currentSection].modules.length}
             </div>
             <Button
-              onClick={isCurrentCompleted ? goToNext : completeAndNext}
-              disabled={isLastModule && isCurrentCompleted}
+              onClick={ goToNext }
+              
               className="bg-[#1FBF84] hover:bg-[#17a673] text-white disabled:opacity-50 text-sm md:text-base"
             >
-              <span className="hidden sm:inline">{isCurrentCompleted ? "Next" : "Complete & Next"}</span>
+              <span className="hidden sm:inline"> Next</span>
               <span className="sm:hidden">Next</span>
               <ChevronRight size={18} />
             </Button>

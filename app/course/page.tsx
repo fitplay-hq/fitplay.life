@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight, X, Play, BookOpen, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Pause, Square } from "lucide-react";
+
 
 import Image from "next/image";
 import { useRef } from "react";
@@ -1329,6 +1331,75 @@ const saved = loadProgress();
         return null;
     }
   };
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+const [isSpeaking, setIsSpeaking] = useState(false);
+const [isPaused, setIsPaused] = useState(false);
+
+const getReadableText = () => {
+  if (!currentModuleData?.contentBlocks) return "";
+
+  return currentModuleData.contentBlocks
+    .filter(
+      (block) => block.type === "text" || block.type === "list"
+    )
+    .map((block) => {
+      if (block.type === "text") {
+        return block.content.replace(/<[^>]*>/g, " ");
+      }
+      if (block.type === "list") {
+        return block.content.items
+          .map((item) => item.replace(/<[^>]*>/g, " "))
+          .join(" ");
+      }
+      return "";
+    })
+    .join(" ");
+};
+
+const startSpeech = () => {
+  if (!window.speechSynthesis) return;
+
+  const text = getReadableText();
+  if (!text) return;
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+
+  utterance.onend = () => {
+    setIsSpeaking(false);
+    setIsPaused(false);
+  };
+
+  speechRef.current = utterance;
+  window.speechSynthesis.speak(utterance);
+
+  setIsSpeaking(true);
+  setIsPaused(false);
+};
+
+const pauseSpeech = () => {
+  window.speechSynthesis.pause();
+  setIsPaused(true);
+};
+
+const resumeSpeech = () => {
+  window.speechSynthesis.resume();
+  setIsPaused(false);
+};
+
+const stopSpeech = () => {
+  window.speechSynthesis.cancel();
+  setIsSpeaking(false);
+  setIsPaused(false);
+};
+useEffect(() => {
+  stopSpeech();
+}, [currentSection, currentModule]);
+
 
   return (
     
@@ -1460,6 +1531,45 @@ const saved = loadProgress();
         <ScrollArea className="flex-1 px-4 md:px-8 py-6">
           <Card className="max-w-4xl mx-auto shadow-xl border-2 border-[#E1F0E8] bg-white">
             <CardContent className="p-6 md:p-8">
+              {/* Voice Controls */}
+<div className="flex items-center gap-3 mb-2 -mt-10 p-3 rounded-lg bg-[#F4F9F7] border border-[#E1F0E8]">
+  {!isSpeaking ? (
+    <Button
+      size="sm"
+      onClick={startSpeech}
+      className="bg-[#1FBF84] hover:bg-[#17a673] text-white"
+    >
+      <Play size={16} className="mr-1" /> Play Audio
+    </Button>
+  ) : (
+    <>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={isPaused ? resumeSpeech : pauseSpeech}
+      >
+        {isPaused ? (
+          <>
+            <Play size={16} className="mr-1" /> Resume
+          </>
+        ) : (
+          <>
+            <Pause size={16} className="mr-1" /> Pause
+          </>
+        )}
+      </Button>
+
+      <Button
+        size="sm"
+        variant="destructive"
+        onClick={stopSpeech}
+      >
+        <Square size={16} className="mr-1" /> Stop
+      </Button>
+    </>
+  )}
+</div>
+
               {/* Render content blocks in order */}
               {currentModuleData?.contentBlocks?.map((block, index) => 
                 renderContentBlock(block, index)

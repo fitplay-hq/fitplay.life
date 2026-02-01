@@ -244,28 +244,7 @@ export default function ProductPage({
     );
   }
 
-  const faqs = [
-    {
-      question: "How quickly can I change weights?",
-      answer:
-        "The dial system allows you to change weights in under 3 seconds. Simply turn the dial to your desired weight and lift.",
-    },
-    {
-      question: "What is the warranty coverage?",
-      answer:
-        "This product comes with a 2-year manufacturer warranty covering defects in materials and workmanship.",
-    },
-    {
-      question: "Is assembly required?",
-      answer:
-        "Minimal assembly required. The dumbbells come pre-assembled, you just need to set up the storage tray.",
-    },
-    {
-      question: "Can I use these for all muscle groups?",
-      answer:
-        "Yes, these adjustable dumbbells are perfect for full-body workouts including arms, chest, back, shoulders, and legs.",
-    },
-  ];
+ 
 
   return (
     <div className="min-h-screen">
@@ -292,10 +271,10 @@ export default function ProductPage({
       {/* Content Section */}
       <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-8">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Product Images */}
         <div className="space-y-3">
-          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+          <div className="aspect-[4/5] sm:aspect-square bg-gray-100 border border-gray-200">
             <ImageWithFallback
               src={product?.images?.[selectedImage] || ''}
               alt={product?.name || 'Product'}

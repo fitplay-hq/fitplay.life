@@ -3,10 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Heart, BookOpen, Video, ShoppingBag, ArrowRight, Check, Clock, Users, Star, Stethoscope, Brain, Activity } from 'lucide-react';
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress"
+import { useUser } from '@/app/hooks/useUser';
+
 
 import { MorphingText } from "@/components/ui/morphing-text"
 import { useProducts } from "@/app/hooks/useProducts";
+import { toast } from 'sonner';
 
 const STORAGE_KEY = "gut-course-progress-v";
 const ENROLLMENT_KEY = "gut-course-enrollmen";
@@ -71,6 +74,7 @@ function ProductCardSkeleton() {
 
 export default function SovaHealthPage() {
  const [activeTab, setActiveTab] = useState("quiz");
+   const { user, isAuthenticated,  refreshSession } = useUser();
 
 useEffect(() => {
   if (typeof window === "undefined") return;
@@ -140,6 +144,12 @@ const changeTab = (tab) => {
   }, []);
 
   const handleEnrollClick = () => {
+    if(!isAuthenticated){
+      toast.error("Login First to Access Course")
+      router.push("/login")
+    }
+
+   else{
     localStorage.setItem(ENROLLMENT_KEY, "true");
     setCourseProgress(prev => ({
       ...prev,
@@ -147,10 +157,19 @@ const changeTab = (tab) => {
       totalModules: 10
     }));
     router.push("/coursepage");
+  }
   };
 
   const handleResumeClick = () => {
-    router.push("/coursepage");
+       if(!isAuthenticated){
+      toast.error("Login First")
+      router.push("/login")
+    }
+else{
+ router.push("/coursepage");
+
+}
+   
   };
 
 

@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useRef } from "react";
 
 const STORAGE_KEY = "gut-course-progress-v";
-//changes
+
 
     
 

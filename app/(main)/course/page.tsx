@@ -15,16 +15,9 @@ import { useRef } from "react";
 
 const STORAGE_KEY = "gut-course-progress-v";
 
-const loadProgress = () => {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-const courseData = {
+    
+
+  const courseData = {
   title: "Gut Health & Stress Resilience for Professionals",
   sections: [
     {
@@ -1145,6 +1138,18 @@ const courseData = {
     }
   ]
 };
+
+
+const loadProgress = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function CourseModulePage() {
 const saved = loadProgress();
  const router = useRouter();
@@ -1254,7 +1259,7 @@ const saved = loadProgress();
     return hasVideo ? "video" : "text";
   };
 
-  // Render content block based on type
+ 
   const renderContentBlock = (block, index) => {
     switch (block.type) {
       case "heading":
@@ -1396,21 +1401,38 @@ const stopSpeech = () => {
   setIsSpeaking(false);
   setIsPaused(false);
 };
+
+// MODIFIED: Added scroll to top when module changes
 useEffect(() => {
   stopSpeech();
+  // Scroll to top when module changes
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }, [currentSection, currentModule]);
 
 
+
+
+
+const isSummarySection =
+  courseData.sections[currentSection]?.id === "summary";
+
+const isCourseCompleted =
+  Math.round(progressPercentage) === 100;
+
+
+
   return (
-    
-    <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8]">
+    <>
+     <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900  " />
+      
+    <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8]  ">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <aside
         className={`${
           sidebarOpen ? "w-80" : "w-0"
-        } transition-all duration-300 bg-gradient-to-b from-[#2E6F5B] to-[#1F5845] text-white flex flex-col shadow-2xl overflow-hidden fixed top-0 z-30 h-screen`}
+        } transition-all duration-300 bg-gradient-to-b from-[#2E6F5B] to-[#1F5845] text-white flex flex-col shadow-2xl overflow-hidden md:sticky fixed top-0 md:z-30 z-50 h-screen`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/5">
+        <div className="  flex items-center justify-between p-4 border-b border-white/20 bg-white/5">
           <button
             onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-2 font-medium text-sm hover:text-[#1FBF84] transition-colors"
@@ -1421,6 +1443,7 @@ useEffect(() => {
         </div>
 
         <ScrollArea className="flex-1 p-4">
+         
           <div className="mb-4 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
             <p className="text-xs font-semibold mb-2 text-[#1FBF84]">Course Progress</p>
             <Progress value={progressPercentage} className="h-2 bg-white/20" />
@@ -1469,6 +1492,7 @@ useEffect(() => {
               })}
             </div>
           ))}
+          
         </ScrollArea>
 
         <div className="p-4 border-t border-white/20 bg-white/5">
@@ -1511,11 +1535,11 @@ useEffect(() => {
               <span className="whitespace-nowrap">{Math.round(progressPercentage)}%</span>
             </div>
             <Button className="bg-emerald-600 hover:bg-emerald-700"   onClick={() => router.push("/coursepage")}>Go Back</Button>
-            {isLastModule && completedModules.size === totalModules ? (
-              <Button className="bg-[#1FBF84] hover:bg-[#17a673] text-white shadow-lg text-sm md:text-base">
+            {isCourseCompleted && (
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg text-sm md:text-base"  onClick={() => router.push("/coursepage")}>
                 Finish Course
               </Button>
-            ) : null}
+            ) }
           </div>
         </div>
 
@@ -1601,22 +1625,46 @@ useEffect(() => {
             >
               <ChevronLeft size={18} /> <span className="hidden sm:inline">Previous</span>
             </Button>
-            <div className="text-xs md:text-sm text-[#2E6F5B] font-medium">
-              Module {currentModule + 1} of {courseData.sections[currentSection].modules.length}
-            </div>
-            <Button
-              onClick={ goToNext }
-              
-              className="bg-[#1FBF84] hover:bg-[#17a673] text-white disabled:opacity-50 text-sm md:text-base"
-            >
-              <span className="hidden sm:inline"> Next</span>
-              <span className="sm:hidden">Next</span>
-              <ChevronRight size={18} />
-            </Button>
+           <div className="text-xs md:text-sm text-[#2E6F5B] font-medium">
+  {!isLastModule && (
+    <span>
+      Module {currentModule + 1} of{" "}
+      {courseData.sections[currentSection].modules.length}
+    </span>
+  )}
+</div>
+
+            {isSummarySection && isCourseCompleted ? (
+  <Button
+    onClick={() => router.push("/coursepage")}
+    disabled={!isCourseCompleted}
+    className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm md:text-base"
+  >
+    Finish
+  </Button>
+) : (
+  <Button
+    onClick={goToNext}
+    disabled={isLastModule}
+    className="bg-[#1FBF84] hover:bg-[#17a673] text-white disabled:opacity-50 text-sm md:text-base"
+  >
+   <span className="hidden sm:inline">
+  {isSummarySection  ? "Finish" : "Next"}
+</span>
+<span className="sm:hidden">
+  {isSummarySection  ? "Finish" : "Next"}
+</span>
+
+    <ChevronRight size={18} />
+  </Button>
+)}
+
+
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 }
 

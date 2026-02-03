@@ -10,6 +10,8 @@ import { useProducts } from "@/app/hooks/useProducts";
 
 const STORAGE_KEY = "gut-course-progress-v";
 const ENROLLMENT_KEY = "gut-course-enrollmen";
+const TAB_STORAGE_KEY = "sova-active-tab";
+
 function SimpleAnimatedHeading() {
   const texts = ["Learn About Gut Health", "Take Gut Test Today"]
   const [index, setIndex] = useState(0)
@@ -68,7 +70,21 @@ function ProductCardSkeleton() {
 
 
 export default function SovaHealthPage() {
-  const [activeTab, setActiveTab] = useState('quiz');
+ const [activeTab, setActiveTab] = useState("quiz");
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
+  if (savedTab) {
+    setActiveTab(savedTab);
+  }
+}, []);
+const changeTab = (tab) => {
+  setActiveTab(tab);
+  localStorage.setItem(TAB_STORAGE_KEY, tab);
+};
+
   const { products, isLoading, error } = useProducts();
   const router = useRouter();
   const [courseProgress, setCourseProgress] = useState({
@@ -307,7 +323,8 @@ export default function SovaHealthPage() {
           <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
               <button
-                onClick={() => setActiveTab('quiz')}
+                onClick={() => changeTab("quiz")}
+
                 className={`tab-trigger ${activeTab === 'quiz' ? 'data-[state=active]' : ''}`}
                 data-state={activeTab === 'quiz' ? 'active' : 'inactive'}
               >
@@ -315,7 +332,7 @@ export default function SovaHealthPage() {
                 <span>Quiz</span>
               </button>
               <button
-                onClick={() => setActiveTab('course')}
+                 onClick={() => changeTab("course")}
                 className={`tab-trigger ${activeTab === 'course' ? 'data-[state=active]' : ''}`}
                 data-state={activeTab === 'course' ? 'active' : 'inactive'}
               >
@@ -323,7 +340,7 @@ export default function SovaHealthPage() {
                 <span>Courses</span>
               </button>
               <button
-                onClick={() => setActiveTab('consultation')}
+               onClick={() => changeTab("consultation")}
                 className={`tab-trigger ${activeTab === 'consultation' ? 'data-[state=active]' : ''}`}
                 data-state={activeTab === 'consultation' ? 'active' : 'inactive'}
               >

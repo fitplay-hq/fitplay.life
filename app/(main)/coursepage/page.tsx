@@ -101,8 +101,9 @@ export default function GutHealthCourse() {
       <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
       <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950 ">
         {/* Header Section */}
-        <div className="grid md:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto ">
+        <div className="grid lg:grid-cols-[1.6fr_1fr] gap-12 p-8 max-w-7xl mx-auto items-start ">
           {/* Left Column - Course Info */}
+          
           <div className="text-white space-y-6">
             <h1 className="text-4xl font-bold mb-4">
               Gut Health & Stress Resilience: Professionals
@@ -127,58 +128,73 @@ export default function GutHealthCourse() {
               </div>
             </div>
 
-            <div className="bg-green-50 py-12 px-8 rounded-2xl">
-              <div className="max-w-7xl mx-auto">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Course objectives</h2>
-                <ul className="space-y-3 text-gray-700">
-                  <li className="flex items-start gap-3">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span>Understand what gut health is and why it matters for daily performance.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span>Recognize how modern lifestyle and workplace stress impact digestion.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span>Identify common gut health myths versus facts.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span>Apply simple, realistic microhabits to support gut health.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-green-600 mt-1">•</span>
-                    <span>Utilize stress management techniques to enhance overall well-being.</span>
-                  </li>
-                </ul>
+            <div className="bg-green-50 px-8 py-6 rounded-2xl">
+  <div className="space-y-6">
 
-                <div className="mt-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Skills and Knowledge</h2>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="bg-emerald-900 text-white hover:bg-emerald-800 px-4 py-2">
-                      gut health
-                    </Badge>
-                    <Badge variant="secondary" className="bg-emerald-900 text-white hover:bg-emerald-800 px-4 py-2">
-                      stress management
-                    </Badge>
-                    <Badge variant="secondary" className="bg-emerald-900 text-white hover:bg-emerald-800 px-4 py-2">
-                      corporate wellness
-                    </Badge>
-                    <Badge variant="secondary" className="bg-emerald-900 text-white hover:bg-emerald-800 px-4 py-2">
-                      microhabits
-                    </Badge>
-                    <Badge variant="secondary" className="bg-emerald-900 text-white hover:bg-emerald-800 px-4 py-2">
-                      digestion
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
+    {/* Objectives */}
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-3">
+        Course objectives
+      </h2>
+
+      <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-gray-700 text-sm leading-snug">
+        <li className="flex gap-2">
+          <span className="text-green-600">•</span>
+          Understand what gut health is and why it matters for daily performance.
+        </li>
+        <li className="flex gap-2">
+          <span className="text-green-600">•</span>
+          Recognize how modern lifestyle and workplace stress impact digestion.
+        </li>
+        <li className="flex gap-2">
+          <span className="text-green-600">•</span>
+          Identify common gut health myths versus facts.
+        </li>
+        <li className="flex gap-2">
+          <span className="text-green-600">•</span>
+          Apply simple, realistic microhabits to support gut health.
+        </li>
+        <li className="flex gap-2 ">
+          <span className="text-green-600">•</span>
+          Utilize stress management techniques to enhance overall well-being.
+        </li>
+      </ul>
+    </div>
+
+    {/* Divider */}
+    <div className="h-px bg-green-200/70" />
+
+    {/* Skills */}
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-3">
+        Skills & Knowledge
+      </h2>
+
+      <div className="flex flex-wrap gap-2">
+        {[
+          "gut health",
+          "stress management",
+          "corporate wellness",
+          "microhabits",
+          "digestion",
+        ].map(skill => (
+          <Badge
+            key={skill}
+            className="bg-emerald-900 text-white px-4 py-1.5 rounded-lg text-xs"
+          >
+            {skill}
+          </Badge>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</div>
+
           </div>
 
           {/* Right Column - Course Card */}
-          <div className="flex items-center justify-center">
+          <div className="flex justify-end">
             <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-3xl">
               {/* Course Image */}
               <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px] -mt-6">

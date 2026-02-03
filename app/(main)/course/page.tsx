@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight, X, Play, BookOpen, Menu } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+
 import { Pause, Square } from "lucide-react";
 
 
@@ -1154,14 +1157,42 @@ const loadProgress = () => {
 export default function CourseModulePage() {
 const saved = loadProgress();
  const router = useRouter();
+ const searchParams = useSearchParams();
+ const pathname = usePathname();
 
-  const [currentSection, setCurrentSection] = useState(
-    saved?.currentSection ?? 0
-  );
 
-  const [currentModule, setCurrentModule] = useState(
-    saved?.currentModule ?? 0
+  const sectionFromUrl = searchParams.get("section");
+const moduleFromUrl = searchParams.get("module");
+
+const initialSection =
+  sectionFromUrl !== null
+    ? Number(sectionFromUrl)
+    : saved?.currentSection ?? 0;
+
+const initialModule =
+  moduleFromUrl !== null
+    ? Number(moduleFromUrl)
+    : saved?.currentModule ?? 0;
+
+const [currentSection, setCurrentSection] = useState(initialSection);
+const [currentModule, setCurrentModule] = useState(initialModule);
+useEffect(() => {
+  if (sectionFromUrl !== null && moduleFromUrl !== null) {
+    setCurrentSection(Number(sectionFromUrl));
+    setCurrentModule(Number(moduleFromUrl));
+  }
+}, [sectionFromUrl, moduleFromUrl]);
+const navigate = (sectionIdx, moduleIdx) => {
+  setCurrentSection(sectionIdx);
+  setCurrentModule(moduleIdx);
+
+  router.push(
+    `${pathname}?section=${sectionIdx}&module=${moduleIdx}`,
+    { scroll: false }
   );
+};
+
+
 
   const [completedModules, setCompletedModules] = useState(
     new Set(saved?.completedModules ?? [])
@@ -1206,35 +1237,33 @@ const saved = loadProgress();
 
   // Navigate to next module
   const goToNext = () => {
-    const currentSectionData = courseData.sections[currentSection];
-    
-    if (currentModule < currentSectionData.modules.length - 1) {
-      setCurrentModule(currentModule + 1);
-    } else if (currentSection < courseData.sections.length - 1) {
-      setCurrentSection(currentSection + 1);
-      setCurrentModule(0);
-    }
-  };
+  const section = courseData.sections[currentSection];
+
+  if (currentModule < section.modules.length - 1) {
+    navigate(currentSection, currentModule + 1);
+  } else if (currentSection < courseData.sections.length - 1) {
+    navigate(currentSection + 1, 0);
+  }
+};
 
   // Navigate to previous module
-  const goToPrevious = () => {
-    if (currentModule > 0) {
-      setCurrentModule(currentModule - 1);
-    } else if (currentSection > 0) {
-      setCurrentSection(currentSection - 1);
-      setCurrentModule(courseData.sections[currentSection - 1].modules.length - 1);
-    }
-  };
+ const goToPrevious = () => {
+  if (currentModule > 0) {
+    navigate(currentSection, currentModule - 1);
+  } else if (currentSection > 0) {
+    const prevSection = currentSection - 1;
+    navigate(
+      prevSection,
+      courseData.sections[prevSection].modules.length - 1
+    );
+  }
+};
 
   // Jump to specific module
   const jumpToModule = (sectionIdx, moduleIdx) => {
-    setCurrentSection(sectionIdx);
-    setCurrentModule(moduleIdx);
-    // Close sidebar on mobile after selection
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
-  };
+  navigate(sectionIdx, moduleIdx);
+  if (window.innerWidth < 1024) setSidebarOpen(false);
+};
 
   // Check if module is completed
   const isModuleCompleted = (sectionIdx, moduleIdx) => {

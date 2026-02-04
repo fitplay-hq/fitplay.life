@@ -111,7 +111,7 @@ export default function Navbar() {
           ))}
 
           <Link
-  href="/Sova"
+  href="/GutHealth"
   className="relative group"
 >
   <div
@@ -240,7 +240,7 @@ export default function Navbar() {
             ))}
 
                   <Link
-  href="/Sova"
+  href="/GutHealth"
   className="relative group"
 >
   <div

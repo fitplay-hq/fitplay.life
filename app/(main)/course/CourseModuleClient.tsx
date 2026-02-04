@@ -1044,6 +1044,13 @@ const STORAGE_KEY = "gut-course-progress-v";
       level: 3
     },
 
+    
+    {
+      type: "text",
+      content: "Find the Sample Report Below",
+      level: 3
+    },
+
    
 
     {
@@ -1051,7 +1058,20 @@ const STORAGE_KEY = "gut-course-progress-v";
       content: {
         quizKey: "oQ8cX8"
       }
+    },
+        {
+      type: "heading",
+      content: "Sample Report ",
+      level: 3
+    },
+    {
+      type: "pdf",
+      content: {
+        src: "/KNOW YOUR GUT.pdf",
+      
+      }
     }
+
 
 
   ]
@@ -1396,6 +1416,27 @@ router.push(
       <div id="oQ8cX8" className="min-h-[600px]" />
     </div>
   );
+
+  case "pdf":
+  return (
+    <div key={index} className="my-10">
+      <div className="border rounded-xl overflow-hidden shadow-md">
+        <div className="px-4 py-2 bg-gray-100 text-sm font-semibold">
+          {block.content.title}
+        </div>
+
+        {/* Internal scrolling container */}
+        <div className="h-[600px] overflow-y-auto bg-white">
+          <iframe
+            src={block.content.src}
+            title={block.content.title}
+            className="w-full h-full"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
 
 
       default:

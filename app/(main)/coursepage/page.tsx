@@ -108,7 +108,7 @@ export default function GutHealthCourse() {
           
           {/* Left Column - Course Info */}
           <div className="absolute top-33 left-15 w-3xs text-white">
-  <ArrowLeft size={24} strokeWidth={2} onClick={()=>router.push("/Sova")} />
+  <ArrowLeft size={24} strokeWidth={2} onClick={()=>router.push("/GutHealth")} />
 </div>
 
 
@@ -208,7 +208,7 @@ export default function GutHealthCourse() {
 
           {/* Right Column - Course Card */}
           <div className="flex justify-end order-1 lg:order-2">
-            <Card className="w-full max-w-md -mt-3 bg-white shadow-2xl overflow-hidden rounded-3xl">
+            <Card className="w-full max-w-md md:mb-2 md:py-2 bg-white shadow-2xl overflow-hidden rounded-3xl">
               {/* Course Image */}
               <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px] -mt-6">
                 <div className="text-center text-white">

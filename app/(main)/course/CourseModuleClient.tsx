@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight, X, Play, BookOpen, Menu } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useUser } from '@/app/hooks/useUser';
+import { toast } from 'sonner';
 
 import { Pause, Square } from "lucide-react";
 
@@ -1201,6 +1203,8 @@ const saved = loadProgress();
   const sectionFromUrl = searchParams.get("section");
 const moduleFromUrl = searchParams.get("module");
 
+    
+
 const initialSection =
   sectionFromUrl !== null
     ? Number(sectionFromUrl)
@@ -1548,9 +1552,9 @@ const isCourseCompleted =
 
   return (
     <>
-     <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900  " />
+     <div className="h-24   " />
       
-    <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8]  ">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8] -mt-2 ">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <aside
         className={`${

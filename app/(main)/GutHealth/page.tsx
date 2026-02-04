@@ -162,7 +162,7 @@ const changeTab = (tab) => {
 
   const handleResumeClick = () => {
        if(!isAuthenticated){
-      toast.error("Login First")
+      toast.error("Login First to Access the Course")
       router.push("/login")
     }
 else{
@@ -417,7 +417,7 @@ else{
                     {courses.map((course, index) => {
                       const buttonConfig = getButtonContent();
                       return (
-                        <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105" onClick={buttonConfig.onClick}>
                           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 h-40 flex items-center justify-center text-8xl">
                             {course.image}
                           </div>

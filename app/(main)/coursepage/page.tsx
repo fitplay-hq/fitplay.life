@@ -7,6 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Award, Check } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useUser } from '@/app/hooks/useUser';
+import { toast } from 'sonner';
 
 
 const STORAGE_KEY = "gut-course-progress-v";
@@ -20,6 +22,8 @@ export default function GutHealthCourse() {
     completedModules: 0,
     totalModules: 9
   });
+
+  
 
   // Load enrollment and progress on mount
   useEffect(() => {
@@ -100,8 +104,8 @@ export default function GutHealthCourse() {
 
   return (
     <>
-      <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
-      <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950 ">
+      <div className="h-24 " />
+      <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950 -mt-2 ">
         {/* Header Section */}
     
         <div className="grid lg:grid-cols-[1.6fr_1fr] gap-12 p-8 max-w-[1350px] mx-auto items-start ">

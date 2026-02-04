@@ -433,7 +433,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen">
       {/* Green Header Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-2">
+      <section className="pt-20 pb-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Breadcrumb */}
            <div className="flex items-center space-x-2 text-bg text-emerald-200 mb-6">

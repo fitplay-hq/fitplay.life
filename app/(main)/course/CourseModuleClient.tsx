@@ -996,46 +996,68 @@ const STORAGE_KEY = "gut-course-progress-v";
   ]
 }
 ,
-        {
-          id: "quiz",
-          title: "Take Gut Health Quiz",
-          contentBlocks: [
-            {
-              type: "heading",
-              content: "Test your knowledge!",
-              level: 2
-            },
-            {
-              type: "text",
-              content: "Answer these questions to reinforce what you've learned:"
-            },
-            {
-              type: "text",
-              content: "<strong>Question 1:</strong> What percentage of your immune system is located in your gut?<br/>a) 30%  b) 50%  c) 70%  d) 90%"
-            },
-            {
-              type: "text",
-              content: "<strong>Question 2:</strong> Which of these is NOT a beneficial probiotic food?<br/>a) Kimchi  b) Processed cheese  c) Kefir  d) Miso"
-            },
-            {
-              type: "text",
-              content: "<strong>Question 3:</strong> How does chronic stress affect gut health?<br/>a) No effect  b) Increases beneficial bacteria  c) Disrupts microbiome balance  d) Improves digestion"
-            },
-            {
-              type: "text",
-              content: "<strong>Question 4:</strong> What is the gut-brain axis?<br/>a) A type of bacteria  b) Bidirectional communication between gut and brain  c) A digestive enzyme  d) A meditation technique"
-            },
-            {
-              type: "text",
-              content: "<strong>Question 5:</strong> Which habit supports gut health?<br/>a) Eating quickly  b) High sugar diet  c) Diverse fiber intake  d) Skipping meals"
-            },
-           
-            {
-              type: "text",
-              content: "Congratulations on completing the quiz! Review any areas where you'd like to deepen your understanding."
-            }
-          ]
-        }
+{
+  id: "quiz",
+  title: "Take Gut Health Quiz",
+  contentBlocks: [
+    {
+      type: "heading",
+      content: "Take the Gut Health Quiz",
+      level: 1
+    },
+
+    {
+      type: "text",
+      content:
+        "A rapid, evidence-informed gut health assessment for working professionals."
+    },
+
+    {
+      type: "text",
+      content:
+        "Gain personalized insights in minutes by completing our <strong>Gut Health Quiz</strong>. Designed for time-constrained healthcare and corporate professionals, the quiz integrates clinically relevant symptom screening with population-scale microbiome pattern analysis to surface likely gut imbalances and modifiable risk factors."
+    },
+
+    {
+      type: "heading",
+      content: "What the Gut Health Quiz Covers",
+      level: 2
+    },
+
+    {
+      type: "list",
+      content: {
+        items: [
+          "<strong>Digestive Symptoms:</strong> Identifies common digestive concerns such as bloating, acidity, gas, constipation, and irregular bowel movements.",
+          "<strong>Bowel Health Patterns:</strong> Assesses stool frequency, consistency, and gut motility to flag elimination imbalances.",
+          "<strong>Dietary Triggers:</strong> Evaluates reactions to common foods (e.g., dairy, gluten, sugar, processed foods) and eating habits that may impact gut health.",
+          "<strong>Lifestyle & Stress Load:</strong> Reviews stress levels, sleep quality, physical activity, and work patterns that influence gut–brain function.",
+          "<strong>Systemic Health Signals:</strong> Screens for fatigue, brain fog, skin issues, cravings, and energy fluctuations linked to gut health.",
+          "<strong>Gut Resilience Indicators:</strong> Highlights factors affecting microbiome balance and the gut’s ability to adapt and recover."
+        ]
+      }
+    },
+
+    {
+      type: "heading",
+      content: "Find the Quiz Below",
+      level: 3
+    },
+
+   
+
+    {
+      type: "quizell",
+      content: {
+        quizKey: "oQ8cX8"
+      }
+    }
+
+
+  ]
+}
+
+
       ]
     },
     {
@@ -1367,11 +1389,37 @@ router.push(
             ))}
           </ul>
         );
+        case "quizell":
+  return (
+    <div key={index} className="my-10">
+      {/* Quizell mount point */}
+      <div id="oQ8cX8" className="min-h-[600px]" />
+    </div>
+  );
+
 
       default:
         return null;
     }
   };
+  const loadQuizell = () => {
+  const oldScript = document.getElementById("quizell-script");
+  if (oldScript) oldScript.remove();
+
+  const script = document.createElement("script");
+  script.src = "https://api.quizell.com/js/qzembed.js?v=24999";
+  script.async = true;
+  script.id = "quizell-script";
+  script.setAttribute("data-qz-key", "oQ8cX8");
+
+  document.body.appendChild(script);
+};
+useEffect(() => {
+  if (currentModuleData?.id === "quiz") {
+    loadQuizell();
+  }
+}, [currentModuleData?.id]);
+
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 const [isSpeaking, setIsSpeaking] = useState(false);
 const [isPaused, setIsPaused] = useState(false);

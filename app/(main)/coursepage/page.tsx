@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Award, Check } from 'lucide-react';
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+
 
 const STORAGE_KEY = "gut-course-progress-v";
 const ENROLLMENT_KEY = "gut-course-enrollmen";
@@ -101,13 +103,24 @@ export default function GutHealthCourse() {
       <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
       <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-green-900 to-emerald-950 ">
         {/* Header Section */}
-        <div className="grid lg:grid-cols-[1.6fr_1fr] gap-12 p-8 max-w-7xl mx-auto items-start ">
-          {/* Left Column - Course Info */}
+    
+        <div className="grid lg:grid-cols-[1.6fr_1fr] gap-12 p-8 max-w-[1350px] mx-auto items-start ">
           
-          <div className="text-white space-y-6">
-            <h1 className="text-4xl font-bold mb-4">
+          {/* Left Column - Course Info */}
+          <div className="absolute top-33 left-15 w-3xs text-white">
+  <ArrowLeft size={24} strokeWidth={2} onClick={()=>router.push("/Sova")} />
+</div>
+
+
+          
+          <div className="text-white space-y-10 order-2 lg:order-1">
+           
+             
+            <h1 className="text-4xl font-bold mb-6">
+                 
               Gut Health & Stress Resilience: Professionals
             </h1>
+           
             
             <p className="text-green-100 leading-relaxed">
               This engaging course empowers corporate employees to harness the power of gut health for
@@ -194,8 +207,8 @@ export default function GutHealthCourse() {
           </div>
 
           {/* Right Column - Course Card */}
-          <div className="flex justify-end">
-            <Card className="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-3xl">
+          <div className="flex justify-end order-1 lg:order-2">
+            <Card className="w-full max-w-md -mt-3 bg-white shadow-2xl overflow-hidden rounded-3xl">
               {/* Course Image */}
               <div className="relative bg-gradient-to-br from-emerald-600 to-green-700 p-8 flex items-center justify-center min-h-[300px] -mt-6">
                 <div className="text-center text-white">

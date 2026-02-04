@@ -436,17 +436,17 @@ export default function CartPage() {
       <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Breadcrumb */}
-          <div className="flex items-center space-x-2 text-bg text-emerald-200 mb-6">
-            <Link
-              href="/store"
-              className="hover:text-white flex items-center transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back to Store
-            </Link>
-            <span>/</span>
-            <span className="text-white font-medium">Cart</span>
-          </div>
+           <div className="flex items-center space-x-2 text-bg text-emerald-200 mb-6">
+              <Link
+                href="/store"
+                className="hover:text-white flex items-center transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1 text-emerald-800" />
+                <span className="text-green-700"> Back to Store /</span>
+              </Link>
+              
+              <span className="text-green-700 font-medium">Cart</span>
+            </div>
           
         </div>
       </section>

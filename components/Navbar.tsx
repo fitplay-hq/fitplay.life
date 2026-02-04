@@ -75,18 +75,18 @@ export default function Navbar() {
 
   return (
     <nav 
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950"
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-gradient-to-br from-teal-900 via-teal-950 to-teal-900"
       
     >
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-2 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8  flex items-center justify-between">
         <Link href="/" className="group cursor-pointer">
           <Image
             src="/logo.png"
             alt="FitPlay Logo"
             width={130}
             height={100}
-            className="transition-all duration-300 group-hover:scale-105 drop-shadow-lg rounded-lg object-contain"
+            className="transition-all duration-300 scale-105 md:scale-125 drop-shadow-lg rounded-lg object-contain"
             priority
           />
         </Link>
@@ -96,7 +96,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className={`font-medium text-base transition-all duration-300 relative group ${
+              className={`font-medium text-lg transition-all duration-300 relative group ${
                 isScrolled ? 'text-gray-200 hover:text-white' : 'text-white/80 hover:text-white'
               }`}
             >

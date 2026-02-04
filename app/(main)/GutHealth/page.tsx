@@ -304,7 +304,7 @@ else{
         </div>
       )}
 
-      <div className="h-24 bg-gradient-to-b from-emerald-800 to-emerald-900" />
+      <div className="h-24 " />
 
       <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
         <div className="max-w-7xl w-full mx-auto mt-4 mb-12">

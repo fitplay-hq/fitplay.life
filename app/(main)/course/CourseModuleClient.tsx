@@ -1324,16 +1324,16 @@ router.push(
         return (
           <div key={index} className="mb-6">
             <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg bg-black">
-              <iframe
-                width="100%"
-                height="100%"
-                src={block.content.videoUrl}
-                title={block.content.title || "Course Video"}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
+             <iframe
+  key={`${currentSection}-${currentModule}`}
+  src={block.content.videoUrl}
+  title={block.content.title || "Course Video"}
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  className="w-full h-full"
+/>
+
             </div>
           </div>
         );

@@ -1552,7 +1552,7 @@ const isCourseCompleted =
 
   return (
     <>
-     <div className="h-24   " />
+     <div className="h-20   " />
       
     <div className="flex min-h-screen bg-gradient-to-br from-[#F4F9F7] via-[#EBF5F0] to-[#E1F0E8] -mt-2 ">
       {/* Sidebar - Fixed on desktop, overlay on mobile */}

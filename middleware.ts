@@ -24,10 +24,8 @@ export default withAuth(
         
         // Allow access to profile for any authenticated user
         if (pathname.startsWith("/profile")) {
-          const authorized = !!token;
-          console.log("Profile access check:", { authorized, token: !!token });
-          return authorized;
-        }
+  return true;
+}
         
         // Admin routes
         if (pathname.startsWith("/admin")) {

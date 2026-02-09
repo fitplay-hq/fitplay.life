@@ -112,7 +112,7 @@ export default function GutHealthCourse() {
           
           {/* Left Column - Course Info */}
           <div className="absolute top-28 left-15 w-3xs text-white">
-  <ArrowLeft size={24} strokeWidth={2} onClick={()=>router.push("/GutHealth")} />
+  <ArrowLeft size={24} strokeWidth={2} onClick={()=>router.push("/")} />
 </div>
 
 

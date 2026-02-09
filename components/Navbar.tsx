@@ -67,7 +67,7 @@ export default function Navbar() {
   }, [isAuthenticated, wasAuthenticated, clearCart, clearWishlist]);
 
   const navLinks = [
-    { label: 'Home', href: '/' },
+    { label: 'Home', href: '/home' },
     { label: 'About us', href: '/about' },
     { label: 'Wellness Store', href: '/store' },
     
@@ -108,7 +108,7 @@ export default function Navbar() {
           ))}
 
           <Link
-  href="/GutHealth"
+  href="/"
   className="relative group"
 >
   <div
@@ -237,7 +237,7 @@ export default function Navbar() {
             ))}
 
                   <Link
-  href="/GutHealth"
+  href="/"
   className="relative group"
 >
   <div

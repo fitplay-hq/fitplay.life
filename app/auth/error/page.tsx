@@ -92,7 +92,7 @@ function AuthErrorContent() {
 
               <Button
                 variant="outline"
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/home")}
                 className="w-full border-gray-200 hover:bg-gray-50"
               >
                 <Home className="w-4 h-4 mr-2" />

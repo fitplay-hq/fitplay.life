@@ -309,20 +309,20 @@ else{
       <div className="h-24 " />
 
       <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="max-w-7xl w-full mx-auto mt-4 mb-12">
+        <div className="max-w-7xl w-full mx-auto  mb-12">
           
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 md:rounded-3xl rounded-xl p-8 sm:p-12 lg:p-16 shadow-xl border border-emerald-100">
-           <div className="flex flex-col sm:flex-row items-center md:gap-2">
-  <h1 className="text-xl sm:text-5xl md:text-4xl font-extrabold text-emerald-700 md:mb-2">
-    Powered By Sova Health
-  </h1>
+           <div className="flex flex-col sm:flex-row items-center md:gap-2 md:-mt-12">
+  <p className="text-xl sm:text-sm md:text-sm font-bold text-emerald-700 md:mb-2">
+    Powered By 
+  </p>
 
   <img
     src="./sova.webp"
     alt="Sova"
-    className="w-[60px] sm:w-[80px] md:w-[96px] h-auto md:-mt-2 "
+    className="w-[60px] sm:w-[80px] md:w-[64px] md:h-[24px] md:-mt-2 "
   />
-</div>
+            </div>
 
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="order-2 lg:order-1">

@@ -312,16 +312,17 @@ else{
         <div className="max-w-7xl w-full mx-auto  mb-12">
           
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 md:rounded-3xl rounded-xl p-8 sm:p-12 lg:p-16 shadow-xl border border-emerald-100">
-           <div className="flex flex-col sm:flex-row items-center md:gap-2 md:-mt-12">
-  <p className="text-xl sm:text-sm md:text-sm font-bold text-emerald-700 md:mb-2">
+           <div className="flex flex-col sm:flex-row items-center md:gap-2 md:-mt-12 -mt-8">
+  <p className="text-sm sm:text-sm md:text-sm font-bold text-emerald-700 md:mb-2">
     Powered By 
   </p>
 
   <img
-    src="./sova.webp"
-    alt="Sova"
-    className="w-[60px] sm:w-[80px] md:w-[64px] md:h-[24px] md:-mt-2 "
-  />
+  src="./sova.webp"
+  alt="Sova"
+  className="w-[60px] sm:w-[80px] md:w-[64px] h-auto md:-mt-2 mb-2"
+/>
+
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">

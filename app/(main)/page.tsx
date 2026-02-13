@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress"
 import { useUser } from '@/app/hooks/useUser';
+import  ConnectShopifyPage from '../components/vendor/vendor'
 
 
 import { MorphingText } from "@/components/ui/morphing-text"
@@ -278,6 +279,12 @@ else{
       };
     }
   };
+
+  if(user?.role === "VENDOR"){
+    return(
+      <ConnectShopifyPage></ConnectShopifyPage>
+    )
+  }
 
   return (
     <>

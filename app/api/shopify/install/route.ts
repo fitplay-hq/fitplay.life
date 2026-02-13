@@ -43,6 +43,8 @@ const SHOPIFY_CALLBACK_URL = process.env.CALLBACK_URL!;
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
+  console.log("here is session",session)
+
   // 🔐 Only vendor can install
   if (!session || session.user.role !== "VENDOR") {
     return new NextResponse("Unauthorized", { status: 401 });

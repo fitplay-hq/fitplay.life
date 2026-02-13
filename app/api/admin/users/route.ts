@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, phone, password, role, companyId, gender, address } = await request.json();
+    const { name, email, phone, password, role, companyId, gender, address, isDemo } = await request.json();
 
     // Validate required fields
     if (!name || !email || !phone || !password || !role || !companyId) {
@@ -92,19 +92,24 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // If creating a demo user, enforce role as EMPLOYEE and mark isDemo
+    const createData: any = {
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role: isDemo ? "EMPLOYEE" : role,
+      companyId,
+      gender: gender || null,
+      address: address || null,
+      verified: true, // Admin-created users are automatically verified
+    };
+
+    if (isDemo) createData.isDemo = true;
+
     // Create user
     const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        phone,
-        password: hashedPassword,
-        role,
-        companyId,
-        gender: gender || null,
-        address: address || null,
-        verified: true, // Admin-created users are automatically verified
-      },
+      data: createData,
       include: {
         company: {
           select: {

@@ -103,6 +103,7 @@ const [creatingCompany, setCreatingCompany] = useState(false);
     phone: '',
     password: '',
     role: 'EMPLOYEE',
+    isDemo: false,
     companyId: '',
     gender: '',
     address: ''
@@ -483,6 +484,16 @@ const [creatingCompany, setCreatingCompany] = useState(false);
                   </Button>
                 </div>
               </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="isDemo"
+                    type="checkbox"
+                    checked={userForm.isDemo}
+                    onChange={(e) => setUserForm({ ...userForm, isDemo: e.target.checked })}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="isDemo">Create as Demo User</Label>
+                </div>
             </DialogContent>
           </Dialog>
           <Dialog open={isAddCompanyOpen} onOpenChange={setIsAddCompanyOpen}>

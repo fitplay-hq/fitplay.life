@@ -40,11 +40,16 @@ import {
 } from "@/lib/store";
 import { useAtomValue, useSetAtom } from "jotai";
 import { tr } from "date-fns/locale";
+import { useSession } from "next-auth/react";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
 export default function CartPage() {
+  const { data: session } = useSession();
+  const isDemo = (session?.user as any)?.isDemo || false;
+  console.log(isDemo)
+
   const {
     data: walletData,
     error: walletError,
@@ -149,6 +154,14 @@ export default function CartPage() {
   };
 
   const handlePurchase = async () => {
+    if (isDemo) {
+      toast.error("Demo users cannot create orders", {
+        description: "Demo accounts cannot make purchases. Please contact your HR administrator.",
+        duration: 5000,
+      });
+      return;
+    }
+
     setIsProcessing(true);
 
     const loaded: any = await loadRazorpay();
@@ -278,6 +291,14 @@ export default function CartPage() {
 
 
   const handleCheckout = async () => {
+    if (isDemo && currentStep === "payment") {
+      toast.error("Demo users cannot make purchases", {
+        description: "Demo accounts cannot complete orders. Please contact your HR administrator.",
+        duration: 5000,
+      });
+      return;
+    }
+
     if (currentStep === "cart") {
      
       setCurrentStep("address");
@@ -775,9 +796,18 @@ export default function CartPage() {
 
         {/* Action Buttons */}
         <div className="space-y-2.5 pt-4 border-t border-gray-100">
+          {isDemo && (
+            <Alert className="border-amber-300 bg-amber-50">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800 text-sm">
+                <strong>Demo Account:</strong> You can browse and add items to cart, but cannot complete purchases. Contact your HR administrator for a full account.
+              </AlertDescription>
+            </Alert>
+          )}
           <Button
             onClick={handleCheckout}
-            
+            disabled={isDemo && cartItems.length > 0}
+            title={isDemo ? "Demo users cannot checkout" : ""}
             className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
           >
             

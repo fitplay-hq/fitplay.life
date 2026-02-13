@@ -17,6 +17,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        // Demo users are not allowed to create paid orders
+        if ((session.user as any).isDemo) {
+            return NextResponse.json({ error: "Demo users cannot create orders/payments" }, { status: 403 });
+        }
+
         const body = await req.json();
         const {
             items,

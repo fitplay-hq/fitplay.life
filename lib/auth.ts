@@ -50,6 +50,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             role: user.role, // HR or EMPLOYEE (enum from your schema)
+            isDemo: user.isDemo,
           };
         }
 
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.email = user.email;
         token.role = (user as any).role;
+        token.isDemo = (user as any).isDemo || false;
       }
       return token;
     },
@@ -91,6 +93,7 @@ export const authOptions: NextAuthOptions = {
           name: token.name as string,
           email: token.email as string,
           role: token.role as UserRole,
+          isDemo: (token as any).isDemo || false,
         };
       }
       return session;

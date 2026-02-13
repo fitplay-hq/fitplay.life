@@ -55,9 +55,24 @@ model Vendor {
   password  String
   role      Role      @default(VENDOR)
   products  Product[]
+  shopify   ShopifyStore?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
 }
+
+model ShopifyStore {
+  id           String   @id @default(uuid())
+  shop         String   @unique              // mystore.myshopify.com
+  accessToken  String
+  scope        String?
+  vendorId     String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  vendor       Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
 
 model VerificationToken {
   id         String   @id @default(uuid())

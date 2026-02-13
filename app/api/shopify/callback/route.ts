@@ -1,15 +1,17 @@
-// app/api/shopify/callback/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import prisma from "@/lib/prisma";
+
 
 const SHOPIFY_API_KEY = process.env.SHOPIFY_CLIENT_ID!;
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_CLIENT_SECRET!;
 
-// Verify HMAC from Shopify
+
 function verifyHmac(searchParams: URLSearchParams): boolean {
   const hmac = searchParams.get('hmac') || '';
 
-  // build message from all params except hmac, sorted by key
+ 
   const params = new URLSearchParams();
   const entries = Array.from(searchParams.entries())
     .filter(([key]) => key !== 'hmac')
@@ -48,12 +50,11 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Missing required params', { status: 400 });
   }
 
-  // 1) Verify HMAC – make sure this really comes from Shopify
+  
   if (!verifyHmac(searchParams)) {
     return new NextResponse('Invalid HMAC', { status: 400 });
   }
 
-  // 2) Exchange code for access token
   const tokenRes = await fetch(`https://${shop}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -81,12 +82,12 @@ export async function GET(req: NextRequest) {
   // 3) For now, just log it. Next step is saving to DB.
   console.log('Shopify connected:', {
     shop,
-    accessToken: accessToken.slice(0, 6) + '...',
+    accessToken: accessToken,
     scope: tokenJson.scope,
   });
 
   // Later: save { shop, accessToken } to your DB here with Prisma.
 
   // 4) Redirect to a success page in your app
-  return NextResponse.redirect('https://fitplay.life/shopify-connected');
+  return NextResponse.redirect('https://fitplay.life/');
 }

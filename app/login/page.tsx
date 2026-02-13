@@ -74,7 +74,7 @@ export default function LoginPage() {
           console.log("Redirecting HR to /hr");
           break;
         case "VENDOR":
-          router.replace("/vendor");
+          router.replace("/");
           console.log("Redirecting VENDOR to /vendor");
           break;
         case "ADMIN":

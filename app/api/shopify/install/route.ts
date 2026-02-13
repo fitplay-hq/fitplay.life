@@ -53,9 +53,9 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const shop = searchParams.get("shop");
 
-  if (!shop) {
-    return new NextResponse("Missing shop parameter", { status: 400 });
-  }
+ if (!shop || !shop.endsWith(".myshopify.com")) {
+  return new NextResponse("Invalid shop domain", { status: 400 });
+}
 
   const state = crypto.randomBytes(16).toString("hex");
 

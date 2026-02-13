@@ -203,7 +203,7 @@ export async function GET(req: NextRequest) {
   });
 
   // 🧹 Clear cookies
-  const response = NextResponse.redirect("https://fitplay.life/vendor/dashboard");
+  const response = NextResponse.redirect("https://fitplay.life/");
 
   response.cookies.delete("shopify_oauth_state");
   response.cookies.delete("shopify_vendor_id");

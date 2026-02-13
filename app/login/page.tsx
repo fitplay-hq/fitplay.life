@@ -74,6 +74,7 @@ export default function LoginPage() {
           console.log("Redirecting HR to /hr");
           break;
         case "VENDOR":
+          //vendor redirect
           router.replace("/");
           console.log("Redirecting VENDOR to /vendor");
           break;
@@ -93,6 +94,7 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-emerald-950 flex items-center justify-center p-4 relative overflow-hidden">

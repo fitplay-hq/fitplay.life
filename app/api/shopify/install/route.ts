@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
   console.log("here is session",session)
 
-  // 🔐 Only vendor can install
+
   if (!session || session.user.role !== "VENDOR") {
     return new NextResponse("Unauthorized", { status: 401 });
   }

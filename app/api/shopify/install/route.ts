@@ -34,7 +34,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const SHOPIFY_API_KEY = process.env.SHOPIFY_CLIENT_ID!;
 const SHOPIFY_SCOPES = process.env.SHOPIFY_SCOPES!;

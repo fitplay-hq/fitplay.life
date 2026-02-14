@@ -81,10 +81,25 @@ export async function GET(req: NextRequest) {
                 .then((user) => user?.companyId);
 
             if (!companyId) {
-                return NextResponse.json({ message: "User does not belong to any company" }, { status: 400 });
-            }
-            products = await prisma.product.findMany({
-                where: { companies: { some: { id: companyId } } },
+                
+                products = await prisma.product.findMany({
+                    orderBy: {
+                        [safeSortBy]: safeSortOrder,
+                    },
+                    include: {
+                        variants: true,
+                        vendor: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                        category: true,
+                        subCategory: true,
+                    },
+                });
+            } else {
+                products = await prisma.product.findMany({
+                    where: { companies: { some: { id: companyId } } },
                 orderBy: {
                     [safeSortBy]: safeSortOrder,
                 },
@@ -99,7 +114,8 @@ export async function GET(req: NextRequest) {
                     subCategory: true,
                 },
             });
-        } else if (session.user.role === "HR") {
+        } }
+        else if (session.user.role === "HR") {
             // HR users should see ALL products to manage visibility
             products = await prisma.product.findMany({
                 orderBy: {

@@ -148,8 +148,9 @@ const changeTab = (tab) => {
 
   const handleEnrollClick = () => {
     if(!isAuthenticated){
-      toast.error("Login First to Access Course")
-      router.push("/login")
+      // show paid/signup modal instead of direct login
+      setShowPaidModal(true);
+      return;
     }
 
    else{
@@ -165,13 +166,12 @@ const changeTab = (tab) => {
 
   const handleResumeClick = () => {
        if(!isAuthenticated){
-      toast.error("Login First to Access the Course")
-      router.push("/login")
+      setShowPaidModal(true);
+      return;
     }
-else{
- router.push("/coursepage");
-
-}
+    else{
+      router.push("/coursepage");
+    }
    
   };
 
@@ -179,6 +179,16 @@ else{
 
 
   const [open, setOpen] = useState(false);
+  const [showPaidModal, setShowPaidModal] = useState(false);
+
+  const requireAuthOrModal = (action: () => void) => {
+    if (!isAuthenticated) {
+      setShowPaidModal(true);
+      return false;
+    }
+    action();
+    return true;
+  };
 
   const loadQuiz = () => {
     const oldScript = document.getElementById("quizell-script");
@@ -313,6 +323,38 @@ else{
         </div>
       )}
 
+      {showPaidModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
+          <div className="bg-white max-w-md w-full rounded-xl p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900">Access requires sign-in or one-time purchase</h3>
+            <p className="text-sm text-gray-600 mt-2">If you're part of an organisation, choose Sign in. Otherwise you can pay ₹299 and create a paid account to access all features.</p>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => { setShowPaidModal(false); router.push('/login'); }}
+                className="flex-1 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 font-semibold"
+              >
+                Sign in
+              </button>
+
+              <button
+                onClick={() => { setShowPaidModal(false); router.push('/signup/paid'); }}
+                className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold"
+              >
+                Pay ₹299 & Sign up
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowPaidModal(false)}
+              className="mt-4 text-xs text-gray-500"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="h-24 " />
 
       <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
@@ -416,8 +458,12 @@ else{
                           </div>
                           <button
                             onClick={() => {
-                              setOpen(true);
-                              loadQuiz();
+                              // require auth or show paid modal
+                              const ok = requireAuthOrModal(() => {
+                                setOpen(true);
+                                loadQuiz();
+                              });
+                              if (!ok) return;
                             }}
                             className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                           >
@@ -476,7 +522,10 @@ else{
                               <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
                               <button 
                                 className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
-                                onClick={buttonConfig.onClick}
+                                onClick={() => {
+                                  // require auth or show paid modal
+                                  requireAuthOrModal(() => buttonConfig.onClick());
+                                }}
                               >
                                 {buttonConfig.icon}
                                 {buttonConfig.text}

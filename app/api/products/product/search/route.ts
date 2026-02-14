@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
       },
     };
 
-    // 🧠 If user is Employee or HR → filter products by their company
+    // 🧠 If user is Employee or HR with company → filter by company
+    // If paid user (no company) → search all products
     if (session && session.user && (session.user.role === "EMPLOYEE" || session.user.role === "HR")) {
       const companyId = await prisma.user
         .findUnique({
@@ -28,18 +29,17 @@ export async function GET(req: NextRequest) {
         })
         .then((user) => user?.companyId);
 
-      if (!companyId) {
-        return NextResponse.json({ error: "User does not belong to any company" }, { status: 400 });
-      }
-
-      whereClause = {
-        ...whereClause,
-        companies: {
-          some: {
-            id: companyId,
+      // Only filter by company if they have one (org employees). Paid users see all products.
+      if (companyId) {
+        whereClause = {
+          ...whereClause,
+          companies: {
+            some: {
+              id: companyId,
+            },
           },
-        },
-      };
+        };
+      }
     }
 
     const products = await prisma.product.findMany({

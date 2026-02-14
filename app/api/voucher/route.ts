@@ -40,24 +40,26 @@ export async function GET(req: NextRequest) {
             select: { companyId: true },
         });
 
-        if (!user?.companyId) {
-            return NextResponse.json({ error: "User not assigned to a company" }, { status: 400 });
+        // If user has companyId (org employee), show company vouchers.
+        // Paid users (no companyId) don't have vouchers → return empty array.
+        if (user?.companyId) {
+            vouchers = await prisma.voucher.findMany({
+                where: {
+                    companies: {
+                        some: { id: user.companyId },
+                    },
+                },
+                include: {
+                    companies: true,
+                    redemptions: {
+                        where: { userId },
+                    },
+                },
+                orderBy: { createdAt: "desc" },
+            });
+        } else {
+            vouchers = [];
         }
-
-        vouchers = await prisma.voucher.findMany({
-            where: {
-                companies: {
-                    some: { id: user.companyId },
-                },
-            },
-            include: {
-                companies: true,
-                redemptions: {
-                    where: { userId },
-                },
-            },
-            orderBy: { createdAt: "desc" },
-        });
 
         return NextResponse.json({ vouchers });
     } catch (error) {

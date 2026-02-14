@@ -53,7 +53,7 @@ interface User {
   role: string;
   company: {
     name: string;
-  };
+  } | null;
   wallet: {
     balance: number| null;
     expiryDate: string | null;
@@ -111,6 +111,7 @@ const [creatingCompany, setCreatingCompany] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
+  const [userTypeFilter, setUserTypeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
 
   // Credit transaction state
@@ -126,14 +127,19 @@ const [creatingCompany, setCreatingCompany] = useState(false);
   // Filter and sort users
   const filteredUsers = users
     .filter((user: User) => {
+      const companyName = (user.company?.name || "").toLowerCase();
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.company.name.toLowerCase().includes(searchTerm.toLowerCase());
+                           companyName.includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "all" || user.role === roleFilter;
       const matchesVerification = verificationFilter === "all" || 
-                                  (verificationFilter === "verified" && user.verified) ||
-                                  (verificationFilter === "unverified" && !user.verified);
-      return matchesSearch && matchesRole && matchesVerification;
+                  (verificationFilter === "verified" && user.verified) ||
+                  (verificationFilter === "unverified" && !user.verified);
+      const matchesUserType = userTypeFilter === "all" ||
+                 (userTypeFilter === "paid" && !user.company) ||
+                 (userTypeFilter === "company" && !!user.company);
+
+      return matchesSearch && matchesRole && matchesVerification && matchesUserType;
     })
     .sort((a: User, b: User) => {
       switch (sortBy) {
@@ -142,7 +148,7 @@ const [creatingCompany, setCreatingCompany] = useState(false);
         case "email":
           return a.email.localeCompare(b.email);
         case "company":
-          return a.company.name.localeCompare(b.company.name);
+          return (a.company?.name || "").localeCompare(b.company?.name || "");
         case "credits": {
   const aBalance = a.wallet?.balance ?? 0;
   const bBalance = b.wallet?.balance ?? 0;
@@ -653,6 +659,20 @@ const [creatingCompany, setCreatingCompany] = useState(false);
             </div>
 
             <div className="w-48">
+              <Label>User Type</Label>
+              <Select value={userTypeFilter} onValueChange={setUserTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="company">Company Users</SelectItem>
+                  <SelectItem value="paid">Paid Users (no company)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="w-48">
               <Label>Verification Status</Label>
               <Select value={verificationFilter} onValueChange={setVerificationFilter}>
                 <SelectTrigger>
@@ -716,7 +736,7 @@ const [creatingCompany, setCreatingCompany] = useState(false);
                         {user.role}
                       </Badge>
                     </TableCell>
-                    <TableCell>{user.company.name}</TableCell>
+                    <TableCell>{user.company?.name || '-'}</TableCell>
                     <TableCell className="font-semibold">
                       {user.wallet?.balance ?? 0} credits
                     </TableCell>

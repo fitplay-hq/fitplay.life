@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
                 employee: {
                     name: transaction.user.name,
                     email: transaction.user.email,
-                    company: transaction.user.company.name,
+                    company: transaction.user.company?.name || null,
                 },
                 amount: transaction.amount,
                 type,

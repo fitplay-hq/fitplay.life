@@ -214,20 +214,20 @@ const TransactionsManagement = () => {
   };
 
   const filteredTransactions = transactions.filter((transaction) => {
+    const empCompany = transaction.employee.company || "Individual";
     const matchesSearch =
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.employee.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      transaction.employee.company
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      empCompany.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === "all" || transaction.type === typeFilter;
     const matchesStatus =
       statusFilter === "all" || transaction.status === statusFilter;
+    const empCompanyForFilter = transaction.employee.company || "Individual";
     const matchesCompany =
-      companyFilter === "all" || transaction.employee.company === companyFilter;
+      companyFilter === "all" || empCompanyForFilter === companyFilter;
 
     let matchesDate = true;
     if (dateRange?.from && dateRange?.to) {
@@ -255,7 +255,7 @@ const TransactionsManagement = () => {
     });
   };
 
-  const companies = [...new Set(transactions.map((t) => t.employee.company))];
+  const companies = [...new Set(transactions.map((t) => t.employee.company || "Individual"))];
 
   // Calculate totals
   const totalCreditsRedeemed = transactions
@@ -509,7 +509,7 @@ const TransactionsManagement = () => {
                         <div className="flex items-center gap-2">
                           <Building2 className="h-4 w-4 text-gray-400" />
                           <span className="text-sm">
-                            {transaction.employee.company}
+                            {transaction.employee.company || 'Individual'}
                           </span>
                         </div>
                       </TableCell>

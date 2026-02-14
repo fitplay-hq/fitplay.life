@@ -38,13 +38,25 @@ export async function GET(req: NextRequest) {
         } else if (session.user.role === "ADMIN") {
             const searchParams = req.nextUrl.searchParams;
             const companyId = searchParams.get("companyId");
+            const filter = searchParams.get("filter"); // optional: 'paid' | 'company' | 'all'
 
-            if (!companyId) {
-                return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+            let whereClause: any = {};
+
+            if (companyId) {
+                whereClause = { companyId };
+            } else if (filter === "paid") {
+                // only paid users (no company)
+                whereClause = { companyId: null };
+            } else if (filter === "company") {
+                // only users belonging to some company
+                whereClause = { NOT: { companyId: null } };
+            } else {
+                // default: return all users (both paid and company users)
+                whereClause = {};
             }
 
             const users = await prisma.user.findMany({
-                where: { companyId },
+                where: whereClause,
                 include: {
                     wallet: true,
                 },

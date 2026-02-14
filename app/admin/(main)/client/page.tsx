@@ -54,7 +54,7 @@ interface User {
   role: string;
   company: {
     name: string;
-  };
+  } | null;
   wallet: {
     balance: number;
     expiryDate: string | null;
@@ -119,9 +119,10 @@ export default function ClientManagementPage() {
   // Filter and sort users
   const filteredUsers = users
     .filter((user: User) => {
+      const companyName = (user.company?.name || "").toLowerCase();
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.company.name.toLowerCase().includes(searchTerm.toLowerCase());
+                           companyName.includes(searchTerm.toLowerCase());
         const matchesRole = roleFilter === "HR" || user.role === "HR";
       const matchesVerification = verificationFilter === "all" || 
                                   (verificationFilter === "verified" && user.verified) ||
@@ -135,7 +136,7 @@ export default function ClientManagementPage() {
         case "email":
           return a.email.localeCompare(b.email);
         case "company":
-          return a.company.name.localeCompare(b.company.name);
+          return (a.company?.name || "").localeCompare(b.company?.name || "");
         case "credits":
           return b.wallet.balance - a.wallet.balance;
         case "created":
@@ -581,9 +582,9 @@ export default function ClientManagementPage() {
                         {user.role}
                       </Badge>
                     </TableCell>
-                    <TableCell>{user.company.name}</TableCell>
+                    <TableCell>{user.company?.name || '-'}</TableCell>
                     <TableCell className="font-semibold">
-                      {user.wallet.balance} credits
+                      {user.wallet?.balance ?? 0} credits
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">

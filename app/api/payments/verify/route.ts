@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
                 amount: Math.round(topup.amount / 50),
                 modeOfPayment: "Cash",
                 isCredit: true,
-                cashAmount: topup.amount,
+                cashAmount: Math.round((topup.amount || 0) / 100),
                 balanceAfterTxn: wallet.balance + Math.round(topup.amount / 50),  // since 1 INR = 2 Fitplay Coins
                 transactionType: "CREDIT",
                 walletId: wallet.id,

@@ -103,14 +103,15 @@ export async function GET(request: NextRequest) {
             }
           }
           
-          return [
+            const cashRupees = (transaction.cashAmount || 0) / 100;
+            return [
             transaction.id,
             transaction.user?.name || 'N/A',
             transaction.user?.email || 'N/A', 
             transaction.user?.company?.name || 'N/A',
             type,
             transaction.amount || 0,
-            transaction.cashAmount || 0,
+              cashRupees,
             transaction.modeOfPayment,
             transaction.isCredit ? 'Yes' : 'No',
             transaction.balanceAfterTxn || 0,
@@ -226,13 +227,14 @@ export async function GET(request: NextRequest) {
         }
 
         startX = 50;
+        const cashRupees = (transaction.cashAmount || 0) / 100;
         const rowData = [
           transaction.id.substring(0, 15) + '...',
           transaction.user?.name?.substring(0, 15) || 'N/A',
           transaction.user?.company?.name?.substring(0, 12) || 'N/A',
           type.substring(0, 12),
           (transaction.amount || 0).toString(),
-          (transaction.cashAmount || 0).toString(),
+          cashRupees.toString(),
           transaction.modeOfPayment.substring(0, 8),
           new Date(transaction.createdAt).toLocaleDateString()
         ];
@@ -253,7 +255,7 @@ export async function GET(request: NextRequest) {
 
       // Summary
       const totalCredits = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-      const totalINR = transactions.reduce((sum, t) => sum + (t.cashAmount || 0), 0);
+      const totalINR = transactions.reduce((sum, t) => sum + ((t.cashAmount || 0) / 100), 0);
       
       page.drawText(`Total Transactions: ${transactions.length}`, {
         x: 50,

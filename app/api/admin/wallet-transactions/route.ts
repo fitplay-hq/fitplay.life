@@ -64,6 +64,8 @@ export async function GET(req: NextRequest) {
             let description = "";
             let method = transaction.modeOfPayment.toLowerCase();
 
+            const cashRupees = transaction.cashAmount ? transaction.cashAmount / 100 : 0;
+
             if (transaction.isCredit) {
                 if (transaction.modeOfPayment === "Credits") {
                     type = "credit_allocation";
@@ -79,7 +81,7 @@ export async function GET(req: NextRequest) {
                     description = "Redeemed credits for order";
                 } else if (transaction.cashAmount && transaction.cashAmount > 0) {
                     type = "mixed_payment";
-                    description = `Mixed payment: ${transaction.amount} credits + ₹${transaction.cashAmount}`;
+                    description = `Mixed payment: ${transaction.amount} credits + ₹${cashRupees}`;
                     method = "mixed";
                 } else {
                     type = "inr_payment";
@@ -95,6 +97,7 @@ export async function GET(req: NextRequest) {
                     company: transaction.user.company?.name || null,
                 },
                 amount: transaction.amount,
+                cashAmount: cashRupees,
                 type,
                 description,
                 date: transaction.createdAt.toISOString(),

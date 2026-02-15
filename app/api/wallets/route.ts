@@ -282,8 +282,9 @@ export async function GET(req: NextRequest) {
         });
       }
 
+      // Demo users see their demo transactions, normal users see their real transactions
       const allTransactions = await prisma.transactionLedger.findMany({
-        where: { userId: user.id, isDemo: false },
+        where: { userId: user.id, isDemo: user.isDemo },
         orderBy: { createdAt: "desc" },
       });
 

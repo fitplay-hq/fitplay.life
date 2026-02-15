@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
             let description = "";
             let method = transaction.modeOfPayment.toLowerCase();
 
-            const cashRupees = transaction.cashAmount ? transaction.cashAmount / 100 : 0;
+            const cashRupees = transaction.cashAmount ? transaction.cashAmount: 0;
 
             if (transaction.isCredit) {
                 if (transaction.modeOfPayment === "Credits") {

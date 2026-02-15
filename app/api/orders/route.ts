@@ -14,12 +14,25 @@ export async function GET(req: NextRequest) {
     const userIdParam = searchParams.get("userId");
     const showDemoOnly = searchParams.get("demoOnly") === "true";
 
-    const whereClause: any = {
-      isDemoOrder: showDemoOnly,
-    };
+    const whereClause: any = {};
 
-    if (userIdParam) {
-      whereClause.userId = userIdParam;
+    // Authorization: determine which user's orders to fetch
+    let targetUserId: string;
+    
+    if (session.user.role === "ADMIN" || session.user.role === "HR") {
+      // Admin/HR can view specific user's orders if provided, otherwise their own
+      targetUserId = userIdParam || session.user.id;
+    } else {
+      // Regular users can only view their own orders
+      targetUserId = session.user.id;
+    }
+
+    whereClause.userId = targetUserId;
+
+    // Only filter by isDemoOrder if explicitly requested via ?demoOnly=true
+    // Otherwise, return ALL orders (both demo and real) for the user
+    if (showDemoOnly) {
+      whereClause.isDemoOrder = true;
     }
 
     // ✅ THIS WAS MISSING IN YOUR FILE

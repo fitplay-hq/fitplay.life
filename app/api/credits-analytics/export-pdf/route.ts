@@ -70,6 +70,7 @@ async function exportTransactions(
 
   const filters: any = {
     userId: { in: userIds },
+    isDemo: false,
   };
 
   if (start && end) {

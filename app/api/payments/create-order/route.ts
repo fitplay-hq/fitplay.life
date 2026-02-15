@@ -8,6 +8,11 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Block demo users from wallet top-ups
+    if ((session.user as any).isDemo) {
+      return NextResponse.json({ error: "Demo users cannot top-up wallet" }, { status: 403 });
+    }
+
     const { amount, isCash } = await req.json();
     const amountPaise = Math.max(Math.floor(amount * 100), 0);
     if (!amountPaise) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });

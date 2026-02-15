@@ -16,11 +16,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Demo users are not allowed to create orders
-    if ((session.user as any).isDemo) {
-      return NextResponse.json({ error: "Demo users cannot create orders" }, { status: 403 });
-    }
-
     const body = await req.json();
     const {
       items,
@@ -35,6 +30,11 @@ export async function POST(req: NextRequest) {
       remarks,
       isCashPayment,
     } = body;
+
+    // Demo users cannot make cash payments
+    if ((session.user as any).isDemo && isCashPayment) {
+      return NextResponse.json({ error: "Demo users cannot use cash payments. Only credits are allowed." }, { status: 403 });
+    }
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "items are required" }, { status: 400 });
@@ -90,12 +90,12 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      if ((variant.availableStock ?? 0) < item.quantity) {
-        return NextResponse.json(
-          { error: `Not enough stock for variant ${variant.variantValue}` },
-          { status: 400 }
-        );
-      }
+      // if ((variant.availableStock ?? 0) < item.quantity) {
+      //   return NextResponse.json(
+      //     { error: `Not enough stock for variant ${variant.variantValue}` },
+      //     { status: 400 }
+      //   );
+      // }
 
       const mrp = variant.mrp;
       const discountPercent = variant.product.discount ?? 0;
@@ -143,6 +143,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const isDemo = user.isDemo || false;
+
     // --- Minimal transaction: create wallet update, txn, order, decrement stock ---
     const txResult = await prisma.$transaction(async (tx) => {
       const updatedWallet = await tx.wallet.update({
@@ -159,6 +161,7 @@ export async function POST(req: NextRequest) {
           isCredit: false,
           transactionType: "PURCHASE",
           walletId: updatedWallet.id,
+          isDemo: isDemo,
         },
       });
 
@@ -177,6 +180,7 @@ export async function POST(req: NextRequest) {
           pinCode: providedPincode,
           deliveryInstructions: finalDeliveryInstructions,
           remarks: session.user.role === "ADMIN" ? remarks || null : null,
+          isDemoOrder: isDemo,
           items: { create: orderItemsData },
         },
       });
@@ -210,32 +214,35 @@ export async function POST(req: NextRequest) {
       throw new Error("Order not found after creation");
     }
 
-    // --- Build Unicommerce items payload ---
-    const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
-      variantSku: item.variant.sku,
-      quantity: item.quantity,
-      price: item.price,
-    }));
+    // --- Only send to Unicommerce if NOT a demo order ---
+    if (!isDemo) {
+      // --- Build Unicommerce items payload ---
+      const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
+        variantSku: item.variant.sku,
+        quantity: item.quantity,
+        price: item.price,
+      }));
 
-    // --- Call Unicommerce OUTSIDE the transaction ---
-    const resUnicommerce = await createSaleOrder(
-      user.name,
-      enrichedOrder.id,
-      enrichedOrder.address ?? providedAddress ?? "",
-      enrichedOrder.address2 ?? providedAddress2 ?? "",
-      enrichedOrder.city ?? providedCity ?? "",
-      enrichedOrder.state ?? providedState ?? "",
-      enrichedOrder.pinCode ?? providedPincode ?? "",
-      enrichedOrder.phNumber ?? finalPhNumber ?? "",
-      user.email,
-      unicommerceItems
-    );
+      // --- Call Unicommerce OUTSIDE the transaction ---
+      const resUnicommerce = await createSaleOrder(
+        user.name,
+        enrichedOrder.id,
+        enrichedOrder.address ?? providedAddress ?? "",
+        enrichedOrder.address2 ?? providedAddress2 ?? "",
+        enrichedOrder.city ?? providedCity ?? "",
+        enrichedOrder.state ?? providedState ?? "",
+        enrichedOrder.pinCode ?? providedPincode ?? "",
+        enrichedOrder.phNumber ?? finalPhNumber ?? "",
+        user.email,
+        unicommerceItems
+      );
 
-    console.log('Unicommerce Response in Order Creation:', resUnicommerce);
+      console.log('Unicommerce Response in Order Creation:', resUnicommerce);
 
-    if (resUnicommerce && resUnicommerce.successful === false) {
-      console.error("Unicommerce order creation failed:", resUnicommerce);
-      throw new Error("Unicommerce order creation failed");
+      if (resUnicommerce && resUnicommerce.successful === false) {
+        console.error("Unicommerce order creation failed:", resUnicommerce);
+        throw new Error("Unicommerce order creation failed");
+      }
     }
 
     // --- Prepare email using enrichedOrder (fresh) ---
@@ -277,13 +284,16 @@ export async function POST(req: NextRequest) {
   ${finalDeliveryInstructions ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>` : ""}
 `;
 
+    const emailHeader = isDemo ? "<p style='color: #ff9800; font-weight: bold;'>⚠️ This is a DEMO ORDER - It will not be processed for delivery</p>" : "";
+
     // --- Send email ---
     await resend.emails.send({
       from: "admin@fitplaysolutions.com",
       to: user.email,
-      subject: "Order Summary - FitPlay Solutions",
+      subject: `${isDemo ? "[DEMO] " : ""}Order Summary - FitPlay Solutions`,
       html: `
     <h2>Your Order Has Been Created Successfully!</h2>
+    ${emailHeader}
     <p>Order ID: <strong>${enrichedOrder.id}</strong></p>
     ${orderSummaryTable}
     <p style="margin-top: 20px;">Thank you for your purchase! You can check your wallet and order history anytime in your account.</p>

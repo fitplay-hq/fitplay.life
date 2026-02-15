@@ -18,8 +18,10 @@ export async function GET(req: NextRequest) {
         const userId = searchParams.get("userId");
         const companyId = searchParams.get("companyId");
 
-        // Build where clause
-        const where: any = {};
+        // Build where clause - exclude demo transactions
+        const where: any = {
+            isDemo: false,
+        };
         if (userId) {
             where.userId = userId;
         }

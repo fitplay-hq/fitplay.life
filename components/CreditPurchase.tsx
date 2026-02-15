@@ -456,6 +456,7 @@ import { Wallet, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 
 interface CreditPurchaseProps {
@@ -500,6 +501,16 @@ export function CreditPurchase({
 
   const handlePay = async () => {
     if (amount <= 0) return;
+
+    // Check if user is demo user
+    const session = await fetch("/api/auth/session").then(r => r.json());
+    if ((session?.user as any)?.isDemo) {
+      toast.error("Demo users cannot top-up wallet", {
+        description: "Demo accounts come with 10,000 free credits for testing. Top-ups are not available.",
+        duration: 5000,
+      });
+      return;
+    }
 
     setIsProcessing(true);
     setStatus("idle");

@@ -84,6 +84,7 @@ export default function UserManagementPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isAddDemoUserOpen, setIsAddDemoUserOpen] = useState(false);
   const [isCreditOpen, setIsCreditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{id: string, name: string} | null>(null);
@@ -103,8 +104,17 @@ const [creatingCompany, setCreatingCompany] = useState(false);
     phone: '',
     password: '',
     role: 'EMPLOYEE',
-    isDemo: false,
     companyId: '',
+    gender: '',
+    address: ''
+  });
+
+  // Form data for demo users
+  const [demoUserForm, setDemoUserForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
     gender: '',
     address: ''
   });
@@ -230,7 +240,7 @@ const [creatingCompany, setCreatingCompany] = useState(false);
 
 
   const handleAddUser = async () => {
-    if (!userForm.name || !userForm.email || !userForm.phone || !userForm.password || !userForm.companyId) {
+    if (!userForm.name || !userForm.email || !userForm.phone || !userForm.password || !userForm.companyId || !userForm.role) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -264,6 +274,54 @@ const [creatingCompany, setCreatingCompany] = useState(false);
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create user');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleAddDemoUser = async () => {
+    if (!demoUserForm.name || !demoUserForm.email || !demoUserForm.phone || !demoUserForm.password) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    setUpdating(true);
+    
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: demoUserForm.name,
+          email: demoUserForm.email,
+          phone: demoUserForm.phone,
+          password: demoUserForm.password,
+          role: 'EMPLOYEE',
+          isDemo: true,
+          companyId: null,
+          gender: demoUserForm.gender || null,
+          address: demoUserForm.address || null
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create demo user');
+      }
+
+      await globalMutate('/api/admin/users');
+      toast.success('Demo user created successfully with 10,000 free credits!');
+      setIsAddDemoUserOpen(false);
+      setDemoUserForm({
+        name: '',
+        email: '',
+        phone: '',
+        password: '',
+        gender: '',
+        address: ''
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create demo user');
     } finally {
       setUpdating(false);
     }
@@ -490,18 +548,105 @@ const [creatingCompany, setCreatingCompany] = useState(false);
                   </Button>
                 </div>
               </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="isDemo"
-                    type="checkbox"
-                    checked={userForm.isDemo}
-                    onChange={(e) => setUserForm({ ...userForm, isDemo: e.target.checked })}
-                    className="h-4 w-4"
-                  />
-                  <Label htmlFor="isDemo">Create as Demo User</Label>
-                </div>
             </DialogContent>
           </Dialog>
+
+          <Dialog open={isAddDemoUserOpen} onOpenChange={setIsAddDemoUserOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                <UserPlus className="h-4 w-4" />
+                Add Demo User
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md bg-white">
+              <DialogHeader>
+                <DialogTitle>Add Demo User</DialogTitle>
+                <DialogDescription>
+                  Create a demo account with 10,000 free credits for testing
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="demo-name">Name *</Label>
+                  <Input
+                    id="demo-name"
+                    value={demoUserForm.name}
+                    onChange={(e) => setDemoUserForm({ ...demoUserForm, name: e.target.value })}
+                    placeholder="Enter user name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="demo-email">Email *</Label>
+                  <Input
+                    id="demo-email"
+                    type="email"
+                    value={demoUserForm.email}
+                    onChange={(e) => setDemoUserForm({ ...demoUserForm, email: e.target.value })}
+                    placeholder="Enter email"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="demo-phone">Phone *</Label>
+                  <Input
+                    id="demo-phone"
+                    value={demoUserForm.phone}
+                    onChange={(e) => setDemoUserForm({ ...demoUserForm, phone: e.target.value })}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="demo-password">Password *</Label>
+                  <Input
+                    id="demo-password"
+                    type="password"
+                    value={demoUserForm.password}
+                    onChange={(e) => setDemoUserForm({ ...demoUserForm, password: e.target.value })}
+                    placeholder="Enter password"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="demo-gender">Gender</Label>
+                  <Select value={demoUserForm.gender} onValueChange={(value) => setDemoUserForm({ ...demoUserForm, gender: value })}>
+                    <SelectTrigger id="demo-gender">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='MALE'>Male</SelectItem>
+                      <SelectItem value='FEMALE'>Female</SelectItem>
+                      <SelectItem value='OTHER'>Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="demo-address">Address</Label>
+                  <Input
+                    id="demo-address"
+                    value={demoUserForm.address}
+                    onChange={(e) => setDemoUserForm({ ...demoUserForm, address: e.target.value })}
+                    placeholder="Enter address"
+                  />
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    onClick={handleAddDemoUser} 
+                    disabled={updating}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    {updating ? 'Creating...' : 'Create Demo User'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsAddDemoUserOpen(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Dialog open={isAddCompanyOpen} onOpenChange={setIsAddCompanyOpen}>
   <DialogTrigger asChild>
     <Button className="flex items-center gap-2">

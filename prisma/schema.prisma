@@ -173,6 +173,7 @@ model TransactionLedger {
   balanceAfterTxn Int?
   transactionType TransactionType?
   isCredit        Boolean
+  isDemo          Boolean          @default(false)
   walletId        String
   remark          String?
   createdAt       DateTime         @default(now())
@@ -221,6 +222,7 @@ model Order {
   remarks              String?
   transactionId        String?            @unique
   isCashPayment        Boolean?            @default(false)
+  isDemoOrder          Boolean             @default(false)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @default(now()) @updatedAt
   transactionLedger    TransactionLedger? @relation(fields: [transactionId], references: [id])

@@ -155,8 +155,8 @@ export default function CartPage() {
 
   const handlePurchase = async () => {
     if (isDemo) {
-      toast.error("Demo users cannot create orders", {
-        description: "Demo accounts cannot make purchases. Please contact your HR administrator.",
+      toast.error("Demo users can only use credits", {
+        description: "Demo accounts cannot make cash payments. Only credit-based orders are allowed.",
         duration: 5000,
       });
       return;
@@ -291,9 +291,9 @@ export default function CartPage() {
 
 
   const handleCheckout = async () => {
-    if (isDemo && currentStep === "payment") {
-      toast.error("Demo users cannot make purchases", {
-        description: "Demo accounts cannot complete orders. Please contact your HR administrator.",
+    if (isDemo && currentStep === "payment" && paymentMethod !== "credits") {
+      toast.error("Demo users can only use credits", {
+        description: "Demo accounts cannot make cash payments. Only credit-based orders are allowed.",
         duration: 5000,
       });
       return;
@@ -800,14 +800,14 @@ export default function CartPage() {
             <Alert className="border-amber-300 bg-amber-50">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800 text-sm">
-                <strong>Demo Account:</strong> You can browse and add items to cart, but cannot complete purchases. Contact your HR administrator for a full account.
+                <strong>Demo Account:</strong> You can create orders using only credits. Cash payments are not allowed. Please select credits as your payment method.
               </AlertDescription>
             </Alert>
           )}
           <Button
             onClick={handleCheckout}
-            disabled={isDemo && cartItems.length > 0}
-            title={isDemo ? "Demo users cannot checkout" : ""}
+            disabled={isDemo && currentStep === "payment" && paymentMethod !== "credits"}
+            title={isDemo && paymentMethod !== "credits" ? "Demo users can only use credits" : ""}
             className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
           >
             
@@ -1182,19 +1182,23 @@ export default function CartPage() {
           </label>
 
           {/* Cash Option */}
-          <label className={`relative flex items-center gap-4 p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-            paymentMethod === "cash"
-              ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100"
-              : "border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md"
+          <label className={`relative flex items-center gap-4 p-5 rounded-xl border-2 transition-all duration-300 ${
+            isDemo 
+              ? "opacity-50 cursor-not-allowed border-gray-200 bg-gray-50"
+              : paymentMethod === "cash"
+              ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-100 cursor-pointer"
+              : "border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md cursor-pointer"
           }`}>
             <input
               type="radio"
               name="payment"
               value="cash"
               checked={paymentMethod === "cash"}
-              onChange={() => setPaymentMethod("cash")}
+              onChange={() => !isDemo && setPaymentMethod("cash")}
+              disabled={isDemo}
               className="sr-only"
             />
+              
             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
               paymentMethod === "cash"
                 ? "border-emerald-500 bg-emerald-500"
@@ -1208,9 +1212,16 @@ export default function CartPage() {
               <span className="text-base font-semibold text-gray-900 block">
                 Pay with Cash
               </span>
-              <p className="text-sm text-gray-600 mt-1">
-                Pay with  UPI / Netbanking / Cards • 1 Credit = ₹0.5
-              </p>
+              {isDemo && (
+                <p className="text-xs text-red-600 mt-1 font-medium">
+                  Not available for demo accounts
+                </p>
+              )}
+              {!isDemo && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Pay with  UPI / Netbanking / Cards • 1 Credit = ₹0.5
+                </p>
+              )}
             </div>
             <div className="text-right">
               <div className="text-lg font-bold text-gray-900">₹{totalCredits * 0.5}</div>

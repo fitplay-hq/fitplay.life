@@ -60,6 +60,7 @@ async function exportTransactions(companyId: string, fromDate: string | null, to
     const transactions = await prisma.transactionLedger.findMany({
         where: {
             userId: { in: userIds },
+            isDemo: false,
             createdAt: dateFilter
         },
         include: {

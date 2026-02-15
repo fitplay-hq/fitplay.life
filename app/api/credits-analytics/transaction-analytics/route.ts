@@ -50,10 +50,11 @@ export async function GET(req: NextRequest) {
 
         const userIds = users.map((u) => u.id);
 
-        // Fetch all transactions for these users
+        // Fetch all transactions for these users - exclude demo transactions
         const transactions = await prisma.transactionLedger.findMany({
             where: {
                 userId: { in: userIds },
+                isDemo: false,
                 ...(startDate && endDate
                     ? { createdAt: { gte: startDate, lte: endDate } }
                     : {}),

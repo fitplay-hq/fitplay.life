@@ -20,8 +20,10 @@ export async function GET(request: NextRequest) {
     const statusFilter = searchParams.get('statusFilter') || 'all';
     const companyFilter = searchParams.get('companyFilter') || 'all';
 
-    // Build where clause for filtering
-    const whereClause: any = {};
+    // Build where clause for filtering - exclude demo transactions
+    const whereClause: any = {
+      isDemo: false,
+    };
 
     if (searchTerm) {
       whereClause.OR = [

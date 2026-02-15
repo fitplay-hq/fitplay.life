@@ -12,16 +12,17 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const userIdParam = searchParams.get("userId");
+    const showDemoOnly = searchParams.get("demoOnly") === "true";
 
-    const whereClause: any = {};
-    if (session.user.role === "ADMIN" && userIdParam) {
-      whereClause.userId = userIdParam;
-    } else if (session.user.role !== "ADMIN" && session.user.role !== "HR") {
-      whereClause.userId = session.user.id;
-    } else if (session.user.role === "HR" && userIdParam) {
+    const whereClause: any = {
+      isDemoOrder: showDemoOnly,
+    };
+
+    if (userIdParam) {
       whereClause.userId = userIdParam;
     }
 
+    // ✅ THIS WAS MISSING IN YOUR FILE
     const orders = await prisma.order.findMany({
       where: whereClause,
       include: {
@@ -52,12 +53,10 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // 🚨 Filter remarks based on role
     const sanitizedOrders =
       session.user.role === "ADMIN"
         ? orders
-        : // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          orders.map(({ remarks, ...rest }) => rest);
+        : orders.map(({ remarks, ...rest }) => rest);
 
     return NextResponse.json({ orders: sanitizedOrders });
   } catch (error) {

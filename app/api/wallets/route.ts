@@ -283,7 +283,7 @@ export async function GET(req: NextRequest) {
       }
 
       const allTransactions = await prisma.transactionLedger.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, isDemo: false },
         orderBy: { createdAt: "desc" },
       });
 

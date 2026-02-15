@@ -64,10 +64,18 @@ export async function POST(request: NextRequest) {
 
     const { name, email, phone, password, role, companyId, gender, address, isDemo } = await request.json();
 
-    // Validate required fields
-    if (!name || !email || !phone || !password || !role || !companyId) {
+    // Validate required fields - companyId is not required for demo users
+    if (!name || !email || !phone || !password || !role) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // If not a demo user, companyId is required
+    if (!isDemo && !companyId) {
+      return NextResponse.json(
+        { error: "companyId is required for non-demo users" },
         { status: 400 }
       );
     }
@@ -99,38 +107,58 @@ export async function POST(request: NextRequest) {
       phone,
       password: hashedPassword,
       role: isDemo ? "EMPLOYEE" : role,
-      companyId,
+      companyId: isDemo ? null : companyId,
       gender: gender || null,
       address: address || null,
       verified: true, // Admin-created users are automatically verified
+      isDemo: isDemo || false,
     };
 
-    if (isDemo) createData.isDemo = true;
-
-    // Create user
-    const newUser = await prisma.user.create({
-      data: createData,
-      include: {
-        company: {
-          select: {
-            name: true,
+    // Create user and wallet atomically, with 10,000 credits for demo users
+    const result = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: createData,
+        include: {
+          company: {
+            select: {
+              name: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    // Create wallet for the user
-    await prisma.wallet.create({
-      data: {
-        userId: newUser.id,
-        balance: 0,
-        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
-      },
+      // Create wallet for the user with 10,000 credits if demo user, else 0
+      const walletBalance = isDemo ? 10000 : 0;
+      const wallet = await tx.wallet.create({
+        data: {
+          userId: newUser.id,
+          balance: walletBalance,
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        },
+      });
+
+      // If demo user with initial credits, create a transaction ledger entry
+      if (isDemo && walletBalance > 0) {
+        await tx.transactionLedger.create({
+          data: {
+            userId: newUser.id,
+            walletId: wallet.id,
+            amount: walletBalance,
+            modeOfPayment: "Credits",
+            isCredit: true,
+            transactionType: "CREDIT",
+            isDemo: true,
+            remark: "Initial demo account credits",
+          },
+        });
+      }
+
+      return newUser;
     });
 
     // Fetch user with wallet included
     const userWithWallet = await prisma.user.findUnique({
-      where: { id: newUser.id },
+      where: { id: result.id },
       include: {
         wallet: true,
         company: {

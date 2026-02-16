@@ -28,6 +28,11 @@ export default function PaidSignupPage() {
       return;
     }
 
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
     setLoading(true);
     const loaded = await loadRazorpay();
     if (!loaded) {

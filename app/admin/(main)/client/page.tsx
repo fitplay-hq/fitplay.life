@@ -190,6 +190,11 @@ export default function ClientManagementPage() {
       return;
     }
 
+    if (userForm.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
       console.log("Add User form data:", userForm);
 
     setUpdating(true);

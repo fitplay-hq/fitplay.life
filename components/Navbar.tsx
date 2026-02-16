@@ -9,6 +9,8 @@ import { cartItemsAtom, clearCartAtom, clearWishlistAtom } from '@/lib/store';
 import useSWR from 'swr';
 import { useUser } from '@/app/hooks/useUser';
 import { usePathname } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
@@ -22,6 +24,9 @@ export default function Navbar() {
   const clearCart = useSetAtom(clearCartAtom);
   const clearWishlist = useSetAtom(clearWishlistAtom);
   const pathname = usePathname();
+  const router = useRouter();
+const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
   
   const { isAuthenticated } = useUser();
   const {
@@ -65,6 +70,27 @@ export default function Navbar() {
     }
     setWasAuthenticated(isAuthenticated);
   }, [isAuthenticated, wasAuthenticated, clearCart, clearWishlist]);
+
+  const handleVisitProfile = () => {
+  if (!isAuthenticated) {
+    toast.error("You should sign in to visit the profile section");
+    setProfileDropdownOpen(false);
+    return;
+  }
+
+  router.push("/profile");
+  setProfileDropdownOpen(false);
+};
+
+const handleSignIn = () => {
+  if (isAuthenticated) {
+    router.push("/profile");
+  } else {
+    router.push("/login");
+  }
+  setProfileDropdownOpen(false);
+};
+
 
   const navLinks = [
     { label: 'Home', href: '/home' },
@@ -193,17 +219,38 @@ export default function Navbar() {
             </button>
           </Link>
 
-          <Link href="/profile">
-            <button className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
-              isScrolled
-                ? 'bg-emerald-400/30 border border-emerald-400/60'
-                : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/25 hover:border-emerald-400/50'
-            } group`}>
-              <User className={`w-5 h-5 transition-colors duration-500 ${
-                isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
-              }`} />
-            </button>
-          </Link>
+          <div className="relative">
+  <button
+    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+      isScrolled
+        ? 'bg-emerald-400/30 border border-emerald-400/60'
+        : 'bg-emerald-400/20 border border-emerald-400/40 hover:bg-emerald-400/25 hover:border-emerald-400/50'
+    } group`}
+  >
+    <User className={`w-5 h-5 transition-colors duration-500 ${
+      isScrolled ? 'text-emerald-200 group-hover:text-emerald-100' : 'text-emerald-200/90 group-hover:text-emerald-100'
+    }`} />
+  </button>
+
+  {profileDropdownOpen && (
+    <div className="absolute right-0 mt-3 w-48 bg-slate-900 border border-white/10 rounded-xl shadow-lg overflow-hidden z-50">
+      <button
+        onClick={handleVisitProfile}
+        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition"
+      >
+        Visit Profile
+      </button>
+      <button
+        onClick={handleSignIn}
+        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition"
+      >
+        Sign In
+      </button>
+    </div>
+  )}
+</div>
+
         </div>
 
         <button
@@ -299,12 +346,39 @@ export default function Navbar() {
                 </button>
               </Link>
 
-              <Link href="/profile" onClick={() => setIsOpen(false)}>
-                <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                  <User className="w-5 h-5 text-emerald-300" />
-                  <span className="text-white font-medium">Profile</span>
-                </button>
-              </Link>
+              <div className="relative">
+  <button
+    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+  >
+    <User className="w-5 h-5 text-emerald-300" />
+    <span className="text-white font-medium">Profile</span>
+  </button>
+
+  {profileDropdownOpen && (
+    <div className="mt-2 w-full bg-slate-900 border border-white/10 rounded-xl overflow-hidden">
+      <button
+        onClick={() => {
+          handleVisitProfile();
+          setIsOpen(false);
+        }}
+        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition"
+      >
+        Visit Profile
+      </button>
+      <button
+        onClick={() => {
+          handleSignIn();
+          setIsOpen(false);
+        }}
+        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-white/10 transition"
+      >
+        Sign In
+      </button>
+    </div>
+  )}
+</div>
+
             </div>
             
           </div>

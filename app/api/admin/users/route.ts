@@ -72,6 +72,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate password length
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters long" },
+        { status: 400 }
+      );
+    }
+
     // If not a demo user, companyId is required
     if (!isDemo && !companyId) {
       return NextResponse.json(

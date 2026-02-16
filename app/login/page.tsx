@@ -66,7 +66,7 @@ export default function LoginPage() {
 
       switch (role) {
         case "EMPLOYEE":
-          router.replace("/store");
+          router.replace("/");
           console.log("Redirecting EMPLOYEE to /store");
           break;
         case "HR":

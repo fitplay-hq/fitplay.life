@@ -245,6 +245,11 @@ const [creatingCompany, setCreatingCompany] = useState(false);
       return;
     }
 
+    if (userForm.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return;
+    }
+
     setUpdating(true);
     
     try {
@@ -282,6 +287,11 @@ const [creatingCompany, setCreatingCompany] = useState(false);
   const handleAddDemoUser = async () => {
     if (!demoUserForm.name || !demoUserForm.email || !demoUserForm.phone || !demoUserForm.password) {
       toast.error("Please fill all required fields");
+      return;
+    }
+
+    if (demoUserForm.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
       return;
     }
 

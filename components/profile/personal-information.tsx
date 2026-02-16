@@ -11,6 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "next-auth";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 
 
 interface ProfileData {
@@ -33,6 +42,12 @@ export default function PersonalInformation() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+const [currentPassword, setCurrentPassword] = useState("");
+const [newPassword, setNewPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+const [changingPassword, setChangingPassword] = useState(false);
+
   const router = useRouter();
   
 
@@ -88,6 +103,57 @@ export default function PersonalInformation() {
       setSaving(false);
     }
   };
+
+  const handleChangePassword = async () => {
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    toast.error("All fields are required");
+    return;
+  }
+
+  if (newPassword.length < 8) {
+    toast.error("New password must be at least 8 characters");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return;
+  }
+
+  setChangingPassword(true);
+
+  try {
+    const res = await fetch("/api/user/change-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.error || "Failed to change password");
+      return;
+    }
+
+    toast.success("Password updated successfully");
+    setIsPasswordModalOpen(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+
+  } catch (error) {
+    toast.error("Something went wrong");
+  } finally {
+    setChangingPassword(false);
+  }
+};
+
 
   if (profileLoading) {
     return (
@@ -246,21 +312,72 @@ export default function PersonalInformation() {
     </Card>
 
     <Card>
-      <CardHeader>
-        <CardTitle>Password Reset</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-gray-600">
-          If you wish to reset your password, please click the button below to receive a password reset link via email.
-        </p>
-        <Button
-          onClick={goToResetPassword}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          Send Reset Link
+  <CardHeader>
+    <CardTitle>Change Password</CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-4">
+    <p className="text-gray-600">
+      Change your account password securely.
+    </p>
+
+    <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-emerald-600 hover:bg-emerald-700">
+          Change Password
         </Button>
-      </CardContent>
-    </Card>
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-md bg-white">
+        <DialogHeader>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogDescription>
+            Enter your current password and choose a new one.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 mt-4">
+
+          <div className="space-y-2">
+            <Label>Current Password</Label>
+            <Input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>New Password</Label>
+            <Input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Confirm New Password</Label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+
+          <Button
+            onClick={handleChangePassword}
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            disabled={changingPassword}
+          >
+            {changingPassword ? "Updating..." : "Update Password"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </CardContent>
+</Card>
+
+
 
     </>
   );

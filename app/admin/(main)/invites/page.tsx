@@ -77,7 +77,7 @@ export default function CreateInvitePage() {
     setLoading(true);
 
     try {
-      let payload: any = {
+      const payload: any = {
         role: formData.role,
       };
 

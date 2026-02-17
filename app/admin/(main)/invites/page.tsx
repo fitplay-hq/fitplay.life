@@ -212,7 +212,11 @@ export default function CreateInvitePage() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select company" />
                   </SelectTrigger>
+                   
                   <SelectContent>
+                    <SelectItem value="new">
+                      + Create New Company
+                    </SelectItem>
                     {companies.map((company) => (
                       <SelectItem
                         key={company.id}
@@ -221,9 +225,7 @@ export default function CreateInvitePage() {
                         {company.name}
                       </SelectItem>
                     ))}
-                    <SelectItem value="new">
-                      + Create New Company
-                    </SelectItem>
+                   
                   </SelectContent>
                 </Select>
               </div>

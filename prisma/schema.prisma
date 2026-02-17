@@ -41,7 +41,7 @@ model User {
   isDemo       Boolean             @default(false)
   orders       Order[]
   transactions TransactionLedger[]
-  company      Company?            @relation(fields: [companyId], references: [id])
+  company      Company?            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   wallet       Wallet?
   redemptions  VoucherRedemption[]
   walletTopups WalletTopUp[]
@@ -89,7 +89,7 @@ model Company {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   vouchers  Voucher[] @relation("CompanyToVoucher")
-  users     User[]
+  users     User[]  
   products  Product[] @relation("CompanyToProduct")
 }
 
@@ -161,7 +161,8 @@ model Wallet {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @default(now()) @updatedAt
   transactionLedger TransactionLedger[]
-  user              User                @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
 }
 
 model TransactionLedger {
@@ -179,7 +180,7 @@ model TransactionLedger {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now()) @updatedAt
   order           Order?
-  user            User             @relation(fields: [userId], references: [id])
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   wallet          Wallet           @relation(fields: [walletId], references: [id])
 }
 
@@ -201,7 +202,8 @@ model VoucherRedemption {
   voucherId  String
   redeemedAt DateTime @default(now())
 
-  user    User    @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   voucher Voucher @relation(fields: [voucherId], references: [id])
 
   @@unique([userId, voucherId]) // Ensure one voucher can be redeemed only once per user
@@ -226,7 +228,7 @@ model Order {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @default(now()) @updatedAt
   transactionLedger    TransactionLedger? @relation(fields: [transactionId], references: [id])
-  user                 User               @relation(fields: [userId], references: [id])
+  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
   items                OrderItem[]
   
 }
@@ -258,7 +260,8 @@ model WalletTopUp {
   createdAtRazorpay DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @default(now()) @updatedAt
-  user              User      @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
 }
 
 model CashPayment {

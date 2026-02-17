@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { cn } from "@/lib/utils";
+import { useUser } from '@/app/hooks/useUser';
 
 interface Variant {
   id: string;
@@ -70,6 +71,11 @@ export default function HRProducts() {
   const [selectedVisibility, setSelectedVisibility] = useState("all");
   const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const{user} = useUser();
+  
+ // or however you get session
+ console.log(user)
+const companyId = user?.companyId;
 
   useEffect(() => {
     fetchData();
@@ -106,40 +112,56 @@ export default function HRProducts() {
     }
   };
 
-  const updateProductVisibility = async (productId: string, visible: boolean) => {
-    try {
-      const companyIds = visible ? companies.map(c => c.id) : [];
-      
-      const response = await fetch("/api/prod-visiblity", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId,
-          companyIds,
-        }),
-      });
+ const updateProductVisibility = async (productId: string, visible: boolean) => {
+  try {
+    const response = await fetch("/api/prod-visibility", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId,
+        companyId,   // send only ONE company
+        visible,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to update visibility");
-      }
-
-      // Update local state
-      setProducts(prev =>
-        prev.map(product =>
-          product.id === productId
-            ? { ...product, companies: visible ? companies : [] }
-            : product
-        )
-      );
-
-      toast.success(`Product ${visible ? "enabled" : "disabled"} successfully`);
-    } catch (error) {
-      console.error("Failed to update visibility:", error);
-      toast.error("Failed to update product visibility");
+    if (!response.ok) {
+      throw new Error("Failed to update visibility");
     }
-  };
+
+    // Update local state safely
+    setProducts(prev =>
+      prev.map(product => {
+        if (product.id !== productId) return product;
+
+        let updatedCompanies = [...(product.companies || [])];
+
+        if (visible) {
+          // Add this company if not already added
+          if (!updatedCompanies.some(c => c.id === companyId)) {
+            updatedCompanies.push({
+              id: companyId,
+              name: user.company?.name || "Your Company",
+            });
+          }
+        } else {
+          // Remove only this company
+          updatedCompanies = updatedCompanies.filter(
+            c => c.id !== companyId
+          );
+        }
+
+        return { ...product, companies: updatedCompanies };
+      })
+    );
+
+    toast.success(`Product ${visible ? "enabled" : "disabled"} successfully`);
+  } catch (error) {
+    toast.error("Failed to update product visibility");
+  }
+};
+
 
   // Get credit range for a product
 const getCreditRange = (
@@ -177,7 +199,9 @@ const filteredProducts = products.filter(product => {
     product?.category?.name === selectedCategory;
 
   // Visibility filter logic
-  const isVisible = (product?.companies || []).length > 0;
+  const isVisible =
+  product?.companies?.some(c => c.id === companyId) ?? false;
+
   const matchesVisibility =
     selectedVisibility === "all" ||
     (selectedVisibility === "visible" && isVisible) ||
@@ -366,8 +390,13 @@ const filteredProducts = products.filter(product => {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                 
                 {filteredProducts.map((product) => {
-                  const isVisible = (product?.companies || []).length > 0;
+                   
+                 
+                const isVisible =
+  product?.companies?.some(c => c.id === companyId) ?? false;
+
                   const creditRange = getCreditRange(product);
                   
                   return (

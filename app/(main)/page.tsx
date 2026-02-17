@@ -263,7 +263,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
     {
       title: 'Complete Gut Health Masterclass',
       rating: 4.9,
-      price: 'Free',
+      price: '',
       image: '🌿'
     }
   ];

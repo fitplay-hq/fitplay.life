@@ -39,6 +39,7 @@ model User {
   verified     Boolean             @default(false)
   claimed      Boolean             @default(false)
   isDemo       Boolean             @default(false)
+  hasPaidBundle Boolean            @default(false)
   orders       Order[]
   transactions TransactionLedger[]
   company      Company?            @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -88,6 +89,7 @@ model Company {
   address   String    @db.VarChar(100)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
+  hasWellnessStarterBundle Boolean @default(false)
   vouchers  Voucher[] @relation("CompanyToVoucher")
   users     User[]  
   products  Product[] @relation("CompanyToProduct")

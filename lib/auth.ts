@@ -45,14 +45,16 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Please verify your email first. Check your inbox for verification link.");
           }
           
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role, // HR or EMPLOYEE (enum from your schema)
-            companyId: user.companyId,
-            isDemo: user.isDemo,
-          };
+         return {
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  companyId: user.companyId,
+  isDemo: user.isDemo,
+  hasPaidBundle: user.hasPaidBundle, 
+};
+
         }
 
         // 3. Check Vendor
@@ -77,28 +79,51 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.role = (user as any).role;
-        token.isDemo = (user as any).isDemo || false;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user = {
-          id: token.id as string,
-          name: token.name as string,
-          email: token.email as string,
-          role: token.role as UserRole,
-          isDemo: (token as any).isDemo || false,
-        };
-      }
-      return session;
-    },
+   async jwt({ token, user }) {
+  if (user) {
+    token.id = user.id;
+    token.name = user.name;
+    token.email = user.email;
+    token.role = (user as any).role;
+    token.isDemo = (user as any).isDemo || false;
+
+    token.companyId = (user as any).companyId || null;   // 🔥 ADD
+    token.hasPaidBundle = (user as any).hasPaidBundle || false; // 🔥 ADD
+  }
+
+  if (token?.id) {
+    const freshUser = await prisma.user.findUnique({
+      where: { id: token.id as string },
+      select: {
+        hasPaidBundle: true,
+        companyId: true,
+      },
+    });
+
+    if (freshUser) {
+      token.hasPaidBundle = freshUser.hasPaidBundle;
+      token.companyId = freshUser.companyId;
+    }
+  }
+  return token;
+},
+
+   async session({ session, token }) {
+  if (token) {
+    session.user = {
+      id: token.id as string,
+      name: token.name as string,
+      email: token.email as string,
+      role: token.role as UserRole,
+      isDemo: (token as any).isDemo || false,
+
+      companyId: (token as any).companyId || null,   // 🔥 ADD
+      hasPaidBundle: (token as any).hasPaidBundle || false, // 🔥 ADD
+    };
+  }
+  return session;
+},
+
     async redirect({ url, baseUrl }) {
       // Prevent redirect loops and handle production URLs properly
       if (url.startsWith("/")) return `${baseUrl}${url}`;

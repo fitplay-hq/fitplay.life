@@ -1,5 +1,3 @@
-
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Heart, BookOpen, Video, ShoppingBag, ArrowRight, Check, Clock, Users, Star, Stethoscope, Brain, Activity } from 'lucide-react';
@@ -8,9 +6,6 @@ import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress"
 import { useUser } from '@/app/hooks/useUser';
 import  ConnectShopifyPage from '../components/vendor/vendor'
-
-
-import { MorphingText } from "@/components/ui/morphing-text"
 import { useProducts } from "@/app/hooks/useProducts";
 import { toast } from 'sonner';
 
@@ -87,7 +82,7 @@ useEffect(() => {
     setActiveTab(savedTab);
   }
 }, []);
-const changeTab = (tab) => {
+const changeTab = (tab: string) => {
   setActiveTab(tab);
   localStorage.setItem(TAB_STORAGE_KEY, tab);
 };
@@ -180,15 +175,54 @@ const changeTab = (tab) => {
 
   const [open, setOpen] = useState(false);
   const [showPaidModal, setShowPaidModal] = useState(false);
+  const [paywallType, setPaywallType] = useState<"quiz" | "course" | "consultation" | null>(null); // 'quiz' | 'course' | 'consultation'
+  // Helper: is user a company user
+  // Extend user type to include hasPaidBundle and phone
+  // User type for paywall logic
+  type UserType = {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    company?: any;
+    companyId?:string
+    hasPaidBundle?: boolean;
+    phone?: string | null;
+    role?: string;
+  };
+  const typedUser = user as UserType | undefined;
+ 
+const isCompanyUser = !!typedUser?.companyId;
+const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
 
-  const requireAuthOrModal = (action: () => void) => {
-    if (!isAuthenticated) {
-      setShowPaidModal(true);
-      return false;
-    }
+  // Show paywall for non-company, non-paid users only
+ const requirePaywallOrAction = (type, action) => {
+  if (!isAuthenticated) {
+    setPaywallType(type);
+    setShowPaidModal(true);
+    return false;
+  }
+
+  
+
+  if (typedUser?.companyId) {
     action();
     return true;
-  };
+  }
+
+  if (!typedUser?.companyId && !typedUser?.hasPaidBundle) {
+    
+   
+    setPaywallType(type);
+    setShowPaidModal(true);
+    return false;
+  }
+
+  action();
+    return true;
+
+ 
+};
 
   const loadQuiz = () => {
     const oldScript = document.getElementById("quizell-script");
@@ -234,39 +268,7 @@ const changeTab = (tab) => {
     }
   ];
 
-  const consultations = [
-    {
-      name: 'Dr. Priya Sharma',
-      specialty: 'Gastroenterologist',
-      experience: '15 years',
-      rating: 4.9,
-      reviews: 450,
-      price: '1500 Credits',
-      available: 'Today',
-      image: '👩‍⚕️'
-    },
-    {
-      name: 'Dr. Rajesh Kumar',
-      specialty: 'Nutritionist',
-      experience: '12 years',
-      rating: 4.8,
-      reviews: 380,
-      price: '1200 Credits',
-      available: 'Tomorrow',
-      image: '👨‍⚕️'
-    },
-    {
-      name: 'Dr. Ananya Patel',
-      specialty: 'Ayurvedic Specialist',
-      experience: '10 years',
-      rating: 4.9,
-      reviews: 520,
-      price: '1000 Credits',
-      available: 'Today',
-      image: '👩‍⚕️'
-    }
-  ];
-
+ 
   const getButtonContent = () => {
     if (!courseProgress.isEnrolled) {
       return {
@@ -326,31 +328,116 @@ const changeTab = (tab) => {
       {showPaidModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
           <div className="bg-white max-w-md w-full rounded-xl p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-gray-900">Access requires sign-in or one-time purchase</h3>
-            <p className="text-sm text-gray-600 mt-2">If you're part of an organisation, choose Sign in. Otherwise you can pay ₹299 and create a paid account to access all features.</p>
+            {(!isAuthenticated) ? (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Access requires sign-in</h3>
+                <p className="text-sm text-gray-600 mb-4">If you're part of a company, please sign in. Otherwise, sign up as an individual to access the platform.</p>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => { setShowPaidModal(false); router.push('/login'); }}
+                    className="flex-1 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 font-semibold"
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    onClick={() => { setShowPaidModal(false); router.push('/signup'); }}
+                    className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold"
+                  >
+                    Sign up
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Unlock Wellness Starter Bundle</h3>
+                <ul className="text-gray-700 text-sm mb-4 list-disc pl-5">
+                  <li>Gut Health Assessment</li>
+                  <li>Gut Health Masterclass</li>
+                  <li>1:1 Expert Consultation</li>
+                </ul>
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mb-4">
+                  <span className="font-semibold text-emerald-700">Buy Now @299/-</span>
+                  <span className="ml-2 text-gray-500">(One-time access fee)</span>
+                </div>
+                <button
+                  onClick={async () => {
+                    // Load Razorpay script if not loaded
+                   
+                      const script = document.createElement('script');
+                      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                      script.async = true;
+                      document.body.appendChild(script);
+                      await new Promise((resolve) => { script.onload = resolve; });
+                    
+                    // Create order on backend
+                    const orderRes = await fetch('/api/payments/create-order', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ amount: 299, isCash: true })
+                    });
+                    const orderData = await orderRes.json();
+                    console.log(orderData)
+                    if (!orderData?.key) {
+  toast.error("failed to create payment order")
+     
+      return;
+    }
 
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => { setShowPaidModal(false); router.push('/login'); }}
-                className="flex-1 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 font-semibold"
-              >
-                Sign in
-              </button>
+      console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
+                    const options = {
+                    
+                      key: orderData.key,
+                      amount: 29900,
+                      currency: 'INR',
+                      name: 'FitPlay Life',
+                      description: 'Wellness Starter Bundle',
+                      order_id: orderData.razorpayOrderId,
+                      handler: async function (response: any) {
+                        // Call backend to verify and unlock bundle for user
+                        console.log("RAZORPAY FULL RESPONSE:", response);
+                        const verifyRes = await fetch('/api/payments/verify-guest', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            bundle: true
+                          })
+                        });
+                       if (verifyRes.ok) {
+  toast.success('Payment successful! Access unlocked.');
 
-              <button
-                onClick={() => { setShowPaidModal(false); router.push('/signup/paid'); }}
-                className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold"
-              >
-                Pay ₹299 & Sign up
-              </button>
-            </div>
-
-            <button
-              onClick={() => setShowPaidModal(false)}
-              className="mt-4 text-xs text-gray-500"
-            >
-              Cancel
-            </button>
+  await refreshSession();  
+  setShowPaidModal(false);
+}
+ else {
+                          const data = await verifyRes.json();
+                          toast.error(data.error || 'Payment verification failed');
+                        }
+                      },
+                      prefill: {
+                        name: typedUser?.name || '',
+                        email: typedUser?.email || '',
+                        contact: typedUser?.phone || ''
+                      },
+                      theme: { color: '#10B981' }
+                    };
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                  }}
+                  className="w-full py-3 rounded-lg bg-emerald-600 text-white font-semibold text-lg mb-3 hover:bg-emerald-700 transition"
+                >
+                  Buy Now @299/-
+                </button>
+                <button
+                  onClick={() => setShowPaidModal(false)}
+                  className="w-full py-2 rounded-lg text-gray-500 border border-gray-200"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -458,12 +545,10 @@ const changeTab = (tab) => {
                           </div>
                           <button
                             onClick={() => {
-                              // require auth or show paid modal
-                              const ok = requireAuthOrModal(() => {
+                              requirePaywallOrAction('quiz', () => {
                                 setOpen(true);
                                 loadQuiz();
                               });
-                              if (!ok) return;
                             }}
                             className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                           >
@@ -486,7 +571,8 @@ const changeTab = (tab) => {
                     {courses.map((course, index) => {
                       const buttonConfig = getButtonContent();
                       return (
-                        <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105" onClick={buttonConfig.onClick}>
+                        <div key={index} className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105" onClick={() => requirePaywallOrAction('course', buttonConfig.onClick)}
+                              >
                           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 h-40 flex items-center justify-center text-8xl">
                             {course.image}
                           </div>
@@ -522,10 +608,7 @@ const changeTab = (tab) => {
                               <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
                               <button 
                                 className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
-                                onClick={() => {
-                                  // require auth or show paid modal
-                                  requireAuthOrModal(() => buttonConfig.onClick());
-                                }}
+                                onClick={() => requirePaywallOrAction('course',buttonConfig.onClick)}
                               >
                                 {buttonConfig.icon}
                                 {buttonConfig.text}
@@ -565,7 +648,7 @@ const changeTab = (tab) => {
           key={product.id}
           className="bg-white rounded-2xl overflow-hidden border border-gray-200
                      hover:shadow-xl transition-all duration-300 hover:scale-105"
-                     onClick={() => router.push(`/product/${product.id}`)}
+                      onClick={() => requirePaywallOrAction('consultation', () => router.push(`/product/${product.id}`))}
         >
           {/* Image */}
           <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
@@ -602,7 +685,7 @@ const changeTab = (tab) => {
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <button
-                onClick={() => router.push(`/product/${product.id}`)}
+                                onClick={() => requirePaywallOrAction('consultation', () => router.push(`/product/${product.id}`))}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg
                            font-semibold hover:bg-emerald-700 transition-all
                            flex items-center gap-2"

@@ -88,12 +88,7 @@ function SignupForm() {
   };
 
   const handleSignup = async () => {
-    if (!token) {
-      setError(
-        "No invitation token found. Please use the invitation link provided by your administrator or HR."
-      );
-      return;
-    }
+    // Allow direct signup if no token
 
   // Terms check
   if (!formData.terms) {
@@ -177,62 +172,8 @@ function SignupForm() {
 };
 
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-emerald-950 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Smooth animated background */}
-        <div className="absolute inset-0 overflow-hidden opacity-40">
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-600/30 rounded-full blur-3xl animate-float-slow"></div>
-          <div className="absolute top-1/2 -right-40 w-96 h-96 bg-green-600/25 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '3s' }}></div>
-          <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl animate-float-slow" style={{ animationDelay: '6s' }}></div>
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.02)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
-        </div>
-
-        <style jsx>{`
-          @keyframes float-slow {
-            0%, 100% { transform: translate(0, 0); }
-            33% { transform: translate(30px, -30px); }
-            66% { transform: translate(-20px, 20px); }
-          }
-          .animate-float-slow {
-            animation: float-slow 20s ease-in-out infinite;
-          }
-        `}</style>
-
-        <div className="w-full max-w-md text-center relative z-10">
-          <div className="inline-flex items-center justify-center mb-6">
-            <Image
-              src="/logo.png"
-              alt="FitPlay Logo"
-              width={100}
-              height={100}
-              className="rounded-xl object-contain"
-              priority
-            />
-          </div>
-          <Card className="bg-slate-900/70 backdrop-blur-xl border border-emerald-500/20 shadow-2xl">
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">
-                Invitation Required
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                FitPlay is an invite-only corporate wellness platform. Please use the invitation link provided by your company administrator or HR manager to create your account.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Button 
-                asChild 
-                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold rounded-lg"
-              >
-                <Link href="/login">Go to Login</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // If no token, allow direct signup for non-company users
+  // Show normal signup form
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-950 to-emerald-950 flex items-center justify-center p-4 relative overflow-hidden">

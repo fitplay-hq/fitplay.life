@@ -8,6 +8,7 @@ import { useUser } from '@/app/hooks/useUser';
 import  ConnectShopifyPage from '../components/vendor/vendor'
 import { useProducts } from "@/app/hooks/useProducts";
 import { toast } from 'sonner';
+import ProductCard from '../components/ProductCard';
 
 const STORAGE_KEY = "gut-course-progress-v";
 const ENROLLMENT_KEY = "gut-course-enrollmen";
@@ -342,37 +343,140 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
   </button>
 
       {(!isAuthenticated) ? (
-        <div className="p-8">
-          
-          {/* Icon */}
-          <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center mb-5">
-            <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
+        <div className="relative p-10 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] overflow-hidden">
 
-          
+  {/* Soft Gradient Glow */}
+  <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-emerald-300/30 to-teal-400/20 rounded-full blur-3xl" />
+  <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-gradient-to-tr from-teal-200/40 to-emerald-200/20 rounded-full blur-3xl" />
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">Sign in to continue</h3>
-          <p className="text-[15px]  text-gray-500 mb-7 leading-relaxed">
-            Part of a company or Have a Account? Sign in with your credentials. Individual? Create a free account to get started.
-          </p>
+  {/* Floating Icon */}
+  <div className="relative w-18 h-18 mb-8 animate-[float_4s_ease-in-out_infinite]">
+    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl shadow-emerald-300/40" />
+    <div className="relative w-18 h-18 flex items-center justify-center">
+      <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+    </div>
+  </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setShowPaidModal(false); router.push('/login'); }}
-              className="flex-1 py-2.5 rounded-xl border border-emerald-200 bg-white text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors"
-            >
-              Sign in
-            </button>
-            <button
-              onClick={() => { setShowPaidModal(false); router.push('/signup'); }}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-sm hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md shadow-emerald-200"
-            >
-              Sign up
-            </button>
-          </div>
-        </div>
+  {/* Badge */}
+  <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full mb-4">
+    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+    Start Your Health Journey Today
+  </span>
+
+  {/* Heading */}
+  <h3 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
+    Sign in to continue
+  </h3>
+
+  {/* Subtext */}
+  <p className="text-sm  text-green-600 mb-10 leading-relaxed max-w-md">
+   Part of a company or an individual user with an existing account? Sign in to continue
+   
+  </p>
+  <p className="text-lg font-semibold text-green-900 mb-10 leading-relaxed max-w-md">Create your free account to get started.</p>
+
+  {/* Divider */}
+  <div className="flex items-center gap-4 mb-8">
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+    <span className="text-xs text-gray-400 font-medium tracking-wide">Choose an option</span>
+    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+  </div>
+
+  {/* Buttons */}
+  <div className="flex flex-col gap-4">
+
+    {/* Sign In */}
+    <button
+      className="group relative w-full py-4 rounded-2xl border border-emerald-200 bg-white text-emerald-600 font-semibold text-sm transition-all duration-300 hover:bg-emerald-500 hover:text-white hover:shadow-lg hover:shadow-emerald-300/40 active:scale-[0.97] overflow-hidden"
+    onClick={()=>{router.push("/login")}}
+    >
+
+      <span className="relative z-10 flex items-center justify-center gap-3">
+        <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <circle cx="12" cy="8" r="4" />
+          <path strokeLinecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+        </svg>
+      
+        Sign in
+      </span>
+    </button>
+
+    {/* Sign Up */}
+    <button
+      className="group relative w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-400/40 hover:-translate-y-1 active:scale-[0.97]"
+     onClick={()=>{router.push("/signup")}}>
+      <span className="flex items-center justify-center gap-3">
+        <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <circle cx="10" cy="8" r="4" />
+          <path strokeLinecap="round" d="M2 20c0-4 3.6-7 8-7s8 3 8 7" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 8v6M16 11h6" />
+        </svg>
+        Create free account
+      </span>
+    </button>
+
+  </div>
+
+  {/* Trust Indicators */}
+ <div className="relative mt-10 rounded-3xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 p-6 shadow-[0_10px_30px_rgba(16,185,129,0.08)]">
+
+  {/* Trust Indicators */}
+  <div className="flex justify-center gap-8 text-xs font-medium text-gray-600">
+
+    {/* Secure */}
+    <div className="flex items-center gap-2 group transition-all duration-300 hover:-translate-y-0.5 hover:text-emerald-600">
+      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+        <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      <span>Secure</span>
+    </div>
+
+    {/* Instant Access */}
+    <div className="flex items-center gap-2 group transition-all duration-300 hover:-translate-y-0.5 hover:text-emerald-600">
+      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+        <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <span>Instant Access</span>
+    </div>
+
+    {/* Free Signup */}
+    <div className="flex items-center gap-2 group transition-all duration-300 hover:-translate-y-0.5 hover:text-emerald-600">
+      <div className="w-6 h-6 flex items-center justify-center rounded-full bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
+        <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <span>Free Signup</span>
+    </div>
+
+  </div>
+
+  {/* Divider */}
+  <div className="my-6 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
+
+  {/* Footer */}
+  <p className="text-center text-xs text-gray-500 leading-relaxed">
+    By continuing, you agree to our{" "}
+    <span className="text-emerald-600 font-medium hover:underline cursor-pointer">
+      Terms
+    </span>{" "}
+    &{" "}
+    <span className="text-emerald-600 font-medium hover:underline cursor-pointer">
+      Privacy Policy
+    </span>
+  </p>
+
+</div>
+
+
+</div>
+
       ) : (
         <div className="p-8">
           {/* Header */}
@@ -785,58 +889,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
         <ProductCardSkeleton key={i} />
       ))
     : products.filter(product => product.name != "Expert Consultation").slice(0, 4).map((product) => (
-        <div
-          key={product.id}
-          className="bg-white rounded-2xl overflow-hidden border border-gray-200
-                     hover:shadow-xl transition-all duration-300 hover:scale-105"
-                     
-        >
-          {/* Image */}
-          <div className="relative h-auto bg-gradient-to-br from-emerald-100 to-teal-100">
-            <img
-              src={product.images?.[0] || "/placeholder.png"}
-              alt={product.name}
-              className="w-full h-full aspect-square "
-            />
-          </div>
-
-          {/* Content */}
-          <div className="p-5">
-            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
-              {product.name}
-            </h3>
-
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-              {product.description}
-            </p>
-
-            {product.avgRating && (
-              <div className="flex items-center gap-1 mb-4">
-                <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                <span className="text-sm font-medium text-gray-700">
-                  {product.avgRating}
-                </span>
-                {product.noOfReviews && (
-                  <span className="text-xs text-gray-500">
-                    ({product.noOfReviews})
-                  </span>
-                )}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-              <button
-                onClick={() => router.push(`/product/${product.id}`)}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg
-                           font-semibold hover:bg-emerald-700 transition-all
-                           flex items-center gap-2"
-              >
-                Add
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <ProductCard key={product.id} product={product} />
       ))}
 </div>
         </div>

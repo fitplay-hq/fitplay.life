@@ -33,7 +33,7 @@ function SimpleAnimatedHeading() {
 
   return (
     <h1
-      className={`text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800
+      className={`text-3xl sm:text-4xl md:text-5xl mt-4 font-bold text-emerald-800
         transition-opacity duration-1000
         ${visible ? "opacity-100" : "opacity-0"}
       `}
@@ -448,7 +448,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
         <div className="max-w-7xl w-full mx-auto  mb-12">
           
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 md:rounded-3xl rounded-xl p-8 sm:p-12 lg:p-16 shadow-xl border border-emerald-100">
-           <div className="flex flex-col sm:flex-row items-center md:gap-2 md:-mt-12 -mt-8">
+           <div className="flex flex-col sm:flex-row items-center md:gap-2 md:-mt-8 -mt-8">
   <p className="text-sm sm:text-sm md:text-sm font-bold text-emerald-700 md:mb-2">
     Powered By 
   </p>

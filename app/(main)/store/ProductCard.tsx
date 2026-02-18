@@ -72,7 +72,7 @@ export default function ProductCard({
             <ImageWithFallback
               src={product.images[0] || "/placeholder.png"}
               alt={product.name}
-              className="object-cover absolute w-full h-full"
+              className="aspect-square absolute w-full h-full"
             />
             {/* {product.discount && (
               <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-md">

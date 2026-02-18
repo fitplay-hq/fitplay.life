@@ -785,7 +785,7 @@ h-auto lg:h-[440px]"
                         >
                           {/* Image Container */}
                           <div
-                            className="relative overflow-hidden bg-gray-50 h-44 sm:h-52 lg:h-[220px]"
+                            className="relative overflow-hidden bg-gray-50 aspect-square"
 
                           >
                             <ImageWithFallback

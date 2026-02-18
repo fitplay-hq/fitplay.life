@@ -274,13 +274,14 @@ export default function ProductPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Product Images */}
         <div className="space-y-3">
-          <div className="aspect-[4/5] sm:aspect-square bg-gray-100 border border-gray-200">
-            <ImageWithFallback
-              src={product?.images?.[selectedImage] || ''}
-              alt={product?.name || 'Product'}
-              className="w-full h-full object-cover"
-            />
-          </div>
+        <div className="aspect-square border border-gray-200 overflow-hidden">
+  <ImageWithFallback
+    src={product?.images?.[selectedImage] || ''}
+    alt={product?.name || 'Product'}
+    className="w-full h-auto object-cover"
+  />
+</div>
+
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {(product?.images || []).map((image, index) => (
               <button
@@ -295,7 +296,7 @@ export default function ProductPage({
                 <ImageWithFallback
                   src={image}
                   alt={`${product?.name || 'Product'} view ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="aspect-square bg-gray-100"
                 />
               </button>
             ))}

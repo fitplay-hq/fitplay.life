@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
                         <!-- Footer -->
                         <div style="background-color: #F9FAFB; padding: 30px; text-align: center; border-top: 1px solid #E5E7EB;">
                             <p style="font-size: 14px; color: #6B7280; margin: 0 0 10px 0;">
-                                Need help? Contact us at <a href="mailto:support@fitplay.life" style="color: #059669;">support@fitplay.life</a>
+                                Need help? Contact us at <a href="mailto:contact@fitplay.life" style="color: #059669;">contact@fitplay.life</a>
                             </p>
                             <p style="font-size: 12px; color: #9CA3AF; margin: 0;">
                                 © 2024 FitPlay.life - Your Health & Wellness Partner<br>

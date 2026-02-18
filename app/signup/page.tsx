@@ -483,7 +483,7 @@ function SignupForm() {
                 <div className="text-center">
                   <p className="text-sm text-gray-400">
                     Having trouble?{" "}
-                    <a href="mailto:support@fitplay.life" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
+                    <a href="mailto:contact@fitplay.life" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
                       Contact Support
                     </a>
                   </p>

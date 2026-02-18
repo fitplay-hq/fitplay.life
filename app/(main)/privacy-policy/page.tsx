@@ -167,7 +167,7 @@ export default function PrivacyPolicyPage() {
                   For any questions regarding this Privacy Policy, contact us at:
                 </p>
                 <p className="text-emerald-600 font-medium mt-2">
-                  📧 support@fitplay.life
+                  📧 contact@fitplay.life
                 </p>
               </section>
             </div>

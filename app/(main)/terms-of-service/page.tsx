@@ -146,7 +146,7 @@ export default function TermsOfServicePage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact</h2>
                 <p className="text-emerald-600 font-medium">
-                  📧 support@fitplay.life
+                  📧 contact@fitplay.life
                 </p>
               </section>
             </div>

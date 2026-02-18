@@ -121,7 +121,7 @@ export default function RefundPolicyPage() {
                   For refund or cancellation requests, contact:
                 </p>
                 <p className="text-emerald-600 font-medium mt-2">
-                  📧 support@fitplay.life
+                  📧 contact@fitplay.life
                 </p>
               </section>
             </div>

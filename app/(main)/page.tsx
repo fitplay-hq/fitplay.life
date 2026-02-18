@@ -176,7 +176,7 @@ const changeTab = (tab: string) => {
 
   const [open, setOpen] = useState(false);
   const [showPaidModal, setShowPaidModal] = useState(false);
-  const [paywallType, setPaywallType] = useState<"quiz" | "course" | "consultation" | null>(null); // 'quiz' | 'course' | 'consultation'
+  const [paywallType, setPaywallType] = useState<"quiz" | "course" | "consultation" |"start"| null>(null); // 'quiz' | 'course' | 'consultation'
   // Helper: is user a company user
   // Extend user type to include hasPaidBundle and phone
   // User type for paywall logic
@@ -617,7 +617,12 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                   Your personalized journey to optimal digestive wellness starts here. Expert guidance, proven methods, lasting results.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <button className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                  <button className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300" onClick={() => {
+                              requirePaywallOrAction('start', () => {
+                                 document.getElementById("module")?.scrollIntoView({
+                                   behavior: "smooth",})
+                              });
+                            }}>
                     Get Started 
                   </button>
                   <button className="px-8 py-4 bg-white text-emerald-700 rounded-xl font-semibold shadow-md hover:shadow-lg border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300">
@@ -639,7 +644,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto mb-16">
+        <div className="max-w-7xl mx-auto mb-16" id='module'>
           <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
               <button

@@ -325,123 +325,168 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
         </div>
       )}
 
-      {showPaidModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60">
-          <div className="bg-white max-w-md w-full rounded-xl p-6 shadow-2xl">
-            {(!isAuthenticated) ? (
-              <>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Access requires sign-in</h3>
-                <p className="text-sm text-gray-600 mb-4">If you're part of a company, please sign in. Otherwise, sign up as an individual to access the platform.</p>
-                <div className="flex gap-3 mt-2">
-                  <button
-                    onClick={() => { setShowPaidModal(false); router.push('/login'); }}
-                    className="flex-1 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 font-semibold"
-                  >
-                    Sign in
-                  </button>
-                  <button
-                    onClick={() => { setShowPaidModal(false); router.push('/signup'); }}
-                    className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold"
-                  >
-                    Sign up
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Unlock Wellness Starter Bundle</h3>
-                <ul className="text-gray-700 text-sm mb-4 list-disc pl-5">
-                  <li>Gut Health Assessment</li>
-                  <li>Gut Health Masterclass</li>
-                  <li>1:1 Expert Consultation</li>
-                </ul>
-                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mb-4">
-                  <span className="font-semibold text-emerald-700">Buy Now @299/-</span>
-                  <span className="ml-2 text-gray-500">(One-time access fee)</span>
-                </div>
-                <button
-                  onClick={async () => {
-                    // Load Razorpay script if not loaded
-                   
-                      const script = document.createElement('script');
-                      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-                      script.async = true;
-                      document.body.appendChild(script);
-                      await new Promise((resolve) => { script.onload = resolve; });
-                    
-                    // Create order on backend
-                    const orderRes = await fetch('/api/payments/create-order', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ amount: 299, isCash: true })
-                    });
-                    const orderData = await orderRes.json();
-                    console.log(orderData)
-                    if (!orderData?.key) {
-  toast.error("failed to create payment order")
-     
-      return;
-    }
+    {showPaidModal && (
+  <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="relative bg-white max-w-md w-full mx-4 rounded-2xl shadow-2xl overflow-hidden">
+      
+      {/* Top accent bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-600" />
 
-      console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
-                    const options = {
-                    
-                      key: orderData.key,
-                      amount: 29900,
-                      currency: 'INR',
-                      name: 'FitPlay Life',
-                      description: 'Wellness Starter Bundle',
-                      order_id: orderData.razorpayOrderId,
-                      handler: async function (response: any) {
-                        // Call backend to verify and unlock bundle for user
-                        console.log("RAZORPAY FULL RESPONSE:", response);
-                        const verifyRes = await fetch('/api/payments/verify-guest', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_signature: response.razorpay_signature,
-                            bundle: true
-                          })
-                        });
-                       if (verifyRes.ok) {
-  toast.success('Payment successful! Access unlocked.');
+        <button
+    onClick={() => setShowPaidModal(false)}
+    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors z-10"
+  >
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
 
-  await refreshSession();  
-  setShowPaidModal(false);
-}
- else {
-                          const data = await verifyRes.json();
-                          toast.error(data.error || 'Payment verification failed');
-                        }
-                      },
-                      prefill: {
-                        name: typedUser?.name || '',
-                        email: typedUser?.email || '',
-                        contact: typedUser?.phone || ''
-                      },
-                      theme: { color: '#10B981' }
-                    };
-                    const rzp = new window.Razorpay(options);
-                    rzp.open();
-                  }}
-                  className="w-full py-3 rounded-lg bg-emerald-600 text-white font-semibold text-lg mb-3 hover:bg-emerald-700 transition"
-                >
-                  Buy Now @299/-
-                </button>
-                <button
-                  onClick={() => setShowPaidModal(false)}
-                  className="w-full py-2 rounded-lg text-gray-500 border border-gray-200"
-                >
-                  Cancel
-                </button>
-              </>
-            )}
+      {(!isAuthenticated) ? (
+        <div className="p-8">
+          
+          {/* Icon */}
+          <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center mb-5">
+            <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+
+          
+
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">Sign in to continue</h3>
+          <p className="text-[15px]  text-gray-500 mb-7 leading-relaxed">
+            Part of a company or Have a Account? Sign in with your credentials. Individual? Create a free account to get started.
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => { setShowPaidModal(false); router.push('/login'); }}
+              className="flex-1 py-2.5 rounded-xl border border-emerald-200 bg-white text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors"
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => { setShowPaidModal(false); router.push('/signup'); }}
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-sm hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md shadow-emerald-200"
+            >
+              Sign up
+            </button>
           </div>
         </div>
-      )}
+      ) : (
+        <div className="p-8">
+          {/* Header */}
+          <div className="mb-6">
+            <span className="inline-block text-xs font-semibold tracking-widest text-emerald-600 uppercase mb-2">Exclusive Bundle</span>
+            <h3 className="text-2xl font-bold text-gray-900 leading-tight">Wellness Starter Bundle</h3>
+          </div>
 
+          {/* What's included */}
+          <div className="space-y-3 mb-6">
+            {[
+              { icon: '🧬', label: 'Gut Health Assessment' },
+              { icon: '🎓', label: 'Gut Health Masterclass' },
+              { icon: '👨‍⚕️', label: '1:1 Expert Consultation' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center text-base shrink-0">
+                  {item.icon}
+                </div>
+                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                <div className="ml-auto">
+                  <svg className="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Price block */}
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">One-time access fee</p>
+              <p className="text-2xl font-bold text-gray-900">₹299 <span className="text-sm font-normal text-gray-400 line-through">₹999</span></p>
+            </div>
+            <span className="bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">70% OFF</span>
+          </div>
+
+          {/* CTA */}
+          <button
+            onClick={async () => {
+              const script = document.createElement('script');
+              script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+              script.async = true;
+              document.body.appendChild(script);
+              await new Promise((resolve) => { script.onload = resolve; });
+
+              const orderRes = await fetch('/api/payments/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 299, isCash: true })
+              });
+              const orderData = await orderRes.json();
+              console.log(orderData);
+              if (!orderData?.key) {
+                toast.error("failed to create payment order");
+                return;
+              }
+
+              console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+              const options = {
+                key: orderData.key,
+                amount: 29900,
+                currency: 'INR',
+                name: 'FitPlay Life',
+                description: 'Wellness Starter Bundle',
+                order_id: orderData.razorpayOrderId,
+                handler: async function (response: any) {
+                  console.log("RAZORPAY FULL RESPONSE:", response);
+                  const verifyRes = await fetch('/api/payments/verify-guest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      razorpay_payment_id: response.razorpay_payment_id,
+                      razorpay_order_id: response.razorpay_order_id,
+                      razorpay_signature: response.razorpay_signature,
+                      bundle: true
+                    })
+                  });
+                  if (verifyRes.ok) {
+                    toast.success('Payment successful! Access unlocked.');
+                    await refreshSession();
+                    setShowPaidModal(false);
+                  } else {
+                    const data = await verifyRes.json();
+                    toast.error(data.error || 'Payment verification failed');
+                  }
+                },
+                prefill: {
+                  name: typedUser?.name || '',
+                  email: typedUser?.email || '',
+                  contact: typedUser?.phone || ''
+                },
+                theme: { color: '#10B981' }
+              };
+              const rzp = new window.Razorpay(options);
+              rzp.open();
+            }}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 mb-3"
+          >
+            Unlock Now — ₹299 only
+          </button>
+
+          <button
+            onClick={() => setShowPaidModal(false)}
+            className="w-full py-2.5 rounded-xl text-gray-400 text-sm hover:text-gray-600 transition-colors"
+          >
+            Maybe later
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
       <div className="h-24 " />
 
       <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
@@ -651,11 +696,11 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                       onClick={() => requirePaywallOrAction('consultation', () => router.push(`/product/${product.id}`))}
         >
           {/* Image */}
-          <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
+          <div className="relative h-auto bg-gradient-to-br from-emerald-100 to-teal-100">
             <img
               src={product.images?.[0] || "/placeholder.png"}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full aspect-square object-cover"
             />
           </div>
 
@@ -747,11 +792,11 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                      
         >
           {/* Image */}
-          <div className="relative h-48 bg-gradient-to-br from-emerald-100 to-teal-100">
+          <div className="relative h-auto bg-gradient-to-br from-emerald-100 to-teal-100">
             <img
               src={product.images?.[0] || "/placeholder.png"}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full aspect-square "
             />
           </div>
 

@@ -14,7 +14,18 @@ export async function GET() {
       select: { 
         id: true, 
         name: true, 
-        address: true 
+        address: true ,
+         users: {
+      select: {
+        id: true,
+        name: true,
+        wallet: {
+          select: {
+            balance: true,
+          },
+        },
+      },
+    },
       }
     });
     return NextResponse.json({ companies });

@@ -1166,7 +1166,6 @@ import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Shared modal class — 80vw × 80vh, no overflow on the modal itself
 const MODAL_CLS =
   "w-[80vw] h-[80vh] max-w-none bg-white overflow-hidden flex flex-col p-0";
 
@@ -1216,6 +1215,7 @@ function EmployeesDrawer({ company, users, open, onOpenChange, mutateAll }: any)
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 w-[18%]">Phone</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 w-[14%]">Role</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 w-[14%]">Status</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 w-[14%]">Wallet</th>
                   <th className="text-right px-4 py-3 font-semibold text-gray-600 w-[6%]"></th>
                 </tr>
               </thead>
@@ -1234,6 +1234,7 @@ function EmployeesDrawer({ company, users, open, onOpenChange, mutateAll }: any)
                           {u.verified ? "Verified" : "Unverified"}
                         </Badge>
                       </td>
+                      <td className="px-4 py-3 text-gray-600 truncate">{u.wallet?.balance || "0"}</td>
                       <td className="px-4 py-3 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -1975,6 +1976,7 @@ export default function CompaniesManagementPage() {
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Employees</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[8%]">HRs</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Orders</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Credits</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Products</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[5%]">Actions</th>
                  
@@ -1985,6 +1987,12 @@ export default function CompaniesManagementPage() {
                 {filtered.length > 0 ? (
                   filtered.map((company: any) => {
                     const m = companyMetrics(company);
+                     const totalCredits = company.users.reduce(
+    (sum, user) => sum + (user.wallet?.balance || 0),
+    0
+  );
+
+                     
                     return (
                       <tr key={company.id} className="border-b last:border-0 hover:bg-gray-50">
                         <td className="px-6 py-4">
@@ -1999,6 +2007,8 @@ export default function CompaniesManagementPage() {
                         <td className="px-4 py-4 text-center"><Badge variant="secondary">{m.employees}</Badge></td>
                         <td className="px-4 py-4 text-center"><Badge variant="secondary">{m.hrCount}</Badge></td>
                         <td className="px-4 py-4 text-center"><Badge variant="outline">{m.orders}</Badge></td>
+                           <td className="px-4 py-4 text-center"><Badge variant="outline">{totalCredits}</Badge></td>
+
                         <td className="px-4 py-4 text-center"><Badge variant="secondary">{m.products}</Badge></td>
                         
                         <td className="px-6 py-4 text-right">

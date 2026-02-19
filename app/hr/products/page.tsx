@@ -114,7 +114,7 @@ const companyId = user?.companyId;
 
  const updateProductVisibility = async (productId: string, visible: boolean) => {
   try {
-    const response = await fetch("/api/prod-visibility", {
+    const response = await fetch("/api/prod-visiblity", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -477,7 +477,8 @@ const filteredProducts = products.filter(product => {
       {viewMode === "card" && (
         <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-6">
           {filteredProducts.map((product) => {
-            const isVisible = (product?.companies || []).length > 0;
+             const isVisible =
+  product?.companies?.some(c => c.id === companyId) ?? false;
             const creditRange = getCreditRange(product);
             
             return (

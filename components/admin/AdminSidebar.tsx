@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import { Briefcase } from "lucide-react";
+import { Building } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -66,6 +67,12 @@ const adminNavItems = [
     title: "Clients",
     url: "/admin/client",
     icon: Briefcase,
+
+  },
+  {
+    title: "Company",
+    url : "/admin/companies",
+    icon: Building,
 
   },
   {

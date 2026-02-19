@@ -62,15 +62,22 @@ export async function GET(req: NextRequest) {
                     [safeSortBy]: safeSortOrder,
                 },
                 include: {
-                    variants: true,
-                    vendor: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    category: true,
-                    subCategory: true,
-                },
+    variants: true,
+    vendor: {
+        select: {
+            name: true,
+        },
+    },
+    category: true,
+    subCategory: true,
+    companies: {
+        select: {
+            id: true,
+            name: true,
+        },
+    },
+},
+
             });
         } else if (session.user.role === "EMPLOYEE") {
             const companyId = await prisma.user
@@ -104,15 +111,22 @@ export async function GET(req: NextRequest) {
                     [safeSortBy]: safeSortOrder,
                 },
                 include: {
-                    variants: true,
-                    vendor: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    category: true,
-                    subCategory: true,
-                },
+    variants: true,
+    vendor: {
+        select: {
+            name: true,
+        },
+    },
+    category: true,
+    subCategory: true,
+    companies: {
+        select: {
+            id: true,
+            name: true,
+        },
+    },
+},
+
             });
         } }
         else if (session.user.role === "HR") {

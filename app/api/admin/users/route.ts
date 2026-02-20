@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
       address: address || null,
       verified: true, // Admin-created users are automatically verified
       isDemo: isDemo || false,
+     hasPaidBundle: isDemo ? true : false, 
     };
 
     // Create user and wallet atomically, with 10,000 credits for demo users

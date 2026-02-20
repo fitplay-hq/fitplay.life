@@ -177,7 +177,7 @@ export default function CartPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         
-        amount: totalCredits * 0.5, 
+        amount: totalCredits , 
         isCash: true,
       }),
     });
@@ -771,7 +771,7 @@ export default function CartPage() {
           <div className="mt-2 pt-2 border-t border-white/20">
             <div className="flex justify-between items-center">
               <span className="text-white/70 text-lg font-bold">or in INR</span>
-              <span className="text-lg font-bold text-white">₹{totalCredits * 0.5}</span>
+              <span className="text-lg font-bold text-white">₹{totalCredits }</span>
             </div>
           </div>
         </div>
@@ -1087,7 +1087,7 @@ export default function CartPage() {
               <div className="mt-2 pt-2 border-t border-white/20">
                 <div className="flex justify-between items-center">
                   <span className="text-white/70 text-lg font-bold">or in INR</span>
-                  <span className="text-lg font-bold text-white">₹{totalCredits * 0.5}</span>
+                  <span className="text-lg font-bold text-white">₹{totalCredits }</span>
                 </div>
               </div>
             </div>
@@ -1115,7 +1115,7 @@ export default function CartPage() {
               {/* INR */}
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">INR Value</span>
-                <span className="font-semibold text-gray-900">₹{totalCredits * 0.5}</span>
+                <span className="font-semibold text-gray-900">₹{totalCredits }</span>
               </div>
             </div>
 
@@ -1219,12 +1219,12 @@ export default function CartPage() {
               )}
               {!isDemo && (
                 <p className="text-sm text-gray-600 mt-1">
-                  Pay with  UPI / Netbanking / Cards • 1 Credit = ₹0.5
+                  Pay with  UPI / Netbanking / Cards • 1 Credit = ₹1
                 </p>
               )}
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-gray-900">₹{totalCredits * 0.5}</div>
+              <div className="text-lg font-bold text-gray-900">₹{totalCredits }</div>
               <div className="text-xs text-gray-500">INR</div>
             </div>
           </label>
@@ -1284,7 +1284,7 @@ export default function CartPage() {
           <div className="text-white/80 text-xs font-medium mb-1">Total Amount</div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-white">
-              {paymentMethod === "credits" ? totalCredits : paymentMethod === "cash" ? `₹${totalCredits * 0.5}` : "—"}
+              {paymentMethod === "credits" ? totalCredits : paymentMethod === "cash" ? `₹${totalCredits }` : "—"}
             </span>
             <span className="text-sm text-white/70">
               {paymentMethod === "credits" ? "credits" : paymentMethod === "cash" ? "INR" : ""}
@@ -1315,7 +1315,7 @@ export default function CartPage() {
           {/* INR */}
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-600">INR Value</span>
-            <span className="font-semibold text-gray-900">₹{totalCredits * 0.5}</span>
+            <span className="font-semibold text-gray-900">₹{totalCredits }</span>
           </div>
 
           <div className="h-px bg-gray-100"></div>

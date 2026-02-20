@@ -614,28 +614,8 @@ const [creatingCompany, setCreatingCompany] = useState(false);
                     placeholder="Enter password"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="demo-gender">Gender</Label>
-                  <Select value={demoUserForm.gender} onValueChange={(value) => setDemoUserForm({ ...demoUserForm, gender: value })}>
-                    <SelectTrigger id="demo-gender">
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='MALE'>Male</SelectItem>
-                      <SelectItem value='FEMALE'>Female</SelectItem>
-                      <SelectItem value='OTHER'>Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="demo-address">Address</Label>
-                  <Input
-                    id="demo-address"
-                    value={demoUserForm.address}
-                    onChange={(e) => setDemoUserForm({ ...demoUserForm, address: e.target.value })}
-                    placeholder="Enter address"
-                  />
-                </div>
+               
+                
                 <div className="flex gap-2 pt-4">
                   <Button 
                     onClick={handleAddDemoUser} 

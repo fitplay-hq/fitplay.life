@@ -625,7 +625,11 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                             }}>
                     Get Started 
                   </button>
-                  <button className="px-8 py-4 bg-white text-emerald-700 rounded-xl font-semibold shadow-md hover:shadow-lg border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300">
+                  <button className="px-8 py-4 bg-white text-emerald-700 rounded-xl font-semibold shadow-md hover:shadow-lg border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300" 
+                  onClick={()=>{document.getElementById("module")?.scrollIntoView({
+                                   behavior: "smooth",})}}
+                                  >
+                            
                     Learn More
                   </button>
                 </div>

@@ -466,7 +466,7 @@ interface CreditPurchaseProps {
 }
 
 const PACKS = [500, 1000, 2000];
-const CREDIT_RATE = 2; // ₹1 = 2 credits
+const CREDIT_RATE = 1; // ₹1 = 2 credits
 
 export function CreditPurchase({
   currentCredits,
@@ -596,7 +596,7 @@ export function CreditPurchase({
 
       {/* Conversion */}
       <div className="rounded-lg bg-emerald-100 text-emerald-800 text-sm px-3 py-2">
-        💡 Conversion Rate: <strong>₹1 = 2 credits</strong>
+        💡 Conversion Rate: <strong>₹1 = 1 credits</strong>
       </div>
 
       {/* Preset Packs */}

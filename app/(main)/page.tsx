@@ -802,7 +802,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
           key={product.id}
           className="bg-white rounded-2xl overflow-hidden border border-gray-200
                      hover:shadow-xl transition-all duration-300 hover:scale-105"
-                      onClick={() => requirePaywallOrAction('consultation', () => router.push(`/product/${product.id}`))}
+                      onClick={() => requirePaywallOrAction('consultation', () => window.open('https://app.cowlendar.com/cal/6997d577da5ca6374f480b5f/45751491854509', '_blank'))}
         >
           {/* Image */}
           <div className="relative h-auto bg-gradient-to-br from-emerald-100 to-teal-100">

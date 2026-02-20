@@ -839,7 +839,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <button
-                                onClick={() => requirePaywallOrAction('consultation', () => router.push(`/product/${product.id}`))}
+                                onClick={() => requirePaywallOrAction('consultation', () => window.open('https://app.cowlendar.com/cal/6997d577da5ca6374f480b5f/45751491854509', '_blank'))}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg
                            font-semibold hover:bg-emerald-700 transition-all
                            flex items-center gap-2"

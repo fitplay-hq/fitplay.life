@@ -49,6 +49,7 @@ export const authOptions: NextAuthOptions = {
   id: user.id,
   name: user.name,
   email: user.email,
+  phone: user.phone,
   role: user.role,
   companyId: user.companyId,
   isDemo: user.isDemo,
@@ -86,6 +87,7 @@ export const authOptions: NextAuthOptions = {
     token.email = user.email;
     token.role = (user as any).role;
     token.isDemo = (user as any).isDemo || false;
+    token.phone = (user as any).phone || null;
 
     token.companyId = (user as any).companyId || null;   // 🔥 ADD
     token.hasPaidBundle = (user as any).hasPaidBundle || false; // 🔥 ADD
@@ -97,6 +99,7 @@ export const authOptions: NextAuthOptions = {
       select: {
         hasPaidBundle: true,
         companyId: true,
+        phone: true,
       },
     });
 
@@ -115,6 +118,7 @@ export const authOptions: NextAuthOptions = {
       name: token.name as string,
       email: token.email as string,
       role: token.role as UserRole,
+      phone: (token as any).phone || null,
       isDemo: (token as any).isDemo || false,
 
       companyId: (token as any).companyId || null,   // 🔥 ADD

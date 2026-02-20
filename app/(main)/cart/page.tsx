@@ -164,6 +164,9 @@ export default function CartPage() {
 
     setIsProcessing(true);
 
+    console.log("SESSION:", session);
+console.log("PHONE:", session?.user?.phone);
+
     const loaded: any = await loadRazorpay();
     if (!loaded) {
       console.log("not loaded");
@@ -255,7 +258,8 @@ export default function CartPage() {
           description: "Your order has been placed and will be processed soon.",
           duration: 3000,
         });
-
+       
+        
         // Store complete order details for confirmation page
 
         setCashOrderDetails({
@@ -278,6 +282,11 @@ export default function CartPage() {
     catch (error) {
       toast.error("An error occurred during payment verification.");
     }
+    },
+    prefill : {
+      name: session?.user?.name || "",
+      email: session?.user?.email || "",
+      contact: session?.user?.phone || "",
     },
     theme: { color: "#10B981" },
   };

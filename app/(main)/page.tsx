@@ -535,6 +535,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                 toast.error("failed to create payment order");
                 return;
               }
+              console.log("typed user:", typedUser);
 
               console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
               const options = {
@@ -556,6 +557,7 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                       bundle: true
                     })
                   });
+                  
                   if (verifyRes.ok) {
                     toast.success('Payment successful! Access unlocked.');
                     await refreshSession();

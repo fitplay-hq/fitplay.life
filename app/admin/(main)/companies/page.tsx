@@ -1877,6 +1877,31 @@ export default function CompaniesManagementPage() {
     }
   };
 
+const handlebundletoggle = async (companyId: string, Bundletoggle: boolean) => {
+  try {
+    const res = await fetch("/api/companies/company/bundle-access", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyId,
+        Bundletoggle,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to update bundle access");
+    }
+
+    toast.success("Bundle access updated successfully");
+
+   
+    mutate("/api/companies");
+
+  } catch (error) {
+    toast.error("Failed to turn on/off the bundle");
+  }
+};
+
   const handleDeleteCompany = async (id: string) => {
     if (!confirm("Are you sure you want to delete this company?")) return;
     try {
@@ -1967,18 +1992,19 @@ export default function CompaniesManagementPage() {
       {/* Companies Table */}
       <Card>
         <CardContent className="p-0">
-          <div className="w-full">
-            <table className="w-full table-fixed text-sm">
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-[900px] w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="text-left px-6 py-3 font-semibold text-gray-600 w-[22%]">Company Name</th>
                   <th className="text-left px-6 py-3 font-semibold text-gray-600 w-[26%]">Address</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Employees</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[8%]">HRs</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Orders</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Credits</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[10%]">Products</th>
-                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[5%]">Actions</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[5%]">Orders</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[5%]">Credits</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[5%]">Products</th>
+                   <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[7%]">Bundle Toggle</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-600 w-[8%]">Actions</th>
                  
                   
                 </tr>
@@ -1987,6 +2013,7 @@ export default function CompaniesManagementPage() {
                 {filtered.length > 0 ? (
                   filtered.map((company: any) => {
                     const m = companyMetrics(company);
+                    console.log(company)
                      const totalCredits = company.users.reduce(
     (sum, user) => sum + (user.wallet?.balance || 0),
     0
@@ -2010,6 +2037,26 @@ export default function CompaniesManagementPage() {
                            <td className="px-4 py-4 text-center"><Badge variant="outline">{totalCredits}</Badge></td>
 
                         <td className="px-4 py-4 text-center"><Badge variant="secondary">{m.products}</Badge></td>
+                         <td className="px-4 py-2 text-right">
+                          <button
+                            onClick={() =>
+                            {handlebundletoggle(company.id,!company.hasWellnessStarterBundle)}
+                            }
+                            style={{ width: "44px" }}
+                            className={`relative inline-flex h-6 items-center rounded-full border-2 transition-all duration-200 ${
+                              company.hasWellnessStarterBundle
+                                ? "bg-emerald-600 border-emerald-700"
+                                : "bg-gray-300 border-gray-400"
+                            }`}
+                          >
+                            <span className="sr-only">Toggle</span>
+                            <span
+                              className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${
+                                company.hasWellnessStarterBundle ? "translate-x-8" : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </td>
                         
                         <td className="px-6 py-4 text-right">
                           <DropdownMenu>

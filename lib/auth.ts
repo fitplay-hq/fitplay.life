@@ -35,7 +35,15 @@ export const authOptions: NextAuthOptions = {
         }
 
         // 2. Check User (HR / Employee)
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } ,
+          include: {
+            company : {
+              select: {
+                hasWellnessStarterBundle :true
+              }
+            }
+          }
+        });
         if (user) {
           const isValid = await compare(credentials.password, user.password);
           if (!isValid) throw new Error("Invalid password");
@@ -44,6 +52,8 @@ export const authOptions: NextAuthOptions = {
           if (!user.verified) {
             throw new Error("Please verify your email first. Check your inbox for verification link.");
           }
+
+
           
          return {
   id: user.id,
@@ -54,6 +64,7 @@ export const authOptions: NextAuthOptions = {
   companyId: user.companyId,
   isDemo: user.isDemo,
   hasPaidBundle: user.hasPaidBundle, 
+  hasWellnessStarterBundle : user.company?.hasWellnessStarterBundle
 };
 
         }
@@ -91,21 +102,28 @@ export const authOptions: NextAuthOptions = {
 
     token.companyId = (user as any).companyId || null;   // 🔥 ADD
     token.hasPaidBundle = (user as any).hasPaidBundle || false; // 🔥 ADD
+    token.hasWellnessStarterBundle = (user as any).hasWellnessStarterBundle || false; // 🔥 ADD
   }
 
   if (token?.id) {
     const freshUser = await prisma.user.findUnique({
-      where: { id: token.id as string },
+  where: { id: token.id as string
+    
+   },
+  include: {
+    
+    company: {
       select: {
-        hasPaidBundle: true,
-        companyId: true,
-        phone: true,
-      },
-    });
+        hasWellnessStarterBundle: true
+      }
+    }
+  }
+});
 
     if (freshUser) {
       token.hasPaidBundle = freshUser.hasPaidBundle;
       token.companyId = freshUser.companyId;
+      token.hasWellnessStarterBundle = freshUser.company?.hasWellnessStarterBundle || false;
     }
   }
   return token;
@@ -123,6 +141,7 @@ export const authOptions: NextAuthOptions = {
 
       companyId: (token as any).companyId || null,   // 🔥 ADD
       hasPaidBundle: (token as any).hasPaidBundle || false, // 🔥 ADD
+      hasWellnessStarterBundle: (token as any).hasWellnessStarterBundle || false, // 🔥 ADD
     };
   }
   return session;

@@ -406,7 +406,7 @@ export default function WellnessStore() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50">
       {/* Hero Header */}
-      <div className="relative  overflow-hidden pt-20">
+      <div className="relative  overflow-hidden p-3">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
 
         <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-3">

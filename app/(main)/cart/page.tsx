@@ -436,7 +436,7 @@ console.log("PHONE:", session?.user?.phone);
         </section>
 
         {/* Content Section */}
-        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-16">
+        <div className="min-h-screen -mt-4 pt-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center space-y-6 py-16">
               <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
@@ -482,7 +482,7 @@ console.log("PHONE:", session?.user?.phone);
       </section>
 
       {/* Content Section */}
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-8">
+      <div className=" min-h-screen -mt-4 pt-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
       {/* Progress Steps */}

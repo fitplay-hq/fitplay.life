@@ -15,6 +15,7 @@ export async function GET() {
         id: true, 
         name: true, 
         address: true ,
+        hasWellnessStarterBundle:true,
          users: {
       select: {
         id: true,
@@ -26,7 +27,11 @@ export async function GET() {
         },
       },
     },
-      }
+    
+      },
+      orderBy :{
+      createdAt : "asc"
+    }
     });
     return NextResponse.json({ companies });
   } catch (error) {

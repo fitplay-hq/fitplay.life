@@ -188,6 +188,7 @@ const changeTab = (tab: string) => {
     company?: any;
     companyId?:string
     hasPaidBundle?: boolean;
+    hasWellnessStarterBundle?: boolean;
     phone?: string | null;
     role?: string;
   };
@@ -206,12 +207,12 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
 
   
 
-  if (typedUser?.companyId) {
+  if (typedUser?.hasWellnessStarterBundle || typedUser?.hasPaidBundle) {
     action();
     return true;
   }
 
-  if (!typedUser?.companyId && !typedUser?.hasPaidBundle) {
+  if (!typedUser?.hasWellnessStarterBundle && !typedUser?.hasPaidBundle) {
     
    
     setPaywallType(type);

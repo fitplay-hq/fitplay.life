@@ -24,6 +24,8 @@ import {
 import { useSetAtom, useAtomValue } from "jotai";
 import { useProduct } from "@/app/hooks/useProduct";
 
+import { useUser } from "@/app/hooks/useUser";
+
 export default function ProductPage({
   params,
 }: {
@@ -32,6 +34,7 @@ export default function ProductPage({
   const { id } = use(params);
 
   const addToCart = useSetAtom(addToCartAtom);
+    const { isAuthenticated } = useUser();
   const setCartAnimation = useSetAtom(cartAnimationAtom);
   const addToWishlist = useSetAtom(addToWishlistAtom);
   const removeFromWishlist = useSetAtom(removeFromWishlistAtom);
@@ -89,6 +92,19 @@ export default function ProductPage({
   const selectedVariantCredits = getSelectedVariantCredits();
 
   const handleAddToCart = () => {
+     if (!isAuthenticated) {
+          toast.error("Login Required", {
+            description: "You need to log in to add items to your cart.",
+            duration: 5000,
+            action: {
+              label: "Login",
+              onClick: () => {
+                window.location.href = "/login";
+              },
+            },
+          });
+          return;
+        }
     if (!product) return;
 
     // Determine the correct variantId to use
@@ -249,10 +265,10 @@ export default function ProductPage({
   return (
     <div className="min-h-screen">
       {/* Green Header Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-8">
+      <section className=" pt-20 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Breadcrumb */}
-          <div className="flex items-center space-x-2 text-sm text-emerald-200 mb-6">
+          <div className="flex items-center space-x-2 text-sm text-emerald-600 mb-6">
             <Link
               href="/store"
               className="hover:text-white flex items-center transition-colors"
@@ -263,13 +279,13 @@ export default function ProductPage({
             <span>/</span>
             <span>{formatCategoryName(product.category?.name || '')}</span>
             <span>/</span>
-            <span className="text-white font-medium">{product?.name || 'Product'}</span>
+            <span className="text-emerald-600 ">{product?.name || 'Product'}</span>
           </div>
         </div>
       </section>
 
       {/* Content Section */}
-      <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-4 pt-8">
+      <div className=" min-h-screen -mt-4 pt-8">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Product Images */}

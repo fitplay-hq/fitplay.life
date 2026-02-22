@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (user.wallet.balance < 2*totalAmount) {
+    if (user.wallet.balance < totalAmount) {
       return NextResponse.json(
         { error: "Insufficient wallet balance" },
         { status: 400 }
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     const txResult = await prisma.$transaction(async (tx) => {
       const updatedWallet = await tx.wallet.update({
         where: { id: user.wallet!.id },
-        data: { balance: { decrement: 2 * totalAmount } },
+        data: { balance: { decrement: totalAmount } },
       });
 
       const transaction = await tx.transactionLedger.create({

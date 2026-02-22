@@ -105,11 +105,11 @@ export async function POST(req: NextRequest) {
         const ledger = await tx.transactionLedger.create({
             data: {
                 userId: session.user.id,
-                amount: Math.round(topup.amount / 50),
+                amount: Math.round(topup.amount / 100),
                 modeOfPayment: "Cash",
                 isCredit: true,
                 cashAmount: Math.round((topup.amount || 0) / 100),
-                balanceAfterTxn: wallet.balance + Math.round(topup.amount / 50),  // since 1 INR = 2 Fitplay Coins
+                balanceAfterTxn: wallet.balance + Math.round(topup.amount / 100),  // since 1 INR = 2 Fitplay Coins
                 transactionType: "CREDIT",
                 walletId: wallet.id,
             },
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         // update wallet balance
         const updatedWallet = await tx.wallet.update({
             where: { id: wallet.id },
-            data: { balance: wallet.balance + Math.round(topup.amount / 50) },
+            data: { balance: wallet.balance + Math.round(topup.amount / 100) },
         });
 
         return { updatedTopup, ledger, updatedWallet };

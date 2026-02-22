@@ -68,28 +68,32 @@ export async function GET(req: NextRequest) {
 
             const cashRupees = transaction.cashAmount ? transaction.cashAmount: 0;
 
-            if (transaction.isCredit) {
-                if (transaction.modeOfPayment === "Credits") {
-                    type = "credit_allocation";
-                    description = "Credits allocated to wallet";
-                    method = "bulk_allocation";
-                } else {
-                    type = "credit_purchase";
-                    description = `Purchased ${transaction.amount} credits`;
-                }
-            } else {
-                if (transaction.order) {
-                    type = "credit_redemption";
-                    description = "Redeemed credits for order";
-                } else if (transaction.cashAmount && transaction.cashAmount > 0) {
-                    type = "mixed_payment";
-                    description = `Mixed payment: ${transaction.amount} credits + ₹${cashRupees}`;
-                    method = "mixed";
-                } else {
-                    type = "inr_payment";
-                    description = "INR payment for order";
-                }
-            }
+         // 1️⃣ First check explicit transactionType
+if (transaction.transactionType === "BUNDLE_PURCHASE") {
+    type = "bundle_purchase";
+    description = "Wellness Bundle Purchase";
+}
+
+// 2️⃣ Otherwise fallback to old logic
+else if (transaction.isCredit) {
+    if (transaction.modeOfPayment === "Credits") {
+        type = "credit_allocation";
+        description = "Credits allocated to wallet";
+        method = "bulk_allocation";
+    } else {
+        type = "credit_purchase";
+        description = `Purchased ${transaction.amount} credits`;
+    }
+} 
+else {
+    if (transaction.order) {
+        type = "credit_redemption";
+        description = "Redeemed credits for order";
+    } else {
+        type = "inr_payment";
+        description = "INR payment";
+    }
+}
 
             return {
                 id: transaction.id,

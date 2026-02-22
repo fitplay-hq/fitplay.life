@@ -34,6 +34,29 @@ export async function POST(req: NextRequest) {
       where: { id: session.user.id },
       data: { hasPaidBundle: true },
     });
+    const wallet = await prisma.wallet.findUnique({
+      where: { userId: session.user.id },
+    });
+    if (!wallet) {
+  return NextResponse.json(
+    { error: "Wallet not found" },
+    { status: 400 }
+  );
+}
+
+    await prisma.transactionLedger.create({
+  data: {
+    userId: session.user.id,
+    walletId: wallet?.id ,   // must exist
+    amount: 299,
+    cashAmount: 299,
+    modeOfPayment: "Cash",
+    transactionType: "BUNDLE_PURCHASE",
+    isCredit: false,
+    remark: "Wellness Bundle Purchase",
+    balanceAfterTxn: wallet?.balance || 0,
+  }
+});
 
  
 

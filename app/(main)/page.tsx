@@ -10,6 +10,7 @@ import { useProducts } from "@/app/hooks/useProducts";
 import { toast } from 'sonner';
 import ProductCard from '../components/ProductCard';
 
+
 const STORAGE_KEY = "gut-course-progress-v";
 const ENROLLMENT_KEY = "gut-course-enrollmen";
 const TAB_STORAGE_KEY = "sova-active-tab";
@@ -561,8 +562,9 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                   
                   if (verifyRes.ok) {
                     toast.success('Payment successful! Access unlocked.');
-                    await refreshSession();
                     setShowPaidModal(false);
+                    await refreshSession();
+                    
                   } else {
                     const data = await verifyRes.json();
                     toast.error(data.error || 'Payment verification failed');
@@ -581,6 +583,29 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
             className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 mb-3"
           >
             Unlock Now — ₹299 only
+          </button>
+          <button 
+          
+          onClick={async () => {
+            const res = await fetch("/api/bundle-purchase",
+              {method : "POST",
+              headers: { "Content-Type": "application/json" }
+             
+              })
+            const data = await res.json();
+            if (data.error) {
+              toast.error(data.error);
+            } else {
+              toast.success("Bundle purchased successfully!");
+              setShowPaidModal(false)
+              await refreshSession();
+            }
+          }}
+          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 mb-3"
+          >
+
+            Buy Through Credits
+
           </button>
 
           <button

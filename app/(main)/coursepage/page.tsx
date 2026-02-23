@@ -26,50 +26,23 @@ export default function GutHealthCourse() {
   
 
   // Load enrollment and progress on mount
-  useEffect(() => {
-    const loadCourseData = () => {
-      try {
-        // Check enrollment
-        const enrollmentData = localStorage.getItem(ENROLLMENT_KEY);
-        const isEnrolled = enrollmentData === "true";
+ useEffect(() => {
+  const load = async () => {
+    const res = await fetch("/api/course/progress");
+    const data = await res.json();
 
-        if (isEnrolled) {
-          // Load progress
-          const progressData = localStorage.getItem(STORAGE_KEY);
-          if (progressData) {
-            const parsed = JSON.parse(progressData);
-            const completedCount = parsed.completedModules?.length || 0;
-            
-            // Total modules based on course structure
-            const totalModules = 9;
-            const progressPercentage = (completedCount / totalModules) * 100;
+    if (!data.isEnrolled) return;
 
-            setCourseProgress({
-              isEnrolled: true,
-              progressPercentage: Math.round(progressPercentage),
-              completedModules: completedCount,
-              totalModules: totalModules
-            });
-          } else {
-            setCourseProgress({
-              isEnrolled: true,
-              progressPercentage: 0,
-              completedModules: 0,
-              totalModules: 9
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error loading course data:", error);
-      }
-    };
+    setCourseProgress({
+      isEnrolled: true,
+      progressPercentage: data.progressPercentage,
+      completedModules: data.completedModules.length,
+      totalModules: 9,
+    });
+  };
 
-    loadCourseData();
-
-    // Set up interval to check for progress updates
-    const interval = setInterval(loadCourseData, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  load();
+}, []);
 
   const handleButtonClick = () => {
     if (!courseProgress.isEnrolled) {

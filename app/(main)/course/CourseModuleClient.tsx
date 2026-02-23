@@ -16,7 +16,7 @@ import { Pause, Square } from "lucide-react";
 import Image from "next/image";
 import { useRef } from "react";
 
-const STORAGE_KEY = "gut-course-progress-v";
+
 
 
     
@@ -1185,18 +1185,9 @@ const STORAGE_KEY = "gut-course-progress-v";
 };
 
 
-const loadProgress = () => {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
 
 export default function CourseModuleClient() {
-const saved = loadProgress();
+
  const router = useRouter();
  const searchParams = useSearchParams();
 
@@ -1206,14 +1197,10 @@ const moduleFromUrl = searchParams.get("module");
     
 
 const initialSection =
-  sectionFromUrl !== null
-    ? Number(sectionFromUrl)
-    : saved?.currentSection ?? 0;
+  sectionFromUrl !== null ? Number(sectionFromUrl) : 0;
 
 const initialModule =
-  moduleFromUrl !== null
-    ? Number(moduleFromUrl)
-    : saved?.currentModule ?? 0;
+  moduleFromUrl !== null ? Number(moduleFromUrl) : 0;
 
 const [currentSection, setCurrentSection] = useState(initialSection);
 const [currentModule, setCurrentModule] = useState(initialModule);
@@ -1244,20 +1231,26 @@ router.push(
 };
 
 
-  const [completedModules, setCompletedModules] = useState(
-    new Set(saved?.completedModules ?? [])
-  );
+ const [completedModules, setCompletedModules] = useState(new Set<string>());
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
- useEffect(() => {
-    const data = {
-      currentSection,
-      currentModule,
-      completedModules: Array.from(completedModules),
-    };
+  useEffect(() => {
+  const load = async () => {
+    const res = await fetch("/api/course/progress");
+    const data = await res.json();
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [currentSection, currentModule, completedModules]);
+    if (!data.isEnrolled) {
+      router.push("/coursepage");
+      return;
+    }
+
+    setCompletedModules(new Set(data.completedModules));
+    setCurrentSection(data.currentSection);
+    setCurrentModule(data.currentModule);
+  };
+
+  load();
+}, []);
 
 
   const totalModules = courseData.sections.reduce(
@@ -1276,11 +1269,22 @@ router.push(
   };
 
   
-  const completeAndNext = () => {
+  const completeAndNext = async () => {
     const moduleId = getModuleId(currentSection, currentModule);
-    const newCompleted = new Set(completedModules);
-    newCompleted.add(moduleId);
-    setCompletedModules(newCompleted);
+  const res = await fetch("/api/course/complete-module", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      moduleId,
+      currentSection,
+      currentModule,
+    }),
+  });
+   if (!res.ok) {
+    toast.error("Something went wrong");
+    return;
+  }
+    setCompletedModules(prev => new Set([...prev, moduleId]));
 
     goToNext();
   };
@@ -1546,7 +1550,7 @@ const isSummarySection =
   courseData.sections[currentSection]?.id === "summary";
 
 const isCourseCompleted =
-  Math.round(progressPercentage) === 100;
+  completedModules.size === totalModules;
 
 
 

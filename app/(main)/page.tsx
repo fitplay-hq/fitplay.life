@@ -11,8 +11,7 @@ import { toast } from 'sonner';
 import ProductCard from '../components/ProductCard';
 
 
-const STORAGE_KEY = "gut-course-progress-v";
-const ENROLLMENT_KEY = "gut-course-enrollmen";
+
 const TAB_STORAGE_KEY = "sova-active-tab";
 
 function SimpleAnimatedHeading() {
@@ -89,6 +88,27 @@ const changeTab = (tab: string) => {
   localStorage.setItem(TAB_STORAGE_KEY, tab);
 };
 
+useEffect(() => {
+  const load = async () => {
+    const res = await fetch("/api/course/progress");
+    const data = await res.json();
+
+    if (!data) return;
+
+    const totalModules = 9;
+    const completedCount = data.completedModules?.length || 0;
+
+    setCourseProgress({
+      isEnrolled: data.isEnrolled,
+      progressPercentage: Math.round((completedCount / totalModules) * 100),
+      completedModules: completedCount,
+      totalModules
+    });
+  };
+
+  load();
+}, []);
+
   const { products, isLoading, error } = useProducts();
   const router = useRouter();
   const [courseProgress, setCourseProgress] = useState({
@@ -99,51 +119,9 @@ const changeTab = (tab: string) => {
   });
 
   // Load enrollment and progress on mount
-  useEffect(() => {
-    const loadCourseData = () => {
-      try {
-        // Check enrollment
-        const enrollmentData = localStorage.getItem(ENROLLMENT_KEY);
-        const isEnrolled = enrollmentData === "true";
 
-        if (isEnrolled) {
-          // Load progress
-          const progressData = localStorage.getItem(STORAGE_KEY);
-          if (progressData) {
-            const parsed = JSON.parse(progressData);
-            const completedCount = parsed.completedModules?.length || 0;
-          
-            const totalModules = 9;
-            const progressPercentage = (completedCount / totalModules) * 100;
 
-            setCourseProgress({
-              isEnrolled: true,
-              progressPercentage: Math.round(progressPercentage),
-              completedModules: completedCount,
-              totalModules: totalModules
-            });
-          } else {
-            setCourseProgress({
-              isEnrolled: true,
-              progressPercentage: 0,
-              completedModules: 0,
-              totalModules: 10
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error loading course data:", error);
-      }
-    };
-
-    loadCourseData();
-
-    // Set up interval to check for progress updates
-    const interval = setInterval(loadCourseData, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleEnrollClick = () => {
+  const handleEnrollClick = async () => {
     if(!isAuthenticated){
       // show paid/signup modal instead of direct login
       setShowPaidModal(true);
@@ -151,12 +129,8 @@ const changeTab = (tab: string) => {
     }
 
    else{
-    localStorage.setItem(ENROLLMENT_KEY, "true");
-    setCourseProgress(prev => ({
-      ...prev,
-      isEnrolled: true,
-      totalModules: 10
-    }));
+   await fetch("/api/course/enroll", { method: "POST" });
+router.push("/coursepage");
     router.push("/coursepage");
   }
   };

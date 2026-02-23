@@ -74,6 +74,7 @@ function ProductCardSkeleton() {
 export default function SovaHealthPage() {
  const [activeTab, setActiveTab] = useState("quiz");
    const { user, isAuthenticated,  refreshSession } = useUser();
+   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
 useEffect(() => {
   if (typeof window === "undefined") return;
@@ -90,6 +91,7 @@ const changeTab = (tab: string) => {
 
 useEffect(() => {
   const load = async () => {
+    setIsLoadingProgress(true);
     const res = await fetch("/api/course/progress");
     const data = await res.json();
 
@@ -104,6 +106,7 @@ useEffect(() => {
       completedModules: completedCount,
       totalModules
     });
+     setIsLoadingProgress(false);
   };
 
   load();
@@ -766,6 +769,9 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-2xl font-bold text-emerald-600">{course.price}</span>
+                              {isLoadingProgress ? (
+       <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg" />
+) : (
                               <button 
                                 className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
                                 onClick={() => requirePaywallOrAction('course',buttonConfig.onClick)}
@@ -773,6 +779,8 @@ const isNonCompanyUser = !!typedUser && !typedUser?.companyId;
                                 {buttonConfig.icon}
                                 {buttonConfig.text}
                               </button>
+)
+}
                             </div>
                           </div>
                         </div>

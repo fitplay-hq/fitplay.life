@@ -16,6 +16,7 @@ const ENROLLMENT_KEY = "gut-course-enrollmen";
 
 export default function GutHealthCourse() {
   const router = useRouter();
+     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [courseProgress, setCourseProgress] = useState({
     isEnrolled: false,
     progressPercentage: 0,
@@ -28,6 +29,7 @@ export default function GutHealthCourse() {
   // Load enrollment and progress on mount
  useEffect(() => {
   const load = async () => {
+    setIsLoadingProgress(true);
     const res = await fetch("/api/course/progress");
     const data = await res.json();
 
@@ -39,6 +41,7 @@ export default function GutHealthCourse() {
       completedModules: data.completedModules.length,
       totalModules: 9,
     });
+    setIsLoadingProgress(false);
   };
 
   load();
@@ -245,7 +248,9 @@ export default function GutHealthCourse() {
                   </div>
                 )}
 
-                
+                           {isLoadingProgress ? (
+       <div className="h-10 w-full bg-gray-200 animate-pulse rounded-lg" />
+) : (
 
                 <Button 
                   className={`w-full text-white py-6 flex items-center justify-center ${buttonConfig.className}`}
@@ -254,6 +259,7 @@ export default function GutHealthCourse() {
                   {buttonConfig.icon}
                   {buttonConfig.text}
                 </Button>
+)}
               </CardContent>
             </Card>
           </div>

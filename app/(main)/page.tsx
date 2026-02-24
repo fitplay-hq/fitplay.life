@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import {
-  Heart,
   BookOpen,
   Video,
   ShoppingBag,
@@ -9,7 +8,7 @@ import {
   Check,
   Clock,
   Star,
-  Activity,
+  Stethoscope
 } from "lucide-react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,6 +20,8 @@ import { toast } from "sonner";
 import ProductCard from "../components/ProductCard";
 import { HomeCarousel } from "../../components/home/HomeCarousel";
 import { Testimonials } from "../../components/home/testimonials/Testimonials";
+import Digestive from "../../public/digestive.svg";
+import Image from "next/image";
 
 const TAB_STORAGE_KEY = "sova-active-tab";
 
@@ -230,9 +231,8 @@ export default function SovaHealthPage() {
   const quizzes = [
     {
       title: "Gut Health Assessment",
-      description: "Discover your digestive health score",
+      description: "Discover your digestive gut score",
       duration: "5 min",
-      icon: Activity,
       color: "from-emerald-500 to-teal-500",
     },
   ];
@@ -707,7 +707,7 @@ export default function SovaHealthPage() {
 
         <Testimonials />
 
-        <div className="max-w-7xl mx-auto mb-16" id="module">
+        <div className="max-w-7xl mx-auto mb-16" id="assessment">
           <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
               <button
@@ -715,8 +715,8 @@ export default function SovaHealthPage() {
                 className={`tab-trigger ${activeTab === "quiz" ? "data-[state=active]" : ""}`}
                 data-state={activeTab === "quiz" ? "active" : "inactive"}
               >
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Quiz</span>
+                <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Assessments</span>
               </button>
               <button
                 onClick={() => changeTab("course")}
@@ -743,16 +743,15 @@ export default function SovaHealthPage() {
                 <div className="space-y-6">
                   <div className="mb-8">
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                      Health Assessments
+                      Health Assessment
                     </h2>
                     <p className="text-gray-600">
-                      Take our expert-designed quizzes to understand your health
-                      better
+                      Take our expert-designed assessments to understand your
+                      health better
                     </p>
                   </div>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {quizzes.map((quiz, index) => {
-                      const Icon = quiz.icon;
                       return (
                         <div
                           key={index}
@@ -761,7 +760,11 @@ export default function SovaHealthPage() {
                           <div
                             className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4`}
                           >
-                            <Icon className="w-7 h-7 text-white" />
+                            <Image
+                                src={Digestive}
+                                alt="Assessments"
+                                className="w-7 h-7 sm:w-5 sm:h-5 invert"
+                              />
                           </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-2">
                             {quiz.title}
@@ -784,7 +787,7 @@ export default function SovaHealthPage() {
                             }}
                             className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                           >
-                            Start Quiz
+                            Start
                           </button>
                         </div>
                       );

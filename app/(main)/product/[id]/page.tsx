@@ -85,7 +85,7 @@ export default function ProductPage({
   };
 
   const getSelectedVariantCredits = () => {
-    return getSelectedVariantMRP() * 2;
+    return getSelectedVariantMRP() ;
   };
 
   const selectedVariantMRP = getSelectedVariantMRP();
@@ -408,7 +408,7 @@ export default function ProductPage({
                           ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {variant.credits || (variant.mrp * 2)} credits
+                        {variant.credits || (variant.mrp )} credits
                       </div>
                     </div>
                   </div>

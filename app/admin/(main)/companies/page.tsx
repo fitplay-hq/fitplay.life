@@ -1526,7 +1526,7 @@ function ProductsDrawer({ company, open, onOpenChange }: any) {
                     const isVisible = (product?.companyIds || []).includes(company?.id);
                     const credit =
                       product?.variants?.length > 0
-                        ? (product.variants[0].mrp || 0) * 2
+                        ? (product.variants[0].mrp || 0) 
                         : 0;
                     return (
                       <tr key={product.id} className="border-b last:border-0 hover:bg-gray-50">
@@ -1829,7 +1829,7 @@ export default function CompaniesManagementPage() {
     const companyTx     = transactions.filter((t: any) => t.user?.company?.id === company.id);
     const activeProds   = products.filter((p: any) => (p.companyIds || []).includes(company.id));
     return {
-      employees: companyUsers.length,
+      employees: companyUsers.filter((u: any) => u.role === "EMPLOYEE").length,
       hrCount,
       orders: companyOrders.length,
       products: activeProds.length,
@@ -1840,7 +1840,8 @@ export default function CompaniesManagementPage() {
 
   const stats = useMemo(() => ({
     totalCompanies: companies.length,
-    totalEmployees: users.length,
+    totalEmployees: users.filter((u: any) => (u.role === "EMPLOYEE") &&  (u.companyId)).length,
+    totalHR: users.filter((u: any) => u.role === "HR").length,
     totalOrders: orders.length,
     totalRevenue: orders.reduce((s: number, o: any) => s + (o.amount || 0), 0),
   }), [companies, users, orders]);
@@ -1963,8 +1964,8 @@ const handlebundletoggle = async (companyId: string, Bundletoggle: boolean) => {
         {[
           { label: "Total Companies", value: stats.totalCompanies, sub: "Active organizations",   icon: Building2,    bg: "bg-blue-50",    ic: "text-blue-600" },
           { label: "Total Employees", value: stats.totalEmployees, sub: "Across all companies",   icon: Users,        bg: "bg-green-50",   ic: "text-green-600" },
-          { label: "Total Orders",    value: stats.totalOrders,    sub: "From all employees",      icon: ShoppingCart, bg: "bg-purple-50",  ic: "text-purple-600" },
-          { label: "Total Revenue",   value: `₹${(stats.totalRevenue / 100000).toFixed(1)}L`, sub: "Total spending", icon: DollarSign, bg: "bg-emerald-50", ic: "text-emerald-600" },
+          { label: "Total HR",    value: stats.totalHR,    sub: "From all Company",      icon: Users, bg: "bg-purple-50",  ic: "text-purple-600" },
+          
         ].map(({ label, value, sub, icon: Icon, bg, ic }) => (
           <Card key={label} className="border border-gray-200 hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

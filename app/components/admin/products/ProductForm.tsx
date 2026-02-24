@@ -115,9 +115,12 @@ export function ProductForm({
     subCategory: "",
     images: [],
     variants: [],
+    
   });
 
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [hasVariants, setHasVariants] = useState(true);
+const [basePrice, setBasePrice] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [variants, setVariants] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -142,47 +145,32 @@ export function ProductForm({
   }, []);
 
   // Update form data when editingProduct changes
-  useEffect(() => {
-    if (editingProduct) {
-      setFormData({
-        name: editingProduct.name || "",
-        description: editingProduct.description || "",
-        vendorName: editingProduct.vendorName || "",
-        sku: editingProduct.sku || "",
-        availableStock: editingProduct.availableStock?.toString() || "",
-        category: editingProduct.category?.name || "",
-        subCategory: editingProduct.subCategory?.name || "",
-        images: editingProduct.images || [],
-        variants: editingProduct.variants || [],
-      });
-      const prettyCategory =
-        Object.keys(categorySlugMap).find(
-          (pretty) => categorySlugMap[pretty] === editingProduct.category?.name
-        ) || editingProduct.category?.name;
+ useEffect(() => {
+  if (editingProduct) {
+    setFormData({
+      name: editingProduct.name || "",
+      description: editingProduct.description || "",
+      vendorName: editingProduct.vendorName || "",
+      sku: editingProduct.sku || "",
+      availableStock: editingProduct.availableStock?.toString() || "",
+      category: editingProduct.category?.name || "",
+      subCategory: editingProduct.subCategory?.name || "",
+      images: editingProduct.images || [],
+      variants: editingProduct.variants || [],
+    });
 
-      setSelectedCategory(prettyCategory || "");
-      setSelectedSubcategory(editingProduct.subCategory?.name || "");
+    setHasVariants(editingProduct.hasVariants ?? true);
 
-      setSelectedVendor(editingProduct.vendorId || "");
-      setVariants(editingProduct.variants || []);
-    } else {
-      // Reset form for new product
-      setFormData({
-        name: "",
-        description: "",
-        vendorName: "",
-        sku: "",
-        availableStock: "",
-        category: "",
-        subCategory: "",
-        images: [],
-        variants: [],
-      });
-      setSelectedCategory("");
-      setSelectedSubcategory("");
-      setSelectedVendor("");
+    if (!editingProduct.hasVariants && editingProduct.variants?.length) {
+      setBasePrice(editingProduct.variants[0].mrp?.toString() || "");
     }
-  }, [editingProduct]);
+
+    setSelectedVendor(editingProduct.vendorId || "");
+    setVariants(editingProduct.variants || []);
+  } else {
+    resetForm();
+  }
+}, [editingProduct]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,30 +189,42 @@ export function ProductForm({
     try {
 
       const productData = {
-        name: formData.name.trim(),
-        sku: formData.sku.trim(),
-        description: formData.description?.trim() || "",
-        category: selectedCategory,
-        subCategory: selectedSubcategory || null, // stays human-friendly
-        vendorId: selectedVendor || null,
-        vendorName:
-          !selectedVendor && formData.vendorName?.trim()
-            ? formData.vendorName.trim()
-            : null,
-        availableStock: parseInt(formData.availableStock) || 0,
-        images: formData.images,
-        variants: variants
-          .map((variant) => ({
-            variantCategory: variant.variantCategory.trim(),
-            variantValue: variant.variantValue.trim(),
-            sku: variant.sku?.trim() || "",
-            mrp: parseInt(variant.mrp) || 0,
-          }))
-          .filter(
-            (variant) =>
-              variant.variantCategory && variant.variantValue && variant.mrp > 0
-          ),
-      };
+  name: formData.name.trim(),
+  sku: formData.sku.trim(),
+  description: formData.description?.trim() || "",
+  category: selectedCategory,
+  subCategory: selectedSubcategory || null,
+  vendorId: selectedVendor || null,
+  vendorName:
+    !selectedVendor && formData.vendorName?.trim()
+      ? formData.vendorName.trim()
+      : null,
+  availableStock: parseInt(formData.availableStock) || 0,
+  images: formData.images,
+  hasVariants,
+  variants: hasVariants
+    ? variants
+        .map((variant) => ({
+          variantCategory: variant.variantCategory.trim(),
+          variantValue: variant.variantValue.trim(),
+          sku: variant.sku?.trim() || "",
+          mrp: parseInt(variant.mrp) || 0,
+        }))
+        .filter(
+          (variant) =>
+            variant.variantCategory &&
+            variant.variantValue &&
+            variant.mrp > 0
+        )
+    : [
+        {
+          variantCategory: "Default",
+          variantValue: "Default",
+          sku: formData.sku + "-DEFAULT" + Date.now(),
+          mrp: parseInt(basePrice) || 0,
+        },
+      ],
+};
 
       console.log("Submitting product data:", productData);
       await onSubmit(productData);
@@ -253,6 +253,8 @@ export function ProductForm({
     setSelectedSubcategory("");
     setSelectedVendor("");
     setVariants([]);
+    setBasePrice("");      // 🔥 ADD THIS
+  setHasVariants(true);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -527,8 +529,37 @@ export function ProductForm({
               </div>
             </div>
           </div>
+          <div className="col-span-2 flex items-center gap-3">
+            <div className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    checked={hasVariants}
+    onChange={(e) => {
+      setHasVariants(e.target.checked);
+      setVariants([]);
+      setBasePrice("");
+    }}
+  />
+  <Label className="text-sm font-medium">
+    This product has variants
+  </Label>
+</div>
+{!hasVariants && (
+  <div className="col-span-2 space-y-2">
+    <Label>Product Price (₹)</Label>
+    <Input
+      type="number"
+      placeholder="Enter product price"
+      value={basePrice}
+      onChange={(e) => setBasePrice(e.target.value)}
+      required
+    />
+  </div>
+)}
+</div>
 
           {/* Variants Section */}
+          {hasVariants && (
           <div className="col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">
@@ -640,7 +671,7 @@ export function ProductForm({
                 </p>
               </div>
             )}
-          </div>
+          </div>)}
 
           {/* Form Actions */}
           <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-200">

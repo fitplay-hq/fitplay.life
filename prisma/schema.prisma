@@ -135,6 +135,7 @@ model Product {
   vendorId       String?
   categoryId     String?
   subCategoryId  String?
+  hasVariants Boolean @default(true)
 
   category    Category?    @relation(fields: [categoryId], references: [id])
   subCategory SubCategory? @relation(fields: [subCategoryId], references: [id])

@@ -75,8 +75,8 @@ export const addToCartAtom = atom(
         title: product.name,
         brand: product.brand || 'FitPlay',
         credits: selectedVariant && product.variants?.length
-          ? getSelectedVariantPrice(product, selectedVariant) * 2
-          : (product.price || product.variants?.[0]?.mrp || 0) * 2,
+          ? getSelectedVariantPrice(product, selectedVariant) 
+          : (product.price || product.variants?.[0]?.mrp || 0) ,
         image: product.images?.[0] || '',
         quantity: 1,
         variantKey,

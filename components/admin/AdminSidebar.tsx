@@ -107,6 +107,11 @@ const adminNavItems = [
     icon: Building2,
   },
   {
+    title: "Admins",
+    url: "/admin/admin",
+    icon: Users,
+  },
+  {
     title: "Transactions",
     url: "/admin/transactions",
     icon: CreditCard,

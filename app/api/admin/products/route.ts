@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       vendorName,
       variants,
       images,
+      hasVariants,
       ...rest
     } = body;
 
@@ -141,6 +142,7 @@ export async function POST(req: NextRequest) {
       subCategoryId: subCategoryId,
       vendorId: finalVendorId || null,
       images: images || [],
+       hasVariants: hasVariants ?? true,
       variants: variants?.length ? { create: variants } : undefined,
       ...rest,
     };
@@ -191,13 +193,21 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { id, category, subCategory, vendorId, vendorName, variants, ...rest } = body;
+    const { id, category, subCategory, vendorId, vendorName, variants, hasVariants, ...rest } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
     }
 
     const updateData: any = { ...rest };
+
+    if (hasVariants !== undefined) {
+      updateData.hasVariants = hasVariants;
+    }
+
+if (variants !== undefined) {
+  updateData.variants = variants;
+}
 
     // Vendor handling
     let finalVendorId = vendorId?.trim();

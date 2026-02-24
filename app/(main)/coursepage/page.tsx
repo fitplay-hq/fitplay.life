@@ -11,8 +11,7 @@ import { useUser } from '@/app/hooks/useUser';
 import { toast } from 'sonner';
 
 
-const STORAGE_KEY = "gut-course-progress-v";
-const ENROLLMENT_KEY = "gut-course-enrollmen";
+
 
 export default function GutHealthCourse() {
   const router = useRouter();

@@ -10,7 +10,6 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { GetStartedButton } from "./GetStartedButton";
-import { LearnMoreButton } from "./LearnMoreButton";
 import Image from "next/image";
 
 import startImg from "../../public/carousel/start.png";
@@ -54,30 +53,25 @@ const carouselImages = [
 
 export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = React.useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    if (!api) return;
+    intervalRef.current = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+  }, [api]);
 
   useEffect(() => {
     if (!api) return;
-
-    let interval: ReturnType<typeof setInterval>;
-
-    const startTimer = () => {
-      clearInterval(interval);
-      interval = setInterval(() => {
-        api.scrollNext();
-      }, 7000);
-    };
-
     startTimer();
-
-    api.on("select", startTimer);
-    api.on("pointerDown", startTimer);
-
     return () => {
-      clearInterval(interval);
-      api.off("select", startTimer);
-      api.off("pointerDown", startTimer);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [api]);
+  }, [api, startTimer]);
 
   return (
     <>
@@ -88,6 +82,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
           className="w-full border border-fitplay-green-200 rounded-2xl shadow-xl"
         >
           <CarouselPrevious
+            onClickCapture={startTimer}
             variant="ghost"
             className="hidden sm:flex absolute left-4 size-8 sm:size-10 rounded-full bg-black/30 hover:bg-black/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-6 md:[&_svg]:size-8 text-white backdrop-blur-sm"
           />
@@ -101,7 +96,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
                     className="w-full h-full object-cover rounded-2xl"
                     priority={index === 0}
                   />
-                  {item.showButton && (
+                  {/* {item.showButton && (
                     <div
                       className={`absolute ${item.buttonPosition} -translate-x-1/2 z-20`}
                     >
@@ -110,12 +105,13 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
                         className="hidden md:flex"
                       />
                     </div>
-                  )}
+                  )} */}
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
           <CarouselNext
+            onClickCapture={startTimer}
             variant="ghost"
             className="hidden sm:flex absolute right-4 size-8 sm:size-10 rounded-full bg-black/30 hover:bg-black/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-6 md:[&_svg]:size-8 text-white backdrop-blur-sm"
           />

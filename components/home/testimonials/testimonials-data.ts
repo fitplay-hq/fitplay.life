@@ -14,7 +14,7 @@ export const testimonials = [
   {
     id: "anupriya",
     name: "Dr. Anupriya Goel",
-    role: "Dermotologit",
+    role: "Dermatologist",
     videoSrc: "/testimonials/anupriya-goel-3.mp4",
   },
   {

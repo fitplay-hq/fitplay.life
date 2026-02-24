@@ -10,6 +10,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { GetStartedButton } from "./GetStartedButton";
+import { ExploreButton } from "./ExploreButton";
 import Image from "next/image";
 
 import startImg from "../../public/carousel/start.png";
@@ -26,28 +27,37 @@ const carouselImages = [
   {
     src: startImg,
     showButton: true,
+    showExploreButton: false,
     buttonPosition:
       "md:bottom-[10%] md:left-[14%] lg:bottom-[12%] lg:left-[13%] xl:bottom-[12%] xl:left-[13%]",
   },
   {
     src: via1Img,
     showButton: true,
+    showExploreButton: false,
     buttonPosition:
       "md:bottom-[18%] md:left-[17.66666%] lg:bottom-[19%] lg:left-[16%] xl:bottom-[19%] xl:left-[16.5%]",
   },
   {
     src: via2Img,
     showButton: true,
+    showExploreButton: false,
     buttonPosition:
       "md:bottom-[22%] md:left-[15%] lg:bottom-[22%] lg:left-[15%] xl:bottom-[22%] xl:left-[15%]",
   },
   {
     src: via3Img,
     showButton: true,
+    showExploreButton: false,
     buttonPosition:
       "md:bottom-[20%] md:left-[15%] lg:bottom-[20%] lg:left-[15%] xl:bottom-[20%] xl:left-[14.5%]",
   },
-  { src: endImg, showButton: false, buttonPosition: "" },
+  {
+    src: endImg,
+    showButton: false,
+    showExploreButton: true,
+    buttonPosition: "md:bottom-[20%] md:left-[70%]",
+  },
 ];
 
 export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
@@ -61,7 +71,7 @@ export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
     if (!api) return;
     intervalRef.current = setInterval(() => {
       api.scrollNext();
-    }, 5000000);
+    }, 5000);
   }, [api]);
 
   useEffect(() => {
@@ -105,6 +115,13 @@ export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
                       />
                     </div>
                   )}
+                  {item.showExploreButton && (
+                    <div
+                      className={`absolute ${item.buttonPosition} -translate-x-1/2 z-20`}
+                    >
+                      <ExploreButton className="hidden md:flex" />
+                    </div>
+                  )}
                 </div>
               </CarouselItem>
             ))}
@@ -117,8 +134,9 @@ export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
         </Carousel>
       </div>
       {/* Add Get Started button here which is only visible on mobile until the md breakpoint */}
-      <div className="md:hidden mt-4">
+      <div className="md:hidden mt-4 flex flex-col gap-3">
         <GetStartedButton onClick={onGetStarted} />
+        <ExploreButton />
       </div>
     </>
   );

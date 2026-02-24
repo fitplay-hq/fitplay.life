@@ -289,7 +289,8 @@ export async function GET(req: NextRequest) {
       });
 
       const recentTransactions = allTransactions.slice(0, 10);
-      const creditTransactions = allTransactions.filter(tx  => ((tx.modeOfPayment === "Credits")||(tx.modeOfPayment === "Cash" && tx.transactionType === "CREDIT"))).slice(0, 10);
+      console.log("Recent Transactions:", recentTransactions);
+     
 
       const transactions = recentTransactions.map((tx) => ({
         id: tx.id,
@@ -303,7 +304,7 @@ export async function GET(req: NextRequest) {
       }));
 
       
-      const recentcreditTransactions = creditTransactions.map((tx) => ({
+      const recentcreditTransactions = recentTransactions.map((tx) => ({
   id: tx.id,
   date: tx.createdAt.toISOString().split("T")[0],
   type: tx.transactionType,

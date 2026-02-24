@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       address: address || null,
       verified: true, // Admin-created users are automatically verified
       isDemo: isDemo || false,
-     hasPaidBundle: isDemo ? true : false, 
+     
     };
 
     // Create user and wallet atomically, with 10,000 credits for demo users
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Create wallet for the user with 10,000 credits if demo user, else 0
-      const walletBalance = isDemo ? 10000 : 0;
+      const walletBalance = isDemo ? 100000 : 0;
       const wallet = await tx.wallet.create({
         data: {
           userId: newUser.id,

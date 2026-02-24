@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { use } from "react";
 
 export async function GET(req: NextRequest) {
     try {
@@ -32,7 +33,12 @@ export async function GET(req: NextRequest) {
         }
 
         const transactions = await prisma.transactionLedger.findMany({
-            where,
+            where :{
+                ...where,
+                user: {
+                    isDemo: false, // Ensure we exclude transactions from demo users
+                },
+            },
             include: {
                 user: {
                     select: {

@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
           transactionType: "BUNDLE_PURCHASE",
           balanceAfterTxn: updatedWallet.balance,
           remark: "Bundle purchased using credits",
+           isDemo: user.isDemo,
         },
       });
 

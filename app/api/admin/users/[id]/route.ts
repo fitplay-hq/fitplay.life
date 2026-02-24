@@ -90,6 +90,9 @@ export async function DELETE(
       await tx.transactionLedger.deleteMany({
         where: { userId },
       });
+      await tx.wellnessCourseProgress.deleteMany({
+  where: { userId },
+});
       
       await tx.orderItem.deleteMany({
         where: {

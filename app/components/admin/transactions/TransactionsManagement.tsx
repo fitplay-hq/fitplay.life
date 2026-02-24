@@ -47,6 +47,7 @@ import {
 import { toast } from "sonner";
 import DatePickerWithRange from "@/components/date-picker-with-range";
 import useSWR from "swr";
+import { is } from "date-fns/locale";
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
@@ -215,6 +216,8 @@ const TransactionsManagement = () => {
 
   const filteredTransactions = transactions.filter((transaction) => {
     const empCompany = transaction.employee.company || "Individual";
+    
+    
     const matchesSearch =
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.employee.name
@@ -237,6 +240,7 @@ const TransactionsManagement = () => {
     }
 
     return (
+      
       matchesSearch &&
       matchesType &&
       matchesStatus &&

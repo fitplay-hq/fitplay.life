@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Script from "next/script";
+import { Modes } from "@/lib/generated/prisma";
 
 
 interface DashboardStats {
@@ -25,6 +26,7 @@ export interface WalletTransaction {
   amount: number;
   balance: number;
   description: string;
+  modeOfPayment: Modes;
 }
 
 interface WalletProps {
@@ -156,6 +158,7 @@ export default function WalletComponent({
     <div className="space-y-3 md:hidden">
       {walletHistory.map((transaction, index) => {
         const isCredit = transaction.type === "CREDIT";
+        console.log("Rendering transaction:", transaction);
 
         return (
           <div
@@ -174,7 +177,7 @@ export default function WalletComponent({
                     : "bg-red-100 text-red-700"
                 }`}
               >
-                {isCredit ? "Credit Added" : "Credit Used"}
+                 {transaction.type === "BUNDLE_PURCHASE" ? "Bundle Purchase" : (isCredit ? "Credit Added" : "Credit Used")}
               </span>
             </div>
 
@@ -191,7 +194,7 @@ export default function WalletComponent({
                   }`}
                 >
                   {isCredit ? "+" : "-"}
-                  {Math.abs(transaction.amount)} credits
+                  {Math.abs(transaction.amount)} {transaction.modeOfPayment === "Credits" ? "credits" : "INR"}
                 </p>
               </div>
 
@@ -232,7 +235,7 @@ export default function WalletComponent({
 
         <tbody className="divide-y">
           {walletHistory.map((transaction, index) => {
-            const isCredit = transaction.type === "CREDIT";
+            const isCredit = transaction.type === "CREDIT" ;
 
             return (
               <tr key={index} className="hover:bg-gray-50">
@@ -247,13 +250,14 @@ export default function WalletComponent({
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
                     }`}
-                  >
-                    {isCredit ? "Credit Added" : "Credit Used"}
+                  > {transaction.type === "BUNDLE_PURCHASE" ? "Bundle Purchase" : (isCredit ? "Credit Added" : "Credit Used")}
+     
                   </span>
                 </td>
 
                 <td className="px-4 py-3 text-sm text-gray-600">
-                  {transaction.description || "—"}
+                  {transaction.type === "BUNDLE_PURCHASE" ? "Wellness Bundle Purchase" :  transaction.description}
+                  
                 </td>
 
                 <td
@@ -262,7 +266,7 @@ export default function WalletComponent({
                   }`}
                 >
                   {isCredit ? "+" : "-"}
-                  {Math.abs(transaction.amount)} credits
+                  {Math.abs(transaction.amount)} {transaction.modeOfPayment === "Credits" ? "credits" : "INR"}
                 </td>
 
                 <td className="px-4 py-3 text-right text-sm text-gray-700">

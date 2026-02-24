@@ -206,7 +206,7 @@ function ProfileContent() {
     creditsUsed: 0,
     creditsRemaining: 0,
   });
-
+  console.log("wallet data", walletData);
   const walletHistory = walletData?.creditTransactionsRecent || [];
   console.log("walletData", walletData);
 

@@ -20,9 +20,7 @@ import { useProducts } from "@/app/hooks/useProducts";
 import { toast } from "sonner";
 import ProductCard from "../components/ProductCard";
 import { HomeCarousel } from "../../components/home/HomeCarousel";
-import { GetStartedButton } from "../../components/home/GetStartedButton";
-import { LearnMoreButton } from "../../components/home/LearnMoreButton";
-import { Testimonials } from "../../components/home/Testimonials";
+import { Testimonials } from "../../components/home/testimonials/Testimonials";
 
 const TAB_STORAGE_KEY = "sova-active-tab";
 

@@ -20,7 +20,6 @@ import endImg from "../../public/carousel/end.png";
 
 interface HomeCarouselProps {
   onGetStarted: () => void;
-  onLearnMore: () => void;
 }
 
 const carouselImages = [
@@ -28,30 +27,30 @@ const carouselImages = [
     src: startImg,
     showButton: true,
     buttonPosition:
-      "md:bottom-[8%] md:left-[14.66666%] lg:bottom-[12%] lg:left-[12%] xl:bottom-[12%] xl:left-[12%]",
+      "md:bottom-[10%] md:left-[14%] lg:bottom-[12%] lg:left-[13%] xl:bottom-[12%] xl:left-[13%]",
   },
   {
     src: via1Img,
     showButton: true,
     buttonPosition:
-      "md:bottom-[12%] md:left-[17.66666%] lg:bottom-[16%] lg:left-[16%] xl:bottom-[16%] xl:left-[16%]",
+      "md:bottom-[18%] md:left-[17.66666%] lg:bottom-[19%] lg:left-[16%] xl:bottom-[19%] xl:left-[16.5%]",
   },
   {
     src: via2Img,
     showButton: true,
     buttonPosition:
-      "md:bottom-[8%] md:left-[14.66666%] lg:bottom-[12%] lg:left-[12%] xl:bottom-[16%] xl:left-[10%]",
+      "md:bottom-[22%] md:left-[15%] lg:bottom-[22%] lg:left-[15%] xl:bottom-[22%] xl:left-[15%]",
   },
   {
     src: via3Img,
     showButton: true,
     buttonPosition:
-      "md:bottom-[8%] md:left-[14.66666%] lg:bottom-[12%] lg:left-[12%] xl:bottom-[16%] xl:left-[10%]",
+      "md:bottom-[20%] md:left-[15%] lg:bottom-[20%] lg:left-[15%] xl:bottom-[20%] xl:left-[14.5%]",
   },
   { src: endImg, showButton: false, buttonPosition: "" },
 ];
 
-export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
+export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
   const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -62,7 +61,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
     if (!api) return;
     intervalRef.current = setInterval(() => {
       api.scrollNext();
-    }, 5000);
+    }, 5000000);
   }, [api]);
 
   useEffect(() => {
@@ -96,7 +95,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
                     className="w-full h-full object-cover rounded-2xl"
                     priority={index === 0}
                   />
-                  {/* {item.showButton && (
+                  {item.showButton && (
                     <div
                       className={`absolute ${item.buttonPosition} -translate-x-1/2 z-20`}
                     >
@@ -105,7 +104,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
                         className="hidden md:flex"
                       />
                     </div>
-                  )} */}
+                  )}
                 </div>
               </CarouselItem>
             ))}

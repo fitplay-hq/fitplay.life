@@ -106,7 +106,7 @@ export function Testimonials() {
             Real Stories, Real <span className="text-emerald-600">Results</span>
           </h2>
           <p className="max-w-xl mx-auto mt-4 text-base leading-relaxed text-gray-600">
-            Hear directly from our community about how FitPlay has transformed
+            Hear directly from our community about how Sova has transformed
             their health and wellness journey.
           </p>
         </div>

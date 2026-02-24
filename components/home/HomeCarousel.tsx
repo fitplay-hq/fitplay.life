@@ -29,7 +29,7 @@ const carouselImages = [
     src: startImg,
     showButton: true,
     buttonPosition:
-      "md:bottom-[8%] md:left-[14.66666%] lg:bottom-[12%] lg:left-[12%] xl:bottom-[16%] xl:left-[10%]",
+      "md:bottom-[8%] md:left-[14.66666%] lg:bottom-[12%] lg:left-[12%] xl:bottom-[12%] xl:left-[12%]",
   },
   {
     src: via1Img,
@@ -57,10 +57,26 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
 
   useEffect(() => {
     if (!api) return;
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 70000000);
-    return () => clearInterval(interval);
+
+    let interval: ReturnType<typeof setInterval>;
+
+    const startTimer = () => {
+      clearInterval(interval);
+      interval = setInterval(() => {
+        api.scrollNext();
+      }, 7000);
+    };
+
+    startTimer();
+
+    api.on("select", startTimer);
+    api.on("pointerDown", startTimer);
+
+    return () => {
+      clearInterval(interval);
+      api.off("select", startTimer);
+      api.off("pointerDown", startTimer);
+    };
   }, [api]);
 
   return (
@@ -73,7 +89,7 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
         >
           <CarouselPrevious
             variant="ghost"
-            className="hidden sm:flex absolute left-0 top-0 h-full w-12 -translate-y-0 rounded-none rounded-l-2xl bg-neutral-500/30 hover:bg-neutral-500/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-4 md:[&_svg]:size-5 lg:[&_svg]:size-6 text-white"
+            className="hidden sm:flex absolute left-4 size-8 sm:size-10 rounded-full bg-black/30 hover:bg-black/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-6 md:[&_svg]:size-8 text-white backdrop-blur-sm"
           />
           <CarouselContent>
             {carouselImages.map((item, index) => (
@@ -101,11 +117,11 @@ export function HomeCarousel({ onGetStarted, onLearnMore }: HomeCarouselProps) {
           </CarouselContent>
           <CarouselNext
             variant="ghost"
-            className="hidden sm:flex absolute right-0 top-0 h-full w-12 -translate-y-0 rounded-none rounded-r-2xl bg-neutral-500/30 hover:bg-neutral-500/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-4 md:[&_svg]:size-5 lg:[&_svg]:size-6 text-white"
+            className="hidden sm:flex absolute right-4 size-8 sm:size-10 rounded-full bg-black/30 hover:bg-black/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-6 md:[&_svg]:size-8 text-white backdrop-blur-sm"
           />
         </Carousel>
       </div>
-      {/* Add Get STarted button here which is only visible on mobile until the md breakpoint */}
+      {/* Add Get Started button here which is only visible on mobile until the md breakpoint */}
       <div className="md:hidden mt-4">
         <GetStartedButton onClick={onGetStarted} />
       </div>

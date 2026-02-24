@@ -22,6 +22,7 @@ import ProductCard from "../components/ProductCard";
 import { HomeCarousel } from "../../components/home/HomeCarousel";
 import { GetStartedButton } from "../../components/home/GetStartedButton";
 import { LearnMoreButton } from "../../components/home/LearnMoreButton";
+import { Testimonials } from "../../components/home/Testimonials";
 
 const TAB_STORAGE_KEY = "sova-active-tab";
 
@@ -705,6 +706,8 @@ export default function SovaHealthPage() {
             }}
           />
         </div>
+
+        <Testimonials />
 
         <div className="max-w-7xl mx-auto mb-16" id="module">
           <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">

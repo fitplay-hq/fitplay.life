@@ -231,7 +231,7 @@ export default function SovaHealthPage() {
   const quizzes = [
     {
       title: "Gut Health Assessment",
-      description: "Discover your digestive gut score",
+      description: "Discover your gut score",
       duration: "5 min",
       color: "from-emerald-500 to-teal-500",
     },
@@ -716,7 +716,7 @@ export default function SovaHealthPage() {
                 data-state={activeTab === "quiz" ? "active" : "inactive"}
               >
                 <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Assessments</span>
+                <span>Assessment</span>
               </button>
               <button
                 onClick={() => changeTab("course")}
@@ -746,7 +746,7 @@ export default function SovaHealthPage() {
                       Health Assessment
                     </h2>
                     <p className="text-gray-600">
-                      Take our expert-designed assessments to understand your
+                      Take our expert-designed assessment to understand your
                       health better
                     </p>
                   </div>
@@ -762,7 +762,7 @@ export default function SovaHealthPage() {
                           >
                             <Image
                                 src={Digestive}
-                                alt="Assessments"
+                                alt="Assessment"
                                 className="w-7 h-7 sm:w-5 sm:h-5 invert"
                               />
                           </div>

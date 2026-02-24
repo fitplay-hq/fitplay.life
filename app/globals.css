@@ -57,6 +57,18 @@
   --color-emerald-700: var(--fitplay-green-700);
   --color-emerald-800: var(--fitplay-green-800);
   --color-emerald-900: var(--fitplay-green-900);
+
+  --color-fitplay-green: var(--fitplay-green);
+  --color-fitplay-green-50: var(--fitplay-green-50);
+  --color-fitplay-green-100: var(--fitplay-green-100);
+  --color-fitplay-green-200: var(--fitplay-green-200);
+  --color-fitplay-green-300: var(--fitplay-green-300);
+  --color-fitplay-green-400: var(--fitplay-green-400);
+  --color-fitplay-green-500: var(--fitplay-green-500);
+  --color-fitplay-green-600: var(--fitplay-green-600);
+  --color-fitplay-green-700: var(--fitplay-green-700);
+  --color-fitplay-green-800: var(--fitplay-green-800);
+  --color-fitplay-green-900: var(--fitplay-green-900);
 }
 
 :root {

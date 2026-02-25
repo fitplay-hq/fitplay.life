@@ -8,7 +8,7 @@ import {
   Check,
   Clock,
   Star,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import ProductCard from "../components/ProductCard";
 import { HomeCarousel } from "../../components/main/HomeCarousel";
 import { Testimonials } from "../../components/main/testimonials/Testimonials";
+import { PricingSection } from "../../components/main/pricing/PricingSection";
 import Digestive from "../../public/digestive.svg";
 import Image from "next/image";
 
@@ -82,13 +83,12 @@ function ProductCardSkeleton() {
 }
 
 export default function SovaHealthPage() {
- const [activeTab, setActiveTab] = useState("quiz");
-   const { user, isAuthenticated,  refreshSession } = useUser();
-   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
-   const [showCreditConfirm, setShowCreditConfirm] = useState(false);
-   const [showCreditCheckout, setShowCreditCheckout] = useState(false);
-const [isProcessing, setIsProcessing] = useState(false);
-   
+  const [activeTab, setActiveTab] = useState("quiz");
+  const { user, isAuthenticated, refreshSession } = useUser();
+  const [isLoadingProgress, setIsLoadingProgress] = useState(true);
+  const [showCreditConfirm, setShowCreditConfirm] = useState(false);
+  const [showCreditCheckout, setShowCreditCheckout] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -174,7 +174,7 @@ const [isProcessing, setIsProcessing] = useState(false);
     image?: string | null;
     company?: any;
     isDemo?: boolean;
-    companyId?:string
+    companyId?: string;
     hasPaidBundle?: boolean;
     hasWellnessStarterBundle?: boolean;
     phone?: string | null;
@@ -585,22 +585,23 @@ const [isProcessing, setIsProcessing] = useState(false);
                   </span>
                 </div>
 
-          {/* CTA */}
-          <button
-         
-            onClick={async () => {
+                {/* CTA */}
+                <button
+                  onClick={async () => {
+                    if (typedUser?.isDemo) {
+                      toast.error(
+                        "Demo users can Make Payment through credits only"
+                      );
+                      return;
+                    }
 
-              if(typedUser?.isDemo){
-                toast.error("Demo users can Make Payment through credits only");
-                return;
-              }
-              
-
-              const script = document.createElement('script');
-              script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-              script.async = true;
-              document.body.appendChild(script);
-              await new Promise((resolve) => { script.onload = resolve; });
+                    const script = document.createElement("script");
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                    script.async = true;
+                    document.body.appendChild(script);
+                    await new Promise((resolve) => {
+                      script.onload = resolve;
+                    });
 
                     const orderRes = await fetch("/api/payments/create-order", {
                       method: "POST",
@@ -615,250 +616,230 @@ const [isProcessing, setIsProcessing] = useState(false);
                     }
                     console.log("typed user:", typedUser);
 
-              console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
-              const options = {
-                key: orderData.key,
-                amount: 29900,
-                currency: 'INR',
-                name: 'FitPlay Life',
-                description: 'Wellness Starter Bundle',
-                order_id: orderData.razorpayOrderId,
-                handler: async function (response: any) {
-                  console.log("RAZORPAY FULL RESPONSE:", response);
-                  const verifyRes = await fetch('/api/payments/verify-guest', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      razorpay_payment_id: response.razorpay_payment_id,
-                      razorpay_order_id: response.razorpay_order_id,
-                      razorpay_signature: response.razorpay_signature,
-                      bundle: true
-                    })
-                  });
-                  
-                  if (verifyRes.ok) {
-                    toast.success('Payment successful! Access unlocked.');
-                    setShowPaidModal(false);
-                    await refreshSession();
-                    
-                  } else {
-                    const data = await verifyRes.json();
-                    toast.error(data.error || 'Payment verification failed');
-                  }
-                },
-                prefill: {
-                  name: typedUser?.name || '',
-                  email: typedUser?.email || '',
-                  contact: typedUser?.phone || ''
-                },
-                theme: { color: '#10B981' }
-              };
-              const rzp = new window.Razorpay(options);
-              rzp.open();
-            }}
-            className={`w-full py-3.5 rounded-xl font-bold text-base mb-3 transition-all
+                    console.log(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+                    const options = {
+                      key: orderData.key,
+                      amount: 29900,
+                      currency: "INR",
+                      name: "FitPlay Life",
+                      description: "Wellness Starter Bundle",
+                      order_id: orderData.razorpayOrderId,
+                      handler: async function (response: any) {
+                        console.log("RAZORPAY FULL RESPONSE:", response);
+                        const verifyRes = await fetch(
+                          "/api/payments/verify-guest",
+                          {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              razorpay_payment_id: response.razorpay_payment_id,
+                              razorpay_order_id: response.razorpay_order_id,
+                              razorpay_signature: response.razorpay_signature,
+                              bundle: true,
+                            }),
+                          }
+                        );
+
+                        if (verifyRes.ok) {
+                          toast.success("Payment successful! Access unlocked.");
+                          setShowPaidModal(false);
+                          await refreshSession();
+                        } else {
+                          const data = await verifyRes.json();
+                          toast.error(
+                            data.error || "Payment verification failed"
+                          );
+                        }
+                      },
+                      prefill: {
+                        name: typedUser?.name || "",
+                        email: typedUser?.email || "",
+                        contact: typedUser?.phone || "",
+                      },
+                      theme: { color: "#10B981" },
+                    };
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                  }}
+                  className={`w-full py-3.5 rounded-xl font-bold text-base mb-3 transition-all
   ${
     typedUser?.isDemo
       ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
       : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-200"
   }
 `}
-          >
-            Unlock Now — ₹299 only
-          </button>
-          <button 
-          onClick={() => {
-  setShowCreditCheckout(true);
-}}
-          
-          // onClick={async () => {
-          //   const res = await fetch("/api/bundle-purchase",
-          //     {method : "POST",
-          //     headers: { "Content-Type": "application/json" }
-             
-          //     })
-          //   const data = await res.json();
-          //   if (data.error) {
-          //     toast.error(data.error);
-          //   } else {
-          //     toast.success("Bundle purchased successfully!");
-          //     setShowPaidModal(false)
-          //     await refreshSession();
-          //   }
-          // }}
-          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 mb-3"
-          >
+                >
+                  Unlock Now — ₹299 only
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCreditCheckout(true);
+                  }}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-base hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 mb-3"
+                >
+                  Buy Through Credits
+                </button>
 
-            Buy Through Credits
-
-          </button>
-
-          <button
-            onClick={() => setShowPaidModal(false)}
-            className="w-full py-2.5 rounded-xl text-gray-400 text-sm hover:text-gray-600 transition-colors"
-          >
-            Maybe later
-          </button>
+                <button
+                  onClick={() => setShowPaidModal(false)}
+                  className="w-full py-2.5 rounded-xl text-gray-400 text-sm hover:text-gray-600 transition-colors"
+                >
+                  Maybe later
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}  
 
- {showCreditCheckout && (
-  <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/70 backdrop-blur-md">
-    
-    <div className="relative bg-white w-full max-w-2xl mx-4 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95">
-
-      {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-white">
-        <h2 className="text-2xl font-bold">Checkout</h2>
-        <p className="text-sm opacity-90">Review your bundle before confirming</p>
-      </div>
-
-      {/* Content */}
-      <div className="p-8">
-
-        {/* Product Card */}
-        <div className="border rounded-2xl p-6 mb-6 bg-gradient-to-br from-emerald-50 to-white">
-
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-xl bg-emerald-100 flex items-center justify-center text-3xl">
-              🩺
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">
-                Wellness Starter Bundle
-              </h3>
-              <p className="text-sm text-gray-500">
-                Complete Gut Health Package
+      {showCreditCheckout && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/70 backdrop-blur-md">
+          <div className="relative bg-white w-full max-w-2xl mx-4 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-white">
+              <h2 className="text-2xl font-bold">Checkout</h2>
+              <p className="text-sm opacity-90">
+                Review your bundle before confirming
               </p>
             </div>
-          </div>
 
-          {/* What's Included */}
-          <div className="space-y-3 text-sm text-gray-700">
-            <div className="flex items-center justify-between">
-              <span>🧬 Gut Health Assessment</span>
-              <Check className="w-4 h-4 text-emerald-500" />
-            </div>
+            {/* Content */}
+            <div className="p-8">
+              {/* Product Card */}
+              <div className="border rounded-2xl p-6 mb-6 bg-gradient-to-br from-emerald-50 to-white">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-xl bg-emerald-100 flex items-center justify-center text-3xl">
+                    🩺
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Wellness Starter Bundle
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Complete Gut Health Package
+                    </p>
+                  </div>
+                </div>
 
-            <div className="flex items-center justify-between">
-              <span>🎓 Masterclass Course</span>
-              <Check className="w-4 h-4 text-emerald-500" />
-            </div>
+                {/* What's Included */}
+                <div className="space-y-3 text-sm text-gray-700">
+                  <div className="flex items-center justify-between">
+                    <span>🧬 Gut Health Assessment</span>
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  </div>
 
-            <div className="flex items-center justify-between">
-              <span>👨‍⚕️ 1:1 Expert Consultation</span>
-              <Check className="w-4 h-4 text-emerald-500" />
+                  <div className="flex items-center justify-between">
+                    <span>🎓 Masterclass Course</span>
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span>👨‍⚕️ 1:1 Expert Consultation</span>
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Wallet Summary */}
+              <div className="bg-gray-50 rounded-2xl p-6 mb-6 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span>Bundle Price</span>
+                  <span className="font-semibold text-gray-900">
+                    299 Credits
+                  </span>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowCreditCheckout(false)}
+                  className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-600 font-semibold"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  disabled={isProcessing}
+                  onClick={async () => {
+                    setIsProcessing(true);
+
+                    const res = await fetch("/api/bundle-purchase", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                    });
+
+                    const data = await res.json();
+
+                    if (data.error) {
+                      toast.error(data.error);
+                      setIsProcessing(false);
+                    } else {
+                      toast.success("Bundle unlocked successfully!");
+                      await refreshSession();
+                      setShowCreditCheckout(false);
+                      setShowPaidModal(false);
+                    }
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-xl transition-all"
+                >
+                  {isProcessing ? "Processing..." : "Complete Purchase"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Wallet Summary */}
-        <div className="bg-gray-50 rounded-2xl p-6 mb-6 space-y-3">
+      {showCreditConfirm && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Confirm Purchase
+            </h3>
 
-          <div className="flex justify-between text-sm">
-            <span>Bundle Price</span>
-            <span className="font-semibold text-gray-900">299 Credits</span>
+            <p className="text-sm text-gray-600 mb-6">
+              This will deduct{" "}
+              <span className="font-semibold text-emerald-600">
+                299 credits
+              </span>{" "}
+              from your wallet. Do you want to continue?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCreditConfirm(false)}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  const res = await fetch("/api/bundle-purchase", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                  });
+
+                  const data = await res.json();
+
+                  if (data.error) {
+                    toast.error(data.error);
+                  } else {
+                    toast.success("Bundle purchased successfully!");
+                    await refreshSession();
+                    setShowCreditConfirm(false);
+                    setShowPaidModal(false);
+                  }
+                }}
+                className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700"
+              >
+                Confirm Purchase
+              </button>
+            </div>
           </div>
-
-          
-
-          
         </div>
-
-        {/* CTA Buttons */}
-        <div className="flex gap-4">
-
-          <button
-            onClick={() => setShowCreditCheckout(false)}
-            className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-600 font-semibold"
-          >
-            Cancel
-          </button>
-
-          <button
-            disabled={isProcessing}
-            onClick={async () => {
-              setIsProcessing(true);
-
-              const res = await fetch("/api/bundle-purchase", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-              });
-
-              const data = await res.json();
-
-              if (data.error) {
-                toast.error(data.error);
-                setIsProcessing(false);
-              } else {
-                toast.success("Bundle unlocked successfully!");
-                await refreshSession();
-                setShowCreditCheckout(false);
-                setShowPaidModal(false);
-              }
-            }}
-            className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:shadow-xl transition-all"
-          >
-            {isProcessing ? "Processing..." : "Complete Purchase"}
-          </button>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-)}
-
-{showCreditConfirm && (
-  <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-      
-      <h3 className="text-lg font-bold text-gray-900 mb-2">
-        Confirm Purchase
-      </h3>
-
-      <p className="text-sm text-gray-600 mb-6">
-        This will deduct <span className="font-semibold text-emerald-600">299 credits</span> from your wallet.
-        Do you want to continue?
-      </p>
-
-      <div className="flex gap-3">
-        <button
-          onClick={() => setShowCreditConfirm(false)}
-          className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={async () => {
-            const res = await fetch("/api/bundle-purchase", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" }
-            });
-
-            const data = await res.json();
-
-            if (data.error) {
-              toast.error(data.error);
-            } else {
-              toast.success("Bundle purchased successfully!");
-              await refreshSession();
-              setShowCreditConfirm(false);
-              setShowPaidModal(false);
-            }
-          }}
-          className="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700"
-        >
-          Confirm Purchase
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
       <div className="h-24 " />
 
       <div className="mx-auto min-h-screen px-4 sm:px-6 lg:px-8 pb-20">
@@ -936,10 +917,10 @@ const [isProcessing, setIsProcessing] = useState(false);
                             className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4`}
                           >
                             <Image
-                                src={Digestive}
-                                alt="Assessment"
-                                className="w-7 h-7 sm:w-5 sm:h-5 invert"
-                              />
+                              src={Digestive}
+                              alt="Assessment"
+                              className="w-7 h-7 sm:w-5 sm:h-5 invert"
+                            />
                           </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-2">
                             {quiz.title}
@@ -1167,6 +1148,12 @@ const [isProcessing, setIsProcessing] = useState(false);
             </div>
           </div>
         </div>
+
+        {/* Add pricing section here */}
+        <div className="max-w-7xl mx-auto my-12" id="pricing">
+          <PricingSection />
+        </div>
+
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">

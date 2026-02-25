@@ -146,10 +146,6 @@ export default function Footer() {
                 <span className="text-gray-400">contact@fitplay.life</span>
               </li>
               <li className="flex items-start space-x-3">
-                <Phone className="w-5 h-5 text-emerald-400 mt-0.5" />
-                <span className="text-gray-400">+91 1800-123-4567</span>
-              </li>
-              <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-emerald-400 mt-0.5" />
                 <span className="text-gray-400">Gurugram, India</span>
               </li>

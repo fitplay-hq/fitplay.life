@@ -536,13 +536,8 @@ export default function ProductPage({
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-3">
-                {product?.vendorName || 'Sova Health'} has been providing premium wellness
-                products for over 15 years, helping millions achieve their
-                health goals.
+                {product?.vendorName || 'Sova Health'} is India’s first & only full-stack gut health brand, offering microbiome and food intolerance testing, data-driven reports, and custom probiotics, with one of the largest Indian microbiome datasets.
               </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <div>{product.noOfReviews || "500+"} Products</div>
-              </div>
             </div>
           </div>
         </div>

@@ -62,7 +62,18 @@ const carouselImages = [
 
 export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
   const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   const startTimer = React.useCallback(() => {
     if (intervalRef.current) {
@@ -131,6 +142,23 @@ export function HomeCarousel({ onGetStarted }: HomeCarouselProps) {
             variant="ghost"
             className="hidden sm:flex absolute right-4 size-8 sm:size-10 rounded-full bg-black/30 hover:bg-black/50 border-none opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 [&_svg]:size-6 md:[&_svg]:size-8 text-white backdrop-blur-sm"
           />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20 md:bottom-6">
+            {carouselImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  api?.scrollTo(index);
+                  startTimer();
+                }}
+                className={`transition-all duration-300 rounded-full ${
+                  current === index
+                    ? "w-2.5 h-2.5 bg-fitplay-green-600 md:w-8 md:h-1.5"
+                    : "w-2 h-2 bg-gray-400/80 hover:bg-gray-600/80 md:w-4 md:h-1.5"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </Carousel>
       </div>
       {/* Add Get Started button here which is only visible on mobile until the md breakpoint */}

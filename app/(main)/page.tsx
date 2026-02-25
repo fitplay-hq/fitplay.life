@@ -18,8 +18,8 @@ import ConnectShopifyPage from "../components/vendor/vendor";
 import { useProducts } from "@/app/hooks/useProducts";
 import { toast } from "sonner";
 import ProductCard from "../components/ProductCard";
-import { HomeCarousel } from "../../components/home/HomeCarousel";
-import { Testimonials } from "../../components/home/testimonials/Testimonials";
+import { HomeCarousel } from "../../components/main/HomeCarousel";
+import { Testimonials } from "../../components/main/testimonials/Testimonials";
 import Digestive from "../../public/digestive.svg";
 import Image from "next/image";
 

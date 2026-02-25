@@ -71,17 +71,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
 
           <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-auto lg:h-[440px]">
-            
             {/* Image */}
             <div className="relative overflow-hidden bg-gray-50 aspect-square">
               <Image
-    src={product.images[0] || "/placeholder.png"}
-    alt={product.name}
-    fill
-    sizes="(max-width: 768px) 100vw, 25vw"
-    className="object-cover"
-  />
-             
+                src={product.images[0] || "/placeholder.png"}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 25vw"
+                className="object-cover"
+              />
             </div>
 
             {/* Content */}

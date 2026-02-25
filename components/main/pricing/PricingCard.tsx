@@ -147,7 +147,29 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 {/* Graphic Image */}
                 <div className="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden shadow-sm">
                   <img
-                    src={feature.icon}
+                    src={
+                      feature.title
+                        .toLowerCase()
+                        .includes("probiotic deficiency test")
+                        ? "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fu1dfrpi3ij.ufs.sh%2Ff%2FWeAa8lScfGDEqaVsTNICdMUXY9x7ADl21anWvH08eJ3okrEO&w=828&q=75"
+                        : feature.title.toLowerCase().includes("glass bottle")
+                          ? "/packs/glass_bottle.jpg"
+                          : feature.title
+                                .toLowerCase()
+                                .includes("counselling") ||
+                              feature.title
+                                .toLowerCase()
+                                .includes("consultation")
+                            ? "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0687%2F4523%2F2705%2Ffiles%2FConsultOldPDP.png%3Fv%3D1743995627&w=828&q=75"
+                            : feature.title
+                                  .toLowerCase()
+                                  .includes("gut score") ||
+                                feature.title
+                                  .toLowerCase()
+                                  .includes("gut report")
+                              ? "/packs/gut_report.png"
+                              : feature.icon
+                    }
                     alt={feature.title}
                     className="w-full h-full object-cover"
                   />

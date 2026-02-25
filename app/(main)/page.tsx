@@ -1209,7 +1209,7 @@ export default function SovaHealthPage() {
             <div className="flex-1 w-full bg-white relative overflow-hidden">
               <div
                 className="calendly-inline-widget w-full h-full"
-                data-url="https://calendly.com/expert-consult-fitplay/30min?background_color=48eca2&primary_color=48eca2"
+                data-url="https://calendly.com/expert-consult-fitplay/30min?primary_color=00ff25"
                 style={{ minWidth: "320px", height: "100%" }}
               ></div>
             </div>

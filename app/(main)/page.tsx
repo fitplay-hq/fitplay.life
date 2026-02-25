@@ -160,9 +160,23 @@ export default function SovaHealthPage() {
 
   const [open, setOpen] = useState(false);
   const [showPaidModal, setShowPaidModal] = useState(false);
+  const [showCalendly, setShowCalendly] = useState(false);
   const [paywallType, setPaywallType] = useState<
     "quiz" | "course" | "consultation" | "start" | null
   >(null); // 'quiz' | 'course' | 'consultation'
+
+  useEffect(() => {
+    if (showCalendly) {
+      const existingScript = document.getElementById("calendly-script");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "calendly-script";
+        script.src = "https://assets.calendly.com/assets/external/widget.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }
+  }, [showCalendly]);
 
   // Helper: is user a company user
   // Extend user type to include hasPaidBundle and phone
@@ -1077,10 +1091,7 @@ export default function SovaHealthPage() {
                      hover:shadow-xl transition-all duration-300 hover:scale-105"
                               onClick={() =>
                                 requirePaywallOrAction("consultation", () =>
-                                  window.open(
-                                    "https://app.cowlendar.com/cal/6997d577da5ca6374f480b5f/45751491854509",
-                                    "_blank"
-                                  )
+                                  setShowCalendly(true)
                                 )
                               }
                             >
@@ -1124,11 +1135,7 @@ export default function SovaHealthPage() {
                                     onClick={() =>
                                       requirePaywallOrAction(
                                         "consultation",
-                                        () =>
-                                          window.open(
-                                            "https://app.cowlendar.com/cal/6997d577da5ca6374f480b5f/45751491854509",
-                                            "_blank"
-                                          )
+                                        () => setShowCalendly(true)
                                       )
                                     }
                                     className="px-4 py-2 bg-emerald-600 text-white rounded-lg
@@ -1183,6 +1190,32 @@ export default function SovaHealthPage() {
           </div>
         </div>
       </div>
+
+      {showCalendly && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md">
+          <div className="relative bg-white w-full max-w-4xl mx-4 rounded-3xl shadow-2xl overflow-hidden h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="text-xl font-bold text-gray-900">
+                Book Expert Consultation
+              </h3>
+              <button
+                onClick={() => setShowCalendly(false)}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-900"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="flex-1 w-full bg-white relative overflow-hidden">
+              <div
+                className="calendly-inline-widget w-full h-full"
+                data-url="https://calendly.com/expert-consult-fitplay/30min?background_color=48eca2&primary_color=48eca2"
+                style={{ minWidth: "320px", height: "100%" }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

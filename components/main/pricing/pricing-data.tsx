@@ -4,19 +4,19 @@ import { PricingFeature } from "./PricingCard";
 export const starterFeatures: PricingFeature[] = [
   {
     id: 1,
-    icon: "https://images.unsplash.com/photo-1714642596931-2293df25c4a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9iaW90aWMlMjB0ZXN0JTIwa2l0JTIwaGVhbHRofGVufDF8fHx8MTc3MjAwODMyNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fu1dfrpi3ij.ufs.sh%2Ff%2FWeAa8lScfGDEqaVsTNICdMUXY9x7ADl21anWvH08eJ3okrEO&w=828&q=75",
     title: "Probiotic Deficiency Test",
     description: "report in 21 days",
   },
   {
     id: 2,
-    icon: "https://images.unsplash.com/photo-1633613287441-3f72304088ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxndXQlMjBoZWFsdGglMjByZXBvcnQlMjBzbWFydHBob25lfGVufDF8fHx8MTc3MjAwODMyNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "/packs/gut_report.png",
     title: "Gut Score & Detailed Report Card",
     description: "",
   },
   {
     id: 3,
-    icon: "https://images.unsplash.com/photo-1617170007444-368999506742?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxudXRyaXRpb25pc3QlMjBjb25zdWx0YXRpb24lMjBleHBlcnRzfGVufDF8fHx8MTc3MjAwODMyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0687%2F4523%2F2705%2Ffiles%2FConsultOldPDP.png%3Fv%3D1743995627&w=828&q=75",
     title: "1:1 counselling by a Gut expert",
     description: "to decode your report",
   },
@@ -28,7 +28,7 @@ export const starterFeatures: PricingFeature[] = [
   },
   {
     id: 5,
-    icon: "https://images.unsplash.com/photo-1588250243574-9458c28bc02e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnbGFzcyUyMHdhdGVyJTIwYm90dGxlJTIwYmx1ZXxlbnwxfHx8fDE3NzIwMDgzMjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "/packs/glass_bottle.jpg",
     title: "Motivational Personal Glass bottle",
     description: "Hydration reminder Water bottle",
   },
@@ -43,19 +43,19 @@ export const starterFeatures: PricingFeature[] = [
 export const eliteFeatures: PricingFeature[] = [
   {
     id: 1,
-    icon: "https://images.unsplash.com/photo-1714642596931-2293df25c4a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9iaW90aWMlMjB0ZXN0JTIwa2l0JTIwaGVhbHRofGVufDF8fHx8MTc3MjAwODMyNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fu1dfrpi3ij.ufs.sh%2Ff%2FWeAa8lScfGDEqaVsTNICdMUXY9x7ADl21anWvH08eJ3okrEO&w=828&q=75",
     title: "Probiotic Deficiency Test",
     description: "21 days",
   },
   {
     id: 2,
-    icon: "https://images.unsplash.com/photo-1633613287441-3f72304088ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxndXQlMjBoZWFsdGglMjByZXBvcnQlMjBzbWFydHBob25lfGVufDF8fHx8MTc3MjAwODMyNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "/packs/gut_report.png",
     title: "Gut Score & Detailed Report Card",
     description: "",
   },
   {
     id: 3,
-    icon: "https://images.unsplash.com/photo-1617170007444-368999506742?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxudXRyaXRpb25pc3QlMjBjb25zdWx0YXRpb24lMjBleHBlcnRzfGVufDF8fHx8MTc3MjAwODMyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "https://www.fitplay.life/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0687%2F4523%2F2705%2Ffiles%2FConsultOldPDP.png%3Fv%3D1743995627&w=828&q=75",
     title: "1:1 counselling by a Gut expert",
     description: "to decode your report",
   },
@@ -73,7 +73,7 @@ export const eliteFeatures: PricingFeature[] = [
   },
   {
     id: 6,
-    icon: "https://images.unsplash.com/photo-1588250243574-9458c28bc02e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnbGFzcyUyMHdhdGVyJTIwYm90dGxlJTIwYmx1ZXxlbnwxfHx8fDE3NzIwMDgzMjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    icon: "/packs/glass_bottle.jpg",
     title: "Motivational Personal Glass bottle",
     description: "Hydration reminder Water bottle",
   },

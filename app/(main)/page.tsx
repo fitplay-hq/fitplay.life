@@ -1182,7 +1182,14 @@ export default function SovaHealthPage() {
                   <ProductCardSkeleton key={i} />
                 ))
               : products
-                  .filter((product) => product.name != "Expert Consultation" && "Gut Pass (Elite Plan)" && "Gut Pass (Starter Plan)")
+                  .filter(
+                    (product) =>
+                      ![
+                        "Expert Consultation",
+                        "Gut Pass (Elite Plan)",
+                        "Gut Pass (Starter Plan)",
+                      ].includes(product.name)
+                  )
                   .slice(0, 4)
                   .map((product) => (
                     <ProductCard key={product.id} product={product} />

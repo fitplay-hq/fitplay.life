@@ -1,19 +1,26 @@
-import useSWR from 'swr';
-import { ProductModelType } from '@/lib/generated/zod/schemas';
+import useSWR from "swr";
+import { ProductModelType } from "@/lib/generated/zod/schemas";
+import { useState, useEffect } from "react";
 
 export const fetchProducts = async (): Promise<ProductModelType[]> => {
   // Skip during build time
-  if (typeof window === 'undefined') {        
+  if (typeof window === "undefined") {
     return [];
-  }  
-  
-  const response = await fetch('/api/products').then(res => res.json());
+  }
+
+  const response = await fetch("/api/products").then((res) => res.json());
   return response.data;
 };
 
 export const useProducts = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const { data, error, isLoading, mutate } = useSWR<ProductModelType[]>(
-    typeof window !== 'undefined' ? 'products' : null,
+    typeof window !== "undefined" ? "products" : null,
     fetchProducts,
     {
       revalidateOnFocus: false,
@@ -24,15 +31,15 @@ export const useProducts = () => {
       errorRetryCount: 5,
       errorRetryInterval: 2000,
       loadingTimeout: 15000,
-     
+
       keepPreviousData: true, // Keep previous data while loading new data
       refreshInterval: 0, // Disable automatic refresh to prevent flickering
     }
   );
 
   return {
-    products: data || [],
-    isLoading,
+    products: isMounted ? data || [] : [],
+    isLoading: isMounted ? isLoading : true,
     error,
     mutate,
   };

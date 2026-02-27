@@ -261,7 +261,8 @@ export default function SovaHealthPage() {
       title: "Complete Gut Health Masterclass",
       rating: 4.9,
       price: "",
-      image: "🌿",
+      image:
+        "/modules.png",
     },
   ];
 
@@ -991,8 +992,14 @@ export default function SovaHealthPage() {
                             )
                           }
                         >
-                          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 h-40 flex items-center justify-center text-8xl">
-                            {course.image}
+                          <div className="relative w-full h-48 bg-emerald-50/50">
+                            <Image
+                              src={course.image}
+                              alt={course.title}
+                              fill
+                              className="object-contain"
+                              priority
+                            />
                           </div>
                           <div className="p-6">
                             <div className="flex items-center gap-2 mb-3">

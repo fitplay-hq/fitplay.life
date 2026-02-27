@@ -21,10 +21,7 @@ import ProductCard from "../components/ProductCard";
 import { HomeCarousel } from "../../components/main/HomeCarousel";
 import { Testimonials } from "../../components/main/testimonials/Testimonials";
 import { PricingSection } from "../../components/main/pricing/PricingSection";
-import Digestive from "../../public/digestive.svg";
-import Image from "next/image";
-
-const TAB_STORAGE_KEY = "sova-active-tab";
+import { WellnessServices } from "../../components/main/wellness-services";
 
 function SimpleAnimatedHeading() {
   const texts = ["Learn About Gut Health", "Take Gut Test Today"];
@@ -55,53 +52,16 @@ function SimpleAnimatedHeading() {
     </h1>
   );
 }
-function ProductCardSkeleton() {
-  return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 animate-pulse">
-      {/* Image skeleton */}
-      <div className="h-48 bg-gray-200" />
-
-      {/* Content */}
-      <div className="p-5 space-y-3">
-        {/* Title */}
-        <div className="h-5 w-3/4 bg-gray-200 rounded" />
-
-        {/* Description */}
-        <div className="h-4 w-full bg-gray-200 rounded" />
-        <div className="h-4 w-5/6 bg-gray-200 rounded" />
-
-        {/* Rating */}
-        <div className="h-4 w-24 bg-gray-200 rounded" />
-
-        {/* Button */}
-        <div className="pt-4 border-t border-gray-100">
-          <div className="h-10 w-24 bg-gray-300 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
-}
+// ProductCardSkeleton is removed from here since it's now exported from WellnessServices if needed, but wait it's being used below for ProductCards.
+// Actually, I'll retain ProductCardSkeleton here to avoid breaking the later usage at line 1097 if I removed it directly... Wait, I should import it from WellnessServices or leave it. I'll just leave it here or re-import. Let me just leave ProductCardSkeleton alone for now, wait, I already defined it in WellnessServices. Let me import it.
+import { ProductCardSkeleton } from "../../components/main/wellness-services";
 
 export default function SovaHealthPage() {
-  const [activeTab, setActiveTab] = useState("quiz");
   const { user, isAuthenticated, refreshSession } = useUser();
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [showCreditConfirm, setShowCreditConfirm] = useState(false);
   const [showCreditCheckout, setShowCreditCheckout] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
-    if (savedTab) {
-      setActiveTab(savedTab);
-    }
-  }, []);
-  const changeTab = (tab: string) => {
-    setActiveTab(tab);
-    localStorage.setItem(TAB_STORAGE_KEY, tab);
-  };
 
   useEffect(() => {
     const load = async () => {
@@ -250,7 +210,8 @@ export default function SovaHealthPage() {
   const quizzes = [
     {
       title: "Gut Health Assessment",
-      description: "Discover your gut score",
+      description:
+        "Complete Gut Health Assessment | 5 Mins ",
       duration: "5 min",
       color: "from-emerald-500 to-teal-500",
     },
@@ -259,10 +220,21 @@ export default function SovaHealthPage() {
   const courses = [
     {
       title: "Complete Gut Health Masterclass",
+      description:
+        "6-Week Gut Health Masterclass | Expert-Led Curriculum | Comprehensive Guide to Restoring Your Microbiome & Vitality",
       rating: 4.9,
       price: "",
+      image: "/modules.png",
+    },
+  ];
+
+  const consultations = [
+    {
+      name: "Expert Consultation",
+      description:
+        "Online Gut Health Expert Consultation | 30 Mins | Personalised Nutrition & Supplement Recommendation",
       image:
-        "/modules.png",
+        "https://cdn.shopify.com/s/files/1/0687/4523/2705/files/ConsultOldPDP.png?v=1743995627",
     },
   ];
 
@@ -878,290 +850,18 @@ export default function SovaHealthPage() {
 
         <Testimonials />
 
-        <div className="max-w-7xl mx-auto mb-16" id="assessment">
-          <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3 border border-gray-100">
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
-              <button
-                onClick={() => changeTab("quiz")}
-                className={`tab-trigger ${activeTab === "quiz" ? "data-[state=active]" : ""}`}
-                data-state={activeTab === "quiz" ? "active" : "inactive"}
-              >
-                <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Assessment</span>
-              </button>
-              <button
-                onClick={() => changeTab("course")}
-                className={`tab-trigger ${activeTab === "course" ? "data-[state=active]" : ""}`}
-                data-state={activeTab === "course" ? "active" : "inactive"}
-              >
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Courses</span>
-              </button>
-              <button
-                onClick={() => changeTab("consultation")}
-                className={`tab-trigger ${activeTab === "consultation" ? "data-[state=active]" : ""}`}
-                data-state={
-                  activeTab === "consultation" ? "active" : "inactive"
-                }
-              >
-                <Video className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Consult</span>
-              </button>
-            </div>
-
-            <div className="px-2 sm:px-4 lg:px-6">
-              {activeTab === "quiz" && (
-                <div className="space-y-6">
-                  <div className="mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                      Health Assessment
-                    </h2>
-                    <p className="text-gray-600">
-                      Take our expert-designed assessment to understand your
-                      health better
-                    </p>
-                  </div>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {quizzes.map((quiz, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:scale-105"
-                        >
-                          <div
-                            className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4`}
-                          >
-                            <Image
-                              src={Digestive}
-                              alt="Assessment"
-                              className="w-7 h-7 sm:w-5 sm:h-5 invert"
-                            />
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            {quiz.title}
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-4">
-                            {quiz.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {quiz.duration}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => {
-                              requirePaywallOrAction("quiz", () => {
-                                setOpen(true);
-                                loadQuiz();
-                              });
-                            }}
-                            className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                          >
-                            Start
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "course" && (
-                <div className="space-y-6">
-                  <div className="mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                      Expert Courses
-                    </h2>
-                    <p className="text-gray-600">
-                      Learn from certified health professionals and transform
-                      your wellness
-                    </p>
-                  </div>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {courses.map((course, index) => {
-                      const buttonConfig = getButtonContent();
-                      return (
-                        <div
-                          key={index}
-                          className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
-                          onClick={() =>
-                            requirePaywallOrAction(
-                              "course",
-                              buttonConfig.onClick
-                            )
-                          }
-                        >
-                          <div className="relative w-full h-48 bg-emerald-50/50">
-                            <Image
-                              src={course.image}
-                              alt={course.title}
-                              fill
-                              className="object-contain"
-                              priority
-                            />
-                          </div>
-                          <div className="p-6">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="flex items-center gap-1 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-                                <Star className="w-3 h-3 fill-current" />
-                                {course.rating}
-                              </div>
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">
-                              {course.title}
-                            </h3>
-
-                            {/* Progress Section */}
-                            {courseProgress.isEnrolled && (
-                              <div className="mb-4 p-3 bg-emerald-50 rounded-lg">
-                                <div className="flex items-center justify-between text-xs text-emerald-700 mb-2">
-                                  <span className="font-semibold">
-                                    Your Progress
-                                  </span>
-                                  <span className="font-bold">
-                                    {courseProgress.progressPercentage}%
-                                  </span>
-                                </div>
-                                <Progress
-                                  value={courseProgress.progressPercentage}
-                                  className="h-2 bg-emerald-100"
-                                />
-                                <p className="text-xs text-emerald-600 mt-2">
-                                  {courseProgress.completedModules} of{" "}
-                                  {courseProgress.totalModules} modules
-                                  completed
-                                </p>
-                              </div>
-                            )}
-
-                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4 pb-4 border-b border-gray-100"></div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-2xl font-bold text-emerald-600">
-                                {course.price}
-                              </span>
-                              {isLoadingProgress ? (
-                                <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg" />
-                              ) : (
-                                <button
-                                  className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
-                                  onClick={() =>
-                                    requirePaywallOrAction(
-                                      "course",
-                                      buttonConfig.onClick
-                                    )
-                                  }
-                                >
-                                  {buttonConfig.icon}
-                                  {buttonConfig.text}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "consultation" && (
-                <div className="max-w-7xl mx-auto">
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                          Consultation
-                        </h2>
-                        <p className="text-gray-600">
-                          Consultation By Health Experts
-                        </p>
-                      </div>
-                      <ShoppingBag className="w-8 h-8 text-emerald-600" />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {isLoading
-                      ? Array.from({ length: 4 }).map((_, i) => (
-                          <ProductCardSkeleton key={i} />
-                        ))
-                      : products
-                          .filter(
-                            (product) => product.name === "Expert Consultation"
-                          )
-                          .slice(0, 4)
-                          .map((product) => (
-                            <div
-                              key={product.id}
-                              className="bg-white rounded-2xl overflow-hidden border border-gray-200
-                     hover:shadow-xl transition-all duration-300 hover:scale-105"
-                              onClick={() =>
-                                requirePaywallOrAction("consultation", () =>
-                                  setShowCalendly(true)
-                                )
-                              }
-                            >
-                              {/* Image */}
-                              <div className="relative h-auto bg-gradient-to-br from-emerald-100 to-teal-100">
-                                <img
-                                  src={
-                                    product.images?.[0] || "/placeholder.png"
-                                  }
-                                  alt={product.name}
-                                  className="w-full h-full aspect-square object-cover"
-                                />
-                              </div>
-
-                              {/* Content */}
-                              <div className="p-5">
-                                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
-                                  {product.name}
-                                </h3>
-
-                                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                                  {product.description}
-                                </p>
-
-                                {product.avgRating && (
-                                  <div className="flex items-center gap-1 mb-4">
-                                    <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                                    <span className="text-sm font-medium text-gray-700">
-                                      {product.avgRating}
-                                    </span>
-                                    {product.noOfReviews && (
-                                      <span className="text-xs text-gray-500">
-                                        ({product.noOfReviews})
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                  <button
-                                    onClick={() =>
-                                      requirePaywallOrAction(
-                                        "consultation",
-                                        () => setShowCalendly(true)
-                                      )
-                                    }
-                                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg
-                           font-semibold hover:bg-emerald-700 transition-all
-                           flex items-center gap-2"
-                                  >
-                                    Take Consultation
-                                    <ArrowRight className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <WellnessServices
+          quizzes={quizzes}
+          courses={courses}
+          consultations={consultations}
+          courseProgress={courseProgress}
+          isLoadingProgress={isLoadingProgress}
+          getButtonContent={getButtonContent}
+          requirePaywallOrAction={requirePaywallOrAction}
+          setOpen={setOpen}
+          loadQuiz={loadQuiz}
+          setShowCalendly={setShowCalendly}
+        />
 
         {/* Add pricing section here */}
         <div className="max-w-7xl mx-auto my-12" id="pricing">

@@ -94,13 +94,7 @@ export const PromotionalBanner = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="lg:w-1/2 relative z-10 flex justify-center w-full"
           >
-            {/* Abstract Graphic / Image Container */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-              className="relative w-full aspect-[4/3] max-w-[500px] rounded-3xl overflow-hidden shadow-2xl border-[6px] border-white bg-white"
-            >
+            <div className="hidden md:block relative w-full aspect-[1/1] max-w-[500px] rounded-3xl overflow-hidden shadow-2xl border-[6px] border-white bg-white">
               <Image
                 src="https://u1dfrpi3ij.ufs.sh/f/WeAa8lScfGDEig7rjQ09QJ0mzTqtGBZN63lRMyh48wCuIgYs"
                 alt="Corporate Wellness Dashboard"
@@ -108,8 +102,8 @@ export const PromotionalBanner = () => {
                 className="object-contain"
                 priority
               />
+            </div>
             </motion.div>
-          </motion.div>
         </div>
       </div>
 

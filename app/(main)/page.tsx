@@ -210,10 +210,10 @@ export default function SovaHealthPage() {
   const quizzes = [
     {
       title: "Gut Health Assessment",
-      description:
-        "Complete Gut Health Assessment | 5 Mins ",
+      description: "Complete Gut Health Assessment | 5 Mins ",
       duration: "5 min",
       color: "from-emerald-500 to-teal-500",
+      image: "/carousel/via-2.png",
     },
   ];
 
@@ -243,7 +243,9 @@ export default function SovaHealthPage() {
       return {
         text: "Enroll Now",
         onClick: handleEnrollClick,
-        className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200",
+        className:
+          "w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-2",
+        icon: <ArrowRight className="w-4 h-4" />,
       };
     } else if (courseProgress.progressPercentage === 100) {
       return {
@@ -256,7 +258,9 @@ export default function SovaHealthPage() {
       return {
         text: "Resume",
         onClick: handleResumeClick,
-        className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+        className:
+          "w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-2",
+        icon: <ArrowRight className="w-4 h-4" />,
       };
     }
   };

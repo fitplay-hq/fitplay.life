@@ -90,14 +90,14 @@ export const CourseSection = ({
                     <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg" />
                   ) : (
                     <button
-                      className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${buttonConfig.className}`}
+                      className={`transition-all ${buttonConfig.className}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         requirePaywallOrAction("course", buttonConfig.onClick);
                       }}
                     >
-                      {buttonConfig.icon}
                       {buttonConfig.text}
+                      {buttonConfig.icon}
                     </button>
                   )}
                 </div>

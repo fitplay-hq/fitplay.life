@@ -147,6 +147,10 @@ const [basePrice, setBasePrice] = useState("");
   // Update form data when editingProduct changes
  useEffect(() => {
   if (editingProduct) {
+    const categoryName = editingProduct.category?.name || "";
+    const subCategoryName = editingProduct.subCategory?.name || "";
+     setSelectedCategory(categoryName);
+    setSelectedSubcategory(subCategoryName);
     setFormData({
       name: editingProduct.name || "",
       description: editingProduct.description || "",

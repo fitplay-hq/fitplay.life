@@ -90,7 +90,7 @@ export const CourseSection = ({
                     <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg" />
                   ) : (
                     <button
-                      className={`transition-all ${buttonConfig.className}`}
+                      className={`transition-all mt-3 ${buttonConfig.className}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         requirePaywallOrAction("course", buttonConfig.onClick);

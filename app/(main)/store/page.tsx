@@ -62,6 +62,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PromotionalBanner } from "@/components/store/PromotionalBanner";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
@@ -129,7 +130,8 @@ export default function WellnessStore() {
   }, [products.length, hasLoadedOnce]);
 
   // Show loading when products are loading OR when no products are available yet
-  const shouldShowLoading = productsLoading || (!hasLoadedOnce && products.length === 0);
+  const shouldShowLoading =
+    productsLoading || (!hasLoadedOnce && products.length === 0);
 
   const addToCart = useSetAtom(addToCartAtom);
   const updateCartQuantityByProduct = useSetAtom(
@@ -214,7 +216,9 @@ export default function WellnessStore() {
     console.log("Total products:", products.length);
     console.log(
       "First 3 products categories:",
-      products.slice(0, 3).map((p) => ({ name: p.name, category: p.category?.name }))
+      products
+        .slice(0, 3)
+        .map((p) => ({ name: p.name, category: p.category?.name }))
     );
     console.log("Unique categories in products:", [
       ...new Set(products.map((p) => p.category?.name)),
@@ -224,21 +228,26 @@ export default function WellnessStore() {
   // Generate dynamic categories from products
   console.log("Products for category generation:", products);
   const dynamicCategories = Array.from(
-  new Set(
-    products.map((product) => product.category?.name || "Uncategorized")
-  )
-).map((category) => ({
-  value: category,
-  label: category === "Uncategorized"
-    ? "Uncategorized"
-    : category
-        .replace(/_/g, " ")
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(" "),
-  count: products.filter((p) => (p.category?.name || "Uncategorized") === category).length,
-}));
-
+    new Set(
+      products.map((product) => product.category?.name || "Uncategorized")
+    )
+  ).map((category) => ({
+    value: category,
+    label:
+      category === "Uncategorized"
+        ? "Uncategorized"
+        : category
+            .replace(/_/g, " ")
+            .split(" ")
+            .map(
+              (word) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
+            .join(" "),
+    count: products.filter(
+      (p) => (p.category?.name || "Uncategorized") === category
+    ).length,
+  }));
 
   // Generate dynamic brands from products (using vendor.name as brand)
   const brands = Array.from(
@@ -254,7 +263,12 @@ export default function WellnessStore() {
     { value: "under-1000", label: "Under 1000 credits", min: 0, max: 1000 },
     { value: "1000-3000", label: "1000 - 3000 credits", min: 1000, max: 3000 },
     { value: "3000-5000", label: "3000 - 5000 credits", min: 3000, max: 5000 },
-    { value: "above-5000", label: "Above 5000 credits", min: 5000, max: Infinity },
+    {
+      value: "above-5000",
+      label: "Above 5000 credits",
+      min: 5000,
+      max: Infinity,
+    },
   ];
 
   // Categories are now fetched from API and stored in state
@@ -274,8 +288,6 @@ export default function WellnessStore() {
       setSelectedPriceRanges(selectedPriceRanges.filter((r) => r !== range));
     }
   };
-
-
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -316,10 +328,7 @@ export default function WellnessStore() {
       });
 
     return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesBrand &&
-      matchesPriceRange
+      matchesSearch && matchesCategory && matchesBrand && matchesPriceRange
     );
   });
 
@@ -409,27 +418,22 @@ export default function WellnessStore() {
       <div className="relative  overflow-hidden p-3">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent"></div>
 
-        <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-3">
-          
-        </div>
-
-       
+        <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-3 lg:py-3"></div>
       </div>
 
       <div className="relative max-w-full mx-auto px-3 sm:px-4 lg:px-6 pt-12 pb-16 space-y-8">
         {/* Search and Filters Bar */}
-       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(16,185,129,0.12)] border border-emerald-100/60 p-6 transition-all duration-300">
-  <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(16,185,129,0.12)] border border-emerald-100/60 p-6 transition-all duration-300">
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
+            {/* 🔍 Search */}
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 group-focus-within:text-emerald-600 transition-colors" />
 
-    {/* 🔍 Search */}
-    <div className="relative flex-1 group">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 group-focus-within:text-emerald-600 transition-colors" />
-
-      <Input
-        placeholder="Search products, brands, categories..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="
+              <Input
+                placeholder="Search products, brands, categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="
           pl-12 py-4 text-base rounded-xl
           bg-gradient-to-r from-gray-50 to-emerald-50/40
           border border-gray-200
@@ -440,14 +444,14 @@ export default function WellnessStore() {
           transition-all duration-300
           hover:border-emerald-300
         "
-      />
-    </div>
+              />
+            </div>
 
-    {/* 🔽 Sort */}
-    <div className="flex items-center gap-4 lg:w-auto">
-      <Select value={sortBy} onValueChange={setSortBy}>
-        <SelectTrigger
-          className="
+            {/* 🔽 Sort */}
+            <div className="flex items-center gap-4 lg:w-auto">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger
+                  className="
             w-full lg:w-56 py-4 rounded-xl
             bg-gradient-to-r from-gray-50 to-emerald-50/40
             border border-gray-200
@@ -457,135 +461,43 @@ export default function WellnessStore() {
             focus:ring-2 focus:ring-emerald-500/20
             transition-all duration-300
           "
-        >
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
+                >
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
 
-        <SelectContent className="rounded-xl border border-gray-200 shadow-lg">
-          <SelectItem value="featured">Featured</SelectItem>
-          <SelectItem value="price-low">Price: Low to High</SelectItem>
-          <SelectItem value="price-high">Price: High to Low</SelectItem>
-          <SelectItem value="rating">Highest Rated</SelectItem>
-          <SelectItem value="newest">Newest</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-
-  </div>
-</div>
-
-
-        {/* Category Banners */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-              <Package className="w-5 h-5 text-white" />
+                <SelectContent className="rounded-xl border border-gray-200 shadow-lg">
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            Shop by Category
-          </h2>
-          <div
-            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-4"
-            role="tablist"
-            aria-label="Product categories"
-          >
-            {categoriesLoading
-              ? // Show skeleton loading for categories
-                Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="group cursor-pointer">
-                    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 aspect-square animate-pulse">
-                      <div className="absolute inset-0 bg-gray-300"></div>
-                    </div>
-                    <div className="mt-2 h-4 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="mt-1 h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                  </div>
-                ))
-              : categories.map((category) => (
-                  <button
-                    key={category.value}
-                    type="button"
-                    role="tab"
-                    aria-selected={selectedCategory === category.value}
-                    aria-label={`Select ${category.label} category`}
-                    className={`group cursor-pointer transition-all duration-300 ${
-                      selectedCategory === category.value
-                        ? "transform scale-105"
-                        : "hover:transform hover:scale-105"
-                    }`}
-                    onClick={() => {
-                      console.log(
-                        "Clicking category:",
-                        category.value,
-                        "label:",
-                        category.label
-                      );
-                      setSelectedCategory(category.value);
-                    }}
-                  >
-                    <div
-                      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 focus:outline-none ring-2 focus:ring-emerald-500 ring-offset-2 ${
-                        selectedCategory === category.value
-                          ? "ring-emerald-500 shadow-xl shadow-emerald-500/20 scale-105"
-                          : "ring-transparent hover:ring-emerald-300 hover:shadow-lg"
-                      }`}
-                    >
-                      {/* Image Container */}
-                      <div className="aspect-square overflow-hidden bg-gray-100">
-                        <ImageWithFallback
-                          src={category.image}
-                          alt={category.label}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        {/* Overlay for selected state */}
-                        {selectedCategory === category.value && (
-                          <div className="absolute inset-0 bg-emerald-500/20" />
-                        )}
-                      </div>
-
-                      {/* Category Label */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
-                        <h3
-                          className={`font-semibold text-sm text-white transition-colors line-clamp-2 text-center ${
-                            selectedCategory === category.value
-                              ? "text-emerald-200"
-                              : "group-hover:text-emerald-200"
-                          }`}
-                        >
-                          {category.label}
-                        </h3>
-                      </div>
-
-                      {/* Selection Indicator */}
-                      {selectedCategory === category.value && (
-                        <div className="absolute top-3 right-3 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
           </div>
         </div>
+
+        {/* Category Banners */}
+        {/* Promotional Banner */}
+        <PromotionalBanner />
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar - Filters */}
           <div className="w-full lg:w-72 shrink-0">
-
-
-             <div className="block lg:hidden mb-4">
-    <Button
-      onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-      className="w-full bg-emerald-500 text-white"
-    >
-      <Filter className="w-4 h-4 mr-2" />
-      Filters
-    </Button>
-  </div>
+            <div className="block lg:hidden mb-4">
+              <Button
+                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                className="w-full bg-emerald-500 text-white"
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+              </Button>
+            </div>
             <div
-  className={`${
-    mobileFiltersOpen ? "block" : "hidden"
-  } lg:block bg-white rounded-xl border border-gray-200 p-5 lg:sticky top-24 shadow-sm`}
->
-
+              className={`${
+                mobileFiltersOpen ? "block" : "hidden"
+              } lg:block bg-white rounded-xl border border-gray-200 p-5 lg:sticky top-24 shadow-sm`}
+            >
               {/* Filter Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
@@ -638,8 +550,6 @@ export default function WellnessStore() {
                   ))}
                 </CollapsibleContent>
               </Collapsible>
-
-
 
               {/* Brands */}
               <Collapsible open={brandsOpen} onOpenChange={setBrandsOpen}>
@@ -702,7 +612,7 @@ export default function WellnessStore() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="flex-1" id="main-content">
             {/* Results Header */}
             <div className="bg-white rounded-2xl shadow-lg border p-4 sm:p-6 mb-4 sm:mb-6">
               <div className="flex items-center justify-between">
@@ -768,82 +678,80 @@ export default function WellnessStore() {
             )}
 
             {/* Product Grid */}
-            {!shouldShowLoading && !categoriesLoading && !error && sortedProducts.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-16">
-                {sortedProducts.map((product, index) => (
-                  <div key={`${product.id}-${index}`} className="group">
-                    <Link href={`/product/${product.id}`} className="block">
-                      <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
-                        <div
-                          // className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30"
-                        className="relative bg-white rounded-3xl shadow-lg 
+            {!shouldShowLoading &&
+              !categoriesLoading &&
+              !error &&
+              sortedProducts.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-16">
+                  {sortedProducts.map((product, index) => (
+                    <div key={`${product.id}-${index}`} className="group">
+                      <Link href={`/product/${product.id}`} className="block">
+                        <div className="relative">
+                          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 rounded-3xl blur-sm opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
+                          <div
+                            // className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] overflow-hidden border border-gray-100 flex flex-col group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-emerald-50/30"
+                            className="relative bg-white rounded-3xl shadow-lg 
 hover:shadow-2xl transition-all duration-300 
 overflow-hidden border border-gray-100 flex flex-col
 h-auto lg:h-[440px]"
-
-                        >
-                          {/* Image Container */}
-                          <div
-                            className="relative overflow-hidden bg-gray-50 aspect-square"
-
                           >
-                            <ImageWithFallback
-                              src={product.images[0] || "/placeholder.png"}
-                              alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            {/* Stock Status */}
-                            {/* {product.availableStock === 0 && (
+                            {/* Image Container */}
+                            <div className="relative overflow-hidden bg-gray-50 aspect-square">
+                              <ImageWithFallback
+                                src={product.images[0] || "/placeholder.png"}
+                                alt={product.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                              {/* Stock Status */}
+                              {/* {product.availableStock === 0 && (
                               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                 <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                                   Out of Stock
                                 </span>
                               </div>
                             )} */}
+                            </div>
 
-                          </div>
-
-                          {/* Content Container with proper spacing */}
-                          <div className="p-5 flex flex-col flex-grow space-y-3">
-                            {/* Vendor Name */}
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
-                                {(product as any).vendor?.name || "FitPlay"}
-                              </p>
-                              {/* {product.availableStock <= 5 &&
+                            {/* Content Container with proper spacing */}
+                            <div className="p-5 flex flex-col flex-grow space-y-3">
+                              {/* Vendor Name */}
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
+                                  {(product as any).vendor?.name || "FitPlay"}
+                                </p>
+                                {/* {product.availableStock <= 5 &&
                                 product.availableStock > 0 && (
                                   <span className="text-xs text-orange-600 font-medium bg-orange-50 px-2 py-1 rounded-full">
                                     Only {product.availableStock} left
                                   </span>
                                 )} */}
-                            </div>
-
-                            {/* Product Name - Flexible height container */}
-                            <div
-                              className="flex-grow min-h-[40px]"
-                             
-                            >
-                              <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
-                                {product.name}
-                              </h3>
-                            </div>
-
-                            {/* Price Section */}
-                            <div className="mt-auto mb-3">
-                              <div className="flex items-baseline gap-1 mb-1">
-                                <span className="text-lg font-bold text-emerald-600">
-                                  {getLowestCredits(product as any)}
-                                </span>
-                                <span className="text-xs font-medium text-emerald-600">
-                                  credits
-                                </span>
                               </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-500 line-through">
-                                  ₹{getLowestMRP(product as ProductWithVariant)}
-                                </span>
-                                {/* <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
+
+                              {/* Product Name - Flexible height container */}
+                              <div className="flex-grow min-h-[40px]">
+                                <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
+                                  {product.name}
+                                </h3>
+                              </div>
+
+                              {/* Price Section */}
+                              <div className="mt-auto mb-3">
+                                <div className="flex items-baseline gap-1 mb-1">
+                                  <span className="text-lg font-bold text-emerald-600">
+                                    {getLowestCredits(product as any)}
+                                  </span>
+                                  <span className="text-xs font-medium text-emerald-600">
+                                    credits
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-gray-500 line-through">
+                                    ₹
+                                    {getLowestMRP(
+                                      product as ProductWithVariant
+                                    )}
+                                  </span>
+                                  {/* <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-medium">
                                   {Math.round(
                                     ((getLowestMRP(
                                       product as ProductWithVariant
@@ -859,23 +767,23 @@ h-auto lg:h-[440px]"
                                   )}
                                   % off
                                 </span> */}
+                                </div>
                               </div>
-                            </div>
 
-                            {/* Action Button */}
-                            <div className="mt-2">
-                              <div onClick={(e) => e.preventDefault()}>
-                                <QuantitySelector product={product} />
+                              {/* Action Button */}
+                              <div className="mt-2">
+                                <div onClick={(e) => e.preventDefault()}>
+                                  <QuantitySelector product={product} />
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
 
             {/* No Results */}
             {!shouldShowLoading && !error && sortedProducts.length === 0 && (
@@ -926,6 +834,3 @@ h-auto lg:h-[440px]"
     </div>
   );
 }
-
-
-

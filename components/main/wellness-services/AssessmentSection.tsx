@@ -3,7 +3,6 @@ import React from "react";
 import Image from "next/image";
 import { Clock, Stethoscope } from "lucide-react";
 import { SectionHeader } from "./SectionHeader";
-import Digestive from "../../../public/digestive.svg";
 
 interface AssessmentSectionProps {
   quizzes: any[];
@@ -51,14 +50,11 @@ export const AssessmentSection = ({
             </div>
 
             <div className="p-6 flex flex-col flex-grow">
-              <div
-                className={`w-14 h-14 bg-gradient-to-r ${quiz.color} rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}
-              >
-                <Image
-                  src={Digestive}
-                  alt="Assessment"
-                  className="w-7 h-7 sm:w-5 sm:h-5 invert"
-                />
+              <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                <div className="flex items-center gap-1 font-medium">
+                  <Clock className="w-4 h-4 text-emerald-500" />
+                  {quiz.duration}
+                </div>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 {quiz.title}
@@ -66,12 +62,6 @@ export const AssessmentSection = ({
               <p className="text-gray-600 text-sm mb-6 line-clamp-3 leading-relaxed flex-grow">
                 {quiz.description}
               </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-6 py-4 border-t border-emerald-50">
-                <div className="flex items-center gap-1 font-medium">
-                  <Clock className="w-4 h-4 text-emerald-500" />
-                  {quiz.duration}
-                </div>
-              </div>
               <button
                 onClick={() => {
                   requirePaywallOrAction("quiz", () => {

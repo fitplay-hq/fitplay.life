@@ -213,7 +213,7 @@ export default function SovaHealthPage() {
       description: "Complete Gut Health Assessment | 5 Mins ",
       duration: "5 min",
       color: "from-emerald-500 to-teal-500",
-      image: "/carousel/via-2.png",
+      image: "/assessment.png",
     },
   ];
 

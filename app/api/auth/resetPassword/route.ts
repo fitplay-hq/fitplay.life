@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { Resend } from "resend";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { getResetPasswordEmailHtml } from "@/lib/email-templates";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 function looksLikeEmail(value: string) {
@@ -82,32 +83,7 @@ export async function POST(req: NextRequest) {
                 from: verificationMail,
                 to: email,
                 subject: "Reset your FitPlay password",
-                html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <div style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); padding: 20px; text-align: center;">
-                        <h1 style="color: white; margin: 0;">Password Reset Request</h1>
-                    </div>
-                    <div style="padding: 30px; background-color: #f9fafb;">
-                        <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">Hello,</p>
-                        <p style="font-size: 16px; color: #374151; margin-bottom: 25px;">
-                            You requested to reset your FitPlay account password. Click the button below to create a new password.
-                        </p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="${resetUrl}" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                                Reset Password
-                            </a>
-                        </div>
-                        <p style="font-size: 14px; color: #6B7280; margin-top: 25px;">
-                            This password reset link will expire in 1 hour. If you didn't request this reset, you can safely ignore this email.
-                        </p>
-                        <div style="border-top: 1px solid #E5E7EB; margin-top: 30px; padding-top: 20px; text-align: center;">
-                            <p style="font-size: 12px; color: #9CA3AF;">
-                                © 2024 FitPlay.life - Your Health & Wellness Partner
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                `,
+                html: getResetPasswordEmailHtml(resetUrl),
             });
             console.log(`✅ Password reset email sent successfully to ${email}. Email ID: ${emailResponse?.data?.id}`);
             console.log(`📧 From: ${verificationMail} | To: ${email}`);

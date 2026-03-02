@@ -5,7 +5,7 @@ export function getBaseTemplate(content: string) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -26,12 +26,13 @@ export function getBaseTemplate(content: string) {
         .header {
             text-align: center;
             padding: 32px 24px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #f1f5f9;
+            background: linear-gradient(to bottom right, #042f2e, #0f172a, #042f2e); /* Matches Navbar gradient: from-teal-950 via-slate-900 to-teal-950 */
+            border-bottom: 1px solid #1e293b;
         }
         .logo {
-            height: 48px;
+            height: 72px;
             width: auto;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)); /* adding shadow to make it pop like the navbar */
         }
         .content {
             padding: 40px 32px;
@@ -62,10 +63,12 @@ export function getBaseTemplate(content: string) {
             transition: all 0.2s ease;
         }
         .heading {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
             color: #0f172a;
             margin: 0 0 16px 0;
+            letter-spacing: -0.02em;
         }
         .text {
             font-size: 16px;

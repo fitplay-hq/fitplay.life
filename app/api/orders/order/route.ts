@@ -29,15 +29,25 @@ export async function POST(req: NextRequest) {
       deliveryInstructions,
       remarks,
       isCashPayment,
+      otp, // Extract OTP
     } = body;
 
     // Demo users cannot make cash payments
     if ((session.user as any).isDemo && isCashPayment) {
-      return NextResponse.json({ error: "Demo users cannot use cash payments. Only credits are allowed." }, { status: 403 });
+      return NextResponse.json(
+        {
+          error:
+            "Demo users cannot use cash payments. Only credits are allowed.",
+        },
+        { status: 403 }
+      );
     }
 
     if (!items || items.length === 0) {
-      return NextResponse.json({ error: "items are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "items are required" },
+        { status: 400 }
+      );
     }
 
     let userId: string;
@@ -47,18 +57,59 @@ export async function POST(req: NextRequest) {
       userId = session.user.id;
     }
 
+    // Verify OTP for credit payments (non-cash) if not admin
+    if (
+      !isCashPayment &&
+      session.user.role !== "ADMIN" &&
+      session.user.role !== "HR"
+    ) {
+      if (!otp) {
+        return NextResponse.json(
+          { error: "OTP is required for credit payments" },
+          { status: 400 }
+        );
+      }
+
+      const email = session.user.email;
+      const uniqueTokenStr = `${email}-${otp}`;
+
+      const tokenRecord = await prisma.verificationToken.findUnique({
+        where: { token: uniqueTokenStr },
+      });
+
+      if (!tokenRecord) {
+        return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
+      }
+
+      if (tokenRecord.expires < new Date()) {
+        await prisma.verificationToken.delete({
+          where: { token: uniqueTokenStr },
+        });
+        return NextResponse.json({ error: "OTP has expired" }, { status: 400 });
+      }
+
+      // Valid OTP, delete it so it can't be reused
+      await prisma.verificationToken.delete({
+        where: { token: uniqueTokenStr },
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { wallet: true },
     });
 
     if (!user || !user.wallet) {
-      return NextResponse.json({ error: "User wallet not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User wallet not found" },
+        { status: 404 }
+      );
     }
 
     let finalPhNumber: string | null = null;
     let finalAddress: string | null = null;
-    const finalDeliveryInstructions: string | null = deliveryInstructions ?? null;
+    const finalDeliveryInstructions: string | null =
+      deliveryInstructions ?? null;
 
     if (session.user.role === "ADMIN") {
       if (!providedPhNumber || !providedAddress) {
@@ -127,7 +178,9 @@ export async function POST(req: NextRequest) {
     const mm = (date.getMonth() + 1).toString().padStart(2, "0");
     const dd = date.getDate().toString().padStart(2, "0");
     // Use a per-user sequential 6-digit counter: first order -> 000001, then 000002, ...
-    const userOrderCount = await prisma.order.count({ where: { userId: user.id } });
+    const userOrderCount = await prisma.order.count({
+      where: { userId: user.id },
+    });
     const nextSeq = userOrderCount + 1;
     // ensure 6 digits padded with leading zeros
     const lastSix = nextSeq.toString().padStart(6, "0");
@@ -217,11 +270,13 @@ export async function POST(req: NextRequest) {
     // --- Only send to Unicommerce if NOT a demo order ---
     if (!isDemo) {
       // --- Build Unicommerce items payload ---
-      const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
-        variantSku: item.variant.sku,
-        quantity: item.quantity,
-        price: item.price,
-      }));
+      const unicommerceItems = enrichedOrder.items.map(
+        (item: any, index: number) => ({
+          variantSku: item.variant.sku,
+          quantity: item.quantity,
+          price: item.price,
+        })
+      );
 
       // --- Call Unicommerce OUTSIDE the transaction ---
       const resUnicommerce = await createSaleOrder(
@@ -237,7 +292,7 @@ export async function POST(req: NextRequest) {
         unicommerceItems
       );
 
-      console.log('Unicommerce Response in Order Creation:', resUnicommerce);
+      console.log("Unicommerce Response in Order Creation:", resUnicommerce);
 
       if (resUnicommerce && resUnicommerce.successful === false) {
         console.error("Unicommerce order creation failed:", resUnicommerce);
@@ -284,7 +339,9 @@ export async function POST(req: NextRequest) {
   ${finalDeliveryInstructions ? `<p><strong>Delivery Instructions:</strong> ${finalDeliveryInstructions}</p>` : ""}
 `;
 
-    const emailHeader = isDemo ? "<p style='color: #ff9800; font-weight: bold;'>⚠️ This is a DEMO ORDER - It will not be processed for delivery</p>" : "";
+    const emailHeader = isDemo
+      ? "<p style='color: #ff9800; font-weight: bold;'>⚠️ This is a DEMO ORDER - It will not be processed for delivery</p>"
+      : "";
 
     // --- Send email ---
     await resend.emails.send({
@@ -306,7 +363,6 @@ export async function POST(req: NextRequest) {
       order: enrichedOrder,
       wallet: txResult.updatedWallet,
     });
-
   } catch (error) {
     return NextResponse.json(
       { error: "Can't create order", details: (error as Error).message },
@@ -314,7 +370,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 
 export async function GET(req: NextRequest) {
   try {
@@ -357,9 +412,9 @@ export async function GET(req: NextRequest) {
       session.user.role === "ADMIN"
         ? order
         : (() => {
-          const { remarks, ...rest } = order;
-          return rest;
-        })();
+            const { remarks, ...rest } = order;
+            return rest;
+          })();
 
     return NextResponse.json({ data: sanitizedOrder });
   } catch (error) {
@@ -393,7 +448,12 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { action, remarks, status } = body;
 
-    if (!action || !["approve", "reject", "dispatch", "pending", "delivered"].includes(action)) {
+    if (
+      !action ||
+      !["approve", "reject", "dispatch", "pending", "delivered"].includes(
+        action
+      )
+    ) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
@@ -429,7 +489,8 @@ export async function PATCH(req: NextRequest) {
       where: { id },
       data: {
         status: statusMap[action] as any,
-        remarks: session.user.role === "ADMIN" ? body.remarks || null : undefined,
+        remarks:
+          session.user.role === "ADMIN" ? body.remarks || null : undefined,
       },
     });
 

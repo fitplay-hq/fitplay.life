@@ -205,7 +205,10 @@ const TransactionsManagement = () => {
     if (
       transaction.type === "credit_redemption" ||
       transaction.type === "credit_allocation"
-    ) {
+  ) { 
+      if(transaction.method === "cash") {
+        return `₹${transaction.amount.toLocaleString()}`;
+      }
       return `${transaction.amount.toLocaleString()} credits`;
     } else if (transaction.type === "credit_purchase") {
       return `₹${transaction.amount.toLocaleString()}`;

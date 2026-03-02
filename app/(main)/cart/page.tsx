@@ -236,6 +236,7 @@ export default function CartPage() {
           // Call verify API
           const verifyRes = await fetch("/api/payments/verify-order", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               items,
@@ -277,6 +278,9 @@ export default function CartPage() {
         } catch (error) {
           toast.error("An error occurred during payment verification.");
         }
+          finally {
+  setIsProcessing(false);
+    }
       },
       prefill: {
         name: session?.user?.name || "",
@@ -289,6 +293,9 @@ export default function CartPage() {
     const razorpay = new (window as any).Razorpay(options);
     razorpay.open();
     setIsProcessing(false);
+     razorpay.on("payment.failed", function () {
+   setIsProcessing(false);
+});
   };
 
   const handleCheckout = async () => {
@@ -309,6 +316,9 @@ export default function CartPage() {
       // For credit payment, require OTP Verification unless admin (handled by API, but frontend forces OTP flow for everyone to be safe, or we can just send OTP)
       if (paymentMethod === "credits" && hasEnoughCredits) {
         // Prepare order items - filter out items with null variantId
+         if (isProcessing) return; 
+
+  setIsProcessing(true);
         const items = cartItems
           .filter((item) => item.variantId && item.variantId.trim() !== "")
           .map((item) => ({
@@ -344,6 +354,9 @@ export default function CartPage() {
           });
         } finally {
           setIsSendingOtp(false);
+          
+  setIsProcessing(false);
+      
         }
       } else if (paymentMethod === "cash") {
         await handlePurchase(); //  Razorpay triggered here
@@ -1415,26 +1428,32 @@ export default function CartPage() {
                         Back to Address
                       </Button>
 
-                      <Button
-                        onClick={handleCheckout}
-                        disabled={!paymentMethod}
-                        className="flex-1 h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Place Order
-                        <svg
-                          className="w-5 h-5 ml-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </Button>
+                        <Button
+  onClick={handleCheckout}
+  disabled={!paymentMethod || isProcessing}
+  className="flex-1 h-12 bg-emerald-500 ..."
+>
+  {isProcessing ? (
+    <>
+      Processing...
+      <svg className="animate-spin w-5 h-5 ml-2" viewBox="0 0 24 24">
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+      </svg>
+    </>
+  ) : (
+    <>
+      Place Order
+      <svg className="w-5 h-5 ml-2" />
+    </>
+  )}
+</Button>
                     </div>
                   </CardContent>
                 </Card>

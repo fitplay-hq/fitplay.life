@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
         const razorpay_signature = body.razorpay_signature;
 
         if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+             console.log("❌ Signature mismatch");
             return NextResponse.json({ error: "Missing Razorpay fields" }, { status: 400 });
         }
 
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
             .digest("hex");
 
         if (expectedSignature !== razorpay_signature) {
+             console.log("❌ Signature mismatch");
             return NextResponse.json({ error: "Signature mismatch" }, { status: 400 });
         }
 
@@ -90,7 +92,9 @@ export async function POST(req: NextRequest) {
 
         const paymentData = await paymentCheck.json();
         if (paymentData.status !== "captured") {
+             console.log("❌ Payment not captured:", paymentData)
             return NextResponse.json(
+               
                 { error: "Payment not captured", status: paymentData.status },
                 { status: 400 }
             );
@@ -99,6 +103,7 @@ export async function POST(req: NextRequest) {
         // Create Order now that payment is verified
 
         if (!items || items.length === 0) {
+            console.log("❌ No items in order");
             return NextResponse.json({ error: "items are required" }, { status: 400 });
         }
 
@@ -124,6 +129,7 @@ export async function POST(req: NextRequest) {
 
         if (session.user.role === "ADMIN") {
             if (!providedPhNumber || !providedAddress) {
+                console.log("❌ Admin missing phNumber or address");
                 return NextResponse.json(
                     { error: "Admin must provide phNumber and address" },
                     { status: 400 }
@@ -150,12 +156,13 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            if ((variant.availableStock ?? 0) < item.quantity) {
-                return NextResponse.json(
-                    { error: `Not enough stock for variant ${variant.variantValue}` },
-                    { status: 400 }
-                );
-            }
+            // if ((variant.availableStock ?? 0) < item.quantity) {
+            //         console.log(`❌ Not enough stock for variant ${variant.variantValue}`);
+            //     return NextResponse.json(
+            //         { error: `Not enough stock for variant ${variant.variantValue}` },
+            //         { status: 400 }
+            //     );
+            // }
 
             const mrp = variant.mrp;
             const discountPercent = variant.product.discount ?? 0;
@@ -241,12 +248,12 @@ export async function POST(req: NextRequest) {
             });
 
             // decrement stock inside transaction
-            for (const item of orderItemsData) {
-                await tx.variant.update({
-                    where: { id: item.variantId },
-                    data: { availableStock: { decrement: item.quantity } },
-                });
-            }
+            // for (const item of orderItemsData) {
+            //     await tx.variant.update({
+            //         where: { id: item.variantId },
+            //         data: { availableStock: { decrement: item.quantity } },
+            //     });
+            // }
 
             return { orderId: order.id };
         });
@@ -269,33 +276,33 @@ export async function POST(req: NextRequest) {
             throw new Error("Order not found after creation");
         }
 
-        // --- Build Unicommerce items payload ---
-        const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
-            variantSku: item.variant.sku,
-            quantity: item.quantity,
-            price: item.price,
-        }));
+        // // --- Build Unicommerce items payload ---
+        // const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
+        //     variantSku: item.variant.sku,
+        //     quantity: item.quantity,
+        //     price: item.price,
+        // }));
 
-        // --- Call Unicommerce OUTSIDE the transaction ---
-        const resUnicommerce = await createSaleOrder(
-            user.name,
-            enrichedOrder.id,
-            enrichedOrder.address ?? providedAddress ?? "",
-            enrichedOrder.address2 ?? providedAddress2 ?? "",
-            enrichedOrder.city ?? providedCity ?? "",
-            enrichedOrder.state ?? providedState ?? "",
-            enrichedOrder.pinCode ?? providedPincode ?? "",
-            enrichedOrder.phNumber ?? finalPhNumber ?? "",
-            user.email,
-            unicommerceItems
-        );
+        // // --- Call Unicommerce OUTSIDE the transaction ---
+        // const resUnicommerce = await createSaleOrder(
+        //     user.name,
+        //     enrichedOrder.id,
+        //     enrichedOrder.address ?? providedAddress ?? "",
+        //     enrichedOrder.address2 ?? providedAddress2 ?? "",
+        //     enrichedOrder.city ?? providedCity ?? "",
+        //     enrichedOrder.state ?? providedState ?? "",
+        //     enrichedOrder.pinCode ?? providedPincode ?? "",
+        //     enrichedOrder.phNumber ?? finalPhNumber ?? "",
+        //     user.email,
+        //     unicommerceItems
+        // );
 
-        console.log('Unicommerce Response in Order Creation:', resUnicommerce);
+        // console.log('Unicommerce Response in Order Creation:', resUnicommerce);
 
-        if (resUnicommerce && resUnicommerce.successful === false) {
-            console.error("Unicommerce order creation failed:", resUnicommerce);
-            throw new Error("Unicommerce order creation failed");
-        }
+        // if (resUnicommerce && resUnicommerce.successful === false) {
+        //     console.error("Unicommerce order creation failed:", resUnicommerce);
+        //     throw new Error("Unicommerce order creation failed");
+        // }
 
         // --- Prepare email using enrichedOrder (fresh) ---
         const orderSummaryTable = `

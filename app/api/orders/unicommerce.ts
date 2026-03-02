@@ -72,7 +72,7 @@ export const createSaleOrder = async (
         });
 
         const orderData = await orderRes.json();
-        // console.log('Unicommerce Create Order Response:', orderData);
+        console.log('Unicommerce Create Order Response:', orderData);
         return orderData;
     } catch (error) {
         console.error('Error creating Unicommerce order:', error);

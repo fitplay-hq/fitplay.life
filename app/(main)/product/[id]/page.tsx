@@ -177,7 +177,7 @@ export default function ProductPage({
   if (isLoading || (!product && !error)) {
     return (
       <div className="min-h-screen">
-        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+        <section className=" pt-20 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <div className="text-center">
               {/* <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -186,7 +186,7 @@ export default function ProductPage({
             </div>
           </div>
         </section>
-        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+        <div className="min-h-screen -mt-8 pt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center items-center py-16">
               <div className="text-center">
@@ -203,7 +203,7 @@ export default function ProductPage({
   if (error) {
     return (
       <div className="min-h-screen">
-        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+        <section className=" pt-20 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -212,7 +212,7 @@ export default function ProductPage({
             </div>
           </div>
         </section>
-        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+        <div className=" min-h-screen -mt-8 pt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center py-16">
               <p className="text-red-600 mb-6 text-lg">
@@ -235,7 +235,7 @@ export default function ProductPage({
   if (!product) {
     return (
       <div className="min-h-screen">
-        <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 pt-20 pb-16">
+        <section className=" pt-20 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -244,7 +244,7 @@ export default function ProductPage({
             </div>
           </div>
         </section>
-        <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen -mt-8 pt-16">
+        <div className="min-h-screen -mt-8 pt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center py-16">
               <p className="text-emerald-600 mb-6 text-lg">Product not found</p>
@@ -265,13 +265,13 @@ export default function ProductPage({
   return (
     <div className="min-h-screen">
       {/* Green Header Section */}
-      <section className=" pt-20 pb-8">
+      <section className=" pt-20 pb-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
           {/* Breadcrumb */}
           <div className="flex items-center space-x-2 text-sm text-emerald-600 mb-6">
             <Link
               href="/store"
-              className="hover:text-white flex items-center transition-colors"
+              className="flex items-center transition-colors"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Store
@@ -285,7 +285,7 @@ export default function ProductPage({
       </section>
 
       {/* Content Section */}
-      <div className=" min-h-screen -mt-4 pt-8">
+      <div className=" min-h-screen lg:-mt-18 -mt-20 pt-8">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Product Images */}
@@ -356,7 +356,7 @@ export default function ProductPage({
                 ₹{selectedVariantMRP}
               </span>
             </div>
-            {selectedVariant && (
+            {product.hasVariants && selectedVariant && (
               <p className="text-sm text-emerald-600 mt-1">
                 Price for: <span className="font-medium">{selectedVariant}</span>
               </p>
@@ -366,56 +366,74 @@ export default function ProductPage({
             </p>
           </div>
 
-          {/* Variant Selection */}
-          {product.variants && product.variants.length > 0 && (
-            <div className="py-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Choose Your Option:
-              </h3>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {product.variants.map((variant: any) => (
-                  <div
-                    key={variant.variantValue}
-                    onClick={() => {
-                      setSelectedVariant(variant.variantValue);
-                      setSelectedVariantId(variant.id);
-                    }}
-                    className={`
-                      relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
-                      ${selectedVariant === variant.variantValue
-                        ? 'border-emerald-500 bg-emerald-50 shadow-md ring-2 ring-emerald-500/20'
-                        : 'border-gray-200 bg-white hover:border-emerald-300 hover:shadow-sm'
-                      }
-                    `}
-                  >
-                    {selectedVariant === variant.variantValue && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="text-center">
-                      <div className={`font-semibold text-sm mb-1 ${
-                        selectedVariant === variant.variantValue 
-                          ? 'text-emerald-700' 
-                          : 'text-gray-700'
-                      }`}>
-                        {variant.variantValue}
-                      </div>
-                      <div className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        selectedVariant === variant.variantValue
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {variant.credits || (variant.mrp )} credits
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {/* Variant Selection */}
+{product.hasVariants &&
+  product.variants &&
+  product.variants.length > 0 && (
+    <div className="py-4">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        Choose Your Option:
+      </h3>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {product.variants.map((variant: any) => (
+          <div
+            key={variant.variantValue}
+            onClick={() => {
+              setSelectedVariant(variant.variantValue);
+              setSelectedVariantId(variant.id);
+            }}
+            className={`
+              relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
+              ${
+                selectedVariant === variant.variantValue
+                  ? "border-emerald-500 bg-emerald-50 shadow-md ring-2 ring-emerald-500/20"
+                  : "border-gray-200 bg-white hover:border-emerald-300 hover:shadow-sm"
+              }
+            `}
+          >
+            {selectedVariant === variant.variantValue && (
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
+
+            <div className="text-center">
+              <div
+                className={`font-semibold text-sm mb-1 ${
+                  selectedVariant === variant.variantValue
+                    ? "text-emerald-700"
+                    : "text-gray-700"
+                }`}
+              >
+                {variant.variantValue}
+              </div>
+
+              <div
+                className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  selectedVariant === variant.variantValue
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {variant.credits || variant.mrp} credits
               </div>
             </div>
-          )}
+          </div>
+        ))}
+      </div>
+    </div>
+)}
 
           {/* Description */}
           <div className="py-2">

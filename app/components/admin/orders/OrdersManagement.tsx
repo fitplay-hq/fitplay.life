@@ -77,7 +77,7 @@ const OrdersManagement = () => {
   "INR": "inr",
   "Credits": "credits",
 };
-
+ console.log("orders ", data)
   // Transform API data to match component expectations
   const orders = (data?.orders || []).map((order: any) => ({
     id: order.id,

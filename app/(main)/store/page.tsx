@@ -824,7 +824,7 @@ h-auto lg:h-[440px]"
                               className="flex-grow min-h-[40px]"
                              
                             >
-                              <h3 className="text-gray-900 font-bold text-base line-clamp-2 group-hover:text-emerald-700 transition-colors leading-snug">
+                              <h3 className="text-gray-900 font-bold text-base  group-hover:text-emerald-700 transition-colors leading-snug">
                                 {product.name}
                               </h3>
                             </div>

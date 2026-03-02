@@ -126,12 +126,14 @@ export async function POST(req: NextRequest) {
     const yyyy = date.getFullYear().toString();
     const mm = (date.getMonth() + 1).toString().padStart(2, "0");
     const dd = date.getDate().toString().padStart(2, "0");
+    const timestamp = Date.now().toString(36).toUpperCase(); // e.g. "LK3M2"
+const random = Math.random().toString(36).substring(2, 5).toUpperCase();
     // Use a per-user sequential 6-digit counter: first order -> 000001, then 000002, ...
     const userOrderCount = await prisma.order.count({ where: { userId: user.id } });
     const nextSeq = userOrderCount + 1;
     // ensure 6 digits padded with leading zeros
     const lastSix = nextSeq.toString().padStart(6, "0");
-    const orderId = `FP-${yyyy}${mm}${dd}-${lastSix}`;
+    const orderId = `FP-${yyyy}${mm}${dd}-${timestamp}${random}`;
 
     const existingOrder = await prisma.order.findFirst({
       where: { id: orderId },
@@ -155,7 +157,7 @@ export async function POST(req: NextRequest) {
       const transaction = await tx.transactionLedger.create({
         data: {
           userId: user.id,
-          amount: 2 * totalAmount,
+          amount:  totalAmount,
           modeOfPayment: "Credits",
           balanceAfterTxn: updatedWallet.balance,
           isCredit: false,
@@ -169,7 +171,7 @@ export async function POST(req: NextRequest) {
         data: {
           id: orderId,
           userId: user.id,
-          amount: 2 * totalAmount,
+          amount: totalAmount,
           status: "PENDING",
           transactionId: transaction.id,
           phNumber: finalPhNumber,
@@ -215,35 +217,35 @@ export async function POST(req: NextRequest) {
     }
 
     // --- Only send to Unicommerce if NOT a demo order ---
-    if (!isDemo) {
-      // --- Build Unicommerce items payload ---
-      const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
-        variantSku: item.variant.sku,
-        quantity: item.quantity,
-        price: item.price,
-      }));
+    // if (!isDemo) {
+    //   // --- Build Unicommerce items payload ---
+    //   const unicommerceItems = enrichedOrder.items.map((item: any, index: number) => ({
+    //     variantSku: item.variant.sku,
+    //     quantity: item.quantity,
+    //     price: item.price,
+    //   }));
 
-      // --- Call Unicommerce OUTSIDE the transaction ---
-      const resUnicommerce = await createSaleOrder(
-        user.name,
-        enrichedOrder.id,
-        enrichedOrder.address ?? providedAddress ?? "",
-        enrichedOrder.address2 ?? providedAddress2 ?? "",
-        enrichedOrder.city ?? providedCity ?? "",
-        enrichedOrder.state ?? providedState ?? "",
-        enrichedOrder.pinCode ?? providedPincode ?? "",
-        enrichedOrder.phNumber ?? finalPhNumber ?? "",
-        user.email,
-        unicommerceItems
-      );
+    //   // --- Call Unicommerce OUTSIDE the transaction ---
+    //   const resUnicommerce = await createSaleOrder(
+    //     user.name,
+    //     enrichedOrder.id,
+    //     enrichedOrder.address ?? providedAddress ?? "",
+    //     enrichedOrder.address2 ?? providedAddress2 ?? "",
+    //     enrichedOrder.city ?? providedCity ?? "",
+    //     enrichedOrder.state ?? providedState ?? "",
+    //     enrichedOrder.pinCode ?? providedPincode ?? "",
+    //     enrichedOrder.phNumber ?? finalPhNumber ?? "",
+    //     user.email,
+    //     unicommerceItems
+    //   );
 
-      console.log('Unicommerce Response in Order Creation:', resUnicommerce);
+    //   console.log('Unicommerce Response in Order Creation:', resUnicommerce);
 
-      if (resUnicommerce && resUnicommerce.successful === false) {
-        console.error("Unicommerce order creation failed:", resUnicommerce);
-        throw new Error("Unicommerce order creation failed");
-      }
-    }
+    //   if (resUnicommerce && resUnicommerce.successful === false) {
+    //     console.error("Unicommerce order creation failed:", resUnicommerce);
+    //     throw new Error("Unicommerce order creation failed");
+    //   }
+    // }
 
     // --- Prepare email using enrichedOrder (fresh) ---
     const orderSummaryTable = `

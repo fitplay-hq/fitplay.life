@@ -25,6 +25,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { OTPInput } from "@/components/OTPInput";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { CreditPurchase } from "@/components/CreditPurchase";
 import CheckoutVoucherRedemption from "@/app/components/checkout/VoucherRedemption";
@@ -62,6 +70,12 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState("credits");
   const [recharge, setRecharge] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // OTP State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const userCredits = walletBalance;
   const purchaseCredits = useSetAtom(purchaseCreditsAtom);
@@ -292,71 +306,44 @@ export default function CartPage() {
     } else if (currentStep === "address" && validateAddress()) {
       setCurrentStep("payment");
     } else if (currentStep === "payment") {
+      // For credit payment, require OTP Verification unless admin (handled by API, but frontend forces OTP flow for everyone to be safe, or we can just send OTP)
       if (paymentMethod === "credits" && hasEnoughCredits) {
+        // Prepare order items - filter out items with null variantId
+        const items = cartItems
+          .filter((item) => item.variantId && item.variantId.trim() !== "")
+          .map((item) => ({
+            variantId: item.variantId,
+            quantity: item.quantity,
+          }));
+
+        if (items.length === 0) {
+          toast.error("No valid items to order", {
+            description: "Please ensure all cart items have valid variants.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Trigger OTP sending
         try {
-          // Prepare order items - filter out items with null variantId
-          const items = cartItems
-            .filter((item) => item.variantId && item.variantId.trim() !== "")
-            .map((item) => ({
-              variantId: item.variantId,
-              quantity: item.quantity,
-            }));
-
-          if (items.length === 0) {
-            toast.error("No valid items to order", {
-              description: "Please ensure all cart items have valid variants.",
-              duration: 5000,
-            });
-            return;
-          }
-
-          // Prepare address string
-          const fullAddress = `${address.addressLine1}${
-            address.addressLine2 ? ", " + address.addressLine2 : ""
-          }, ${address.city}, ${address.state} ${address.pincode}`;
-
-          const response = await fetch("/api/orders/order", {
+          setIsSendingOtp(true);
+          const res = await fetch("/api/orders/send-otp", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              items,
-              phNumber: address.phone,
-              address: fullAddress,
-              deliveryInstructions: address.instructions || null,
-            }),
           });
-
-          const result = await response.json();
-
-          if (!response.ok) {
-            throw new Error(result.error || "Failed to create order");
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "Failed to send OTP");
           }
-
-          toast.success("Order created successfully!", {
-            description:
-              "Your order has been placed and will be processed soon.",
-            duration: 3000,
-          });
-
-          // Store complete order details for confirmation page
-          setOrderDetails({
-            order: result.order,
-            wallet: result.wallet,
-          });
-
-          setCurrentStep("confirmation");
-          // Clear cart after successful order
-          setTimeout(() => {
-            clearCart();
-          }, 3000);
+          toast.success("OTP sent to your email!");
+          setShowOtpModal(true);
         } catch (error) {
-          toast.error("Failed to create order", {
+          toast.error("Failed to send OTP", {
             description:
               error instanceof Error ? error.message : "An error occurred",
             duration: 5000,
           });
+        } finally {
+          setIsSendingOtp(false);
         }
       } else if (paymentMethod === "cash") {
         await handlePurchase(); //  Razorpay triggered here
@@ -370,6 +357,72 @@ export default function CartPage() {
     }
   };
 
+  const handleVerifyAndOrder = async () => {
+    if (!otpValue || otpValue.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP.");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      const items = cartItems
+        .filter((item) => item.variantId && item.variantId.trim() !== "")
+        .map((item) => ({
+          variantId: item.variantId,
+          quantity: item.quantity,
+        }));
+
+      const fullAddress = `${address.addressLine1}${
+        address.addressLine2 ? ", " + address.addressLine2 : ""
+      }, ${address.city}, ${address.state} ${address.pincode}`;
+
+      const response = await fetch("/api/orders/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items,
+          phNumber: address.phone,
+          address: fullAddress,
+          deliveryInstructions: address.instructions || null,
+          otp: otpValue, // Pass the OTP to the API
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create order");
+      }
+
+      toast.success("Order created successfully!", {
+        description: "Your order has been placed and will be processed soon.",
+        duration: 3000,
+      });
+
+      setOrderDetails({
+        order: result.order,
+        wallet: result.wallet,
+      });
+
+      setShowOtpModal(false);
+      setOtpValue("");
+      setCurrentStep("confirmation");
+
+      setTimeout(() => {
+        clearCart();
+      }, 3000);
+    } catch (error) {
+      toast.error("Failed to verify OTP or create order", {
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        duration: 5000,
+      });
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
   const steps = [
     { id: "cart", label: "Cart", completed: true },
     {
@@ -1773,6 +1826,90 @@ export default function CartPage() {
             )}
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      <Dialog open={showOtpModal} onOpenChange={setShowOtpModal}>
+        <DialogContent className="max-w-md bg-white border-0 shadow-2xl rounded-2xl overflow-hidden p-0 sm:p-6">
+          {/* Header Graphic/Gradient Bar */}
+          <div className="h-2 bg-gradient-to-r from-emerald-500 to-teal-500 absolute top-0 left-0 w-full" />
+
+          <DialogHeader className="pt-6 pb-2 px-4 sm:px-0">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <DialogTitle className="text-2xl text-center font-bold text-gray-900">
+              Verify Your Payment
+            </DialogTitle>
+            <DialogDescription className="text-center text-gray-500 pt-2">
+              We've sent a secure 6-digit code to your email.
+              <br />
+              Enter it below to confirm your order.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-8 py-4 px-4 sm:px-0">
+            <OTPInput
+              length={6}
+              value={otpValue}
+              onChange={setOtpValue}
+              disabled={isVerifyingOtp}
+            />
+
+            <Button
+              className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-lg shadow-lg shadow-emerald-200 transition-all rounded-xl"
+              onClick={handleVerifyAndOrder}
+              disabled={isVerifyingOtp || otpValue.length !== 6}
+            >
+              {isVerifyingOtp ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span>Verifying Code...</span>
+                </div>
+              ) : (
+                "Complete Order"
+              )}
+            </Button>
+
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-emerald-600"
+                onClick={async () => {
+                  try {
+                    setIsSendingOtp(true);
+                    const res = await fetch("/api/orders/send-otp", {
+                      method: "POST",
+                    });
+                    if (!res.ok) throw new Error("Failed");
+                    toast.success("New OTP sent to your email!");
+                    setOtpValue("");
+                  } catch (e) {
+                    toast.error("Failed to resend OTP");
+                  } finally {
+                    setIsSendingOtp(false);
+                  }
+                }}
+                disabled={isSendingOtp || isVerifyingOtp}
+              >
+                {isSendingOtp ? "Sending..." : "Didn't receive code? Resend"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

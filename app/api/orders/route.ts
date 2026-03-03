@@ -16,25 +16,40 @@ export async function GET(req: NextRequest) {
 
     const whereClause: any = {};
 
-    // Authorization: determine which user's orders to fetch
-    let targetUserId: string;
-    
-    if (session.user.role === "ADMIN" || session.user.role === "HR") {
-      // Admin/HR can view specific user's orders if provided, otherwise their own
-      targetUserId = userIdParam || session.user.id;
-    } else {
-      // Regular users can only view their own orders
-      targetUserId = session.user.id;
-    }
+ 
+   if (session.user.role === "ADMIN" || session.user.role === "HR") {
+  // Admin/HR can see ALL orders
+  // If userId is provided, filter by that specific user
+  if (userIdParam) {
+    whereClause.userId = userIdParam;
+  }
+} else {
+  // Regular users can only see their own orders
+  whereClause.userId = session.user.id;
+}
 
-    whereClause.userId = targetUserId;
 
-    // Only filter by isDemoOrder if explicitly requested via ?demoOnly=true
-    // Otherwise, return ALL orders (both demo and real) for the user
-    if (showDemoOnly) {
-      whereClause.isDemoOrder = true;
-    }
+  if (session.user.role === "ADMIN" || session.user.role === "HR") {
+  if (userIdParam) {
+    whereClause.userId = userIdParam;
+  }
+} else {
+  whereClause.userId = session.user.id;
+}
 
+// Demo filtering
+
+if (session.user.role === "ADMIN" || session.user.role === "HR") {
+  whereClause.isDemoOrder = showDemoOnly ? true : false;
+} else {
+  console.log("User is regular user. Filtering orders by demo status based on user role.");
+  console.log("Session user info:", session.user);
+  if (session.user.isDemo) {
+    whereClause.isDemoOrder = true;
+  } else {
+    whereClause.isDemoOrder = false;
+  }
+}
     // ✅ THIS WAS MISSING IN YOUR FILE
     const orders = await prisma.order.findMany({
       where: whereClause,
